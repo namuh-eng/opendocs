@@ -11,7 +11,5 @@ playwright-report/
 drizzle/
 packages/sdk/dist/
 clone-product-docs/
-screenshots/inspect/*
-screenshots/build/*
-screenshots/qa/*
-!screenshots/*/.gitkeep
+.current-feature.json
+tsconfig.tsbuildinfo

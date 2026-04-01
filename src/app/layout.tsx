@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Clone Dashboard",
-  description: "Autonomously cloned product",
+  title: "Resend Clone",
+  description: "Email API for developers",
 };
 
 export default function RootLayout({

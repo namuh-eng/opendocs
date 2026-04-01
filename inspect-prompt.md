@@ -37,7 +37,7 @@ This is a **generic product cloning system** — the target could be any SaaS st
 - **Take screenshots**: `ever screenshot --output screenshots/inspect/<page-name>.jpg` for each page
 - Inspect thoroughly: click, type, submit, test every interaction
 
-### Final iteration: Finalize build-spec.md
+### Final iteration: Finalize build-spec.md + PRD dependencies
 - Clean up and complete `build-spec.md` with ALL of these sections:
   - Product overview and branding (`{productname}-clone`)
   - Complete design system (colors, typography, layout, shared components)
@@ -46,6 +46,13 @@ This is a **generic product cloning system** — the target could be any SaaS st
   - **SDK/DX** — what SDK to build, what developer workflow to support
   - **Deployment** — AWS deployment instructions (App Runner + RDS Postgres)
   - **Build Order** — prioritized list, core features first
+
+- **Add `dependent_on` to every PRD entry** — list the IDs of related features that this feature depends on or shares components/data with. This gives the QA agent context about what else might break. Examples:
+  - A detail page depends on its list page and the shared data table component
+  - An API route depends on the database schema and auth middleware
+  - A filter component depends on the page it's used on
+  - Format: `"dependent_on": ["infra-001", "design-001", "feature-003"]`
+  - Keep it to direct dependencies only (3-5 items max per feature)
 
 5. **Build for a REAL Product, Not a Mock:**
    The clone must be a **fully functional, deployable product** with its own backend. When writing `build-spec.md`:

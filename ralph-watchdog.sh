@@ -48,6 +48,23 @@ all_passed() {
   [ "$total" -gt 0 ] && [ "$passed" -ge "$total" ]
 }
 
+qa_complete() {
+  python3 -c "
+import json
+prd = json.load(open('prd.json'))
+try:
+    report = json.load(open('qa-report.json'))
+except: report = []
+tested = {r['feature_id'] for r in report}
+all_ids = {item['id'] for item in prd}
+untested = all_ids - tested
+if untested:
+    print('false')
+else:
+    print('true')
+" 2>/dev/null || echo "false"
+}
+
 inspect_done() {
   [ -f ".inspect-complete" ]
 }
@@ -125,15 +142,23 @@ for ((cycle=1; cycle<=MAX_CYCLES; cycle++)); do
   ./qa-ralph.sh "$TARGET_URL" || true
   cron_backup
 
-  AFTER_QA=$(count_passes)
+  QA_STATUS=$(qa_complete)
+  TESTED=$(python3 -c "import json; print(len(json.load(open('qa-report.json'))))" 2>/dev/null || echo "0")
+  TOTAL=$(total_tasks)
 
-  if all_passed; then
-    log "=== ALL $(total_tasks) FEATURES: PASSED + QA VERIFIED ==="
+  if [ "$QA_STATUS" = "true" ] && all_passed; then
+    log "=== ALL $TOTAL FEATURES: BUILT + QA VERIFIED ($TESTED/$TOTAL tested) ==="
     break
   fi
 
-  REMAINING=$(($(total_tasks) - AFTER_QA))
-  log "Phase 3: Cycle $cycle done. Passes: $AFTER_QA/$(total_tasks). $REMAINING remaining — restarting build..."
+  log "Phase 3: Cycle $cycle done. QA tested: $TESTED/$TOTAL. Build passes: $(count_passes)/$TOTAL."
+  if [ "$QA_STATUS" != "true" ]; then
+    log "Phase 3: QA incomplete — $(($TOTAL - $TESTED)) features untested. Restarting QA..."
+  else
+    AFTER_QA=$(count_passes)
+    REMAINING=$(($TOTAL - $AFTER_QA))
+    log "Phase 3: QA found regressions — $REMAINING features need rebuild. Restarting build..."
+  fi
 done
 
 cron_backup

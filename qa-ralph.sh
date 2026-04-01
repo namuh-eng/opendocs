@@ -1,6 +1,6 @@
 #!/bin/bash
 # Phase 3: QA evaluation using Codex as independent evaluator
-# Passes ONE feature at a time to Codex to avoid context overflow
+# Passes the current feature + its dependencies to Codex to give context without overflow
 set -euo pipefail
 cd "$(dirname "$0")"
 
@@ -48,22 +48,40 @@ TARGET_URL: $TARGET_URL
 When confused about how a feature should work, use 'ever start --url $TARGET_URL' to check the original product."
 fi
 
-# ── Helper: get next untested feature ──
-get_next_feature() {
+# ── Helper: get next untested feature + its dependencies ──
+get_next_feature_with_deps() {
   python3 -c "
-import json
+import json, sys
+
 prd = json.load(open('prd.json'))
 tested = set()
 try:
     report = json.load(open('qa-report.json'))
     tested = {r['feature_id'] for r in report}
 except: pass
+
+# Build lookup by ID
+by_id = {item['id']: item for item in prd}
+
+# Find next untested feature
+target = None
 for item in prd:
     if item['id'] not in tested:
-        print(json.dumps(item))
+        target = item
         break
-else:
+
+if not target:
     print('ALL_DONE')
+    sys.exit(0)
+
+# Collect the main feature + its dependencies
+result = {'main': target, 'dependencies': []}
+dep_ids = target.get('dependent_on', [])
+for dep_id in dep_ids:
+    if dep_id in by_id:
+        result['dependencies'].append(by_id[dep_id])
+
+print(json.dumps(result))
 " 2>/dev/null
 }
 
@@ -80,28 +98,41 @@ for ((i=1; i<=$ITERATIONS; i++)); do
   TOTAL=$(total_features)
   echo "--- QA iteration $i ($TESTED/$TOTAL tested) ---"
 
-  # Get next untested feature
-  FEATURE_JSON=$(get_next_feature)
+  # Get next untested feature with its dependencies
+  FEATURE_BUNDLE=$(get_next_feature_with_deps)
 
-  if [ "$FEATURE_JSON" = "ALL_DONE" ]; then
+  if [ "$FEATURE_BUNDLE" = "ALL_DONE" ]; then
     echo "All features have been QA tested!"
     break
   fi
 
-  FEATURE_ID=$(echo "$FEATURE_JSON" | python3 -c "import json,sys; print(json.load(sys.stdin)['id'])")
-  FEATURE_CAT=$(echo "$FEATURE_JSON" | python3 -c "import json,sys; print(json.load(sys.stdin).get('category',''))")
-  echo "Testing: $FEATURE_ID ($FEATURE_CAT)"
+  FEATURE_ID=$(echo "$FEATURE_BUNDLE" | python3 -c "import json,sys; print(json.load(sys.stdin)['main']['id'])")
+  FEATURE_CAT=$(echo "$FEATURE_BUNDLE" | python3 -c "import json,sys; print(json.load(sys.stdin)['main'].get('category',''))")
+  DEP_COUNT=$(echo "$FEATURE_BUNDLE" | python3 -c "import json,sys; print(len(json.load(sys.stdin)['dependencies']))")
+  echo "Testing: $FEATURE_ID ($FEATURE_CAT) with $DEP_COUNT dependencies"
 
-  # Write current feature to a temp file so Codex reads only this one
-  echo "$FEATURE_JSON" > .current-feature.json
+  # Write feature bundle to temp file
+  echo "$FEATURE_BUNDLE" > .current-feature.json
 
   result=$(timeout 1200 codex exec --dangerously-bypass-approvals-and-sandbox \
 "$(cat qa-prompt.md)
 
-CURRENT FEATURE TO TEST:
-$(cat .current-feature.json)
+== FEATURE TO TEST ==
+$(python3 -c "import json; d=json.load(open('.current-feature.json')); print(json.dumps(d['main'], indent=2))")
 
-Read these files as needed (do NOT read full prd.json — the feature above is your focus):
+== RELATED FEATURES (for context — these are dependencies of the feature above) ==
+$(python3 -c "
+import json
+d=json.load(open('.current-feature.json'))
+deps = d.get('dependencies', [])
+if deps:
+    for dep in deps:
+        print(f'- {dep[\"id\"]}: {dep[\"description\"][:100]}')
+else:
+    print('No dependencies listed.')
+")
+
+Read these files as needed:
 @pre-setup.md
 @qa-report.json
 @ever-cli-reference.md
@@ -110,7 +141,8 @@ QA PROGRESS: $TESTED/$TOTAL features tested
 FEATURE: $FEATURE_ID (category: $FEATURE_CAT)
 ${TARGET_CONTEXT}
 
-Test this ONE feature thoroughly, then:
+Test this ONE feature thoroughly. Use the dependency context to understand how it fits into the product.
+Then:
 1. Update qa-report.json with your findings
 2. Fix any bugs you find
 3. Run make check && make test
@@ -125,7 +157,7 @@ Test this ONE feature thoroughly, then:
     continue
   fi
 
-  # No promise = crash or context overflow. Add a skip entry so we don't retry forever
+  # No promise = crash or context overflow. Record as partial and move on
   echo "WARNING: No promise from Codex for $FEATURE_ID. Recording as partial and moving on..."
   python3 -c "
 import json
