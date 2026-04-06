@@ -8,7 +8,7 @@ An autonomous pipeline that inspects any SaaS product, builds a working clone wi
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 
-![Architecture](docs/architecture-diagram.png)
+![Architecture](ralph/docs/architecture-diagram.png)
 
 <br>
 
