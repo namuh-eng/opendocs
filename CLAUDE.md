@@ -50,10 +50,10 @@ Phase 1: Inspect (Claude + Ever CLI) → Phase 2: Build (Claude) → Phase 3: QA
 - **`.env`** — copy from `.env.example` and fill in your values
 
 ## Authentication
-- Use **Auth.js v5** (NextAuth) for all authentication — pre-install with `npm install next-auth@beta`
+- Use **Better Auth** for all authentication — `npm install better-auth`
 - Match the target product's auth methods: email/password, OAuth providers (Google, GitHub, etc.), magic links
 - Protect routes via Next.js middleware (`src/middleware.ts`)
-- Store sessions in Postgres via Drizzle adapter
+- Store sessions in Postgres via Better Auth's built-in Drizzle adapter
 - Auth is **P1 priority** — build it before core features
 
 ## Out of Scope — DO NOT build
