@@ -2340,3 +2340,428 @@
 [data-theme="light"] .api-response-headers code {
   color: #374151;
 }
+
+/* ── Sidebar Method Badges ──────────────────────────────────────────────── */
+
+.api-ref-sidebar-badge {
+  font-weight: 700;
+  font-size: 0.5625rem;
+  padding: 0.125rem 0.375rem;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  flex-shrink: 0;
+  line-height: 1;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+}
+
+.method-hook {
+  background: #7c3aed22;
+  color: #a78bfa;
+}
+
+/* ── API Reference Page Layout ──────────────────────────────────────────── */
+
+.api-ref-layout {
+  margin-top: 1.5rem;
+}
+
+.api-ref-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.api-ref-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+}
+
+.api-ref-method-url {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.875rem;
+}
+
+.api-ref-path {
+  color: rgba(255, 255, 255, 0.8);
+  word-break: break-all;
+}
+
+.api-ref-tryit-btn {
+  background: #16a34a;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+
+.api-ref-tryit-btn:hover {
+  background: #15803d;
+}
+
+/* Code Section */
+.api-ref-code-section {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+.api-ref-code-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.api-ref-lang-tabs {
+  display: flex;
+  gap: 0;
+}
+
+.api-ref-lang-tab {
+  background: none;
+  border: none;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.8125rem;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.api-ref-lang-tab.active {
+  color: #fff;
+  border-bottom-color: #16a34a;
+}
+
+.api-ref-lang-tab:hover {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.api-ref-code-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.api-ref-copy-btn,
+.api-ref-askai-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  background: none;
+  border: none;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
+}
+
+.api-ref-copy-btn:hover,
+.api-ref-askai-btn:hover {
+  color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.api-ref-code-block {
+  display: none;
+  padding: 1rem;
+}
+
+.api-ref-code-block.active {
+  display: block;
+}
+
+.api-ref-code-block pre {
+  margin: 0;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.api-ref-code-block code {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.8125rem;
+  color: rgba(255, 255, 255, 0.85);
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.6;
+}
+
+/* Response Status Tabs */
+.api-ref-responses {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.api-ref-status-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.api-ref-status-tab {
+  background: none;
+  border: none;
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-family: "JetBrains Mono", monospace;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.api-ref-status-tab.active {
+  color: #16a34a;
+  border-bottom-color: #16a34a;
+}
+
+.api-ref-status-tab:hover {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.api-ref-status-panel {
+  display: none;
+  padding: 1rem;
+}
+
+.api-ref-status-panel.active {
+  display: block;
+}
+
+.api-ref-status-desc {
+  font-size: 0.8125rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 0.75rem;
+}
+
+.api-ref-response-example {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.8125rem;
+  color: rgba(255, 255, 255, 0.85);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Auth Section */
+.api-ref-auth-section {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+.api-ref-section-heading {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 0.75rem;
+}
+
+.api-ref-auth-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.api-ref-auth-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.api-ref-auth-type {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.4);
+  font-family: "JetBrains Mono", monospace;
+}
+
+/* Parameters Section */
+.api-ref-params-section {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+.api-ref-params-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.api-ref-param-row {
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.api-ref-param-row:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.api-ref-param-name {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.api-ref-param-name code {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.api-ref-param-required {
+  font-size: 0.6875rem;
+  color: #ef4444;
+  font-weight: 500;
+}
+
+.api-ref-param-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.api-ref-param-type {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+  font-family: "JetBrains Mono", monospace;
+}
+
+.api-ref-param-in {
+  font-size: 0.6875rem;
+  color: rgba(255, 255, 255, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.api-ref-param-desc {
+  font-size: 0.8125rem;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.5;
+}
+
+/* Light theme overrides */
+[data-theme="light"] .api-ref-header {
+  background: #f8f9fa;
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .api-ref-path {
+  color: #374151;
+}
+
+[data-theme="light"] .api-ref-code-section {
+  border-color: rgba(0, 0, 0, 0.1);
+  background: #f8f9fa;
+}
+
+[data-theme="light"] .api-ref-code-header {
+  border-bottom-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .api-ref-lang-tab {
+  color: #6b7280;
+}
+
+[data-theme="light"] .api-ref-lang-tab.active {
+  color: #111827;
+}
+
+[data-theme="light"] .api-ref-code-block code {
+  color: #374151;
+}
+
+[data-theme="light"] .api-ref-copy-btn,
+[data-theme="light"] .api-ref-askai-btn {
+  color: #6b7280;
+}
+
+[data-theme="light"] .api-ref-copy-btn:hover,
+[data-theme="light"] .api-ref-askai-btn:hover {
+  color: #374151;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .api-ref-responses {
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .api-ref-status-tabs {
+  border-bottom-color: rgba(0, 0, 0, 0.06);
+  background: rgba(0, 0, 0, 0.02);
+}
+
+[data-theme="light"] .api-ref-status-tab {
+  color: #6b7280;
+}
+
+[data-theme="light"] .api-ref-status-desc {
+  color: #6b7280;
+}
+
+[data-theme="light"] .api-ref-response-example {
+  color: #374151;
+}
+
+[data-theme="light"] .api-ref-auth-section,
+[data-theme="light"] .api-ref-params-section {
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .api-ref-section-heading {
+  color: #111827;
+}
+
+[data-theme="light"] .api-ref-auth-label {
+  color: #374151;
+}
+
+[data-theme="light"] .api-ref-auth-type {
+  color: #6b7280;
+}
+
+[data-theme="light"] .api-ref-param-name code {
+  color: #111827;
+}
+
+[data-theme="light"] .api-ref-param-type {
+  color: #6b7280;
+}
+
+[data-theme="light"] .api-ref-param-in {
+  color: #9ca3af;
+}
+
+[data-theme="light"] .api-ref-param-desc {
+  color: #6b7280;
+}
+
+[data-theme="light"] .api-ref-param-row {
+  border-bottom-color: rgba(0, 0, 0, 0.06);
+}

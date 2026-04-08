@@ -1,7 +1,12 @@
 "use client";
 
+import {
+  getMethodBadge,
+  getWebhookBadge,
+  isWebhook,
+} from "@/lib/api-reference";
 import type { DocsNavEntry } from "@/lib/mdx-renderer";
-import { ChevronDown, FileText, Search } from "lucide-react";
+import { ChevronDown, FileText } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -87,6 +92,26 @@ function NavItem({
   subdomain: string;
 }) {
   const isActive = activePath === entry.path;
+  const method = entry.apiMethod;
+
+  // Show method badge for API reference endpoints
+  if (method) {
+    const badge = isWebhook(method)
+      ? getWebhookBadge()
+      : getMethodBadge(method);
+    return (
+      <Link
+        href={`/docs/${subdomain}/${entry.path}`}
+        className={`docs-nav-item ${isActive ? "active" : ""}`}
+      >
+        <span className={`api-ref-sidebar-badge ${badge.colorClass}`}>
+          {badge.label}
+        </span>
+        <span>{entry.label}</span>
+      </Link>
+    );
+  }
+
   return (
     <Link
       href={`/docs/${subdomain}/${entry.path}`}

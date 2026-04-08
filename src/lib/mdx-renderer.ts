@@ -17,6 +17,8 @@ export interface DocsNavItem {
   label: string;
   path: string;
   pageId: string;
+  /** HTTP method from frontmatter `api` field, e.g. "GET", "POST" */
+  apiMethod?: string;
 }
 
 export interface DocsNavGroup {
@@ -759,7 +761,12 @@ export function renderMdxContent(content: string): string {
  * Root-level pages become items; pages with path segments become groups.
  */
 export function buildDocsNav(
-  pageList: Array<{ id: string; path: string; title: string }>,
+  pageList: Array<{
+    id: string;
+    path: string;
+    title: string;
+    frontmatter?: Record<string, unknown> | null;
+  }>,
 ): DocsNavEntry[] {
   if (pageList.length === 0) return [];
 
@@ -769,12 +776,23 @@ export function buildDocsNav(
   for (const page of pageList) {
     const segments = page.path.split("/");
 
+    // Extract API method from frontmatter if present (e.g. "GET /plants" → "GET")
+    let apiMethod: string | undefined;
+    const fm = page.frontmatter;
+    if (fm && typeof fm.api === "string") {
+      const spaceIdx = fm.api.indexOf(" ");
+      if (spaceIdx > 0) {
+        apiMethod = fm.api.slice(0, spaceIdx).toUpperCase();
+      }
+    }
+
     if (segments.length === 1) {
       rootItems.push({
         type: "item",
         label: page.title,
         path: page.path,
         pageId: page.id,
+        apiMethod,
       });
     } else {
       const groupName = segments[0];
@@ -788,6 +806,7 @@ export function buildDocsNav(
           label: page.title,
           path: page.path,
           pageId: page.id,
+          apiMethod,
         });
       }
     }

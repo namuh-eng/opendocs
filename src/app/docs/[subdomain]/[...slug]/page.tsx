@@ -1,4 +1,5 @@
 import { ApiPlayground } from "@/components/docs/api-playground";
+import { ApiReferenceLayout } from "@/components/docs/api-reference-layout";
 import { ChatWidget } from "@/components/docs/chat-widget";
 import { DocsPagination } from "@/components/docs/docs-pagination";
 import { DocsSidebar } from "@/components/docs/docs-sidebar";
@@ -11,6 +12,7 @@ import {
   PageHeaderActions,
 } from "@/components/docs/page-chrome";
 import { SearchModal } from "@/components/docs/search-modal";
+import { renderApiReferencePage } from "@/lib/api-reference";
 import { db } from "@/lib/db";
 import { pages, projects } from "@/lib/db/schema";
 import { extractToc } from "@/lib/editor";
@@ -71,8 +73,14 @@ export default async function DocsPage({ params }: DocsPageProps) {
     notFound();
   }
 
-  // Build navigation
-  const nav = buildDocsNav(allPages);
+  // Build navigation (pass frontmatter for API method badges in sidebar)
+  const navPages = allPages.map((p) => ({
+    id: p.id,
+    path: p.path,
+    title: p.title,
+    frontmatter: p.frontmatter as Record<string, unknown> | null,
+  }));
+  const nav = buildDocsNav(navPages);
 
   // Render content
   const renderedHtml = renderMdxContent(currentPage.content || "");
@@ -81,6 +89,7 @@ export default async function DocsPage({ params }: DocsPageProps) {
   const isApiReferencePage = targetPath.startsWith("api-reference");
   const settings = (project.settings || {}) as Record<string, unknown>;
   let apiPlaygroundHtml = "";
+  let apiReferenceHtml = "";
 
   if (isApiReferencePage && settings.openApiSpec) {
     const endpoints = parseOpenApiSpec(settings.openApiSpec);
@@ -105,6 +114,10 @@ export default async function DocsPage({ params }: DocsPageProps) {
     if (matchedEndpoints.length > 0) {
       apiPlaygroundHtml = matchedEndpoints
         .map((ep) => renderApiPlaygroundHtml(ep))
+        .join("\n");
+      // Also render the structured API reference layout
+      apiReferenceHtml = matchedEndpoints
+        .map((ep) => renderApiReferencePage(ep))
         .join("\n");
     }
   }
@@ -185,6 +198,7 @@ export default async function DocsPage({ params }: DocsPageProps) {
             )}
 
             <MdxContent html={renderedHtml} />
+            {apiReferenceHtml && <ApiReferenceLayout html={apiReferenceHtml} />}
             {apiPlaygroundHtml && <ApiPlayground html={apiPlaygroundHtml} />}
             <HeadingAnchors />
           </article>
