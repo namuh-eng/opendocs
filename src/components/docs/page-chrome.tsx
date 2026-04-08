@@ -1,13 +1,16 @@
 "use client";
 
+import type { ContextualAiMenuConfig } from "@/lib/contextual-ai-menu";
 import { pageToMarkdown } from "@/lib/page-chrome";
 import { Check, Copy, Link2, MoreVertical } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { ContextualAiMenu } from "./contextual-ai-menu";
 
 interface PageHeaderActionsProps {
   title: string;
   content: string;
   pageUrl: string;
+  contextualAiMenu?: ContextualAiMenuConfig;
 }
 
 /** Copy page button + More actions kebab dropdown next to page H1 */
@@ -15,6 +18,7 @@ export function PageHeaderActions({
   title,
   content,
   pageUrl,
+  contextualAiMenu,
 }: PageHeaderActionsProps) {
   const [copied, setCopied] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -52,6 +56,15 @@ export function PageHeaderActions({
 
   return (
     <div className="page-header-actions">
+      {contextualAiMenu && (
+        <ContextualAiMenu
+          config={contextualAiMenu}
+          title={title}
+          content={content}
+          pageUrl={pageUrl}
+        />
+      )}
+
       <button
         type="button"
         data-testid="copy-page-btn"

@@ -6,6 +6,10 @@
  */
 
 import { isValidHexColor } from "./appearance";
+import {
+  type ContextualAiMenuConfig,
+  DEFAULT_CONTEXTUAL_AI_MENU,
+} from "./contextual-ai-menu";
 
 // ── Section IDs ──────────────────────────────────────────────────────────
 
@@ -184,6 +188,7 @@ export interface DocsConfig {
   integrations: IntegrationsConfig;
   apiDocs: ApiDocsConfig;
   advanced: AdvancedConfig;
+  contextualAiMenu: ContextualAiMenuConfig;
 }
 
 // ── Defaults ─────────────────────────────────────────────────────────────
@@ -265,6 +270,7 @@ export const DEFAULT_DOCS_CONFIG: DocsConfig = {
   integrations: DEFAULT_INTEGRATIONS,
   apiDocs: DEFAULT_API_DOCS,
   advanced: DEFAULT_ADVANCED,
+  contextualAiMenu: DEFAULT_CONTEXTUAL_AI_MENU,
 };
 
 // ── Merge helper ─────────────────────────────────────────────────────────
@@ -327,6 +333,15 @@ export function mergeDocsConfig(
       redirects: Array.isArray((partial.advanced as AdvancedConfig)?.redirects)
         ? (partial.advanced as AdvancedConfig).redirects
         : DEFAULT_ADVANCED.redirects,
+    },
+    contextualAiMenu: {
+      ...DEFAULT_CONTEXTUAL_AI_MENU,
+      ...((partial.contextualAiMenu as object) ?? {}),
+      tools: Array.isArray(
+        (partial.contextualAiMenu as ContextualAiMenuConfig)?.tools,
+      )
+        ? (partial.contextualAiMenu as ContextualAiMenuConfig).tools
+        : DEFAULT_CONTEXTUAL_AI_MENU.tools,
     },
   };
 }

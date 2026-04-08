@@ -544,6 +544,7 @@ export default async function DocsPage({ params }: DocsPageProps) {
                 title={pageTitle}
                 content={pageContent}
                 pageUrl={`/docs/${subdomain}/${targetPath}`}
+                contextualAiMenu={docsConfig.contextualAiMenu}
               />
             </div>
             {pageDescription && (
