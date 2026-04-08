@@ -158,7 +158,7 @@ RDS_PORT=$(aws rds describe-db-instances \
   --db-instance-identifier "${APP_NAME}-db" \
   --query 'DBInstances[0].Endpoint.Port' --output text --region "$AWS_REGION")
 
-DATABASE_URL="postgresql://${DB_USER}:${DB_PASSWORD}@${RDS_ENDPOINT}:${RDS_PORT}/${DB_NAME}?sslmode=require"
+DATABASE_URL="postgresql://${DB_USER}:${DB_PASSWORD}@${RDS_ENDPOINT}:${RDS_PORT}/${DB_NAME}?sslmode=no-verify"
 
 # Update DATABASE_URL in .env
 if grep -q '^DATABASE_URL=' .env 2>/dev/null; then
