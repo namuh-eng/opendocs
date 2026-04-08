@@ -6,6 +6,11 @@ import {
   parseTrafficSource,
 } from "@/lib/analytics";
 import {
+  agentVisitorsEmptyMessage,
+  formatAgentCount,
+  getAgentStatCards,
+} from "@/lib/analytics-agents";
+import {
   type DailyVisitorCount,
   type Referral,
   type TopPage,
@@ -264,35 +269,53 @@ function VisitorsContent() {
     [dailyCounts, dateRange],
   );
 
-  // Agent mode shows empty state
+  // Agent mode shows stat cards + empty state
   if (trafficSource === "agent") {
+    const cards = getAgentStatCards();
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-center">
-        <div className="w-16 h-16 rounded-full bg-white/[0.04] flex items-center justify-center mb-4">
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            className="text-gray-500"
-            role="img"
-            aria-label="No visitors"
-          >
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-            <circle cx="9" cy="7" r="4" />
-            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-          </svg>
+      <>
+        <div className="grid grid-cols-2 gap-4 mb-6">
+          {cards.map((card) => (
+            <div
+              key={card.key}
+              data-testid={`stat-card-${card.key}`}
+              className="rounded-lg border border-white/[0.08] bg-[#1a1a1a] p-4"
+            >
+              <p className="text-sm text-gray-400 mb-1">{card.label}</p>
+              <p className="text-2xl font-semibold text-white">
+                {formatAgentCount(card.count)}
+              </p>
+              <p className="text-xs text-gray-600 mt-1">&mdash;</p>
+            </div>
+          ))}
         </div>
-        <p className="text-gray-400 text-sm font-medium mb-1">
-          No visitor activity
-        </p>
-        <p className="text-gray-500 text-xs">
-          When AI agents visit your docs, activity will show up here.
-        </p>
-      </div>
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <div className="w-16 h-16 rounded-full bg-white/[0.04] flex items-center justify-center mb-4">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              className="text-gray-500"
+              role="img"
+              aria-label="No visitors"
+            >
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
+          </div>
+          <p className="text-gray-400 text-sm font-medium mb-1">
+            {agentVisitorsEmptyMessage.title}
+          </p>
+          <p className="text-gray-500 text-xs">
+            {agentVisitorsEmptyMessage.subtitle}
+          </p>
+        </div>
+      </>
     );
   }
 
