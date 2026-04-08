@@ -3,6 +3,7 @@
  */
 
 import { validateCustomDomain } from "@/lib/domains";
+import { isValidBranchName, isValidRepoPath } from "@/lib/git-settings";
 
 /** Convert a project name to a URL-safe slug (lowercase, hyphens, no special chars). */
 export function slugifyProject(input: string): string {
@@ -118,6 +119,29 @@ export function validateUpdateProjectRequest(
       return { valid: false, error: "Invalid repository URL" };
     }
     fields.repoUrl = raw.repoUrl;
+  }
+
+  if (raw.repoBranch !== undefined) {
+    if (typeof raw.repoBranch !== "string") {
+      return { valid: false, error: "Branch must be a string" };
+    }
+    if (!isValidBranchName(raw.repoBranch)) {
+      return { valid: false, error: "Invalid branch name" };
+    }
+    fields.repoBranch = raw.repoBranch;
+  }
+
+  if (raw.repoPath !== undefined) {
+    if (typeof raw.repoPath !== "string") {
+      return { valid: false, error: "Repository path must be a string" };
+    }
+    if (!isValidRepoPath(raw.repoPath)) {
+      return {
+        valid: false,
+        error: "Invalid repository path — must start with /",
+      };
+    }
+    fields.repoPath = raw.repoPath;
   }
 
   if (raw.customDomain !== undefined) {
