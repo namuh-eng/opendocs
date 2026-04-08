@@ -10,6 +10,7 @@ import {
   type DocsConfig,
   type FooterSocialLink,
   ICON_LIBRARY_OPTIONS,
+  type RedirectEntry,
   SOCIAL_LINK_TYPES,
   THEME_OPTIONS,
   type TopbarLink,
@@ -998,6 +999,27 @@ function AdvancedForm({ config, updateSection }: SectionProps) {
   const update = (patch: Partial<typeof d>) =>
     updateSection("advanced", { ...d, ...patch });
 
+  const redirects: RedirectEntry[] = d.redirects ?? [];
+
+  const addRedirect = () => {
+    update({ redirects: [...redirects, { source: "", destination: "" }] });
+  };
+
+  const removeRedirect = (idx: number) => {
+    update({ redirects: redirects.filter((_, i) => i !== idx) });
+  };
+
+  const updateRedirect = (
+    idx: number,
+    field: "source" | "destination",
+    value: string,
+  ) => {
+    const next = redirects.map((r, i) =>
+      i === idx ? { ...r, [field]: value } : r,
+    );
+    update({ redirects: next });
+  };
+
   return (
     <>
       <div>
@@ -1028,6 +1050,59 @@ function AdvancedForm({ config, updateSection }: SectionProps) {
           data-testid="config-adv-custom-head"
           className="w-full px-2.5 py-1.5 bg-[#1a1a1a] border border-white/[0.08] rounded-md text-xs text-white placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-emerald-500 font-mono resize-none"
         />
+      </div>
+
+      {/* Redirects */}
+      <div className="pt-3 border-t border-white/[0.06]">
+        <div className="flex items-center justify-between mb-2">
+          <FieldLabel>URL Redirects</FieldLabel>
+          <button
+            type="button"
+            onClick={addRedirect}
+            data-testid="config-add-redirect"
+            className="flex items-center gap-1 text-[11px] text-emerald-400 hover:text-emerald-300"
+          >
+            <Plus size={12} /> Add redirect
+          </button>
+        </div>
+        {redirects.length === 0 && (
+          <p className="text-[11px] text-gray-500">
+            No redirects configured. Add one to redirect old paths to new
+            destinations.
+          </p>
+        )}
+        <div className="flex flex-col gap-2">
+          {redirects.map((r, idx) => (
+            <div
+              // biome-ignore lint/suspicious/noArrayIndexKey: redirect entries have no stable ID
+              key={`redirect-${idx}`}
+              className="flex items-center gap-2"
+              data-testid={`config-redirect-${idx}`}
+            >
+              <TextInput
+                value={r.source}
+                onChange={(v) => updateRedirect(idx, "source", v)}
+                placeholder="/old-path"
+                testId={`config-redirect-${idx}-source`}
+              />
+              <span className="text-gray-500 text-xs shrink-0">→</span>
+              <TextInput
+                value={r.destination}
+                onChange={(v) => updateRedirect(idx, "destination", v)}
+                placeholder="/new-path"
+                testId={`config-redirect-${idx}-destination`}
+              />
+              <button
+                type="button"
+                onClick={() => removeRedirect(idx)}
+                data-testid={`config-redirect-${idx}-remove`}
+                className="p-1 text-gray-500 hover:text-red-400 shrink-0"
+              >
+                <Trash2 size={12} />
+              </button>
+            </div>
+          ))}
+        </div>
       </div>
     </>
   );

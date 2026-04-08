@@ -17,6 +17,7 @@ import { SearchModal } from "@/components/docs/search-modal";
 import { renderApiReferencePage } from "@/lib/api-reference";
 import { db } from "@/lib/db";
 import { pages, projects } from "@/lib/db/schema";
+import { findRedirect, mergeDocsConfig } from "@/lib/docs-config";
 import { getFooterSettings } from "@/lib/docs-footer";
 import { extractToc } from "@/lib/editor";
 import { buildDocsNav, renderMdxContent } from "@/lib/mdx-renderer";
@@ -27,7 +28,7 @@ import {
 } from "@/lib/openapi-parser";
 import { getGroupName } from "@/lib/page-chrome";
 import { and, eq } from "drizzle-orm";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 
 interface DocsPageProps {
   params: Promise<{ subdomain: string; slug: string[] }>;
@@ -69,6 +70,18 @@ export default async function DocsPage({ params }: DocsPageProps) {
     .from(pages)
     .where(and(eq(pages.projectId, project.id), eq(pages.isPublished, true)))
     .orderBy(pages.path);
+
+  // Check for redirects before looking up the page
+  const docsSettings = (project.settings || {}) as Record<string, unknown>;
+  const docsConfig = mergeDocsConfig(
+    docsSettings.docsConfig as Partial<Record<string, unknown>> | undefined,
+  );
+  const redirectDest = findRedirect(docsConfig.advanced.redirects, targetPath);
+  if (redirectDest) {
+    // Normalize destination: ensure it forms a valid docs path
+    const dest = redirectDest.replace(/^\/+/, "");
+    permanentRedirect(`/docs/${subdomain}/${dest}`);
+  }
 
   // Find the current page
   const currentPage = allPages.find((p) => p.path === targetPath);

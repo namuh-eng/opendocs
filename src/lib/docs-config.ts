@@ -159,10 +159,16 @@ export interface ApiDocsConfig {
   baseApiUrl: string;
 }
 
+export interface RedirectEntry {
+  source: string;
+  destination: string;
+}
+
 export interface AdvancedConfig {
   seoTitle: string;
   seoDescription: string;
   customHead: string;
+  redirects: RedirectEntry[];
 }
 
 export interface DocsConfig {
@@ -241,6 +247,7 @@ export const DEFAULT_ADVANCED: AdvancedConfig = {
   seoTitle: "",
   seoDescription: "",
   customHead: "",
+  redirects: [],
 };
 
 export const DEFAULT_DOCS_CONFIG: DocsConfig = {
@@ -313,6 +320,9 @@ export function mergeDocsConfig(
     advanced: {
       ...DEFAULT_ADVANCED,
       ...((partial.advanced as object) ?? {}),
+      redirects: Array.isArray((partial.advanced as AdvancedConfig)?.redirects)
+        ? (partial.advanced as AdvancedConfig).redirects
+        : DEFAULT_ADVANCED.redirects,
     },
   };
 }
@@ -385,6 +395,25 @@ export function validateDocsConfig(config: DocsConfig): ValidationResult {
     }
   }
 
+  // Redirects
+  for (const r of config.advanced.redirects) {
+    if (!r.source.trim()) {
+      return { valid: false, error: "Redirect source path cannot be empty" };
+    }
+    if (!r.destination.trim()) {
+      return {
+        valid: false,
+        error: "Redirect destination path cannot be empty",
+      };
+    }
+    if (r.source === r.destination) {
+      return {
+        valid: false,
+        error: `Redirect source and destination cannot be the same: ${r.source}`,
+      };
+    }
+  }
+
   return { valid: true };
 }
 
@@ -451,6 +480,30 @@ export const ICON_LIBRARY_OPTIONS = [
   { value: "heroicons", label: "Heroicons" },
   { value: "none", label: "None" },
 ] as const;
+
+// ── Redirect matching ───────────────────────────────────────────────────
+
+/** Normalize a path: strip leading/trailing slashes and lowercase. */
+function normalizePath(p: string): string {
+  return p.replace(/^\/+|\/+$/g, "").toLowerCase();
+}
+
+/**
+ * Find a matching redirect for a given path.
+ * Returns the destination path or null if no match.
+ */
+export function findRedirect(
+  redirects: RedirectEntry[],
+  path: string,
+): string | null {
+  const normalized = normalizePath(path);
+  for (const r of redirects) {
+    if (normalizePath(r.source) === normalized) {
+      return r.destination;
+    }
+  }
+  return null;
+}
 
 export const SOCIAL_LINK_TYPES = [
   { value: "x", label: "X / Twitter" },
