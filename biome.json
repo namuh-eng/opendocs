@@ -29,6 +29,8 @@
       "coverage",
       ".omc",
       ".omx",
+      ".current-feature.json",
+      "tests/e2e/.auth",
       "drizzle",
       "*.d.ts",
       "public"
