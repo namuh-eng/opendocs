@@ -1,3 +1,4 @@
+import { ChatWidget } from "@/components/docs/chat-widget";
 import { DocsPagination } from "@/components/docs/docs-pagination";
 import { DocsSidebar } from "@/components/docs/docs-sidebar";
 import { DocsToc } from "@/components/docs/docs-toc";
@@ -160,6 +161,8 @@ export default async function DocsPage({ params }: DocsPageProps) {
 
         <DocsToc entries={toc} />
       </div>
+
+      <ChatWidget subdomain={subdomain} currentPath={targetPath} />
     </div>
   );
 }
