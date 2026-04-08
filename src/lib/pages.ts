@@ -150,6 +150,13 @@ export function validateUpdatePageRequest(
     fields.isPublished = raw.isPublished;
   }
 
+  if (raw.frontmatter !== undefined) {
+    if (typeof raw.frontmatter !== "object" || raw.frontmatter === null) {
+      return { valid: false, error: "frontmatter must be an object" };
+    }
+    fields.frontmatter = raw.frontmatter;
+  }
+
   if (Object.keys(fields).length === 0) {
     return { valid: false, error: "No fields to update" };
   }

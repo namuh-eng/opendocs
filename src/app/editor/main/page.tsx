@@ -43,6 +43,7 @@ interface PageData {
   description: string | null;
   content: string;
   isPublished: boolean;
+  frontmatter: Record<string, unknown> | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -784,6 +785,8 @@ export default function EditorPage() {
               path: selectedPage.path,
               description: selectedPage.description || "",
               isPublished: selectedPage.isPublished,
+              frontmatter:
+                (selectedPage.frontmatter as Record<string, unknown>) || {},
             }}
             onSave={handleSaveSettings}
             onClose={() => setShowSettings(false)}

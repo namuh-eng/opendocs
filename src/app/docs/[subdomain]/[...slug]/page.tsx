@@ -27,11 +27,103 @@ import {
   renderApiPlaygroundHtml,
 } from "@/lib/openapi-parser";
 import { getGroupName } from "@/lib/page-chrome";
+import { buildPageMetadata } from "@/lib/seo";
 import { and, eq } from "drizzle-orm";
+import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
 
 interface DocsPageProps {
   params: Promise<{ subdomain: string; slug: string[] }>;
+}
+
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3015";
+
+export async function generateMetadata({
+  params,
+}: DocsPageProps): Promise<Metadata> {
+  const { subdomain, slug } = await params;
+  const targetPath = slug.join("/").toLowerCase();
+
+  const projectResult = await db
+    .select({
+      id: projects.id,
+      name: projects.name,
+      settings: projects.settings,
+    })
+    .from(projects)
+    .where(eq(projects.subdomain, subdomain))
+    .limit(1);
+
+  if (projectResult.length === 0) return {};
+
+  const project = projectResult[0];
+  const docsSettings = (project.settings || {}) as Record<string, unknown>;
+  const docsConfig = mergeDocsConfig(
+    docsSettings.docsConfig as Partial<Record<string, unknown>> | undefined,
+  );
+
+  const pageResult = await db
+    .select({
+      title: pages.title,
+      description: pages.description,
+      path: pages.path,
+      frontmatter: pages.frontmatter,
+      updatedAt: pages.updatedAt,
+      isPublished: pages.isPublished,
+    })
+    .from(pages)
+    .where(
+      and(
+        eq(pages.projectId, project.id),
+        eq(pages.path, targetPath),
+        eq(pages.isPublished, true),
+      ),
+    )
+    .limit(1);
+
+  if (pageResult.length === 0) return {};
+
+  const page = pageResult[0];
+  const meta = buildPageMetadata(
+    {
+      path: page.path,
+      title: page.title,
+      description: page.description,
+      updatedAt: page.updatedAt,
+      frontmatter: page.frontmatter,
+      isPublished: page.isPublished,
+    },
+    project.name,
+    APP_URL,
+    subdomain,
+    docsConfig.advanced.seoTitle,
+    docsConfig.advanced.seoDescription,
+  );
+
+  const metadata: Metadata = {
+    title: meta.title,
+    description: meta.description,
+    alternates: { canonical: meta.canonical },
+  };
+
+  if (meta.noindex) {
+    metadata.robots = { index: false, follow: false };
+  }
+
+  if (meta.ogImage) {
+    metadata.openGraph = {
+      title: meta.title,
+      description: meta.description,
+      images: [{ url: meta.ogImage }],
+    };
+  } else {
+    metadata.openGraph = {
+      title: meta.title,
+      description: meta.description,
+    };
+  }
+
+  return metadata;
 }
 
 export default async function DocsPage({ params }: DocsPageProps) {
