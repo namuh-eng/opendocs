@@ -1,6 +1,11 @@
 "use client";
 
 import {
+  buildQuickActionCards,
+  buildSiteUrl,
+  formatDomainDisplay,
+} from "@/lib/dashboard";
+import {
   type DeploymentStatus,
   generateDeploymentLogSteps,
   shortSha,
@@ -11,16 +16,20 @@ import {
 } from "@/lib/deployments";
 import { clsx } from "clsx";
 import {
+  BarChart3,
   CheckCircle,
   ChevronDown,
   ChevronUp,
+  Edit3,
   ExternalLink,
   Globe,
   Loader2,
   Plus,
   RefreshCw,
   Rocket,
+  Settings,
 } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -49,11 +58,19 @@ interface Props {
   deployments: DeploymentRow[];
 }
 
+const ICON_MAP = {
+  edit: Edit3,
+  globe: Globe,
+  settings: Settings,
+  "bar-chart": BarChart3,
+} as const;
+
 function ProjectStatusBadge({ status }: { status: string }) {
   const isLive = status === "active";
   const isDeploying = status === "deploying";
   return (
     <span
+      data-testid="project-status-badge"
       className={clsx(
         "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium",
         isLive && "bg-emerald-400/10 text-emerald-400",
@@ -179,6 +196,21 @@ export function DashboardHomeClient({
     ? `${latestDeployment.commitMessage ?? "Initializing Project"} ${timeAgo(latestDeployment.createdAt)}`
     : null;
 
+  const siteUrl = project
+    ? buildSiteUrl(project.subdomain, project.customDomain)
+    : "#";
+  const domainDisplay = project
+    ? formatDomainDisplay(project.subdomain, project.customDomain)
+    : "";
+
+  const quickActions = project ? buildQuickActionCards(project.id) : [];
+  // Fill in the view-site href dynamically
+  for (const card of quickActions) {
+    if (card.id === "view-site") {
+      card.href = siteUrl;
+    }
+  }
+
   async function triggerDeploy() {
     setTriggering(true);
     try {
@@ -212,7 +244,7 @@ export function DashboardHomeClient({
       {project ? (
         <>
           {/* Project overview section */}
-          <div className="flex gap-6 mb-8">
+          <div className="flex gap-6 mb-6">
             {/* Preview thumbnail placeholder */}
             <div className="w-[320px] h-[180px] rounded-xl bg-[#1a1a1a] border border-white/[0.08] flex items-center justify-center text-gray-600 shrink-0 overflow-hidden">
               <div className="text-center">
@@ -258,7 +290,7 @@ export function DashboardHomeClient({
                   <RefreshCw size={16} />
                 </button>
                 <a
-                  href={`/docs/${project.subdomain}`}
+                  href={siteUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#1a1a1a] border border-white/[0.08] text-sm text-gray-400 hover:text-white hover:bg-white/[0.06] transition-colors"
@@ -271,13 +303,16 @@ export function DashboardHomeClient({
               {/* Domain info */}
               <div className="pt-2 space-y-1">
                 <p className="text-xs font-medium text-gray-500">Domain</p>
-                <p className="text-sm text-emerald-400">
-                  {project.customDomain ?? `${project.subdomain}.mintlify.app`}
-                  <ExternalLink
-                    size={12}
-                    className="inline ml-1 text-gray-500"
-                  />
-                </p>
+                <a
+                  href={siteUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-testid="site-url-link"
+                  className="text-sm text-emerald-400 hover:underline inline-flex items-center gap-1"
+                >
+                  {domainDisplay}
+                  <ExternalLink size={12} className="text-gray-500" />
+                </a>
                 {!project.customDomain && (
                   <button
                     type="button"
@@ -289,6 +324,47 @@ export function DashboardHomeClient({
                 )}
               </div>
             </div>
+          </div>
+
+          {/* Quick action cards */}
+          <div className="grid grid-cols-4 gap-3 mb-8">
+            {quickActions.map((card) => {
+              const IconComponent = ICON_MAP[card.icon];
+              const isExternal = card.id === "view-site";
+              const Wrapper = isExternal ? "a" : Link;
+              const extraProps = isExternal
+                ? { target: "_blank" as const, rel: "noopener noreferrer" }
+                : {};
+              return (
+                <Wrapper
+                  key={card.id}
+                  href={card.href}
+                  data-testid={`quick-action-card-${card.id}`}
+                  className="group rounded-xl border border-white/[0.08] bg-[#1a1a1a] p-4 hover:bg-white/[0.06] hover:border-white/[0.12] transition-all cursor-pointer"
+                  {...extraProps}
+                >
+                  <div
+                    data-testid="quick-action-card"
+                    className="flex items-start gap-3"
+                  >
+                    <div className="w-9 h-9 rounded-lg bg-[#0f0f0f] border border-white/[0.08] flex items-center justify-center shrink-0 group-hover:border-emerald-400/30 transition-colors">
+                      <IconComponent
+                        size={16}
+                        className="text-gray-400 group-hover:text-emerald-400 transition-colors"
+                      />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-white">
+                        {card.title}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        {card.description}
+                      </p>
+                    </div>
+                  </div>
+                </Wrapper>
+              );
+            })}
           </div>
 
           {/* Activity section */}
