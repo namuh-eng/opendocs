@@ -1,5 +1,19 @@
 "use client";
 
+import { EditorToolbar } from "@/components/editor/editor-toolbar";
+import { MarkdownEditor } from "@/components/editor/markdown-editor";
+import { PageSettingsPanel } from "@/components/editor/page-settings-panel";
+import { TocPanel } from "@/components/editor/toc-panel";
+import { VisualEditor } from "@/components/editor/visual-editor";
+import type { EditorMode, MdxSnippetKey } from "@/lib/editor";
+import {
+  createAutoSave,
+  extractFrontmatter,
+  extractToc,
+  insertSnippetAtCursor,
+  mdxSnippets,
+  serializeFrontmatter,
+} from "@/lib/editor";
 import type { TreeNode } from "@/lib/pages";
 import { buildPageTree } from "@/lib/pages";
 import { clsx } from "clsx";
@@ -14,7 +28,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 interface PageData {
   id: string;
@@ -302,6 +316,52 @@ export default function EditorPage() {
   const [loading, setLoading] = useState(true);
   const [content, setContent] = useState("");
   const [saving, setSaving] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [editorMode, setEditorMode] = useState<EditorMode>("visual");
+  const [showSettings, setShowSettings] = useState(false);
+  const [cursorPos, setCursorPos] = useState(0);
+
+  // Auto-save setup
+  const autoSaveRef = useRef<ReturnType<typeof createAutoSave> | null>(null);
+
+  const doSave = useCallback(
+    async (contentToSave: string) => {
+      if (!projectId || !selectedPageId) return;
+      setSaving(true);
+      try {
+        await fetch(`/api/projects/${projectId}/pages/${selectedPageId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ content: contentToSave }),
+        });
+        setHasUnsavedChanges(false);
+      } finally {
+        setSaving(false);
+      }
+    },
+    [projectId, selectedPageId],
+  );
+
+  // Initialize auto-save
+  useEffect(() => {
+    autoSaveRef.current = createAutoSave(doSave, 2000);
+    return () => {
+      autoSaveRef.current?.cancel();
+    };
+  }, [doSave]);
+
+  // Handle content changes with auto-save
+  const handleContentChange = useCallback((newContent: string) => {
+    setContent(newContent);
+    setHasUnsavedChanges(true);
+    autoSaveRef.current?.trigger(newContent);
+  }, []);
+
+  // Extract TOC from body
+  const tocEntries = useMemo(() => {
+    const { body } = extractFrontmatter(content);
+    return extractToc(body);
+  }, [content]);
 
   // Fetch the first project to get its ID
   useEffect(() => {
@@ -325,7 +385,6 @@ export default function EditorPage() {
     }
   }, [projectId]);
 
-  // Fetch pages when project changes
   useEffect(() => {
     fetchPages();
   }, [fetchPages]);
@@ -344,31 +403,79 @@ export default function EditorPage() {
       if (data.page) {
         setSelectedPage(data.page);
         setContent(data.page.content || "");
+        setHasUnsavedChanges(false);
       }
     }
     fetchPage();
   }, [projectId, selectedPageId]);
 
+  // Manual save
   async function handleSaveContent() {
+    autoSaveRef.current?.cancel();
+    await doSave(content);
+  }
+
+  // Save page settings
+  async function handleSaveSettings(updates: Record<string, unknown>) {
     if (!projectId || !selectedPageId) return;
-    setSaving(true);
-    try {
-      await fetch(`/api/projects/${projectId}/pages/${selectedPageId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content }),
-      });
-      // Refresh
-      const res = await fetch(
-        `/api/projects/${projectId}/pages/${selectedPageId}`,
-      );
-      const data = await res.json();
-      if (data.page) {
-        setSelectedPage(data.page);
-      }
-    } finally {
-      setSaving(false);
+    await fetch(`/api/projects/${projectId}/pages/${selectedPageId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updates),
+    });
+    // Re-fetch page data
+    const res = await fetch(
+      `/api/projects/${projectId}/pages/${selectedPageId}`,
+    );
+    const data = await res.json();
+    if (data.page) {
+      setSelectedPage(data.page);
     }
+    fetchPages();
+  }
+
+  // Toolbar formatting handlers
+  function handleBold() {
+    if (editorMode === "markdown") {
+      const { newText, newCursorPos } = insertSnippetAtCursor(
+        content,
+        cursorPos,
+        "**bold**",
+      );
+      setContent(newText);
+      setHasUnsavedChanges(true);
+      autoSaveRef.current?.trigger(newText);
+    }
+  }
+
+  function handleItalic() {
+    if (editorMode === "markdown") {
+      const { newText } = insertSnippetAtCursor(content, cursorPos, "*italic*");
+      setContent(newText);
+      setHasUnsavedChanges(true);
+      autoSaveRef.current?.trigger(newText);
+    }
+  }
+
+  function handleHeading() {
+    if (editorMode === "markdown") {
+      const { newText } = insertSnippetAtCursor(
+        content,
+        cursorPos,
+        "## Heading",
+      );
+      setContent(newText);
+      setHasUnsavedChanges(true);
+      autoSaveRef.current?.trigger(newText);
+    }
+  }
+
+  function handleInsertSnippet(key: MdxSnippetKey) {
+    const snippet = mdxSnippets[key];
+    const { newText } = insertSnippetAtCursor(content, cursorPos, snippet);
+    setContent(newText);
+    setHasUnsavedChanges(true);
+    autoSaveRef.current?.trigger(newText);
   }
 
   const tree: TreeNode[] = buildPageTree(
@@ -392,193 +499,237 @@ export default function EditorPage() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-48px)]" data-testid="editor-page">
-      {/* Left panel — Navigation / Files */}
-      <div className="w-64 border-r border-white/[0.08] flex flex-col bg-[#0f0f0f] shrink-0">
-        {/* Tabs */}
-        <div className="flex border-b border-white/[0.08]">
-          <button
-            type="button"
-            onClick={() => setActiveTab("navigation")}
-            className={clsx(
-              "flex-1 px-4 py-2.5 text-xs font-medium transition-colors",
-              activeTab === "navigation"
-                ? "text-white border-b-2 border-emerald-500"
-                : "text-gray-500 hover:text-gray-300",
-            )}
-          >
-            Navigation
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab("files")}
-            className={clsx(
-              "flex-1 px-4 py-2.5 text-xs font-medium transition-colors",
-              activeTab === "files"
-                ? "text-white border-b-2 border-emerald-500"
-                : "text-gray-500 hover:text-gray-300",
-            )}
-          >
-            Files
-          </button>
-        </div>
+    <div
+      className="flex flex-col h-[calc(100vh-48px)]"
+      data-testid="editor-page"
+    >
+      {/* Toolbar */}
+      <EditorToolbar
+        mode={editorMode}
+        onModeChange={setEditorMode}
+        onBold={handleBold}
+        onItalic={handleItalic}
+        onHeading={handleHeading}
+        onInsertSnippet={handleInsertSnippet}
+        onToggleSettings={() => setShowSettings(!showSettings)}
+        onPublish={handleSaveContent}
+        isSaving={saving}
+        hasUnsavedChanges={hasUnsavedChanges}
+      />
 
-        {/* Panel header with Add button */}
-        <div className="flex items-center justify-between px-3 py-2">
-          <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-            {activeTab === "navigation" ? "Navigation" : "File Explorer"}
-          </span>
-          <button
-            type="button"
-            onClick={() => setShowCreateModal(true)}
-            className="p-1 rounded hover:bg-white/[0.06] text-gray-400 hover:text-white transition-colors"
-            aria-label="Add new page"
-            data-testid="add-page-btn"
-          >
-            <Plus size={16} />
-          </button>
-        </div>
-
-        {/* Tree / File list */}
-        <div className="flex-1 overflow-y-auto px-1 py-1">
-          {activeTab === "navigation" ? (
-            tree.length > 0 ? (
-              <div data-testid="page-tree">
-                {tree.map((node) => (
-                  <TreeNodeItem
-                    key={node.path}
-                    node={node}
-                    depth={0}
-                    selectedPageId={selectedPageId}
-                    onSelectPage={setSelectedPageId}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="px-3 py-8 text-center text-sm text-gray-600">
-                No pages yet.{" "}
-                <button
-                  type="button"
-                  onClick={() => setShowCreateModal(true)}
-                  className="text-emerald-500 hover:underline"
-                >
-                  Add new
-                </button>
-              </div>
-            )
-          ) : (
-            <div data-testid="file-list">
-              {pages.map((page) => (
-                <button
-                  type="button"
-                  key={page.id}
-                  onClick={() => setSelectedPageId(page.id)}
-                  className={clsx(
-                    "flex items-center gap-2 w-full px-3 py-1.5 text-sm rounded-md transition-colors",
-                    selectedPageId === page.id
-                      ? "bg-emerald-600/20 text-emerald-400"
-                      : "text-gray-400 hover:bg-white/[0.06] hover:text-gray-200",
-                  )}
-                >
-                  <File size={14} className="shrink-0 text-gray-500" />
-                  <span className="truncate">{page.path}</span>
-                </button>
-              ))}
-              {pages.length === 0 && (
-                <div className="px-3 py-8 text-center text-sm text-gray-600">
-                  No files yet.
-                </div>
+      {/* Main content area */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Left panel — Navigation / Files */}
+        <div className="w-64 border-r border-white/[0.08] flex flex-col bg-[#0f0f0f] shrink-0">
+          {/* Tabs */}
+          <div className="flex border-b border-white/[0.08]">
+            <button
+              type="button"
+              onClick={() => setActiveTab("navigation")}
+              className={clsx(
+                "flex-1 px-4 py-2.5 text-xs font-medium transition-colors",
+                activeTab === "navigation"
+                  ? "text-white border-b-2 border-emerald-500"
+                  : "text-gray-500 hover:text-gray-300",
               )}
+            >
+              Navigation
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab("files")}
+              className={clsx(
+                "flex-1 px-4 py-2.5 text-xs font-medium transition-colors",
+                activeTab === "files"
+                  ? "text-white border-b-2 border-emerald-500"
+                  : "text-gray-500 hover:text-gray-300",
+              )}
+            >
+              Files
+            </button>
+          </div>
+
+          {/* Panel header with Add button */}
+          <div className="flex items-center justify-between px-3 py-2">
+            <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+              {activeTab === "navigation" ? "Navigation" : "File Explorer"}
+            </span>
+            <button
+              type="button"
+              onClick={() => setShowCreateModal(true)}
+              className="p-1 rounded hover:bg-white/[0.06] text-gray-400 hover:text-white transition-colors"
+              aria-label="Add new page"
+              data-testid="add-page-btn"
+            >
+              <Plus size={16} />
+            </button>
+          </div>
+
+          {/* Tree / File list */}
+          <div className="flex-1 overflow-y-auto px-1 py-1">
+            {activeTab === "navigation" ? (
+              tree.length > 0 ? (
+                <div data-testid="page-tree">
+                  {tree.map((node) => (
+                    <TreeNodeItem
+                      key={node.path}
+                      node={node}
+                      depth={0}
+                      selectedPageId={selectedPageId}
+                      onSelectPage={setSelectedPageId}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="px-3 py-8 text-center text-sm text-gray-600">
+                  No pages yet.{" "}
+                  <button
+                    type="button"
+                    onClick={() => setShowCreateModal(true)}
+                    className="text-emerald-500 hover:underline"
+                  >
+                    Add new
+                  </button>
+                </div>
+              )
+            ) : (
+              <div data-testid="file-list">
+                {pages.map((page) => (
+                  <button
+                    type="button"
+                    key={page.id}
+                    onClick={() => setSelectedPageId(page.id)}
+                    className={clsx(
+                      "flex items-center gap-2 w-full px-3 py-1.5 text-sm rounded-md transition-colors",
+                      selectedPageId === page.id
+                        ? "bg-emerald-600/20 text-emerald-400"
+                        : "text-gray-400 hover:bg-white/[0.06] hover:text-gray-200",
+                    )}
+                  >
+                    <File size={14} className="shrink-0 text-gray-500" />
+                    <span className="truncate">{page.path}</span>
+                  </button>
+                ))}
+                {pages.length === 0 && (
+                  <div className="px-3 py-8 text-center text-sm text-gray-600">
+                    No files yet.
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Add new link at bottom */}
+          <div className="border-t border-white/[0.08] p-2">
+            <button
+              type="button"
+              onClick={() => setShowCreateModal(true)}
+              className="flex items-center gap-2 w-full px-2 py-1.5 text-sm text-gray-500 hover:bg-white/[0.06] hover:text-gray-300 rounded-md transition-colors"
+            >
+              <Plus size={14} />
+              <span>Add new</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Center: Editor content */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {selectedPage ? (
+            <>
+              {/* Page header */}
+              <div className="flex items-center justify-between px-6 py-3 border-b border-white/[0.08]">
+                <div className="flex items-center gap-3">
+                  <h1
+                    className="text-xl font-semibold text-white"
+                    data-testid="page-title"
+                  >
+                    {selectedPage.title}
+                  </h1>
+                  <code className="text-xs text-gray-500 bg-white/[0.04] px-2 py-0.5 rounded">
+                    {selectedPage.path}
+                  </code>
+                  {selectedPage.isPublished && (
+                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-600/20 text-emerald-400 font-medium">
+                      Published
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setDeleteTarget({
+                        id: selectedPage.id,
+                        title: selectedPage.title,
+                        path: selectedPage.path,
+                      })
+                    }
+                    className="p-2 rounded-md text-gray-500 hover:bg-red-600/10 hover:text-red-400 transition-colors"
+                    aria-label="Delete page"
+                    data-testid="delete-page-btn"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSaveContent}
+                    disabled={saving}
+                    className="px-4 py-1.5 text-sm font-medium text-white bg-emerald-600 rounded-lg hover:bg-emerald-500 disabled:opacity-50"
+                    data-testid="save-content-btn"
+                  >
+                    {saving ? "Saving..." : "Save"}
+                  </button>
+                </div>
+              </div>
+
+              {/* Dual-mode editor */}
+              <div className="flex-1 overflow-hidden">
+                {editorMode === "visual" ? (
+                  <VisualEditor
+                    content={content}
+                    onChange={handleContentChange}
+                  />
+                ) : (
+                  <MarkdownEditor
+                    value={content}
+                    onChange={handleContentChange}
+                    onCursorChange={setCursorPos}
+                  />
+                )}
+              </div>
+            </>
+          ) : (
+            <div className="flex-1 flex items-center justify-center text-gray-500">
+              <div className="text-center">
+                <FileText size={48} className="mx-auto mb-4 text-gray-700" />
+                <p className="text-lg font-medium text-gray-400">
+                  Select a page to edit
+                </p>
+                <p className="text-sm text-gray-600 mt-1">
+                  Choose a page from the sidebar or create a new one
+                </p>
+              </div>
             </div>
           )}
         </div>
 
-        {/* Add new link at bottom */}
-        <div className="border-t border-white/[0.08] p-2">
-          <button
-            type="button"
-            onClick={() => setShowCreateModal(true)}
-            className="flex items-center gap-2 w-full px-2 py-1.5 text-sm text-gray-500 hover:bg-white/[0.06] hover:text-gray-300 rounded-md transition-colors"
-          >
-            <Plus size={14} />
-            <span>Add new</span>
-          </button>
-        </div>
-      </div>
+        {/* Right panel: Settings or TOC */}
+        {selectedPage && showSettings && (
+          <PageSettingsPanel
+            settings={{
+              title: selectedPage.title,
+              path: selectedPage.path,
+              description: selectedPage.description || "",
+              isPublished: selectedPage.isPublished,
+            }}
+            onSave={handleSaveSettings}
+            onClose={() => setShowSettings(false)}
+          />
+        )}
 
-      {/* Main content area */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {selectedPage ? (
-          <>
-            {/* Page header */}
-            <div className="flex items-center justify-between px-6 py-3 border-b border-white/[0.08]">
-              <div className="flex items-center gap-3">
-                <h1
-                  className="text-xl font-semibold text-white"
-                  data-testid="page-title"
-                >
-                  {selectedPage.title}
-                </h1>
-                <code className="text-xs text-gray-500 bg-white/[0.04] px-2 py-0.5 rounded">
-                  {selectedPage.path}
-                </code>
-                {selectedPage.isPublished && (
-                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-600/20 text-emerald-400 font-medium">
-                    Published
-                  </span>
-                )}
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() =>
-                    setDeleteTarget({
-                      id: selectedPage.id,
-                      title: selectedPage.title,
-                      path: selectedPage.path,
-                    })
-                  }
-                  className="p-2 rounded-md text-gray-500 hover:bg-red-600/10 hover:text-red-400 transition-colors"
-                  aria-label="Delete page"
-                  data-testid="delete-page-btn"
-                >
-                  <Trash2 size={16} />
-                </button>
-                <button
-                  type="button"
-                  onClick={handleSaveContent}
-                  disabled={saving}
-                  className="px-4 py-1.5 text-sm font-medium text-white bg-emerald-600 rounded-lg hover:bg-emerald-500 disabled:opacity-50"
-                  data-testid="save-content-btn"
-                >
-                  {saving ? "Saving..." : "Save"}
-                </button>
-              </div>
-            </div>
-
-            {/* Content editor */}
-            <div className="flex-1 overflow-hidden">
-              <textarea
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                className="w-full h-full bg-[#0f0f0f] text-white text-sm font-mono p-6 resize-none focus:outline-none"
-                placeholder="Write your MDX content here..."
-                spellCheck={false}
-                data-testid="content-editor"
-              />
-            </div>
-          </>
-        ) : (
-          <div className="flex-1 flex items-center justify-center text-gray-500">
-            <div className="text-center">
-              <FileText size={48} className="mx-auto mb-4 text-gray-700" />
-              <p className="text-lg font-medium text-gray-400">
-                Select a page to edit
-              </p>
-              <p className="text-sm text-gray-600 mt-1">
-                Choose a page from the sidebar or create a new one
-              </p>
-            </div>
+        {selectedPage && !showSettings && tocEntries.length > 0 && (
+          <div className="w-48 border-l border-white/[0.08] bg-[#0f0f0f] shrink-0 overflow-y-auto">
+            <TocPanel entries={tocEntries} />
           </div>
         )}
       </div>
