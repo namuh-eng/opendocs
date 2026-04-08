@@ -42,4 +42,9 @@ test.describe("Smoke tests", () => {
     const response = await page.goto("/analytics");
     expect(response?.status()).toBe(200);
   });
+
+  test("workflows page loads (authenticated)", async ({ page }) => {
+    const response = await page.goto("/products/workflows");
+    expect(response?.status()).toBe(200);
+  });
 });
