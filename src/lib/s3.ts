@@ -57,6 +57,7 @@ interface UploadPresignParams {
   projectId: string;
   filename: string;
   contentType: string;
+  size: number;
 }
 
 /**
@@ -70,6 +71,7 @@ export async function getUploadPresignedUrl(
     Bucket: BUCKET,
     Key: key,
     ContentType: params.contentType,
+    ContentLength: params.size,
   });
   const url = await getSignedUrl(s3, command, { expiresIn: PRESIGN_EXPIRES });
   return { url, key };
@@ -119,6 +121,7 @@ interface ValidationResult {
 export function validateUploadRequest(params: {
   filename: string;
   contentType: string;
+  size: number;
 }): ValidationResult {
   if (!params.filename || params.filename.trim() === "") {
     return { valid: false, error: "Filename is required" };
@@ -138,6 +141,20 @@ export function validateUploadRequest(params: {
     return {
       valid: false,
       error: `Disallowed content type: ${params.contentType}`,
+    };
+  }
+
+  if (!Number.isFinite(params.size) || params.size < 0) {
+    return {
+      valid: false,
+      error: "File size must be a valid non-negative number",
+    };
+  }
+
+  if (params.size > MAX_UPLOAD_SIZE) {
+    return {
+      valid: false,
+      error: `File exceeds maximum size of ${MAX_UPLOAD_SIZE} bytes`,
     };
   }
 

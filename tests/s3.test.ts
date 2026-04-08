@@ -69,6 +69,7 @@ describe("S3 utility", () => {
         projectId: "proj-456",
         filename: "doc.pdf",
         contentType: "application/pdf",
+        size: 1024,
       });
 
       expect(result.url).toBe("https://s3.amazonaws.com/presigned-url");
@@ -84,12 +85,14 @@ describe("S3 utility", () => {
         projectId: "proj-1",
         filename: "image.png",
         contentType: "image/png",
+        size: 2048,
       });
 
       expect(PutObjectCommand).toHaveBeenCalledWith(
         expect.objectContaining({
           Bucket: "test-bucket",
           ContentType: "image/png",
+          ContentLength: 2048,
         }),
       );
     });
@@ -160,6 +163,7 @@ describe("S3 utility", () => {
       const result = validateUploadRequest({
         filename: "",
         contentType: "image/png",
+        size: 10,
       });
       expect(result.valid).toBe(false);
       expect(result.error).toMatch(/filename/i);
@@ -170,6 +174,7 @@ describe("S3 utility", () => {
       const result = validateUploadRequest({
         filename: "virus.exe",
         contentType: "application/x-msdownload",
+        size: 10,
       });
       expect(result.valid).toBe(false);
       expect(result.error).toMatch(/content type/i);
@@ -180,6 +185,7 @@ describe("S3 utility", () => {
       const result = validateUploadRequest({
         filename: "logo.png",
         contentType: "image/png",
+        size: 10,
       });
       expect(result.valid).toBe(true);
       expect(result.error).toBeUndefined();
@@ -190,8 +196,22 @@ describe("S3 utility", () => {
       const result = validateUploadRequest({
         filename: "../../../etc/passwd",
         contentType: "text/plain",
+        size: 10,
       });
       expect(result.valid).toBe(false);
+    });
+
+    it("rejects oversized uploads", async () => {
+      const { MAX_UPLOAD_SIZE, validateUploadRequest } = await import(
+        "@/lib/s3"
+      );
+      const result = validateUploadRequest({
+        filename: "large.mp4",
+        contentType: "video/mp4",
+        size: MAX_UPLOAD_SIZE + 1,
+      });
+      expect(result.valid).toBe(false);
+      expect(result.error).toMatch(/maximum size/i);
     });
   });
 });

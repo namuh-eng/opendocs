@@ -131,6 +131,7 @@ function FileUploadZone({
             projectId,
             filename,
             contentType: file.type,
+            size: file.size,
           }),
         });
 

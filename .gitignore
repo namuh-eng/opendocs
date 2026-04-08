@@ -40,3 +40,4 @@ test.txt
 .ever-session-id
 .inspect-complete
 .ralph_to_ralph_source/
+tests/e2e/.auth/

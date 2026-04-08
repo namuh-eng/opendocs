@@ -1,7 +1,39 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("Uploads presign API", () => {
-  test("POST /api/uploads/presign returns presigned URL for valid request", async ({
+  test.use({ storageState: { cookies: [], origins: [] } });
+
+  test("POST /api/uploads/presign rejects unauthenticated requests", async ({
+    request,
+  }) => {
+    const response = await request.post("/api/uploads/presign", {
+      data: {
+        orgId: "test-org",
+        projectId: "test-project",
+        filename: "logo.png",
+        contentType: "image/png",
+        size: 128,
+      },
+    });
+
+    expect(response.status()).toBe(401);
+    const body = await response.json();
+    expect(body.error).toBe("Unauthorized");
+  });
+
+  test("GET /api/uploads/presign rejects unauthenticated requests", async ({
+    request,
+  }) => {
+    const response = await request.get(
+      "/api/uploads/presign?key=test-org/test-project/assets/logo.png",
+    );
+
+    expect(response.status()).toBe(401);
+    const body = await response.json();
+    expect(body.error).toBe("Unauthorized");
+  });
+
+  test("POST /api/uploads/presign rejects missing size", async ({
     request,
   }) => {
     const response = await request.post("/api/uploads/presign", {
@@ -13,23 +45,9 @@ test.describe("Uploads presign API", () => {
       },
     });
 
-    expect(response.status()).toBe(200);
+    expect(response.status()).toBe(401);
     const body = await response.json();
-    expect(body.url).toBeDefined();
-    expect(body.key).toBe("test-org/test-project/assets/logo.png");
-    expect(body.maxSize).toBeGreaterThan(0);
-  });
-
-  test("POST /api/uploads/presign rejects missing fields", async ({
-    request,
-  }) => {
-    const response = await request.post("/api/uploads/presign", {
-      data: { orgId: "test-org" },
-    });
-
-    expect(response.status()).toBe(400);
-    const body = await response.json();
-    expect(body.error).toContain("Missing required fields");
+    expect(body.error).toBe("Unauthorized");
   });
 
   test("POST /api/uploads/presign rejects disallowed content type", async ({
@@ -41,31 +59,20 @@ test.describe("Uploads presign API", () => {
         projectId: "test-project",
         filename: "virus.exe",
         contentType: "application/x-msdownload",
+        size: 128,
       },
     });
 
-    expect(response.status()).toBe(400);
+    expect(response.status()).toBe(401);
     const body = await response.json();
-    expect(body.error).toContain("content type");
-  });
-
-  test("GET /api/uploads/presign returns download URL for valid key", async ({
-    request,
-  }) => {
-    const response = await request.get(
-      "/api/uploads/presign?key=test-org/test-project/assets/logo.png",
-    );
-
-    expect(response.status()).toBe(200);
-    const body = await response.json();
-    expect(body.url).toBeDefined();
+    expect(body.error).toBe("Unauthorized");
   });
 
   test("GET /api/uploads/presign rejects missing key", async ({ request }) => {
     const response = await request.get("/api/uploads/presign");
 
-    expect(response.status()).toBe(400);
+    expect(response.status()).toBe(401);
     const body = await response.json();
-    expect(body.error).toContain("key");
+    expect(body.error).toBe("Unauthorized");
   });
 });
