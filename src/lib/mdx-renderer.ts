@@ -426,6 +426,7 @@ const KNOWN_COMPONENTS = new Set([
   "Columns",
   "Column",
   "Dropdown",
+  "ApiPlayground",
 ]);
 
 /** Known wrapper components that contain other components. */
@@ -726,6 +727,14 @@ export function renderComponentBlock(block: ContentBlock): string {
     case "Dropdown": {
       const title = props.title || "Details";
       return `<details class="accordion"><summary class="accordion-summary">${escapeHtml(title)}</summary><div class="accordion-content">${parseMdxToHtml(content)}</div></details>`;
+    }
+
+    // ApiPlayground — rendered as a marker div; the actual playground HTML
+    // is injected by the page component using the OpenAPI spec.
+    case "ApiPlayground": {
+      const method = props.method || "GET";
+      const path = props.path || props.endpoint || "";
+      return `<div class="api-playground-marker" data-method="${escapeHtml(method)}" data-path="${escapeHtml(path)}"></div>`;
     }
 
     default:

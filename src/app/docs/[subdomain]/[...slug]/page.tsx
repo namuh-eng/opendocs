@@ -1,3 +1,4 @@
+import { ApiPlayground } from "@/components/docs/api-playground";
 import { ChatWidget } from "@/components/docs/chat-widget";
 import { DocsPagination } from "@/components/docs/docs-pagination";
 import { DocsSidebar } from "@/components/docs/docs-sidebar";
@@ -14,6 +15,11 @@ import { db } from "@/lib/db";
 import { pages, projects } from "@/lib/db/schema";
 import { extractToc } from "@/lib/editor";
 import { buildDocsNav, renderMdxContent } from "@/lib/mdx-renderer";
+import {
+  type OpenApiEndpoint,
+  parseOpenApiSpec,
+  renderApiPlaygroundHtml,
+} from "@/lib/openapi-parser";
 import { getGroupName } from "@/lib/page-chrome";
 import { and, eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
@@ -70,6 +76,38 @@ export default async function DocsPage({ params }: DocsPageProps) {
 
   // Render content
   const renderedHtml = renderMdxContent(currentPage.content || "");
+
+  // Check if this is an API reference page and render playground
+  const isApiReferencePage = targetPath.startsWith("api-reference");
+  const settings = (project.settings || {}) as Record<string, unknown>;
+  let apiPlaygroundHtml = "";
+
+  if (isApiReferencePage && settings.openApiSpec) {
+    const endpoints = parseOpenApiSpec(settings.openApiSpec);
+    // Match endpoints to this page via frontmatter or path
+    const frontmatter = (currentPage.frontmatter || {}) as Record<
+      string,
+      unknown
+    >;
+    const apiMethod = (frontmatter.api as string) || "";
+    // Format: "GET /users/{id}" or just render all endpoints for index pages
+    const matchedEndpoints: OpenApiEndpoint[] = [];
+
+    if (apiMethod) {
+      const [method, ...pathParts] = apiMethod.split(" ");
+      const apiPath = pathParts.join(" ");
+      const found = endpoints.find(
+        (e) => e.method === method?.toUpperCase() && e.path === apiPath,
+      );
+      if (found) matchedEndpoints.push(found);
+    }
+
+    if (matchedEndpoints.length > 0) {
+      apiPlaygroundHtml = matchedEndpoints
+        .map((ep) => renderApiPlaygroundHtml(ep))
+        .join("\n");
+    }
+  }
 
   // Extract TOC from raw content
   const toc = extractToc(currentPage.content || "");
@@ -147,6 +185,7 @@ export default async function DocsPage({ params }: DocsPageProps) {
             )}
 
             <MdxContent html={renderedHtml} />
+            {apiPlaygroundHtml && <ApiPlayground html={apiPlaygroundHtml} />}
             <HeadingAnchors />
           </article>
 

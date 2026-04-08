@@ -125,9 +125,23 @@ export function validateUpdateProjectRequest(
     fields.customDomain = raw.customDomain;
   }
 
-  if (Object.keys(fields).length === 0) {
+  // Settings is a JSONB object — allow updating it
+  let settingsUpdate: Record<string, unknown> | undefined;
+  if (raw.settings !== undefined) {
+    if (typeof raw.settings !== "object" || raw.settings === null) {
+      return { valid: false, error: "Settings must be an object" };
+    }
+    settingsUpdate = raw.settings as Record<string, unknown>;
+  }
+
+  if (Object.keys(fields).length === 0 && !settingsUpdate) {
     return { valid: false, error: "No fields to update" };
   }
 
-  return { valid: true, fields };
+  const result: Record<string, unknown> = { ...fields };
+  if (settingsUpdate) {
+    result.settings = settingsUpdate;
+  }
+
+  return { valid: true, fields: result as Record<string, string> };
 }
