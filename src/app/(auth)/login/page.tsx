@@ -10,7 +10,7 @@ export default function LoginPage() {
     setLoading(true);
     await authClient.signIn.social({
       provider: "google",
-      callbackURL: "/dashboard",
+      callbackURL: "/onboarding",
     });
   };
 

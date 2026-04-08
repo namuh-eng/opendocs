@@ -13,10 +13,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
-  // Unauthenticated users visiting protected routes → redirect to login
+  // Unauthenticated users visiting protected routes or onboarding → redirect to login
   if (
     !sessionCookie &&
-    PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix))
+    (PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix)) ||
+      pathname === "/onboarding")
   ) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
@@ -29,6 +30,7 @@ export const config = {
     "/dashboard/:path*",
     "/settings/:path*",
     "/products/:path*",
+    "/onboarding",
     "/login",
     "/signup",
   ],

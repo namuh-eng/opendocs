@@ -23,8 +23,11 @@ describe("auth middleware logic", () => {
     if (hasSession && (pathname === "/login" || pathname === "/signup")) {
       return "/dashboard";
     }
-    // Unauthenticated user on protected route → login
-    if (!hasSession && isProtectedPath(pathname)) {
+    // Unauthenticated user on protected route or onboarding → login
+    if (
+      !hasSession &&
+      (isProtectedPath(pathname) || pathname === "/onboarding")
+    ) {
       return "/login";
     }
     return null;
@@ -69,6 +72,14 @@ describe("auth middleware logic", () => {
     expect(getRedirect("/dashboard", true)).toBeNull();
     expect(getRedirect("/settings/general", true)).toBeNull();
     expect(getRedirect("/products/agent", true)).toBeNull();
+  });
+
+  it("redirects unauthenticated user from onboarding to login", () => {
+    expect(getRedirect("/onboarding", false)).toBe("/login");
+  });
+
+  it("allows authenticated user to access onboarding", () => {
+    expect(getRedirect("/onboarding", true)).toBeNull();
   });
 });
 
