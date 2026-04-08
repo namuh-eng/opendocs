@@ -1052,6 +1052,37 @@ function AdvancedForm({ config, updateSection }: SectionProps) {
         />
       </div>
 
+      <div>
+        <FieldLabel>Custom CSS</FieldLabel>
+        <p className="text-[10px] text-gray-500 mb-1">
+          Injected in &lt;head&gt; after default styles. Use for branding
+          overrides.
+        </p>
+        <textarea
+          value={d.customCSS}
+          onChange={(e) => update({ customCSS: e.target.value })}
+          placeholder=".docs-page-title { color: #ff6600; }"
+          rows={4}
+          data-testid="config-adv-custom-css"
+          className="w-full px-2.5 py-1.5 bg-[#1a1a1a] border border-white/[0.08] rounded-md text-xs text-white placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-emerald-500 font-mono resize-none"
+        />
+      </div>
+      <div>
+        <FieldLabel>Custom JavaScript</FieldLabel>
+        <p className="text-[10px] text-gray-500 mb-1">
+          Injected before &lt;/body&gt;. Use for analytics, support widgets, or
+          third-party integrations.
+        </p>
+        <textarea
+          value={d.customJS}
+          onChange={(e) => update({ customJS: e.target.value })}
+          placeholder="console.log('Hello from custom JS');"
+          rows={4}
+          data-testid="config-adv-custom-js"
+          className="w-full px-2.5 py-1.5 bg-[#1a1a1a] border border-white/[0.08] rounded-md text-xs text-white placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-emerald-500 font-mono resize-none"
+        />
+      </div>
+
       {/* Redirects */}
       <div className="pt-3 border-t border-white/[0.06]">
         <div className="flex items-center justify-between mb-2">

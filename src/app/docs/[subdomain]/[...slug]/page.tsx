@@ -1,6 +1,7 @@
 import { ApiPlayground } from "@/components/docs/api-playground";
 import { ApiReferenceLayout } from "@/components/docs/api-reference-layout";
 import { ChatWidget } from "@/components/docs/chat-widget";
+import { CustomCodeInjection } from "@/components/docs/custom-code-injection";
 import { DocsFooter } from "@/components/docs/docs-footer";
 import { DocsPagination } from "@/components/docs/docs-pagination";
 import { DocsSidebar } from "@/components/docs/docs-sidebar";
@@ -329,6 +330,10 @@ export default async function DocsPage({ params }: DocsPageProps) {
       </div>
 
       <ChatWidget subdomain={subdomain} currentPath={targetPath} />
+      <CustomCodeInjection
+        customCSS={docsConfig.advanced.customCSS}
+        customJS={docsConfig.advanced.customJS}
+      />
     </div>
   );
 }

@@ -168,6 +168,8 @@ export interface AdvancedConfig {
   seoTitle: string;
   seoDescription: string;
   customHead: string;
+  customCSS: string;
+  customJS: string;
   redirects: RedirectEntry[];
 }
 
@@ -247,6 +249,8 @@ export const DEFAULT_ADVANCED: AdvancedConfig = {
   seoTitle: "",
   seoDescription: "",
   customHead: "",
+  customCSS: "",
+  customJS: "",
   redirects: [],
 };
 
