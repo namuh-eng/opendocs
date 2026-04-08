@@ -416,4 +416,4 @@ gh repo star namuh-eng/ralph-to-ralph
 
 ## License
 
-[Apache License 2.0](LICENSE) — use it, modify it, ship it. Includes an explicit patent grant.
+[Elastic License 2.0 (ELv2)](LICENSE)
