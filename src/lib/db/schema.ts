@@ -268,6 +268,46 @@ export const analyticsEvents = pgTable(
   ],
 );
 
+// ── Agent Settings ────────────────────────────────────────────────────────────
+
+export const agentSettings = pgTable(
+  "agent_settings",
+  {
+    id: t.uuid().defaultRandom().primaryKey(),
+    orgId: t
+      .uuid("org_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    agentEnabled: t.boolean("agent_enabled").default(false).notNull(),
+    slackConnected: t.boolean("slack_connected").default(false).notNull(),
+    slackWorkspace: t.varchar("slack_workspace", { length: 256 }),
+    githubAppInstalled: t
+      .boolean("github_app_installed")
+      .default(false)
+      .notNull(),
+    connectedRepos: t
+      .jsonb("connected_repos")
+      .$type<
+        Array<{
+          org: string;
+          repo: string;
+          branch: string;
+          permissions: string;
+        }>
+      >()
+      .default([]),
+    createdAt: t
+      .timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: t
+      .timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [t.uniqueIndex("agent_settings_org_idx").on(table.orgId)],
+);
+
 // ── Audit Logs ─────────────────────────────────────────────────────────────────
 
 export const auditLogs = pgTable(
