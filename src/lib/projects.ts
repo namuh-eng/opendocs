@@ -2,6 +2,8 @@
  * Project utilities — slug generation, subdomain, validation, request parsing.
  */
 
+import { validateCustomDomain } from "@/lib/domains";
+
 /** Convert a project name to a URL-safe slug (lowercase, hyphens, no special chars). */
 export function slugifyProject(input: string): string {
   return input
@@ -122,7 +124,14 @@ export function validateUpdateProjectRequest(
     if (typeof raw.customDomain !== "string") {
       return { valid: false, error: "Custom domain must be a string" };
     }
-    fields.customDomain = raw.customDomain;
+    // Allow empty string to clear the domain
+    if (raw.customDomain !== "") {
+      const domainError = validateCustomDomain(raw.customDomain);
+      if (domainError) return { valid: false, error: domainError };
+      fields.customDomain = raw.customDomain.trim();
+    } else {
+      fields.customDomain = "";
+    }
   }
 
   // Settings is a JSONB object — allow updating it
