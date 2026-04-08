@@ -22,6 +22,7 @@ import {
   ChevronUp,
   Edit3,
   ExternalLink,
+  GitBranch,
   Globe,
   Loader2,
   Plus,
@@ -36,6 +37,8 @@ import { useState } from "react";
 interface DeploymentRow {
   id: string;
   status: string;
+  branch: string | null;
+  previewUrl: string | null;
   commitSha: string | null;
   commitMessage: string | null;
   startedAt: string | null;
@@ -56,6 +59,7 @@ interface Props {
   firstName: string;
   project: ProjectInfo | null;
   deployments: DeploymentRow[];
+  previews: DeploymentRow[];
 }
 
 const ICON_MAP = {
@@ -185,11 +189,15 @@ export function DashboardHomeClient({
   firstName,
   project,
   deployments,
+  previews,
 }: Props) {
   const router = useRouter();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"live" | "previews">("live");
   const [triggering, setTriggering] = useState(false);
+  const [creatingPreview, setCreatingPreview] = useState(false);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [previewBranch, setPreviewBranch] = useState("");
 
   const latestDeployment = deployments[0] ?? null;
   const lastDeployedLabel = latestDeployment
@@ -222,6 +230,23 @@ export function DashboardHomeClient({
       router.refresh();
     } finally {
       setTriggering(false);
+    }
+  }
+
+  async function createPreview() {
+    if (!previewBranch.trim()) return;
+    setCreatingPreview(true);
+    try {
+      await fetch("/api/deployments/previews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ branch: previewBranch.trim() }),
+      });
+      setShowPreviewModal(false);
+      setPreviewBranch("");
+      router.refresh();
+    } finally {
+      setCreatingPreview(false);
     }
   }
 
@@ -474,9 +499,150 @@ export function DashboardHomeClient({
             )}
 
             {activeTab === "previews" && (
-              <div className="rounded-xl border border-white/[0.08] px-6 py-8 text-center text-gray-500 text-sm">
-                No preview deployments yet. Push to a branch to create a
-                preview.
+              <div>
+                {/* Create custom preview button */}
+                <div className="flex justify-end mb-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowPreviewModal(true)}
+                    data-testid="create-preview-btn"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium transition-colors"
+                  >
+                    <Plus size={14} />
+                    Create custom preview
+                  </button>
+                </div>
+
+                {/* Preview modal */}
+                {showPreviewModal && (
+                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+                    <div
+                      data-testid="preview-modal"
+                      className="bg-[#1a1a1a] border border-white/[0.08] rounded-xl p-6 w-[420px] shadow-2xl"
+                    >
+                      <h3 className="text-lg font-medium text-white mb-4">
+                        Create custom preview
+                      </h3>
+                      <label
+                        htmlFor="preview-branch"
+                        className="block text-sm text-gray-400 mb-1.5"
+                      >
+                        Branch name
+                      </label>
+                      <div className="flex items-center gap-2 mb-4">
+                        <div className="flex-1 flex items-center gap-2 px-3 py-2 rounded-md bg-[#0f0f0f] border border-white/[0.08]">
+                          <GitBranch
+                            size={14}
+                            className="text-gray-500 shrink-0"
+                          />
+                          <input
+                            id="preview-branch"
+                            type="text"
+                            value={previewBranch}
+                            onChange={(e) => setPreviewBranch(e.target.value)}
+                            placeholder="feature/my-branch"
+                            data-testid="preview-branch-input"
+                            className="flex-1 bg-transparent text-white text-sm outline-none placeholder:text-gray-600"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex justify-end gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowPreviewModal(false);
+                            setPreviewBranch("");
+                          }}
+                          className="px-3 py-1.5 rounded-md text-sm text-gray-400 hover:text-white hover:bg-white/[0.06] transition-colors"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="button"
+                          onClick={createPreview}
+                          disabled={creatingPreview || !previewBranch.trim()}
+                          data-testid="confirm-create-preview"
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-sm font-medium transition-colors"
+                        >
+                          {creatingPreview ? (
+                            <Loader2 size={14} className="animate-spin" />
+                          ) : (
+                            <Rocket size={14} />
+                          )}
+                          Deploy preview
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Preview deployments table */}
+                <div className="rounded-xl border border-white/[0.08] overflow-hidden">
+                  {/* Table header */}
+                  <div className="grid grid-cols-[1fr_140px_120px_100px_1fr] gap-4 px-6 py-3 bg-[#0f0f0f] text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <span>Branch</span>
+                    <span>Preview URL</span>
+                    <span>Status</span>
+                    <span>Commit</span>
+                    <span>Timestamp</span>
+                  </div>
+
+                  {previews.length === 0 ? (
+                    <div className="px-6 py-8 text-center text-gray-500 text-sm">
+                      No preview deployments yet. Push to a branch or click
+                      &ldquo;Create custom preview&rdquo; to get started.
+                    </div>
+                  ) : (
+                    previews.map((p) => (
+                      <div
+                        key={p.id}
+                        data-testid="preview-row"
+                        className="grid grid-cols-[1fr_140px_120px_100px_1fr] gap-4 px-6 py-3 border-t border-white/[0.04] items-center hover:bg-white/[0.02] transition-colors"
+                      >
+                        {/* Branch */}
+                        <div className="flex items-center gap-2">
+                          <GitBranch
+                            size={14}
+                            className="text-gray-500 shrink-0"
+                          />
+                          <span className="text-sm text-white font-medium truncate">
+                            {p.branch ?? "unknown"}
+                          </span>
+                        </div>
+
+                        {/* Preview URL */}
+                        <div className="truncate">
+                          {p.previewUrl ? (
+                            <a
+                              href={p.previewUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs text-emerald-400 hover:underline inline-flex items-center gap-1"
+                            >
+                              <ExternalLink size={10} className="shrink-0" />
+                              <span className="truncate">Preview</span>
+                            </a>
+                          ) : (
+                            <span className="text-xs text-gray-600">—</span>
+                          )}
+                        </div>
+
+                        {/* Status */}
+                        <DeploymentStatusBadge status={p.status} />
+
+                        {/* Commit */}
+                        <div className="text-xs text-gray-400 font-mono">
+                          {p.commitSha ? shortSha(p.commitSha) : "—"}
+                        </div>
+
+                        {/* Timestamp */}
+                        <div className="text-xs text-gray-500">
+                          {timeAgo(p.createdAt)}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
               </div>
             )}
           </div>

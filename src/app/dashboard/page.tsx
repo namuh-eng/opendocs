@@ -6,7 +6,7 @@ import {
   projects,
 } from "@/lib/db/schema";
 import { getServerSession } from "@/lib/session";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { DashboardHomeClient } from "./dashboard-home-client";
 
@@ -43,21 +43,28 @@ export default async function DashboardPage() {
 
   const project = orgProjects[0] ?? null;
 
-  let projectDeployments: Array<{
+  type DeploymentRow = {
     id: string;
     status: string;
+    branch: string | null;
+    previewUrl: string | null;
     commitSha: string | null;
     commitMessage: string | null;
     startedAt: Date | null;
     endedAt: Date | null;
     createdAt: Date;
-  }> = [];
+  };
+
+  let projectDeployments: DeploymentRow[] = [];
+  let previewDeployments: DeploymentRow[] = [];
 
   if (project) {
     projectDeployments = await db
       .select({
         id: deployments.id,
         status: deployments.status,
+        branch: deployments.branch,
+        previewUrl: deployments.previewUrl,
         commitSha: deployments.commitSha,
         commitMessage: deployments.commitMessage,
         startedAt: deployments.startedAt,
@@ -65,7 +72,34 @@ export default async function DashboardPage() {
         createdAt: deployments.createdAt,
       })
       .from(deployments)
-      .where(eq(deployments.projectId, project.id))
+      .where(
+        and(
+          eq(deployments.projectId, project.id),
+          eq(deployments.type, "production"),
+        ),
+      )
+      .orderBy(desc(deployments.createdAt))
+      .limit(20);
+
+    previewDeployments = await db
+      .select({
+        id: deployments.id,
+        status: deployments.status,
+        branch: deployments.branch,
+        previewUrl: deployments.previewUrl,
+        commitSha: deployments.commitSha,
+        commitMessage: deployments.commitMessage,
+        startedAt: deployments.startedAt,
+        endedAt: deployments.endedAt,
+        createdAt: deployments.createdAt,
+      })
+      .from(deployments)
+      .where(
+        and(
+          eq(deployments.projectId, project.id),
+          eq(deployments.type, "preview"),
+        ),
+      )
       .orderBy(desc(deployments.createdAt))
       .limit(20);
   }
@@ -86,6 +120,12 @@ export default async function DashboardPage() {
           : null
       }
       deployments={projectDeployments.map((d) => ({
+        ...d,
+        startedAt: d.startedAt?.toISOString() ?? null,
+        endedAt: d.endedAt?.toISOString() ?? null,
+        createdAt: d.createdAt.toISOString(),
+      }))}
+      previews={previewDeployments.map((d) => ({
         ...d,
         startedAt: d.startedAt?.toISOString() ?? null,
         endedAt: d.endedAt?.toISOString() ?? null,

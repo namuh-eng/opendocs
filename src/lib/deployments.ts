@@ -117,6 +117,67 @@ export function validateTriggerDeploymentRequest(
   return { valid: true, commitSha, commitMessage };
 }
 
+export type DeploymentType = "production" | "preview";
+
+/** Validate a branch name (alphanumeric, hyphens, underscores, slashes, dots). */
+export function isValidBranchName(branch: string): boolean {
+  if (!branch || branch.length > 256) return false;
+  return /^[a-zA-Z0-9._\-/]+$/.test(branch);
+}
+
+/** Generate a preview URL for a branch deployment. */
+export function generatePreviewUrl(
+  branch: string,
+  subdomain: string | null,
+): string {
+  // Sanitize branch name for URL: lowercase, replace non-alphanumeric with hyphens
+  const sanitized = branch
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  const base = subdomain ?? "docs";
+  return `https://${sanitized}.preview.${base}.mintlify.app`;
+}
+
+/** Validate a create-preview-deployment request body. */
+export function validateCreatePreviewRequest(
+  body: unknown,
+):
+  | { valid: true; branch: string; commitSha?: string; commitMessage?: string }
+  | { valid: false; error: string } {
+  if (!body || typeof body !== "object") {
+    return { valid: false, error: "Request body is required" };
+  }
+
+  const raw = body as Record<string, unknown>;
+
+  if (typeof raw.branch !== "string" || !raw.branch.trim()) {
+    return { valid: false, error: "Branch name is required" };
+  }
+
+  const branch = raw.branch.trim();
+  if (!isValidBranchName(branch)) {
+    return {
+      valid: false,
+      error:
+        "Invalid branch name. Use alphanumeric characters, hyphens, underscores, dots, or slashes.",
+    };
+  }
+
+  const commitSha =
+    typeof raw.commitSha === "string" ? raw.commitSha.trim() : undefined;
+  const commitMessage =
+    typeof raw.commitMessage === "string"
+      ? raw.commitMessage.trim()
+      : undefined;
+
+  if (commitSha && !/^[0-9a-f]{7,40}$/i.test(commitSha)) {
+    return { valid: false, error: "Invalid commit SHA" };
+  }
+
+  return { valid: true, branch, commitSha, commitMessage };
+}
+
 /** Simulated deployment log steps (for the build process). */
 export function generateDeploymentLogSteps(): string[] {
   return [

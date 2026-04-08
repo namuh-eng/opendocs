@@ -23,6 +23,10 @@ export const agentJobStatusEnum = pgEnum("agent_job_status", [
   "succeeded",
   "failed",
 ]);
+export const deploymentTypeEnum = pgEnum("deployment_type", [
+  "production",
+  "preview",
+]);
 export const analyticsEventTypeEnum = pgEnum("analytics_event_type", [
   "view",
   "search",
@@ -119,7 +123,10 @@ export const deployments = pgTable(
       .uuid("project_id")
       .notNull()
       .references(() => projects.id, { onDelete: "cascade" }),
+    type: deploymentTypeEnum().default("production").notNull(),
     status: deploymentStatusEnum().default("queued").notNull(),
+    branch: t.varchar({ length: 256 }),
+    previewUrl: t.varchar("preview_url", { length: 512 }),
     commitSha: t.varchar("commit_sha", { length: 40 }),
     commitMessage: t.text("commit_message"),
     startedAt: t.timestamp("started_at", { withTimezone: true }),
