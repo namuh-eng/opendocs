@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { LanguageSwitcher } from "./language-switcher";
 import { MobileMenuButton } from "./mobile-nav";
 import { ThemeToggle } from "./theme-provider";
 
@@ -11,10 +12,18 @@ interface DocsTopbarSettings {
   logoDarkUrl?: string;
 }
 
+interface I18nProps {
+  currentLocale: string;
+  availableLocales: string[];
+  defaultLanguage: string;
+  pagePath: string;
+}
+
 interface DocsTopbarProps {
   projectName: string;
   subdomain: string;
   settings?: DocsTopbarSettings | Record<string, unknown>;
+  i18n?: I18nProps;
 }
 
 /** Build a dashboard URL */
@@ -69,6 +78,7 @@ export function DocsTopbar({
   projectName,
   subdomain,
   settings,
+  i18n,
 }: DocsTopbarProps) {
   const s = (settings || {}) as DocsTopbarSettings;
   const githubProps = getGithubLinkProps(s.githubUrl);
@@ -189,6 +199,16 @@ export function DocsTopbar({
             <path d="M7 7h10v10" />
           </svg>
         </Link>
+
+        {i18n && i18n.availableLocales.length > 1 && (
+          <LanguageSwitcher
+            currentLocale={i18n.currentLocale}
+            availableLocales={i18n.availableLocales}
+            subdomain={subdomain}
+            pagePath={i18n.pagePath}
+            defaultLanguage={i18n.defaultLanguage}
+          />
+        )}
 
         <ThemeToggle />
       </div>

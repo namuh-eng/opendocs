@@ -21,6 +21,13 @@ import { pages, projects } from "@/lib/db/schema";
 import { findRedirect, mergeDocsConfig } from "@/lib/docs-config";
 import { getFooterSettings } from "@/lib/docs-footer";
 import { extractToc } from "@/lib/editor";
+import {
+  filterPagesByLocale,
+  generateHreflangTags,
+  getAvailableLocalesForPage,
+  mergeLanguagesConfig,
+  parseLocaleFromSlug,
+} from "@/lib/i18n";
 import { buildDocsNav, renderMdxContent } from "@/lib/mdx-renderer";
 import {
   type VirtualApiPage,
@@ -58,7 +65,6 @@ export async function generateMetadata({
   params,
 }: DocsPageProps): Promise<Metadata> {
   const { subdomain, slug } = await params;
-  const targetPath = slug.join("/").toLowerCase();
 
   const projectResult = await db
     .select({
@@ -77,6 +83,25 @@ export async function generateMetadata({
   const docsConfig = mergeDocsConfig(
     docsSettings.docsConfig as Partial<Record<string, unknown>> | undefined,
   );
+  const langConfig = mergeLanguagesConfig(
+    docsSettings.languages as
+      | Partial<import("@/lib/i18n").LanguagesConfig>
+      | undefined,
+  );
+
+  // Parse locale from URL slug
+  const { locale, pagePath } = parseLocaleFromSlug(
+    slug.map((s) => s.toLowerCase()),
+    langConfig,
+  );
+
+  // Build the DB path (locale-prefixed for non-default)
+  const dbPath =
+    locale === langConfig.defaultLanguage
+      ? pagePath
+      : pagePath
+        ? `${locale}/${pagePath}`
+        : locale;
 
   const pageResult = await db
     .select({
@@ -91,7 +116,7 @@ export async function generateMetadata({
     .where(
       and(
         eq(pages.projectId, project.id),
-        eq(pages.path, targetPath),
+        eq(pages.path, dbPath),
         eq(pages.isPublished, true),
       ),
     )
@@ -122,6 +147,22 @@ export async function generateMetadata({
     alternates: { canonical: meta.canonical },
   };
 
+  // Add hreflang tags for i18n
+  const hreflangTags = generateHreflangTags(
+    APP_URL,
+    subdomain,
+    pagePath,
+    langConfig,
+  );
+  if (hreflangTags.length > 0) {
+    metadata.alternates = {
+      ...metadata.alternates,
+      languages: Object.fromEntries(
+        hreflangTags.map((tag) => [tag.hreflang, tag.href]),
+      ),
+    };
+  }
+
   if (meta.noindex) {
     metadata.robots = { index: false, follow: false };
   }
@@ -144,7 +185,6 @@ export async function generateMetadata({
 
 export default async function DocsPage({ params }: DocsPageProps) {
   const { subdomain, slug } = await params;
-  const targetPath = slug.join("/").toLowerCase();
 
   // Find project
   const projectResult = await db
@@ -164,8 +204,33 @@ export default async function DocsPage({ params }: DocsPageProps) {
 
   const project = projectResult[0];
 
+  // Parse i18n configuration
+  const docsSettings = (project.settings || {}) as Record<string, unknown>;
+  const docsConfig = mergeDocsConfig(
+    docsSettings.docsConfig as Partial<Record<string, unknown>> | undefined,
+  );
+  const langConfig = mergeLanguagesConfig(
+    docsSettings.languages as
+      | Partial<import("@/lib/i18n").LanguagesConfig>
+      | undefined,
+  );
+
+  // Parse locale from URL slug
+  const { locale, pagePath } = parseLocaleFromSlug(
+    slug.map((s) => s.toLowerCase()),
+    langConfig,
+  );
+
+  // Build DB path: default language has no prefix, others are "{locale}/{pagePath}"
+  const targetPath =
+    locale === langConfig.defaultLanguage
+      ? pagePath
+      : pagePath
+        ? `${locale}/${pagePath}`
+        : locale;
+
   // Fetch all published pages
-  const allPages = await db
+  const allPagesRaw = await db
     .select({
       id: pages.id,
       path: pages.path,
@@ -179,12 +244,24 @@ export default async function DocsPage({ params }: DocsPageProps) {
     .where(and(eq(pages.projectId, project.id), eq(pages.isPublished, true)))
     .orderBy(pages.path);
 
-  // Check for redirects before looking up the page
-  const docsSettings = (project.settings || {}) as Record<string, unknown>;
-  const docsConfig = mergeDocsConfig(
-    docsSettings.docsConfig as Partial<Record<string, unknown>> | undefined,
+  // Filter pages by current locale for navigation
+  const localizedPages = filterPagesByLocale(
+    allPagesRaw,
+    locale,
+    langConfig.defaultLanguage,
   );
-  const redirectDest = findRedirect(docsConfig.advanced.redirects, targetPath);
+  const allPages = localizedPages.map((p) => ({
+    id: p.id,
+    path: p.path,
+    title: p.title,
+    description: p.description,
+    content: p.content,
+    frontmatter: p.frontmatter,
+    isPublished: p.isPublished,
+  }));
+
+  // Check for redirects before looking up the page
+  const redirectDest = findRedirect(docsConfig.advanced.redirects, pagePath);
   if (redirectDest) {
     // Normalize destination: ensure it forms a valid docs path
     const dest = redirectDest.replace(/^\/+/, "");
@@ -192,8 +269,7 @@ export default async function DocsPage({ params }: DocsPageProps) {
   }
 
   // ── OpenAPI/AsyncAPI virtual pages ────────────────────────────────────────
-  const settings = (project.settings || {}) as Record<string, unknown>;
-  const spec = settings.openApiSpec as Record<string, unknown> | undefined;
+  const spec = docsSettings.openApiSpec as Record<string, unknown> | undefined;
   let virtualPages: VirtualApiPage[] = [];
   let asyncPages: VirtualAsyncApiPage[] = [];
 
@@ -206,9 +282,10 @@ export default async function DocsPage({ params }: DocsPageProps) {
   }
 
   // Find the current page — check DB first, then virtual pages
-  const currentPage = allPages.find((p) => p.path === targetPath);
-  const virtualPage = findVirtualPage(virtualPages, targetPath);
-  const asyncPage = findVirtualAsyncApiPage(asyncPages, targetPath);
+  // Use pagePath (locale-stripped) since allPages paths are already stripped
+  const currentPage = allPages.find((p) => p.path === pagePath);
+  const virtualPage = findVirtualPage(virtualPages, pagePath);
+  const asyncPage = findVirtualAsyncApiPage(asyncPages, pagePath);
 
   if (!currentPage && !virtualPage && !asyncPage) {
     notFound();
@@ -248,7 +325,7 @@ export default async function DocsPage({ params }: DocsPageProps) {
   const nav = buildDocsNav(navPages);
 
   // ── Rendering ─────────────────────────────────────────────────────────────
-  const footerSettings = getFooterSettings(settings);
+  const footerSettings = getFooterSettings(docsSettings);
   let renderedHtml = "";
   let apiPlaygroundHtml = "";
   let apiReferenceHtml = "";
@@ -293,7 +370,7 @@ export default async function DocsPage({ params }: DocsPageProps) {
     renderedHtml = renderMdxContent(contentToRender);
 
     // Check if this DB page also matches an OpenAPI endpoint
-    const isApiReferencePage = targetPath.startsWith("api-reference");
+    const isApiReferencePage = pagePath.startsWith("api-reference");
     if (isApiReferencePage && spec) {
       const endpoints = parseOpenApiSpec(spec);
       const frontmatter = (currentPage.frontmatter || {}) as Record<
@@ -328,7 +405,7 @@ export default async function DocsPage({ params }: DocsPageProps) {
 
   // Build flat list of all pages (DB + virtual) for prev/next
   const allNavPaths = navPages.map((p) => ({ path: p.path, title: p.title }));
-  const currentIdx = allNavPaths.findIndex((p) => p.path === targetPath);
+  const currentIdx = allNavPaths.findIndex((p) => p.path === pagePath);
   const prevPage =
     currentIdx > 0
       ? {
@@ -345,10 +422,17 @@ export default async function DocsPage({ params }: DocsPageProps) {
       : null;
 
   // Get group name for breadcrumb
-  const groupName = getGroupName(targetPath);
+  const groupName = getGroupName(pagePath);
 
   // Build searchable pages list (DB + virtual)
   const searchablePages = allNavPaths;
+
+  // Compute available locales for the language switcher
+  const availableLocales = getAvailableLocalesForPage(
+    allPagesRaw,
+    pagePath,
+    langConfig,
+  );
 
   return (
     <div className="docs-layout">
@@ -356,12 +440,22 @@ export default async function DocsPage({ params }: DocsPageProps) {
         projectName={project.name}
         subdomain={subdomain}
         settings={project.settings as Record<string, unknown>}
+        i18n={
+          langConfig.enabled && langConfig.supportedLanguages.length > 1
+            ? {
+                currentLocale: locale,
+                availableLocales,
+                defaultLanguage: langConfig.defaultLanguage,
+                pagePath,
+              }
+            : undefined
+        }
       />
 
       <SearchModal pages={searchablePages} subdomain={subdomain} />
       <MobileSidebar
         nav={nav}
-        activePath={targetPath}
+        activePath={pagePath}
         subdomain={subdomain}
         projectName={project.name}
       />
@@ -369,7 +463,7 @@ export default async function DocsPage({ params }: DocsPageProps) {
       <div className="docs-body">
         <DocsSidebar
           nav={nav}
-          activePath={targetPath}
+          activePath={pagePath}
           subdomain={subdomain}
           projectName={project.name}
         />
