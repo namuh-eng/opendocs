@@ -1,6 +1,7 @@
 import { ApiPlayground } from "@/components/docs/api-playground";
 import { ApiReferenceLayout } from "@/components/docs/api-reference-layout";
 import { ChatWidget } from "@/components/docs/chat-widget";
+import { DocsFooter } from "@/components/docs/docs-footer";
 import { DocsPagination } from "@/components/docs/docs-pagination";
 import { DocsSidebar } from "@/components/docs/docs-sidebar";
 import { DocsToc } from "@/components/docs/docs-toc";
@@ -16,6 +17,7 @@ import { SearchModal } from "@/components/docs/search-modal";
 import { renderApiReferencePage } from "@/lib/api-reference";
 import { db } from "@/lib/db";
 import { pages, projects } from "@/lib/db/schema";
+import { getFooterSettings } from "@/lib/docs-footer";
 import { extractToc } from "@/lib/editor";
 import { buildDocsNav, renderMdxContent } from "@/lib/mdx-renderer";
 import {
@@ -89,6 +91,7 @@ export default async function DocsPage({ params }: DocsPageProps) {
   // Check if this is an API reference page and render playground
   const isApiReferencePage = targetPath.startsWith("api-reference");
   const settings = (project.settings || {}) as Record<string, unknown>;
+  const footerSettings = getFooterSettings(settings);
   let apiPlaygroundHtml = "";
   let apiReferenceHtml = "";
 
@@ -209,6 +212,11 @@ export default async function DocsPage({ params }: DocsPageProps) {
             prev={prevPage}
             next={nextPage}
             subdomain={subdomain}
+          />
+
+          <DocsFooter
+            footerSettings={footerSettings}
+            projectName={project.name}
           />
         </main>
 

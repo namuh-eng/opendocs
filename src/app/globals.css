@@ -986,6 +986,73 @@
   text-align: right;
 }
 
+/* ── Footer ──────────────────────────────────────────────────────────────── */
+
+.docs-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 48px;
+  padding: 24px 0 32px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.docs-footer-social {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.docs-footer-social-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  color: #9ca3af;
+  border-radius: 6px;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.docs-footer-social-link:hover {
+  color: #e5e7eb;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.docs-footer-powered {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.docs-footer-powered-link {
+  font-size: 13px;
+  color: #6b7280;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.docs-footer-powered-link:hover {
+  color: #9ca3af;
+}
+
+.docs-footer-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 6px 12px;
+  font-size: 12px;
+  color: #e5e7eb;
+  background: #1f2937;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 10;
+}
+
 /* ── Feedback Widget ──────────────────────────────────────────────────────── */
 
 .docs-feedback-widget {
@@ -1712,6 +1779,34 @@
 
 [data-theme="light"] .docs-pagination-label {
   color: #9ca3af;
+}
+
+[data-theme="light"] .docs-footer {
+  border-top-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .docs-footer-social-link {
+  color: #9ca3af;
+}
+
+[data-theme="light"] .docs-footer-social-link:hover {
+  color: #374151;
+  background: rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .docs-footer-powered-link {
+  color: #9ca3af;
+}
+
+[data-theme="light"] .docs-footer-powered-link:hover {
+  color: #6b7280;
+}
+
+[data-theme="light"] .docs-footer-tooltip {
+  color: #374151;
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 [data-theme="light"] .card {
