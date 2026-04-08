@@ -2,7 +2,12 @@ import { getSessionCookie } from "better-auth/cookies";
 import { type NextRequest, NextResponse } from "next/server";
 
 const AUTH_PAGES = ["/login", "/signup"];
-const PROTECTED_PREFIXES = ["/dashboard", "/settings", "/products"];
+const PROTECTED_PREFIXES = [
+  "/dashboard",
+  "/settings",
+  "/products",
+  "/analytics",
+];
 
 export async function middleware(request: NextRequest) {
   const sessionCookie = getSessionCookie(request);
@@ -30,6 +35,7 @@ export const config = {
     "/dashboard/:path*",
     "/settings/:path*",
     "/products/:path*",
+    "/analytics/:path*",
     "/onboarding",
     "/login",
     "/signup",

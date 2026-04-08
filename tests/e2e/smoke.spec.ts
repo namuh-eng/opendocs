@@ -37,4 +37,9 @@ test.describe("Smoke tests", () => {
     const response = await page.goto("/editor/main");
     expect(response?.status()).toBe(200);
   });
+
+  test("analytics page loads (authenticated)", async ({ page }) => {
+    const response = await page.goto("/analytics");
+    expect(response?.status()).toBe(200);
+  });
 });
