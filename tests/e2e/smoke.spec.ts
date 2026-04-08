@@ -47,4 +47,9 @@ test.describe("Smoke tests", () => {
     const response = await page.goto("/products/workflows");
     expect(response?.status()).toBe(200);
   });
+
+  test("MCP page loads (authenticated)", async ({ page }) => {
+    const response = await page.goto("/products/mcp");
+    expect(response?.status()).toBe(200);
+  });
 });
