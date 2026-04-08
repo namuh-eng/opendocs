@@ -51,6 +51,13 @@ import {
   resolveSnippets,
   resolveVariables,
 } from "@/lib/snippets";
+import {
+  filterPagesByVersion,
+  getAvailableVersionsForPage,
+  getDefaultVersion,
+  mergeVersionsConfig,
+  parseVersionFromSlug,
+} from "@/lib/versions";
 import { and, eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
@@ -88,20 +95,28 @@ export async function generateMetadata({
       | Partial<import("@/lib/i18n").LanguagesConfig>
       | undefined,
   );
-
-  // Parse locale from URL slug
-  const { locale, pagePath } = parseLocaleFromSlug(
-    slug.map((s) => s.toLowerCase()),
-    langConfig,
+  const versionConfig = mergeVersionsConfig(
+    docsSettings.versions as
+      | Partial<import("@/lib/versions").VersionsConfig>
+      | undefined,
   );
 
-  // Build the DB path (locale-prefixed for non-default)
-  const dbPath =
-    locale === langConfig.defaultLanguage
-      ? pagePath
-      : pagePath
-        ? `${locale}/${pagePath}`
-        : locale;
+  // Parse version then locale from URL slug
+  const { version, rest: afterVersion } = parseVersionFromSlug(
+    slug.map((s) => s.toLowerCase()),
+    versionConfig,
+  );
+  const { locale, pagePath } = parseLocaleFromSlug(afterVersion, langConfig);
+
+  // Build the DB path (version-prefixed, then locale-prefixed)
+  const defaultVersionTag = getDefaultVersion(versionConfig)?.tag ?? "";
+  let dbPath = pagePath;
+  if (locale !== langConfig.defaultLanguage) {
+    dbPath = dbPath ? `${locale}/${dbPath}` : locale;
+  }
+  if (versionConfig.enabled && version !== defaultVersionTag) {
+    dbPath = dbPath ? `${version}/${dbPath}` : version;
+  }
 
   const pageResult = await db
     .select({
@@ -204,7 +219,7 @@ export default async function DocsPage({ params }: DocsPageProps) {
 
   const project = projectResult[0];
 
-  // Parse i18n configuration
+  // Parse i18n + versions configuration
   const docsSettings = (project.settings || {}) as Record<string, unknown>;
   const docsConfig = mergeDocsConfig(
     docsSettings.docsConfig as Partial<Record<string, unknown>> | undefined,
@@ -214,20 +229,28 @@ export default async function DocsPage({ params }: DocsPageProps) {
       | Partial<import("@/lib/i18n").LanguagesConfig>
       | undefined,
   );
-
-  // Parse locale from URL slug
-  const { locale, pagePath } = parseLocaleFromSlug(
-    slug.map((s) => s.toLowerCase()),
-    langConfig,
+  const versionConfig = mergeVersionsConfig(
+    docsSettings.versions as
+      | Partial<import("@/lib/versions").VersionsConfig>
+      | undefined,
   );
+  const defaultVersionTag = getDefaultVersion(versionConfig)?.tag ?? "";
 
-  // Build DB path: default language has no prefix, others are "{locale}/{pagePath}"
-  const targetPath =
-    locale === langConfig.defaultLanguage
-      ? pagePath
-      : pagePath
-        ? `${locale}/${pagePath}`
-        : locale;
+  // Parse version first, then locale from remaining slug
+  const { version, rest: afterVersion } = parseVersionFromSlug(
+    slug.map((s) => s.toLowerCase()),
+    versionConfig,
+  );
+  const { locale, pagePath } = parseLocaleFromSlug(afterVersion, langConfig);
+
+  // Build DB path: version prefix, then locale prefix
+  let targetPath = pagePath;
+  if (locale !== langConfig.defaultLanguage) {
+    targetPath = targetPath ? `${locale}/${targetPath}` : locale;
+  }
+  if (versionConfig.enabled && version !== defaultVersionTag) {
+    targetPath = targetPath ? `${version}/${targetPath}` : version;
+  }
 
   // Fetch all published pages
   const allPagesRaw = await db
@@ -244,9 +267,19 @@ export default async function DocsPage({ params }: DocsPageProps) {
     .where(and(eq(pages.projectId, project.id), eq(pages.isPublished, true)))
     .orderBy(pages.path);
 
-  // Filter pages by current locale for navigation
+  // Filter pages by current version first, then by locale
+  let pagesAfterVersionFilter = allPagesRaw;
+  if (versionConfig.enabled && versionConfig.versions.length > 0) {
+    pagesAfterVersionFilter = filterPagesByVersion(
+      allPagesRaw,
+      version,
+      versionConfig,
+    );
+  }
+
+  // Filter by locale for navigation
   const localizedPages = filterPagesByLocale(
-    allPagesRaw,
+    pagesAfterVersionFilter,
     locale,
     langConfig.defaultLanguage,
   );
@@ -434,6 +467,13 @@ export default async function DocsPage({ params }: DocsPageProps) {
     langConfig,
   );
 
+  // Compute available versions for the version switcher
+  const availableVersions = getAvailableVersionsForPage(
+    allPagesRaw,
+    pagePath,
+    versionConfig,
+  );
+
   return (
     <div className="docs-layout">
       <DocsTopbar
@@ -447,6 +487,20 @@ export default async function DocsPage({ params }: DocsPageProps) {
                 availableLocales,
                 defaultLanguage: langConfig.defaultLanguage,
                 pagePath,
+              }
+            : undefined
+        }
+        version={
+          versionConfig.enabled && versionConfig.versions.length > 1
+            ? {
+                currentVersion: version,
+                availableVersions,
+                versionsConfig: versionConfig,
+                pagePath,
+                locale: langConfig.enabled ? locale : undefined,
+                defaultLanguage: langConfig.enabled
+                  ? langConfig.defaultLanguage
+                  : undefined,
               }
             : undefined
         }

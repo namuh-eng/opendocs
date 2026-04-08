@@ -1,9 +1,11 @@
 "use client";
 
+import type { VersionsConfig } from "@/lib/versions";
 import Link from "next/link";
 import { LanguageSwitcher } from "./language-switcher";
 import { MobileMenuButton } from "./mobile-nav";
 import { ThemeToggle } from "./theme-provider";
+import { VersionSwitcher } from "./version-switcher";
 
 interface DocsTopbarSettings {
   githubUrl?: string;
@@ -19,11 +21,21 @@ interface I18nProps {
   pagePath: string;
 }
 
+interface VersionProps {
+  currentVersion: string;
+  availableVersions: string[];
+  versionsConfig: VersionsConfig;
+  pagePath: string;
+  locale?: string;
+  defaultLanguage?: string;
+}
+
 interface DocsTopbarProps {
   projectName: string;
   subdomain: string;
   settings?: DocsTopbarSettings | Record<string, unknown>;
   i18n?: I18nProps;
+  version?: VersionProps;
 }
 
 /** Build a dashboard URL */
@@ -79,6 +91,7 @@ export function DocsTopbar({
   subdomain,
   settings,
   i18n,
+  version,
 }: DocsTopbarProps) {
   const s = (settings || {}) as DocsTopbarSettings;
   const githubProps = getGithubLinkProps(s.githubUrl);
@@ -199,6 +212,18 @@ export function DocsTopbar({
             <path d="M7 7h10v10" />
           </svg>
         </Link>
+
+        {version && version.availableVersions.length > 1 && (
+          <VersionSwitcher
+            currentVersion={version.currentVersion}
+            availableVersions={version.availableVersions}
+            versionsConfig={version.versionsConfig}
+            subdomain={subdomain}
+            pagePath={version.pagePath}
+            locale={version.locale}
+            defaultLanguage={version.defaultLanguage}
+          />
+        )}
 
         {i18n && i18n.availableLocales.length > 1 && (
           <LanguageSwitcher
