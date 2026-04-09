@@ -134,11 +134,35 @@ describe("create project request validation", () => {
     });
   });
 
+  it("accepts the onboarding initial deployment flag", async () => {
+    const validate = await getValidateCreateProjectRequest();
+    expect(
+      validate({
+        name: "My Docs",
+        createInitialDeployment: true,
+      }),
+    ).toEqual({
+      valid: true,
+      name: "My Docs",
+      createInitialDeployment: true,
+    });
+  });
+
   it("rejects invalid repoUrl", async () => {
     const validate = await getValidateCreateProjectRequest();
     expect(validate({ name: "My Docs", repoUrl: "not-a-url" })).toEqual({
       valid: false,
       error: "Invalid repository URL",
+    });
+  });
+
+  it("rejects non-GitHub repoUrl values", async () => {
+    const validate = await getValidateCreateProjectRequest();
+    expect(
+      validate({ name: "My Docs", repoUrl: "https://example.com/docs" }),
+    ).toEqual({
+      valid: false,
+      error: "Repository URL must be a GitHub repository",
     });
   });
 });
@@ -189,6 +213,14 @@ describe("update project request validation", () => {
     expect(validate({ repoUrl: "https://github.com/acme/docs" })).toEqual({
       valid: true,
       fields: { repoUrl: "https://github.com/acme/docs" },
+    });
+  });
+
+  it("rejects non-GitHub repoUrl updates", async () => {
+    const validate = await getValidateUpdateProjectRequest();
+    expect(validate({ repoUrl: "https://example.com/docs" })).toEqual({
+      valid: false,
+      error: "Repository URL must be a GitHub repository",
     });
   });
 });

@@ -3,7 +3,11 @@
  */
 
 import { validateCustomDomain } from "@/lib/domains";
-import { isValidBranchName, isValidRepoPath } from "@/lib/git-settings";
+import {
+  isValidBranchName,
+  isValidRepoPath,
+  parseGitHubUrl,
+} from "@/lib/git-settings";
 
 /** Convert a project name to a URL-safe slug (lowercase, hyphens, no special chars). */
 export function slugifyProject(input: string): string {
@@ -50,11 +54,33 @@ function isValidUrl(url: string): boolean {
   }
 }
 
+/** Validate that a repository URL points to a GitHub repo. */
+export function validateGitHubRepoUrl(repoUrl: string): string | null {
+  const trimmed = repoUrl.trim();
+
+  if (!trimmed) {
+    return null;
+  }
+
+  if (!isValidUrl(trimmed)) {
+    return "Invalid repository URL";
+  }
+
+  if (!parseGitHubUrl(trimmed)) {
+    return "Repository URL must be a GitHub repository";
+  }
+
+  return null;
+}
+
 /** Validate a create-project request body. */
-export function validateCreateProjectRequest(
-  body: unknown,
-):
-  | { valid: true; name: string; repoUrl?: string }
+export function validateCreateProjectRequest(body: unknown):
+  | {
+      valid: true;
+      name: string;
+      repoUrl?: string;
+      createInitialDeployment?: boolean;
+    }
   | { valid: false; error: string } {
   if (
     !body ||
@@ -70,14 +96,44 @@ export function validateCreateProjectRequest(
   if (error) return { valid: false, error };
 
   const repoUrl = (body as Record<string, unknown>).repoUrl;
-  if (repoUrl !== undefined && repoUrl !== null && repoUrl !== "") {
-    if (typeof repoUrl !== "string" || !isValidUrl(repoUrl)) {
-      return { valid: false, error: "Invalid repository URL" };
-    }
-    return { valid: true, name, repoUrl };
+  const createInitialDeployment = (body as Record<string, unknown>)
+    .createInitialDeployment;
+
+  if (
+    createInitialDeployment !== undefined &&
+    typeof createInitialDeployment !== "boolean"
+  ) {
+    return {
+      valid: false,
+      error: "createInitialDeployment must be a boolean",
+    };
   }
 
-  return { valid: true, name };
+  const result: {
+    valid: true;
+    name: string;
+    repoUrl?: string;
+    createInitialDeployment?: boolean;
+  } = { valid: true, name };
+
+  if (createInitialDeployment) {
+    result.createInitialDeployment = true;
+  }
+
+  if (repoUrl !== undefined && repoUrl !== null && repoUrl !== "") {
+    if (typeof repoUrl !== "string") {
+      return { valid: false, error: "Invalid repository URL" };
+    }
+
+    const repoUrlError = validateGitHubRepoUrl(repoUrl);
+    if (repoUrlError) {
+      return { valid: false, error: repoUrlError };
+    }
+
+    result.repoUrl = repoUrl.trim();
+  }
+
+  return result;
 }
 
 /** Validate an update-project request body. */
@@ -115,10 +171,14 @@ export function validateUpdateProjectRequest(
     if (typeof raw.repoUrl !== "string") {
       return { valid: false, error: "Repository URL must be a string" };
     }
-    if (raw.repoUrl !== "" && !isValidUrl(raw.repoUrl)) {
-      return { valid: false, error: "Invalid repository URL" };
+
+    const trimmedRepoUrl = raw.repoUrl.trim();
+    const repoUrlError = validateGitHubRepoUrl(trimmedRepoUrl);
+    if (repoUrlError) {
+      return { valid: false, error: repoUrlError };
     }
-    fields.repoUrl = raw.repoUrl;
+
+    fields.repoUrl = trimmedRepoUrl;
   }
 
   if (raw.repoBranch !== undefined) {

@@ -1,6 +1,11 @@
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { orgMemberships, organizations, projects } from "@/lib/db/schema";
+import {
+  deployments,
+  orgMemberships,
+  organizations,
+  projects,
+} from "@/lib/db/schema";
 import {
   generateSubdomain,
   slugifyProject,
@@ -116,16 +121,78 @@ export async function POST(request: Request) {
 
   const subdomain = generateSubdomain(orgSlug, finalSlug);
 
-  const [project] = await db
-    .insert(projects)
-    .values({
-      orgId,
-      name: validation.name,
-      slug: finalSlug,
-      subdomain,
-      repoUrl: validation.repoUrl ?? null,
-    })
-    .returning();
+  const shouldCreateInitialDeployment =
+    validation.valid &&
+    "createInitialDeployment" in validation &&
+    validation.createInitialDeployment === true;
 
-  return NextResponse.json({ project }, { status: 201 });
+  const { project, deployment } = await db.transaction(async (tx) => {
+    const [createdProject] = await tx
+      .insert(projects)
+      .values({
+        orgId,
+        name: validation.name,
+        slug: finalSlug,
+        subdomain,
+        repoUrl: validation.repoUrl ?? null,
+        status: shouldCreateInitialDeployment ? "deploying" : "active",
+      })
+      .returning();
+
+    if (!shouldCreateInitialDeployment) {
+      return {
+        project: createdProject,
+        deployment: null,
+      };
+    }
+
+    const [createdDeployment] = await tx
+      .insert(deployments)
+      .values({
+        projectId: createdProject.id,
+        status: "in_progress",
+        commitMessage: "Initial deployment",
+        startedAt: new Date(),
+      })
+      .returning();
+
+    return {
+      project: createdProject,
+      deployment: createdDeployment,
+    };
+  });
+
+  if (deployment) {
+    simulateBuildCompletion(deployment.id, project.id);
+  }
+
+  return NextResponse.json(deployment ? { project, deployment } : { project }, {
+    status: 201,
+  });
+}
+
+function simulateBuildCompletion(deploymentId: string, projectId: string) {
+  setTimeout(async () => {
+    try {
+      await db
+        .update(deployments)
+        .set({
+          status: "succeeded",
+          endedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(deployments.id, deploymentId),
+            eq(deployments.status, "in_progress"),
+          ),
+        );
+
+      await db
+        .update(projects)
+        .set({ status: "active" })
+        .where(eq(projects.id, projectId));
+    } catch {
+      // Ignore simulated build completion failures in dev/test.
+    }
+  }, 3000);
 }

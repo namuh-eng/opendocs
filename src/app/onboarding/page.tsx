@@ -4,6 +4,7 @@ import { validateOrgName } from "@/lib/orgs";
 import {
   generateSubdomain,
   slugifyProject,
+  validateGitHubRepoUrl,
   validateProjectName,
 } from "@/lib/projects";
 import {
@@ -19,6 +20,53 @@ import { useCallback, useEffect, useState } from "react";
 const STEPS = ["org", "github", "project", "success"] as const;
 
 const STEP_LABELS = ["Organization", "GitHub", "Project", "Complete"];
+
+const ONBOARDING_STATE_KEY = "onboarding-state";
+
+type OnboardingState = {
+  step: number;
+  orgName: string;
+  repoUrl: string;
+  projectName: string;
+  createdOrg: {
+    id: string;
+    slug: string;
+  } | null;
+};
+
+function readOnboardingState(): OnboardingState | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const raw = window.sessionStorage.getItem(ONBOARDING_STATE_KEY);
+  if (!raw) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(raw) as OnboardingState;
+  } catch {
+    window.sessionStorage.removeItem(ONBOARDING_STATE_KEY);
+    return null;
+  }
+}
+
+function writeOnboardingState(state: OnboardingState) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.sessionStorage.setItem(ONBOARDING_STATE_KEY, JSON.stringify(state));
+}
+
+function clearOnboardingState() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.sessionStorage.removeItem(ONBOARDING_STATE_KEY);
+}
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -36,6 +84,7 @@ export default function OnboardingPage() {
 
   // Step 2 state
   const [repoUrl, setRepoUrl] = useState("");
+  const [repoError, setRepoError] = useState("");
 
   // Step 3 state
   const [projectName, setProjectName] = useState("");
@@ -48,17 +97,65 @@ export default function OnboardingPage() {
 
   // Check if user already has an org — if so, skip onboarding
   useEffect(() => {
-    fetch("/api/orgs")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.orgs?.length > 0) {
+    const persistedState = readOnboardingState();
+
+    if (persistedState) {
+      setOrgName(persistedState.orgName);
+      setRepoUrl(persistedState.repoUrl);
+      setProjectName(persistedState.projectName);
+      setCreatedOrg(persistedState.createdOrg);
+      setStep(persistedState.step);
+    }
+
+    Promise.all([
+      fetch("/api/orgs").then((res) => res.json()),
+      fetch("/api/projects").then((res) => res.json()),
+    ])
+      .then(([orgData, projectData]) => {
+        const existingOrg = orgData.orgs?.[0];
+        const existingProject = projectData.projects?.[0];
+
+        if (existingOrg && existingProject) {
+          clearOnboardingState();
           router.replace("/dashboard");
-        } else {
-          setChecking(false);
+          return;
         }
+
+        if (existingOrg) {
+          setCreatedOrg({ id: existingOrg.id, slug: existingOrg.slug });
+          setOrgName(existingOrg.name);
+          setStep((currentStep) => {
+            const resumedStep =
+              persistedState && persistedState.step >= 2 ? 2 : 1;
+            return Math.max(currentStep, resumedStep);
+          });
+        } else if (!persistedState) {
+          clearOnboardingState();
+        }
+
+        setChecking(false);
       })
       .catch(() => setChecking(false));
   }, [router]);
+
+  useEffect(() => {
+    if (checking) {
+      return;
+    }
+
+    if (!createdOrg && !orgName && !repoUrl && !projectName && step === 0) {
+      clearOnboardingState();
+      return;
+    }
+
+    writeOnboardingState({
+      step,
+      orgName,
+      repoUrl,
+      projectName,
+      createdOrg,
+    });
+  }, [checking, createdOrg, orgName, projectName, repoUrl, step]);
 
   // ── Step 1: Create Organization ─────────────────────────────────────────────
 
@@ -97,13 +194,23 @@ export default function OnboardingPage() {
   // ── Step 2: GitHub connection (skippable) ───────────────────────────────────
 
   const handleSkipGitHub = useCallback(() => {
+    setRepoError("");
     setStep(2);
   }, []);
 
   const handleConnectGitHub = useCallback(() => {
-    // For now, just store the URL and proceed
+    const trimmed = repoUrl.trim();
+    const error = validateGitHubRepoUrl(trimmed);
+
+    if (error) {
+      setRepoError(error);
+      return;
+    }
+
+    setRepoError("");
+    setRepoUrl(trimmed);
     setStep(2);
-  }, []);
+  }, [repoUrl]);
 
   // ── Step 3: Create Project ──────────────────────────────────────────────────
 
@@ -124,6 +231,7 @@ export default function OnboardingPage() {
         body: JSON.stringify({
           name: trimmed,
           repoUrl: repoUrl.trim() || undefined,
+          createInitialDeployment: true,
         }),
       });
       if (!res.ok) {
@@ -148,6 +256,7 @@ export default function OnboardingPage() {
   // ── Step 4: Success → Go to dashboard ───────────────────────────────────────
 
   const handleGoToDashboard = useCallback(() => {
+    clearOnboardingState();
     router.push("/dashboard");
   }, [router]);
 
@@ -308,10 +417,16 @@ export default function OnboardingPage() {
                     id="repo-url"
                     type="text"
                     value={repoUrl}
-                    onChange={(e) => setRepoUrl(e.target.value)}
+                    onChange={(e) => {
+                      setRepoUrl(e.target.value);
+                      setRepoError("");
+                    }}
                     placeholder="https://github.com/org/repo"
                     className="w-full rounded-lg border border-gray-700 bg-[#1a1a1a] px-4 py-3 text-sm text-white placeholder-gray-500 outline-none transition-colors focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
                   />
+                  {repoError && (
+                    <p className="text-sm text-red-400">{repoError}</p>
+                  )}
                 </div>
 
                 <button

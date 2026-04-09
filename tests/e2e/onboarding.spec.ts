@@ -6,6 +6,14 @@ import {
 } from "@playwright/test";
 import { parseSetCookieHeader } from "better-auth/cookies";
 
+function slugify(input: string) {
+  return input
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
 async function createSession(
   page: Page,
   request: APIRequestContext,
@@ -126,6 +134,63 @@ test.describe("onboarding wizard — multi-step flow", () => {
     await expect(page.getByText(/name is required/i)).toBeVisible();
   });
 
+  test("rejects non-GitHub repository URLs on step 2", async ({ page }) => {
+    await page.goto("/onboarding");
+    await page.getByLabel(/organization name/i).fill("Repo Validation Org");
+    await page.getByRole("button", { name: /continue/i }).click();
+    await page
+      .getByLabel(/GitHub repository URL/i)
+      .fill("https://example.com/repo");
+    await page.getByRole("button", { name: /connect repository/i }).click();
+    await expect(
+      page.getByText(/repository url must be a github repository/i),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: /connect.*repository/i }),
+    ).toBeVisible();
+  });
+
+  test("resumes onboarding after refresh when the org exists but the project does not", async ({
+    page,
+  }) => {
+    await page.goto("/onboarding");
+    await page
+      .getByLabel(/organization name/i)
+      .fill(`Resume Org ${Date.now()}`);
+    await page.getByRole("button", { name: /continue/i }).click();
+    await expect(
+      page.getByRole("heading", { name: /connect.*repository/i }),
+    ).toBeVisible({ timeout: 10000 });
+
+    await page.reload();
+
+    await expect(
+      page.getByRole("heading", { name: /connect.*repository/i }),
+    ).toBeVisible({ timeout: 10000 });
+    await expect(
+      page.getByRole("button", { name: /skip for now/i }),
+    ).toBeVisible();
+  });
+
+  test("shows a live subdomain preview while typing the project name", async ({
+    page,
+  }) => {
+    const orgName = `Preview Org ${Date.now()}`;
+
+    await page.goto("/onboarding");
+    await page.getByLabel(/organization name/i).fill(orgName);
+    await page.getByRole("button", { name: /continue/i }).click();
+    await page.getByRole("button", { name: /skip for now/i }).click({
+      timeout: 10000,
+    });
+
+    await page.getByLabel(/project name/i).fill("Live Docs");
+
+    await expect(
+      page.getByText(`${slugify(orgName)}-live-docs.mintlify.app`),
+    ).toBeVisible();
+  });
+
   test("full wizard flow: org → skip GitHub → project → success", async ({
     page,
   }) => {
@@ -152,6 +217,45 @@ test.describe("onboarding wizard — multi-step flow", () => {
     await expect(
       page.getByRole("button", { name: /go to dashboard/i }),
     ).toBeVisible();
+  });
+
+  test("stores the GitHub repo URL and creates an initial deployment", async ({
+    page,
+  }) => {
+    const orgName = `Deployment Org ${Date.now()}`;
+    const repoUrl = "https://github.com/acme/docs";
+
+    await page.goto("/onboarding");
+    await page.getByLabel(/organization name/i).fill(orgName);
+    await page.getByRole("button", { name: /continue/i }).click();
+    await page.getByLabel(/GitHub repository URL/i).fill(repoUrl);
+    await page.getByRole("button", { name: /connect repository/i }).click();
+    await page.getByLabel(/project name/i).fill("Initial Deploy");
+    await page.getByRole("button", { name: /create project/i }).click();
+
+    await expect(page.getByRole("heading", { name: /all set/i })).toBeVisible({
+      timeout: 10000,
+    });
+
+    const projectData = await page.evaluate(async () => {
+      const response = await fetch("/api/projects", { credentials: "include" });
+      return response.json();
+    });
+
+    expect(projectData.projects).toHaveLength(1);
+    expect(projectData.projects[0].repoUrl).toBe(repoUrl);
+
+    const deploymentData = await page.evaluate(async () => {
+      const response = await fetch("/api/deployments", {
+        credentials: "include",
+      });
+      return response.json();
+    });
+
+    expect(deploymentData.deployments).toHaveLength(1);
+    expect(["queued", "in_progress", "succeeded"]).toContain(
+      deploymentData.deployments[0].status,
+    );
   });
 
   test("back button navigates to previous step", async ({ page }) => {
