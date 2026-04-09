@@ -38,6 +38,43 @@ async function ensureEditorPageExists(page: Page) {
   });
 }
 
+async function seedFirstEditorPage(page: Page, content: string) {
+  await page.evaluate(async (nextContent) => {
+    const projectsResponse = await fetch("/api/projects");
+    const projectsData = (await projectsResponse.json()) as {
+      projects?: Array<{ id: string }>;
+    };
+    const projectId = projectsData.projects?.[0]?.id;
+
+    if (!projectId) {
+      throw new Error("No project found for editor tests");
+    }
+
+    const pagesResponse = await fetch(`/api/projects/${projectId}/pages`);
+    const pagesData = (await pagesResponse.json()) as {
+      pages?: Array<{ id: string }>;
+    };
+    const pageId = pagesData.pages?.[0]?.id;
+
+    if (!pageId) {
+      throw new Error("No page found for editor tests");
+    }
+
+    const updateResponse = await fetch(
+      `/api/projects/${projectId}/pages/${pageId}`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: nextContent }),
+      },
+    );
+
+    if (!updateResponse.ok) {
+      throw new Error(`Failed to seed editor page: ${updateResponse.status}`);
+    }
+  }, content);
+}
+
 test.describe("Dual-mode MDX Editor", () => {
   test.beforeEach(async ({ page }) => {
     await ensureEditorPageExists(page);
@@ -119,5 +156,34 @@ test.describe("Dual-mode MDX Editor", () => {
 
     // Should show component options
     await expect(page.getByRole("button", { name: "Tab" })).toBeVisible();
+  });
+
+  test("visual toolbar inserts clean markdown placeholders", async ({
+    page,
+  }) => {
+    await page.goto("/editor/main");
+    await seedFirstEditorPage(
+      page,
+      "# Toolbar Probe\n\nParagraph text.\n\n## Existing Heading\n",
+    );
+    await page.goto("/editor/main");
+    await expect(page.getByTestId("visual-editor")).toBeVisible();
+
+    await page
+      .locator('[data-testid="visual-editor"] [contenteditable="true"]')
+      .click();
+    await page.getByTestId("toolbar-bold").click();
+    await page.getByTestId("toolbar-italic").click();
+    await page.getByTestId("toolbar-heading").click();
+    await page.waitForTimeout(2500);
+
+    await page.getByTestId("mode-markdown").click();
+    const value = await page.getByTestId("markdown-textarea").inputValue();
+
+    expect(value).toContain("**Bold text**");
+    expect(value).toContain("*Italic text*");
+    expect(value).toMatch(/\n## Heading(?:\n|$)/);
+    expect(value).not.toContain("**Bold text*Italic text*Bold text**");
+    expect(value).not.toContain("## Heading*Italic text*");
   });
 });

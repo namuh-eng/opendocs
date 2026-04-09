@@ -357,6 +357,55 @@ function htmlToMarkdown(html: string): string {
   return md.trim();
 }
 
+function insertPlaceholderParagraph(
+  editor: NonNullable<ReturnType<typeof useEditor>>,
+  mark: "bold" | "italic",
+  text: string,
+) {
+  editor
+    .chain()
+    .focus()
+    .unsetAllMarks()
+    .insertContent([
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text,
+            marks: [{ type: mark }],
+          },
+        ],
+      },
+      {
+        type: "paragraph",
+      },
+    ])
+    .focus("end")
+    .run();
+}
+
+function insertPlaceholderHeading(
+  editor: NonNullable<ReturnType<typeof useEditor>>,
+) {
+  editor
+    .chain()
+    .focus()
+    .unsetAllMarks()
+    .insertContent([
+      {
+        type: "heading",
+        attrs: { level: 2 },
+        content: [{ type: "text", text: "Heading" }],
+      },
+      {
+        type: "paragraph",
+      },
+    ])
+    .focus("end")
+    .run();
+}
+
 export const VisualEditor = forwardRef<VisualEditorHandle, VisualEditorProps>(
   function VisualEditor({ content, onChange }, ref) {
     const isUpdating = useRef(false);
@@ -416,11 +465,7 @@ export const VisualEditor = forwardRef<VisualEditorHandle, VisualEditorProps>(
         toggleBold: () => {
           if (!editor) return;
           if (editor.state.selection.empty) {
-            editor
-              .chain()
-              .focus()
-              .insertContent("<strong>Bold text</strong>")
-              .run();
+            insertPlaceholderParagraph(editor, "bold", "Bold text");
             return;
           }
           editor?.chain().focus().toggleBold().run();
@@ -428,7 +473,7 @@ export const VisualEditor = forwardRef<VisualEditorHandle, VisualEditorProps>(
         toggleItalic: () => {
           if (!editor) return;
           if (editor.state.selection.empty) {
-            editor.chain().focus().insertContent("<em>Italic text</em>").run();
+            insertPlaceholderParagraph(editor, "italic", "Italic text");
             return;
           }
           editor?.chain().focus().toggleItalic().run();
@@ -436,7 +481,7 @@ export const VisualEditor = forwardRef<VisualEditorHandle, VisualEditorProps>(
         toggleHeading: () => {
           if (!editor) return;
           if (editor.state.selection.empty) {
-            editor.chain().focus().insertContent("<h2>Heading</h2>").run();
+            insertPlaceholderHeading(editor);
             return;
           }
           editor?.chain().focus().toggleHeading({ level: 2 }).run();
