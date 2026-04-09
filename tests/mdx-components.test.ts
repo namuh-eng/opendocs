@@ -82,6 +82,8 @@ describe("MDX Component Library (feature-004a)", () => {
         props: {},
       });
       expect(html).toContain("steps");
+      expect(html).toContain('<details class="step">');
+      expect(html).toContain('summary class="step-summary"');
       expect(html).toContain("Set up environment");
       expect(html).toContain("Deploy changes");
       expect(html).toContain("Clone the repo");
@@ -97,6 +99,7 @@ describe("MDX Component Library (feature-004a)", () => {
         props: {},
       });
       expect(html).toContain("step-number");
+      expect(html).toContain("step-chevron");
     });
 
     it("renders Step with icon prop when provided", () => {
@@ -123,6 +126,21 @@ describe("MDX Component Library (feature-004a)", () => {
       // There should be multiple steps
       const stepCount = (html.match(/class="step"/g) || []).length;
       expect(stepCount).toBe(2);
+    });
+
+    it("renders code blocks inside expandable step content", () => {
+      const html = renderComponentBlock({
+        type: "component",
+        tag: "Steps",
+        content:
+          '<Step title="Install">\n```bash\nnpm install\n```\n</Step>\n<Step title="Run">\n```bash\nnpm run dev\n```\n</Step>',
+        props: {},
+      });
+
+      expect(html).toContain('<details class="step">');
+      expect(html).toContain("code-block");
+      expect(html).toContain('class="language-bash"');
+      expect(html).toContain("npm run dev");
     });
   });
 

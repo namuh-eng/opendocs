@@ -93,6 +93,10 @@ function renderSvgIcon(iconName: string): string {
   return SVG_ICONS[iconName] || "";
 }
 
+function renderDisclosureChevron() {
+  return '<svg class="step-chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>';
+}
+
 // ── Syntax Highlighting ──────────────────────────────────────────────────────
 
 const SYNTAX_KEYWORDS = new Set([
@@ -617,26 +621,25 @@ export function renderComponentBlock(block: ContentBlock): string {
 
     // Steps
     case "Steps": {
-      const stepRegex =
-        /<Step\s+title="([^"]*)"[^>]*>\s*([\s\S]*?)(?=<Step\s|$)/g;
-      const steps: Array<{ title: string; content: string }> = [];
-      let stepMatch = stepRegex.exec(content);
-      while (stepMatch) {
-        // Clean up trailing </Step> from content
-        const stepContent = stepMatch[2].replace(/<\/Step>/g, "").trim();
-        steps.push({ title: stepMatch[1], content: stepContent });
-        stepMatch = stepRegex.exec(content);
-      }
+      const steps = extractComponentBlocks(content).filter(
+        (nestedBlock) =>
+          nestedBlock.type === "component" && nestedBlock.tag === "Step",
+      );
 
       if (steps.length === 0) {
         return `<div class="steps">${parseMdxToHtml(content)}</div>`;
       }
 
       const stepsHtml = steps
-        .map(
-          (step, idx) =>
-            `<div class="step"><div class="step-number">${idx + 1}</div><div class="step-content"><h3 class="step-title">${escapeHtml(step.title)}</h3><div class="step-body">${parseMdxToHtml(step.content)}</div></div></div>`,
-        )
+        .map((step, idx) => {
+          const title = step.props?.title || `Step ${idx + 1}`;
+          const icon = step.props?.icon || "";
+          const stepIcon = icon
+            ? `<span class="step-icon">${renderSvgIcon(icon) || escapeHtml(icon)}</span>`
+            : "";
+
+          return `<details class="step"><summary class="step-summary"><span class="step-number">${idx + 1}</span><span class="step-summary-main">${stepIcon}<span class="step-title">${escapeHtml(title)}</span></span>${renderDisclosureChevron()}</summary><div class="step-body">${renderMdxContent(step.content)}</div></details>`;
+        })
         .join("");
       return `<div class="steps">${stepsHtml}</div>`;
     }

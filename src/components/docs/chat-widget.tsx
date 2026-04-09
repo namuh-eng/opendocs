@@ -158,6 +158,29 @@ export function ChatWidget({ subdomain, currentPath }: ChatWidgetProps) {
     return () => document.removeEventListener("toggle-ask-ai", handler);
   }, []);
 
+  // Open the assistant with a code-aware draft when Ask AI is clicked
+  useEffect(() => {
+    const handler = (
+      event: Event | CustomEvent<{ code?: string; language?: string }>,
+    ) => {
+      const detail = "detail" in event ? event.detail : undefined;
+      const code = detail?.code?.trim();
+      if (!code) return;
+
+      const language = detail?.language?.trim() || "text";
+      const prompt = `Explain this ${language} code:\n\`\`\`${language}\n${code}\n\`\`\``;
+
+      dispatch({ type: "OPEN" });
+      setInput((current) =>
+        current.trim() ? `${current}\n\n${prompt}` : prompt,
+      );
+    };
+
+    document.addEventListener("ask-ai-code", handler as EventListener);
+    return () =>
+      document.removeEventListener("ask-ai-code", handler as EventListener);
+  }, []);
+
   // Auto-scroll to bottom on new messages
   const scrollKey = `${state.messages.length}-${state.messages[state.messages.length - 1]?.content.length ?? 0}`;
   useEffect(() => {
