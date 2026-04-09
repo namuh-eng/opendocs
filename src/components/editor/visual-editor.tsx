@@ -151,6 +151,7 @@ export function VisualEditor({ content, onChange }: VisualEditorProps) {
   const isUpdating = useRef(false);
 
   const editor = useEditor({
+    immediatelyRender: false,
     extensions: [
       StarterKit.configure({
         codeBlock: false,
