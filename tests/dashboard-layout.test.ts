@@ -118,7 +118,7 @@ describe("Dashboard Layout — Sidebar Collapse", () => {
 
 describe("Dashboard Layout — User Menu Items", () => {
   const menuItems = [
-    { label: "Your profile", href: "/settings/account" },
+    { label: "Your profile", href: "/settings/workspace/profile" },
     { label: "Invite members", href: "/settings/workspace/members" },
     { label: "Billing", href: "/settings" },
     { label: "Documentation", href: "/docs", external: true },
@@ -139,6 +139,6 @@ describe("Dashboard Layout — User Menu Items", () => {
 
   it("should have valid hrefs for profile links", () => {
     const profileItem = menuItems.find((m) => m.label === "Your profile");
-    expect(profileItem?.href).toBe("/settings/account");
+    expect(profileItem?.href).toBe("/settings/workspace/profile");
   });
 });
