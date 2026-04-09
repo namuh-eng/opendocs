@@ -270,6 +270,27 @@ export function EditorToolbar({
                   setShowAddNew(false);
                 }}
               />
+              <DropdownItem
+                label="Language"
+                onClick={() => {
+                  onInsertSnippet?.("language");
+                  setShowAddNew(false);
+                }}
+              />
+              <DropdownItem
+                label="Product"
+                onClick={() => {
+                  onInsertSnippet?.("product");
+                  setShowAddNew(false);
+                }}
+              />
+              <DropdownItem
+                label="Version"
+                onClick={() => {
+                  onInsertSnippet?.("version");
+                  setShowAddNew(false);
+                }}
+              />
             </div>
           )}
         </div>

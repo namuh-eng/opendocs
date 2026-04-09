@@ -1,4 +1,8 @@
 import {
+  htmlToMarkdown,
+  markdownToHtml,
+} from "@/components/editor/visual-editor";
+import {
   countLines,
   createAutoSave,
   extractFrontmatter,
@@ -221,8 +225,38 @@ describe("mdxSnippets", () => {
     expect(mdxSnippets.dropdown).toContain("<Dropdown");
     expect(mdxSnippets.anchor).toContain("<Anchor");
     expect(mdxSnippets.card).toContain("<Card");
+    expect(mdxSnippets.language).toContain("<Language");
+    expect(mdxSnippets.product).toContain("<Product");
+    expect(mdxSnippets.version).toContain("<Version");
     expect(mdxSnippets.codeBlock).toContain("```");
     expect(mdxSnippets.columns).toContain("<Columns");
+  });
+});
+
+describe("visual editor markdown transforms", () => {
+  it("preserves block spacing through html conversion", () => {
+    const markdown = `# Title
+
+Paragraph copy.
+
+## Section
+
+More text.`;
+
+    expect(htmlToMarkdown(markdownToHtml(markdown))).toBe(markdown);
+  });
+
+  it("preserves MDX component blocks through html conversion", () => {
+    const markdown = `<Card title="Quickstart" icon="book" href="/docs">
+  Ship docs faster
+</Card>`;
+
+    expect(htmlToMarkdown(markdownToHtml(markdown))).toBe(markdown);
+  });
+
+  it("renders markdown images as markdown after round-trip", () => {
+    const markdown = "![Diagram](https://placehold.co/600x400/png)";
+    expect(htmlToMarkdown(markdownToHtml(markdown))).toBe(markdown);
   });
 });
 

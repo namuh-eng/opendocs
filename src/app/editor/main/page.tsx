@@ -7,7 +7,10 @@ import { MarkdownEditor } from "@/components/editor/markdown-editor";
 import { PageSettingsPanel } from "@/components/editor/page-settings-panel";
 import { SuggestionsPanel } from "@/components/editor/suggestions-panel";
 import { TocPanel } from "@/components/editor/toc-panel";
-import { VisualEditor } from "@/components/editor/visual-editor";
+import {
+  VisualEditor,
+  type VisualEditorHandle,
+} from "@/components/editor/visual-editor";
 import { EmptyState } from "@/components/empty-state";
 import type { EditorMode, MdxSnippetKey } from "@/lib/editor";
 import {
@@ -368,6 +371,7 @@ export default function EditorPage() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [currentBranch, setCurrentBranch] = useState("main");
   const [cursorPos, setCursorPos] = useState(0);
+  const visualEditorRef = useRef<VisualEditorHandle | null>(null);
 
   // Auto-save setup
   const autoSaveRef = useRef<ReturnType<typeof createAutoSave> | null>(null);
@@ -422,6 +426,8 @@ export default function EditorPage() {
     const { body } = extractFrontmatter(content);
     return extractToc(body);
   }, [content]);
+
+  const visualBody = useMemo(() => extractFrontmatter(content).body, [content]);
 
   // Fetch the first project to get its ID
   useEffect(() => {
@@ -510,44 +516,116 @@ export default function EditorPage() {
 
   // Toolbar formatting handlers
   function handleBold() {
-    if (editorMode === "markdown") {
-      const { newText, newCursorPos } = insertSnippetAtCursor(
-        content,
-        cursorPos,
-        "**bold**",
-      );
-      setContent(newText);
-      setHasUnsavedChanges(true);
-      autoSaveRef.current?.trigger(newText);
+    if (editorMode === "visual") {
+      visualEditorRef.current?.toggleBold();
+      return;
     }
+
+    const { newText, newCursorPos } = insertSnippetAtCursor(
+      content,
+      cursorPos,
+      "**bold**",
+    );
+    setContent(newText);
+    setCursorPos(newCursorPos);
+    setHasUnsavedChanges(true);
+    autoSaveRef.current?.trigger(newText);
   }
 
   function handleItalic() {
-    if (editorMode === "markdown") {
-      const { newText } = insertSnippetAtCursor(content, cursorPos, "*italic*");
-      setContent(newText);
-      setHasUnsavedChanges(true);
-      autoSaveRef.current?.trigger(newText);
+    if (editorMode === "visual") {
+      visualEditorRef.current?.toggleItalic();
+      return;
     }
+
+    const { newText, newCursorPos } = insertSnippetAtCursor(
+      content,
+      cursorPos,
+      "*italic*",
+    );
+    setContent(newText);
+    setCursorPos(newCursorPos);
+    setHasUnsavedChanges(true);
+    autoSaveRef.current?.trigger(newText);
   }
 
   function handleHeading() {
-    if (editorMode === "markdown") {
-      const { newText } = insertSnippetAtCursor(
-        content,
-        cursorPos,
-        "## Heading",
-      );
-      setContent(newText);
-      setHasUnsavedChanges(true);
-      autoSaveRef.current?.trigger(newText);
+    if (editorMode === "visual") {
+      visualEditorRef.current?.toggleHeading();
+      return;
     }
+
+    const { newText, newCursorPos } = insertSnippetAtCursor(
+      content,
+      cursorPos,
+      "## Heading",
+    );
+    setContent(newText);
+    setCursorPos(newCursorPos);
+    setHasUnsavedChanges(true);
+    autoSaveRef.current?.trigger(newText);
+  }
+
+  function handleLink() {
+    if (editorMode === "visual") {
+      visualEditorRef.current?.insertLink();
+      return;
+    }
+
+    const { newText, newCursorPos } = insertSnippetAtCursor(
+      content,
+      cursorPos,
+      "[Link text](https://example.com)",
+    );
+    setContent(newText);
+    setCursorPos(newCursorPos);
+    setHasUnsavedChanges(true);
+    autoSaveRef.current?.trigger(newText);
+  }
+
+  function handleImage() {
+    if (editorMode === "visual") {
+      visualEditorRef.current?.insertImage();
+      return;
+    }
+
+    const { newText, newCursorPos } = insertSnippetAtCursor(
+      content,
+      cursorPos,
+      "![Image alt](https://placehold.co/1200x630/png)",
+    );
+    setContent(newText);
+    setCursorPos(newCursorPos);
+    setHasUnsavedChanges(true);
+    autoSaveRef.current?.trigger(newText);
+  }
+
+  function handleCodeBlock() {
+    if (editorMode === "visual") {
+      visualEditorRef.current?.insertCodeBlock();
+      return;
+    }
+
+    const { newText, newCursorPos } = insertSnippetAtCursor(
+      content,
+      cursorPos,
+      mdxSnippets.codeBlock,
+    );
+    setContent(newText);
+    setCursorPos(newCursorPos);
+    setHasUnsavedChanges(true);
+    autoSaveRef.current?.trigger(newText);
   }
 
   function handleInsertSnippet(key: MdxSnippetKey) {
     const snippet = mdxSnippets[key];
-    const { newText } = insertSnippetAtCursor(content, cursorPos, snippet);
+    const { newText, newCursorPos } = insertSnippetAtCursor(
+      content,
+      cursorPos,
+      snippet,
+    );
     setContent(newText);
+    setCursorPos(newCursorPos);
     setHasUnsavedChanges(true);
     autoSaveRef.current?.trigger(newText);
   }
@@ -584,6 +662,9 @@ export default function EditorPage() {
         onBold={handleBold}
         onItalic={handleItalic}
         onHeading={handleHeading}
+        onLink={handleLink}
+        onImage={handleImage}
+        onCodeBlock={handleCodeBlock}
         onInsertSnippet={handleInsertSnippet}
         onToggleSettings={() => {
           setShowSettings(!showSettings);
@@ -812,8 +893,14 @@ export default function EditorPage() {
               <div className="flex-1 overflow-hidden">
                 {editorMode === "visual" ? (
                   <VisualEditor
-                    content={content}
-                    onChange={handleContentChange}
+                    ref={visualEditorRef}
+                    content={visualBody}
+                    onChange={(newBody) => {
+                      const { frontmatter } = extractFrontmatter(content);
+                      handleContentChange(
+                        serializeFrontmatter(frontmatter, newBody),
+                      );
+                    }}
                   />
                 ) : (
                   <MarkdownEditor

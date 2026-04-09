@@ -151,6 +151,9 @@ export const mdxSnippets = {
   callout: "<Note>\n  Important information here\n</Note>",
   card: `<Card title="Card Title" icon="icon-name" href="/link">\n  Card description here\n</Card>`,
   codeBlock: "```language\n// code here\n```",
+  language: '<Language code="typescript" />',
+  product: '<Product name="Platform" />',
+  version: '<Version tag="v1" />',
   columns:
     "<Columns cols={2}>\n  <Column>\n    Left content\n  </Column>\n  <Column>\n    Right content\n  </Column>\n</Columns>",
 } as const;
