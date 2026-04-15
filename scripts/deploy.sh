@@ -22,8 +22,10 @@ echo ""
 
 # 1. Build Docker image
 echo "--- Building Docker image ---"
+PUBLIC_URL=$(grep "^NEXT_PUBLIC_APP_URL=" .env 2>/dev/null | cut -d= -f2- || echo "")
 docker build \
   --platform linux/amd64 \
+  --build-arg NEXT_PUBLIC_APP_URL="${PUBLIC_URL}" \
   -t "${APP_NAME}:${IMAGE_TAG}" \
   -t "${APP_NAME}:latest" \
   .
@@ -58,6 +60,7 @@ ENV_VARS='{}'
 # Read allowed env vars from .env
 ALLOWED_VARS=(
   DATABASE_URL
+  DB_SSL
   BETTER_AUTH_SECRET
   BETTER_AUTH_URL
   AUTH_GOOGLE_ID
@@ -66,6 +69,7 @@ ALLOWED_VARS=(
   AWS_REGION
   NEXT_PUBLIC_APP_URL
   ANTHROPIC_API_KEY
+  GITHUB_WEBHOOK_SECRET
 )
 
 for VAR in "${ALLOWED_VARS[@]}"; do
