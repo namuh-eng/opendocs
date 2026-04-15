@@ -37,24 +37,35 @@ const MdxPreviewNode = Node.create({
     return {
       kind: {
         default: "MDX",
-        parseHTML: (element) => element.getAttribute("data-kind") ?? "MDX",
-        renderHTML: (attributes) => ({ "data-kind": attributes.kind }),
+        parseHTML: (element: HTMLElement) =>
+          element.getAttribute("data-kind") ?? "MDX",
+        renderHTML: (attributes: Record<string, unknown>) => ({
+          "data-kind": attributes.kind,
+        }),
       },
       label: {
         default: "MDX component",
-        parseHTML: (element) =>
+        parseHTML: (element: HTMLElement) =>
           element.getAttribute("data-label") ?? "MDX component",
-        renderHTML: (attributes) => ({ "data-label": attributes.label }),
+        renderHTML: (attributes: Record<string, unknown>) => ({
+          "data-label": attributes.label,
+        }),
       },
       summary: {
         default: "",
-        parseHTML: (element) => element.getAttribute("data-summary") ?? "",
-        renderHTML: (attributes) => ({ "data-summary": attributes.summary }),
+        parseHTML: (element: HTMLElement) =>
+          element.getAttribute("data-summary") ?? "",
+        renderHTML: (attributes: Record<string, unknown>) => ({
+          "data-summary": attributes.summary,
+        }),
       },
       source: {
         default: "",
-        parseHTML: (element) => element.getAttribute("data-source") ?? "",
-        renderHTML: (attributes) => ({ "data-source": attributes.source }),
+        parseHTML: (element: HTMLElement) =>
+          element.getAttribute("data-source") ?? "",
+        renderHTML: (attributes: Record<string, unknown>) => ({
+          "data-source": attributes.source,
+        }),
       },
     };
   },
@@ -63,12 +74,12 @@ const MdxPreviewNode = Node.create({
     return [{ tag: MDX_PREVIEW_TAG }];
   },
 
-  renderHTML({ HTMLAttributes }) {
+  renderHTML({ HTMLAttributes }: { HTMLAttributes: Record<string, unknown> }) {
     return [MDX_PREVIEW_TAG, mergeAttributes(HTMLAttributes)];
   },
 
   addNodeView() {
-    return ({ node }) => {
+    return ({ node }: { node: { attrs: Record<string, string> } }) => {
       const dom = document.createElement("div");
       dom.className =
         "not-prose my-4 rounded-xl border border-white/[0.08] bg-[#161616] p-4";
@@ -453,7 +464,9 @@ export const VisualEditor = forwardRef<VisualEditorHandle, VisualEditorProps>(
             "prose-hr:border-white/[0.08] prose-blockquote:border-emerald-500 prose-blockquote:text-gray-400",
         },
       },
-      onUpdate: ({ editor: currentEditor }) => {
+      onUpdate: ({
+        editor: currentEditor,
+      }: { editor: { getHTML: () => string } }) => {
         if (isUpdating.current) return;
         onChange(htmlToMarkdown(currentEditor.getHTML()));
       },
