@@ -80,6 +80,25 @@ function classifyHandoffAction(action: string) {
   return "all" as const;
 }
 
+function formatDuration(from: string, to: string) {
+  const start = new Date(from).getTime();
+  const end = new Date(to).getTime();
+  const diffMs = end - start;
+
+  if (!Number.isFinite(diffMs) || diffMs <= 0) return null;
+
+  const totalMinutes = Math.floor(diffMs / 60000);
+  if (totalMinutes < 60) return `${totalMinutes}m open`;
+
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  if (hours < 24) return minutes > 0 ? `${hours}h ${minutes}m open` : `${hours}h open`;
+
+  const days = Math.floor(hours / 24);
+  const remHours = hours % 24;
+  return remHours > 0 ? `${days}d ${remHours}h open` : `${days}d open`;
+}
+
 interface Props {
   greeting: string;
   firstName: string;
@@ -576,6 +595,9 @@ export function DashboardHomeClient({
                             Created {timeAgo(handoff.createdAt)}
                             {handoff.details.resolution.resolvedAt
                               ? ` • Resolved ${timeAgo(handoff.details.resolution.resolvedAt)}`
+                              : ""}
+                            {handoff.details.resolution.resolvedAt
+                              ? ` • ${formatDuration(handoff.createdAt, handoff.details.resolution.resolvedAt) ?? ""}`
                               : ""}
                           </p>
                           <p className="text-xs text-gray-500 truncate mt-1">
