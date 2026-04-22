@@ -5,11 +5,12 @@
  * Session-authenticated (dashboard use), not API-key-based.
  */
 
+import { enqueueAgentJob, isAsyncSimulationEnabled } from "@/lib/async-execution";
 import { db } from "@/lib/db";
 import { agentJobs, orgMemberships, projects } from "@/lib/db/schema";
 import { createRequestId, logger } from "@/lib/logger";
 import { getServerSession } from "@/lib/session";
-import { and, desc, eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 
 async function resolveProject(userId: string) {
@@ -163,8 +164,7 @@ export async function POST(request: NextRequest) {
     })
     .returning();
 
-  // Simulate background processing
-  simulateProcessing(job.id);
+  await enqueueAgentJob(job.id);
 
   logger.info("agent_jobs_create_completed", {
     requestId,
@@ -173,6 +173,7 @@ export async function POST(request: NextRequest) {
     userId: session.user.id,
     projectId: project.id,
     jobId: job.id,
+    simulationEnabled: isAsyncSimulationEnabled(),
   });
 
   return NextResponse.json(
@@ -190,30 +191,3 @@ export async function POST(request: NextRequest) {
   );
 }
 
-function simulateProcessing(jobId: string) {
-  setTimeout(async () => {
-    try {
-      await db
-        .update(agentJobs)
-        .set({ status: "running", updatedAt: new Date() })
-        .where(and(eq(agentJobs.id, jobId), eq(agentJobs.status, "pending")));
-    } catch {
-      // fire-and-forget
-    }
-  }, 500);
-
-  setTimeout(async () => {
-    try {
-      await db
-        .update(agentJobs)
-        .set({
-          status: "succeeded",
-          prUrl: `https://github.com/org/repo/pull/${Math.floor(Math.random() * 1000)}`,
-          updatedAt: new Date(),
-        })
-        .where(and(eq(agentJobs.id, jobId), eq(agentJobs.status, "running")));
-    } catch {
-      // fire-and-forget
-    }
-  }, 5000);
-}

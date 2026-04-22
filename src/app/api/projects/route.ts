@@ -1,3 +1,4 @@
+import { enqueueDeployment, isAsyncSimulationEnabled } from "@/lib/async-execution";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import {
@@ -208,7 +209,7 @@ export async function POST(request: Request) {
   });
 
   if (deployment) {
-    simulateBuildCompletion(deployment.id, project.id);
+    await enqueueDeployment(deployment.id, project.id);
   }
 
   logger.info("projects_create_completed", {
@@ -218,6 +219,7 @@ export async function POST(request: Request) {
     projectId: project.id,
     orgId,
     createdInitialDeployment: Boolean(deployment),
+    simulationEnabled: isAsyncSimulationEnabled(),
   });
 
   return NextResponse.json(
@@ -228,28 +230,3 @@ export async function POST(request: Request) {
   );
 }
 
-function simulateBuildCompletion(deploymentId: string, projectId: string) {
-  setTimeout(async () => {
-    try {
-      await db
-        .update(deployments)
-        .set({
-          status: "succeeded",
-          endedAt: new Date(),
-        })
-        .where(
-          and(
-            eq(deployments.id, deploymentId),
-            eq(deployments.status, "in_progress"),
-          ),
-        );
-
-      await db
-        .update(projects)
-        .set({ status: "active" })
-        .where(eq(projects.id, projectId));
-    } catch {
-      // Ignore simulated build completion failures in dev/test.
-    }
-  }, 3000);
-}

@@ -11,6 +11,7 @@ import {
   formatAgentJobResponse,
   validateCreateJobInput,
 } from "@/lib/api-v1-agents";
+import { enqueueAgentJob } from "@/lib/async-execution";
 import { db } from "@/lib/db";
 import { agentJobs, projects } from "@/lib/db/schema";
 import { and, eq } from "drizzle-orm";
@@ -79,37 +80,7 @@ export async function POST(request: NextRequest) {
     })
     .returning();
 
-  // Simulate background processing (fire-and-forget)
-  simulateAgentProcessing(job.id);
+  await enqueueAgentJob(job.id);
 
   return NextResponse.json(formatAgentJobResponse(job), { status: 201 });
-}
-
-/** Simulate an agent job progressing: pending → running → succeeded. */
-function simulateAgentProcessing(jobId: string) {
-  setTimeout(async () => {
-    try {
-      await db
-        .update(agentJobs)
-        .set({ status: "running", updatedAt: new Date() })
-        .where(and(eq(agentJobs.id, jobId), eq(agentJobs.status, "pending")));
-    } catch {
-      // Simulation — ignore errors
-    }
-  }, 500);
-
-  setTimeout(async () => {
-    try {
-      await db
-        .update(agentJobs)
-        .set({
-          status: "succeeded",
-          prUrl: `https://github.com/org/repo/pull/${Math.floor(Math.random() * 1000)}`,
-          updatedAt: new Date(),
-        })
-        .where(and(eq(agentJobs.id, jobId), eq(agentJobs.status, "running")));
-    } catch {
-      // Simulation — ignore errors
-    }
-  }, 5000);
 }

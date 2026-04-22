@@ -1,3 +1,4 @@
+import { enqueueDeployment, isAsyncSimulationEnabled } from "@/lib/async-execution";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import {
@@ -8,7 +9,7 @@ import {
 } from "@/lib/db/schema";
 import { validateTriggerDeploymentRequest } from "@/lib/deployments";
 import { createRequestId, logger } from "@/lib/logger";
-import { and, desc, eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 
@@ -178,21 +179,7 @@ export async function POST(request: Request) {
     })
     .returning();
 
-  // Simulate async build: mark in_progress after insert
-  // In production this would be a background job
-  await db
-    .update(deployments)
-    .set({ status: "in_progress", startedAt: new Date() })
-    .where(eq(deployments.id, deployment.id));
-
-  // Update the project status to deploying
-  await db
-    .update(projects)
-    .set({ status: "deploying" })
-    .where(eq(projects.id, ctx.project.id));
-
-  // Simulate build completion after a short delay (fire-and-forget)
-  simulateBuildCompletion(deployment.id, ctx.project.id);
+  await enqueueDeployment(deployment.id, ctx.project.id);
 
   logger.info("deployments_trigger_completed", {
     requestId,
@@ -201,6 +188,7 @@ export async function POST(request: Request) {
     projectId: ctx.project.id,
     deploymentId: deployment.id,
     queuedStatus: "queued",
+    simulationEnabled: isAsyncSimulationEnabled(),
   });
 
   return NextResponse.json(
@@ -209,29 +197,3 @@ export async function POST(request: Request) {
   );
 }
 
-/** Simulate a build that completes after ~3 seconds */
-function simulateBuildCompletion(deploymentId: string, projectId: string) {
-  setTimeout(async () => {
-    try {
-      await db
-        .update(deployments)
-        .set({
-          status: "succeeded",
-          endedAt: new Date(),
-        })
-        .where(
-          and(
-            eq(deployments.id, deploymentId),
-            eq(deployments.status, "in_progress"),
-          ),
-        );
-
-      await db
-        .update(projects)
-        .set({ status: "active" })
-        .where(eq(projects.id, projectId));
-    } catch {
-      // Silently handle — this is a simulation
-    }
-  }, 3000);
-}

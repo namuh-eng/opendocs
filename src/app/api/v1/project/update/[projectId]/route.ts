@@ -10,6 +10,7 @@ import {
   formatDeploymentTriggerResponse,
   validateProjectId,
 } from "@/lib/api-v1-deployments";
+import { enqueueDeployment } from "@/lib/async-execution";
 import { db } from "@/lib/db";
 import { deployments, projects } from "@/lib/db/schema";
 import { and, eq } from "drizzle-orm";
@@ -68,55 +69,9 @@ export async function POST(
     })
     .returning();
 
-  // Simulate async build progression (fire-and-forget)
-  simulateBuild(deployment.id, projectId);
+  await enqueueDeployment(deployment.id, projectId);
 
   return NextResponse.json(formatDeploymentTriggerResponse(deployment), {
     status: 201,
   });
-}
-
-/** Simulate a build that transitions queued → in_progress → succeeded. */
-function simulateBuild(deploymentId: string, projectId: string) {
-  // Mark in_progress after 500ms
-  setTimeout(async () => {
-    try {
-      await db
-        .update(deployments)
-        .set({ status: "in_progress", startedAt: new Date() })
-        .where(
-          and(
-            eq(deployments.id, deploymentId),
-            eq(deployments.status, "queued"),
-          ),
-        );
-      await db
-        .update(projects)
-        .set({ status: "deploying" })
-        .where(eq(projects.id, projectId));
-    } catch {
-      // Simulation — ignore errors
-    }
-  }, 500);
-
-  // Mark succeeded after 3s
-  setTimeout(async () => {
-    try {
-      await db
-        .update(deployments)
-        .set({ status: "succeeded", endedAt: new Date() })
-        .where(
-          and(
-            eq(deployments.id, deploymentId),
-            eq(deployments.status, "in_progress"),
-          ),
-        );
-      await db
-        .update(projects)
-        .set({ status: "active" })
-        .where(eq(projects.id, projectId));
-    } catch {
-      // Simulation — ignore errors
-    }
-  }, 3000);
 }
