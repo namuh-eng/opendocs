@@ -230,6 +230,8 @@ export async function POST(request: Request) {
           deployment: {
             ...deployment,
             executionMode: enqueueResult?.mode ?? "manual",
+            executionHandoff:
+              enqueueResult?.handoff ?? "manual_followup_required",
           },
           requestId,
         }

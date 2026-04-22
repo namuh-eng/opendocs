@@ -187,6 +187,7 @@ export async function POST(request: NextRequest) {
       createdAt: job.createdAt.toISOString(),
       updatedAt: job.updatedAt.toISOString(),
       executionMode: enqueueResult.mode,
+      executionHandoff: enqueueResult.handoff,
       requestId,
     },
     { status: 201 },

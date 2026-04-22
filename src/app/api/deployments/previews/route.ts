@@ -221,6 +221,7 @@ export async function POST(request: Request) {
         status: "queued",
         previewUrl,
         executionMode: enqueueResult.mode,
+        executionHandoff: enqueueResult.handoff,
       },
       requestId,
     },

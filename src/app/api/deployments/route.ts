@@ -201,6 +201,7 @@ export async function POST(request: Request) {
         ...deployment,
         status: "queued",
         executionMode: enqueueResult.mode,
+        executionHandoff: enqueueResult.handoff,
       },
       requestId,
     },
