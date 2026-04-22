@@ -12,6 +12,7 @@ import {
   validateSendMessageInput,
   validateUuid,
 } from "@/lib/api-v1-agents";
+import { isAsyncSimulationEnabled } from "@/lib/async-execution";
 import { db } from "@/lib/db";
 import { agentJobs, projects } from "@/lib/db/schema";
 import { and, eq } from "drizzle-orm";
@@ -112,5 +113,9 @@ export async function POST(
     .where(eq(agentJobs.id, jobId))
     .returning();
 
-  return NextResponse.json(formatAgentJobResponse(updatedJob));
+  return NextResponse.json(
+    formatAgentJobResponse(updatedJob, {
+      simulated: isAsyncSimulationEnabled(),
+    }),
+  );
 }
