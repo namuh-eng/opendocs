@@ -261,6 +261,9 @@ export function DashboardHomeClient({
   const [expandedNoteHandoffId, setExpandedNoteHandoffId] = useState<string | null>(
     null,
   );
+  const [handoffSort, setHandoffSort] = useState<"newest" | "oldest" | "longest-open">(
+    "newest",
+  );
   const [handoffView, setHandoffView] = useState<"active" | "resolved">(
     "active",
   );
@@ -286,6 +289,23 @@ export function DashboardHomeClient({
   const filteredManualHandoffs = handoffRows.filter((handoff) => {
     if (handoffFilter === "all") return true;
     return classifyHandoffAction(handoff.action) === handoffFilter;
+  });
+
+  const sortedManualHandoffs = [...filteredManualHandoffs].sort((a, b) => {
+    if (handoffSort === "oldest") {
+      return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+    }
+
+    if (handoffSort === "longest-open") {
+      const aResolvedAt = a.details.resolution?.resolvedAt ?? new Date().toISOString();
+      const bResolvedAt = b.details.resolution?.resolvedAt ?? new Date().toISOString();
+      return (
+        new Date(bResolvedAt).getTime() - new Date(b.createdAt).getTime() -
+        (new Date(aResolvedAt).getTime() - new Date(a.createdAt).getTime())
+      );
+    }
+
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
   const domainDisplay = project
     ? formatDomainDisplay(project.subdomain, project.customDomain)
@@ -574,6 +594,19 @@ export function DashboardHomeClient({
                     {filter.label}
                   </button>
                 ))}
+                <select
+                  value={handoffSort}
+                  onChange={(event) =>
+                    setHandoffSort(
+                      event.target.value as "newest" | "oldest" | "longest-open",
+                    )
+                  }
+                  className="rounded-md border border-white/[0.08] bg-black/20 px-2 py-1 text-xs text-gray-300 focus:outline-none"
+                >
+                  <option value="newest">Newest</option>
+                  <option value="oldest">Oldest</option>
+                  <option value="longest-open">Longest open</option>
+                </select>
               </div>
             </div>
 
@@ -583,7 +616,7 @@ export function DashboardHomeClient({
               </p>
             ) : (
               <div className="space-y-2">
-                {filteredManualHandoffs.slice(0, 5).map((handoff) => (
+                {sortedManualHandoffs.slice(0, 5).map((handoff) => (
                   <div
                     key={handoff.id}
                     className="flex items-center justify-between gap-3 rounded-lg border border-white/[0.06] bg-black/20 px-3 py-2"
