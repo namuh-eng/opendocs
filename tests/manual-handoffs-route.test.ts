@@ -161,4 +161,48 @@ describe("GET /api/analytics/manual-handoffs", () => {
       },
     });
   });
+
+  it("excludes handoffs that already have a resolution event", async () => {
+    headersMock.mockResolvedValue(new Headers());
+    getSessionMock.mockResolvedValue({ user: { id: "user-1" } });
+
+    const membershipChain = {
+      from: vi.fn().mockReturnThis(),
+      where: vi.fn().mockReturnThis(),
+      limit: vi.fn().mockResolvedValue([{ orgId: "org-1" }]),
+    };
+
+    const handoffsChain = {
+      from: vi.fn().mockReturnThis(),
+      where: vi.fn().mockReturnThis(),
+      orderBy: vi.fn().mockReturnThis(),
+      limit: vi.fn().mockResolvedValue([]),
+    };
+
+    const totalChain = {
+      from: vi.fn().mockReturnThis(),
+      where: vi.fn().mockResolvedValue([{ count: 0 }]),
+    };
+
+    selectMock
+      .mockReturnValueOnce(membershipChain)
+      .mockReturnValueOnce(handoffsChain)
+      .mockReturnValueOnce(totalChain);
+
+    const { GET } = await import("@/app/api/analytics/manual-handoffs/route");
+    const response = await GET(
+      makeNextRequest("http://localhost:3000/api/analytics/manual-handoffs"),
+    );
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({
+      handoffs: [],
+      total: 0,
+      filters: {
+        action: null,
+        projectId: null,
+        limit: 20,
+      },
+    });
+  });
 });

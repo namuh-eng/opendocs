@@ -63,6 +63,14 @@ export async function GET(request: NextRequest) {
     );
   }
 
+  const unresolvedCondition = sql<boolean>`not exists (
+    select 1
+    from ${auditLogs} as resolutions
+    where resolutions.org_id = ${auditLogs.orgId}
+      and resolutions.action = ${auditLogs.action} || '_resolved'
+      and resolutions.details ->> 'handoffId' = ${auditLogs.id}
+  )`;
+
   const handoffs = await db
     .select({
       id: auditLogs.id,
@@ -72,14 +80,14 @@ export async function GET(request: NextRequest) {
       createdAt: auditLogs.createdAt,
     })
     .from(auditLogs)
-    .where(and(...handoffConditions))
+    .where(and(...handoffConditions, unresolvedCondition))
     .orderBy(desc(auditLogs.createdAt))
     .limit(limit);
 
   const total = await db
     .select({ count: sql<number>`count(*)::int` })
     .from(auditLogs)
-    .where(and(...handoffConditions));
+    .where(and(...handoffConditions, unresolvedCondition));
 
   return NextResponse.json({
     handoffs: handoffs.map((row) => ({
