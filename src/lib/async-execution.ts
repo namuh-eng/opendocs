@@ -6,36 +6,72 @@ export function isAsyncSimulationEnabled() {
   return process.env.ENABLE_ASYNC_SIMULATION === "true";
 }
 
+function scheduleSimulation(delayMs: number, task: () => Promise<void>) {
+  setTimeout(async () => {
+    try {
+      await task();
+    } catch {
+      // Simulation mode only
+    }
+  }, delayMs);
+}
+
+async function enqueueSimulatedDeployment(
+  deploymentId: string,
+  projectId: string,
+) {
+  scheduleSimulation(500, async () => {
+    await db
+      .update(deployments)
+      .set({ status: "in_progress", startedAt: new Date() })
+      .where(
+        and(eq(deployments.id, deploymentId), eq(deployments.status, "queued")),
+      );
+    await db
+      .update(projects)
+      .set({ status: "deploying" })
+      .where(eq(projects.id, projectId));
+  });
+
+  scheduleSimulation(3000, async () => {
+    await db
+      .update(deployments)
+      .set({ status: "succeeded", endedAt: new Date() })
+      .where(
+        and(
+          eq(deployments.id, deploymentId),
+          eq(deployments.status, "in_progress"),
+        ),
+      );
+    await db
+      .update(projects)
+      .set({ status: "active" })
+      .where(eq(projects.id, projectId));
+  });
+}
+
 export async function enqueueAgentJob(jobId: string) {
   if (!isAsyncSimulationEnabled()) {
     return;
   }
 
-  setTimeout(async () => {
-    try {
-      await db
-        .update(agentJobs)
-        .set({ status: "running", updatedAt: new Date() })
-        .where(and(eq(agentJobs.id, jobId), eq(agentJobs.status, "pending")));
-    } catch {
-      // Simulation mode only
-    }
-  }, 500);
+  scheduleSimulation(500, async () => {
+    await db
+      .update(agentJobs)
+      .set({ status: "running", updatedAt: new Date() })
+      .where(and(eq(agentJobs.id, jobId), eq(agentJobs.status, "pending")));
+  });
 
-  setTimeout(async () => {
-    try {
-      await db
-        .update(agentJobs)
-        .set({
-          status: "succeeded",
-          prUrl: `https://github.com/org/repo/pull/${Math.floor(Math.random() * 1000)}`,
-          updatedAt: new Date(),
-        })
-        .where(and(eq(agentJobs.id, jobId), eq(agentJobs.status, "running")));
-    } catch {
-      // Simulation mode only
-    }
-  }, 5000);
+  scheduleSimulation(5000, async () => {
+    await db
+      .update(agentJobs)
+      .set({
+        status: "succeeded",
+        prUrl: `https://github.com/org/repo/pull/${Math.floor(Math.random() * 1000)}`,
+        updatedAt: new Date(),
+      })
+      .where(and(eq(agentJobs.id, jobId), eq(agentJobs.status, "running")));
+  });
 }
 
 export async function enqueueDeployment(deploymentId: string, projectId: string) {
@@ -43,42 +79,7 @@ export async function enqueueDeployment(deploymentId: string, projectId: string)
     return;
   }
 
-  setTimeout(async () => {
-    try {
-      await db
-        .update(deployments)
-        .set({ status: "in_progress", startedAt: new Date() })
-        .where(
-          and(eq(deployments.id, deploymentId), eq(deployments.status, "queued")),
-        );
-      await db
-        .update(projects)
-        .set({ status: "deploying" })
-        .where(eq(projects.id, projectId));
-    } catch {
-      // Simulation mode only
-    }
-  }, 500);
-
-  setTimeout(async () => {
-    try {
-      await db
-        .update(deployments)
-        .set({ status: "succeeded", endedAt: new Date() })
-        .where(
-          and(
-            eq(deployments.id, deploymentId),
-            eq(deployments.status, "in_progress"),
-          ),
-        );
-      await db
-        .update(projects)
-        .set({ status: "active" })
-        .where(eq(projects.id, projectId));
-    } catch {
-      // Simulation mode only
-    }
-  }, 3000);
+  await enqueueSimulatedDeployment(deploymentId, projectId);
 }
 
 export async function enqueuePreviewDeployment(
@@ -89,40 +90,5 @@ export async function enqueuePreviewDeployment(
     return;
   }
 
-  setTimeout(async () => {
-    try {
-      await db
-        .update(deployments)
-        .set({ status: "in_progress", startedAt: new Date() })
-        .where(
-          and(eq(deployments.id, deploymentId), eq(deployments.status, "queued")),
-        );
-      await db
-        .update(projects)
-        .set({ status: "deploying" })
-        .where(eq(projects.id, projectId));
-    } catch {
-      // Simulation mode only
-    }
-  }, 500);
-
-  setTimeout(async () => {
-    try {
-      await db
-        .update(deployments)
-        .set({ status: "succeeded", endedAt: new Date() })
-        .where(
-          and(
-            eq(deployments.id, deploymentId),
-            eq(deployments.status, "in_progress"),
-          ),
-        );
-      await db
-        .update(projects)
-        .set({ status: "active" })
-        .where(eq(projects.id, projectId));
-    } catch {
-      // Simulation mode only
-    }
-  }, 3000);
+  await enqueueSimulatedDeployment(deploymentId, projectId);
 }
