@@ -11,7 +11,7 @@ import {
   formatAgentJobResponse,
   validateCreateJobInput,
 } from "@/lib/api-v1-agents";
-import { enqueueAgentJob, isAsyncSimulationEnabled } from "@/lib/async-execution";
+import { enqueueAgentJob } from "@/lib/async-execution";
 import { db } from "@/lib/db";
 import { agentJobs, projects } from "@/lib/db/schema";
 import { and, eq } from "drizzle-orm";
@@ -80,11 +80,11 @@ export async function POST(request: NextRequest) {
     })
     .returning();
 
-  await enqueueAgentJob(job.id);
+  const enqueueResult = await enqueueAgentJob(job.id);
 
   return NextResponse.json(
     formatAgentJobResponse(job, {
-      simulated: isAsyncSimulationEnabled(),
+      simulated: enqueueResult.mode === "simulation",
     }),
     { status: 201 },
   );

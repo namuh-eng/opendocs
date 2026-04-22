@@ -2,8 +2,14 @@ import { db } from "@/lib/db";
 import { agentJobs, deployments, projects } from "@/lib/db/schema";
 import { and, eq } from "drizzle-orm";
 
+export type AsyncExecutionMode = "simulation" | "manual";
+
 export function isAsyncSimulationEnabled() {
   return process.env.ENABLE_ASYNC_SIMULATION === "true";
+}
+
+export function getAsyncExecutionMode(): AsyncExecutionMode {
+  return isAsyncSimulationEnabled() ? "simulation" : "manual";
 }
 
 function scheduleSimulation(delayMs: number, task: () => Promise<void>) {
@@ -50,9 +56,13 @@ async function enqueueSimulatedDeployment(
   });
 }
 
-export async function enqueueAgentJob(jobId: string) {
-  if (!isAsyncSimulationEnabled()) {
-    return;
+export async function enqueueAgentJob(
+  jobId: string,
+): Promise<{ mode: AsyncExecutionMode }> {
+  const mode = getAsyncExecutionMode();
+
+  if (mode !== "simulation") {
+    return { mode };
   }
 
   scheduleSimulation(500, async () => {
@@ -72,23 +82,34 @@ export async function enqueueAgentJob(jobId: string) {
       })
       .where(and(eq(agentJobs.id, jobId), eq(agentJobs.status, "running")));
   });
+
+  return { mode };
 }
 
-export async function enqueueDeployment(deploymentId: string, projectId: string) {
-  if (!isAsyncSimulationEnabled()) {
-    return;
+export async function enqueueDeployment(
+  deploymentId: string,
+  projectId: string,
+): Promise<{ mode: AsyncExecutionMode }> {
+  const mode = getAsyncExecutionMode();
+
+  if (mode !== "simulation") {
+    return { mode };
   }
 
   await enqueueSimulatedDeployment(deploymentId, projectId);
+  return { mode };
 }
 
 export async function enqueuePreviewDeployment(
   deploymentId: string,
   projectId: string,
-) {
-  if (!isAsyncSimulationEnabled()) {
-    return;
+): Promise<{ mode: AsyncExecutionMode }> {
+  const mode = getAsyncExecutionMode();
+
+  if (mode !== "simulation") {
+    return { mode };
   }
 
   await enqueueSimulatedDeployment(deploymentId, projectId);
+  return { mode };
 }
