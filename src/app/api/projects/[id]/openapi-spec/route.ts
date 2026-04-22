@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { orgMemberships, projects } from "@/lib/db/schema";
+import { createRequestId, logger } from "@/lib/logger";
 import { fetchSpecFromUrl } from "@/lib/openapi";
 import { and, eq } from "drizzle-orm";
 import { headers } from "next/headers";
@@ -22,14 +23,27 @@ export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const requestId = createRequestId();
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) {
+    logger.warn("project_openapi_spec_get_unauthorized", {
+      requestId,
+      route: "/api/projects/[id]/openapi-spec",
+      method: "GET",
+    });
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { id } = await params;
   const orgId = await getUserOrgId(session.user.id);
   if (!orgId) {
+    logger.warn("project_openapi_spec_get_no_org", {
+      requestId,
+      route: "/api/projects/[id]/openapi-spec",
+      method: "GET",
+      userId: session.user.id,
+      projectId: id,
+    });
     return NextResponse.json({ error: "No organization" }, { status: 403 });
   }
 
@@ -40,6 +54,14 @@ export async function GET(
     .limit(1);
 
   if (result.length === 0) {
+    logger.warn("project_openapi_spec_get_missing", {
+      requestId,
+      route: "/api/projects/[id]/openapi-spec",
+      method: "GET",
+      userId: session.user.id,
+      orgId,
+      projectId: id,
+    });
     return NextResponse.json({ error: "Project not found" }, { status: 404 });
   }
 
@@ -47,7 +69,18 @@ export async function GET(
   const spec = settings.openApiSpec || null;
   const specUrl = settings.openApiSpecUrl || "";
 
-  return NextResponse.json({ spec, specUrl });
+  logger.info("project_openapi_spec_get_completed", {
+    requestId,
+    route: "/api/projects/[id]/openapi-spec",
+    method: "GET",
+    userId: session.user.id,
+    orgId,
+    projectId: id,
+    hasSpec: Boolean(spec),
+    hasSpecUrl: Boolean(specUrl),
+  });
+
+  return NextResponse.json({ spec, specUrl, requestId });
 }
 
 /**
@@ -59,14 +92,27 @@ export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const requestId = createRequestId();
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) {
+    logger.warn("project_openapi_spec_update_unauthorized", {
+      requestId,
+      route: "/api/projects/[id]/openapi-spec",
+      method: "POST",
+    });
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { id } = await params;
   const orgId = await getUserOrgId(session.user.id);
   if (!orgId) {
+    logger.warn("project_openapi_spec_update_no_org", {
+      requestId,
+      route: "/api/projects/[id]/openapi-spec",
+      method: "POST",
+      userId: session.user.id,
+      projectId: id,
+    });
     return NextResponse.json({ error: "No organization" }, { status: 403 });
   }
 
@@ -76,6 +122,15 @@ export async function POST(
   if (body.url && typeof body.url === "string") {
     spec = await fetchSpecFromUrl(body.url);
     if (!spec) {
+      logger.warn("project_openapi_spec_update_fetch_failed", {
+        requestId,
+        route: "/api/projects/[id]/openapi-spec",
+        method: "POST",
+        userId: session.user.id,
+        orgId,
+        projectId: id,
+        url: body.url,
+      });
       return NextResponse.json(
         { error: "Failed to fetch spec from URL" },
         { status: 400 },
@@ -84,6 +139,14 @@ export async function POST(
   } else if (body.spec && typeof body.spec === "object") {
     spec = body.spec as Record<string, unknown>;
   } else {
+    logger.warn("project_openapi_spec_update_missing_payload", {
+      requestId,
+      route: "/api/projects/[id]/openapi-spec",
+      method: "POST",
+      userId: session.user.id,
+      orgId,
+      projectId: id,
+    });
     return NextResponse.json(
       { error: "Provide either url or spec in request body" },
       { status: 400 },
@@ -96,6 +159,14 @@ export async function POST(
   const isAsyncApi = typeof spec.asyncapi === "string";
 
   if (!isOpenApi && !isAsyncApi) {
+    logger.warn("project_openapi_spec_update_invalid_spec", {
+      requestId,
+      route: "/api/projects/[id]/openapi-spec",
+      method: "POST",
+      userId: session.user.id,
+      orgId,
+      projectId: id,
+    });
     return NextResponse.json(
       { error: "Invalid spec: must be OpenAPI 3.x, Swagger 2.x, or AsyncAPI" },
       { status: 400 },
@@ -110,6 +181,14 @@ export async function POST(
     .limit(1);
 
   if (existing.length === 0) {
+    logger.warn("project_openapi_spec_update_missing", {
+      requestId,
+      route: "/api/projects/[id]/openapi-spec",
+      method: "POST",
+      userId: session.user.id,
+      orgId,
+      projectId: id,
+    });
     return NextResponse.json({ error: "Project not found" }, { status: 404 });
   }
 
@@ -129,8 +208,21 @@ export async function POST(
     })
     .where(eq(projects.id, id));
 
+  const specType = isAsyncApi ? "asyncapi" : "openapi";
+
+  logger.info("project_openapi_spec_update_completed", {
+    requestId,
+    route: "/api/projects/[id]/openapi-spec",
+    method: "POST",
+    userId: session.user.id,
+    orgId,
+    projectId: id,
+    specType,
+  });
+
   return NextResponse.json({
     ok: true,
-    specType: isAsyncApi ? "asyncapi" : "openapi",
+    specType,
+    requestId,
   });
 }
