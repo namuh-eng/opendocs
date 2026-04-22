@@ -4,6 +4,7 @@
  * Session-authenticated (dashboard use).
  */
 
+import { isAsyncSimulationEnabled } from "@/lib/async-execution";
 import { db } from "@/lib/db";
 import { agentJobs, orgMemberships, projects } from "@/lib/db/schema";
 import { createRequestId, logger } from "@/lib/logger";
@@ -135,13 +136,7 @@ export async function POST(
     timestamp: new Date().toISOString(),
   };
 
-  const agentReply = {
-    role: "agent" as const,
-    content: `Acknowledged. I'll incorporate your feedback: "${content.slice(0, 100)}${content.length > 100 ? "…" : ""}"`,
-    timestamp: new Date(Date.now() + 1000).toISOString(),
-  };
-
-  const updatedMessages = [...job.messages, userMessage, agentReply];
+  const updatedMessages = [...job.messages, userMessage];
 
   const [updatedJob] = await db
     .update(agentJobs)
@@ -157,6 +152,7 @@ export async function POST(
     jobId,
     projectId: updatedJob.projectId,
     status: updatedJob.status,
+    simulationEnabled: isAsyncSimulationEnabled(),
   });
 
   return NextResponse.json({
@@ -168,6 +164,7 @@ export async function POST(
     messages: updatedJob.messages,
     createdAt: updatedJob.createdAt.toISOString(),
     updatedAt: updatedJob.updatedAt.toISOString(),
+    executionMode: isAsyncSimulationEnabled() ? "simulation" : "manual",
     requestId,
   });
 }
