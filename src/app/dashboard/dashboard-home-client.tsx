@@ -67,6 +67,12 @@ const HANDOFF_FILTERS = [
   { key: "agent", label: "Agent jobs" },
 ] as const;
 
+function classifyHandoffAction(action: string) {
+  if (action.includes("agent")) return "agent" as const;
+  if (action.includes("deployment")) return "deployment" as const;
+  return "all" as const;
+}
+
 interface Props {
   greeting: string;
   firstName: string;
@@ -227,13 +233,7 @@ export function DashboardHomeClient({
     : "#";
   const filteredManualHandoffs = manualHandoffs.filter((handoff) => {
     if (handoffFilter === "all") return true;
-    if (handoffFilter === "deployment") {
-      return handoff.action.includes("deployment");
-    }
-    if (handoffFilter === "agent") {
-      return handoff.action.includes("agent");
-    }
-    return true;
+    return classifyHandoffAction(handoff.action) === handoffFilter;
   });
   const domainDisplay = project
     ? formatDomainDisplay(project.subdomain, project.customDomain)

@@ -107,7 +107,7 @@ export default async function DashboardPage() {
       .limit(20);
 
     const manualHandoffResponse = await fetch(
-      `${process.env.BETTER_AUTH_URL ?? "http://localhost:3000"}/api/analytics/manual-handoffs?limit=5`,
+      `${process.env.BETTER_AUTH_URL ?? "http://localhost:3000"}/api/analytics/manual-handoffs?limit=20`,
       {
         headers: {
           Cookie: (await cookies()).toString(),
