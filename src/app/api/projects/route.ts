@@ -223,7 +223,16 @@ export async function POST(request: Request) {
   });
 
   return NextResponse.json(
-    deployment ? { project, deployment, requestId } : { project, requestId },
+    deployment
+      ? {
+          project,
+          deployment: {
+            ...deployment,
+            executionMode: isAsyncSimulationEnabled() ? "simulation" : "manual",
+          },
+          requestId,
+        }
+      : { project, requestId },
     {
       status: 201,
     },

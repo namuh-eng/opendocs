@@ -192,7 +192,14 @@ export async function POST(request: Request) {
   });
 
   return NextResponse.json(
-    { deployment: { ...deployment, status: "queued" }, requestId },
+    {
+      deployment: {
+        ...deployment,
+        status: "queued",
+        executionMode: isAsyncSimulationEnabled() ? "simulation" : "manual",
+      },
+      requestId,
+    },
     { status: 201 },
   );
 }

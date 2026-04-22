@@ -185,6 +185,7 @@ export async function POST(request: NextRequest) {
       messages: job.messages,
       createdAt: job.createdAt.toISOString(),
       updatedAt: job.updatedAt.toISOString(),
+      executionMode: isAsyncSimulationEnabled() ? "simulation" : "manual",
       requestId,
     },
     { status: 201 },
