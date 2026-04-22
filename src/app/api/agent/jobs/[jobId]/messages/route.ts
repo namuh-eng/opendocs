@@ -6,6 +6,7 @@
 
 import { db } from "@/lib/db";
 import { agentJobs, orgMemberships, projects } from "@/lib/db/schema";
+import { createRequestId, logger } from "@/lib/logger";
 import { getServerSession } from "@/lib/session";
 import { and, eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
@@ -14,8 +15,14 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ jobId: string }> },
 ) {
+  const requestId = createRequestId();
   const session = await getServerSession();
   if (!session) {
+    logger.warn("agent_job_message_create_unauthorized", {
+      requestId,
+      route: "/api/agent/jobs/[jobId]/messages",
+      method: "POST",
+    });
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -25,11 +32,25 @@ export async function POST(
   try {
     body = await request.json();
   } catch {
+    logger.warn("agent_job_message_create_invalid_json", {
+      requestId,
+      route: "/api/agent/jobs/[jobId]/messages",
+      method: "POST",
+      userId: session.user.id,
+      jobId,
+    });
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
   const content = body.content?.trim();
   if (!content || content.length === 0) {
+    logger.warn("agent_job_message_create_missing_content", {
+      requestId,
+      route: "/api/agent/jobs/[jobId]/messages",
+      method: "POST",
+      userId: session.user.id,
+      jobId,
+    });
     return NextResponse.json({ error: "content is required" }, { status: 400 });
   }
 
@@ -40,6 +61,13 @@ export async function POST(
     .limit(1);
 
   if (rows.length === 0) {
+    logger.warn("agent_job_message_create_missing", {
+      requestId,
+      route: "/api/agent/jobs/[jobId]/messages",
+      method: "POST",
+      userId: session.user.id,
+      jobId,
+    });
     return NextResponse.json({ error: "Job not found" }, { status: 404 });
   }
 
@@ -53,6 +81,13 @@ export async function POST(
     .limit(1);
 
   if (projectRows.length === 0) {
+    logger.warn("agent_job_message_create_missing_project", {
+      requestId,
+      route: "/api/agent/jobs/[jobId]/messages",
+      method: "POST",
+      userId: session.user.id,
+      jobId,
+    });
     return NextResponse.json({ error: "Job not found" }, { status: 404 });
   }
 
@@ -68,10 +103,26 @@ export async function POST(
     .limit(1);
 
   if (memberRows.length === 0) {
+    logger.warn("agent_job_message_create_forbidden", {
+      requestId,
+      route: "/api/agent/jobs/[jobId]/messages",
+      method: "POST",
+      userId: session.user.id,
+      jobId,
+      projectId: job.projectId,
+    });
     return NextResponse.json({ error: "Job not found" }, { status: 404 });
   }
 
   if (job.status !== "pending" && job.status !== "running") {
+    logger.warn("agent_job_message_create_invalid_status", {
+      requestId,
+      route: "/api/agent/jobs/[jobId]/messages",
+      method: "POST",
+      userId: session.user.id,
+      jobId,
+      status: job.status,
+    });
     return NextResponse.json(
       { error: `Cannot send messages to a ${job.status} job` },
       { status: 409 },
@@ -98,6 +149,16 @@ export async function POST(
     .where(eq(agentJobs.id, jobId))
     .returning();
 
+  logger.info("agent_job_message_create_completed", {
+    requestId,
+    route: "/api/agent/jobs/[jobId]/messages",
+    method: "POST",
+    userId: session.user.id,
+    jobId,
+    projectId: updatedJob.projectId,
+    status: updatedJob.status,
+  });
+
   return NextResponse.json({
     id: updatedJob.id,
     projectId: updatedJob.projectId,
@@ -107,5 +168,6 @@ export async function POST(
     messages: updatedJob.messages,
     createdAt: updatedJob.createdAt.toISOString(),
     updatedAt: updatedJob.updatedAt.toISOString(),
+    requestId,
   });
 }
