@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { orgMemberships, projects } from "@/lib/db/schema";
+import { createRequestId, logger } from "@/lib/logger";
 import {
   MAX_UPLOAD_SIZE,
   getDownloadPresignedUrl,
@@ -54,9 +55,15 @@ function parseAssetKey(key: string) {
  * Returns: { url, key } — presigned PUT URL for direct upload to S3
  */
 export async function POST(request: NextRequest) {
+  const requestId = createRequestId();
   try {
     const session = await auth.api.getSession({ headers: await headers() });
     if (!session) {
+      logger.warn("uploads_presign_create_unauthorized", {
+        requestId,
+        route: "/api/uploads/presign",
+        method: "POST",
+      });
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -77,6 +84,11 @@ export async function POST(request: NextRequest) {
       !contentType ||
       typeof size !== "number"
     ) {
+      logger.warn("uploads_presign_create_missing_fields", {
+        requestId,
+        route: "/api/uploads/presign",
+        method: "POST",
+      });
       return NextResponse.json(
         {
           error:
@@ -88,10 +100,26 @@ export async function POST(request: NextRequest) {
 
     const access = await getProjectAccess(session.user.id, projectId);
     if (!access || access.orgId !== orgId) {
+      logger.warn("uploads_presign_create_forbidden", {
+        requestId,
+        route: "/api/uploads/presign",
+        method: "POST",
+        userId: session.user.id,
+        projectId,
+        orgId,
+      });
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     if (access.role !== "admin" && access.role !== "editor") {
+      logger.warn("uploads_presign_create_role_forbidden", {
+        requestId,
+        route: "/api/uploads/presign",
+        method: "POST",
+        userId: session.user.id,
+        projectId,
+        role: access.role,
+      });
       return NextResponse.json(
         { error: "Only admins and editors can upload assets" },
         { status: 403 },
@@ -100,6 +128,13 @@ export async function POST(request: NextRequest) {
 
     const validation = validateUploadRequest({ filename, contentType, size });
     if (!validation.valid) {
+      logger.warn("uploads_presign_create_invalid_request", {
+        requestId,
+        route: "/api/uploads/presign",
+        method: "POST",
+        projectId,
+        error: validation.error,
+      });
       return NextResponse.json({ error: validation.error }, { status: 400 });
     }
 
@@ -111,12 +146,28 @@ export async function POST(request: NextRequest) {
       size,
     });
 
+    logger.info("uploads_presign_create_completed", {
+      requestId,
+      route: "/api/uploads/presign",
+      method: "POST",
+      projectId,
+      orgId,
+      key,
+    });
+
     return NextResponse.json({
       url,
       key,
       maxSize: MAX_UPLOAD_SIZE,
+      requestId,
     });
-  } catch {
+  } catch (error) {
+    logger.error("uploads_presign_create_failed", {
+      requestId,
+      route: "/api/uploads/presign",
+      method: "POST",
+      error: error instanceof Error ? { message: error.message, stack: error.stack } : String(error),
+    });
     return NextResponse.json(
       { error: "Failed to generate presigned URL" },
       { status: 500 },
@@ -129,15 +180,26 @@ export async function POST(request: NextRequest) {
  * Returns: { url } — presigned GET URL for downloading/viewing a file
  */
 export async function GET(request: NextRequest) {
+  const requestId = createRequestId();
   try {
     const session = await auth.api.getSession({ headers: await headers() });
     if (!session) {
+      logger.warn("uploads_presign_get_unauthorized", {
+        requestId,
+        route: "/api/uploads/presign",
+        method: "GET",
+      });
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const key = request.nextUrl.searchParams.get("key");
 
     if (!key) {
+      logger.warn("uploads_presign_get_missing_key", {
+        requestId,
+        route: "/api/uploads/presign",
+        method: "GET",
+      });
       return NextResponse.json(
         { error: "Missing required query param: key" },
         { status: 400 },
@@ -146,17 +208,44 @@ export async function GET(request: NextRequest) {
 
     const parsedKey = parseAssetKey(key);
     if (!parsedKey) {
+      logger.warn("uploads_presign_get_invalid_key", {
+        requestId,
+        route: "/api/uploads/presign",
+        method: "GET",
+        key,
+      });
       return NextResponse.json({ error: "Invalid asset key" }, { status: 400 });
     }
 
     const access = await getProjectAccess(session.user.id, parsedKey.projectId);
     if (!access || access.orgId !== parsedKey.orgId) {
+      logger.warn("uploads_presign_get_forbidden", {
+        requestId,
+        route: "/api/uploads/presign",
+        method: "GET",
+        userId: session.user.id,
+        projectId: parsedKey.projectId,
+        orgId: parsedKey.orgId,
+      });
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const url = await getDownloadPresignedUrl(key);
-    return NextResponse.json({ url });
-  } catch {
+    logger.info("uploads_presign_get_completed", {
+      requestId,
+      route: "/api/uploads/presign",
+      method: "GET",
+      key,
+      projectId: parsedKey.projectId,
+    });
+    return NextResponse.json({ url, requestId });
+  } catch (error) {
+    logger.error("uploads_presign_get_failed", {
+      requestId,
+      route: "/api/uploads/presign",
+      method: "GET",
+      error: error instanceof Error ? { message: error.message, stack: error.stack } : String(error),
+    });
     return NextResponse.json(
       { error: "Failed to generate download URL" },
       { status: 500 },

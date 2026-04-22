@@ -179,11 +179,13 @@ describe("uploads presign route", () => {
       contentType: "image/png",
       size: 128,
     });
-    await expect(response.json()).resolves.toEqual({
+    const body = await response.json();
+    expect(body).toMatchObject({
       url: "https://example.com/upload",
       key: "org-1/project-1/assets/logo.png",
       maxSize: MAX_UPLOAD_SIZE,
     });
+    expect(body.requestId).toEqual(expect.any(String));
   });
 
   it("rejects unauthenticated download presign requests", async () => {
@@ -240,8 +242,10 @@ describe("uploads presign route", () => {
     expect(mockGetDownloadPresignedUrl).toHaveBeenCalledWith(
       "org-1/project-1/assets/logo.png",
     );
-    await expect(response.json()).resolves.toEqual({
+    const body = await response.json();
+    expect(body).toMatchObject({
       url: "https://example.com/download",
     });
+    expect(body.requestId).toEqual(expect.any(String));
   });
 });

@@ -1,14 +1,14 @@
 type LogLevel = "debug" | "info" | "warn" | "error";
 
-type LogValue = string | number | boolean | null | undefined | string[] | number[] | boolean[] | Record<string, unknown> | unknown[];
+type LogPrimitive = string | number | boolean | null | undefined;
+type LogValue = LogPrimitive | LogPrimitive[] | Record<string, unknown> | unknown[];
 
-export interface LogContext {
+export type LogContext = Record<string, LogValue> & {
   requestId?: string;
   route?: string;
   method?: string;
   event?: string;
-  [key: string]: LogValue;
-}
+};
 
 const APP_NAME = "namuh-mintlify";
 

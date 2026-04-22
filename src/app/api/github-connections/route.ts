@@ -6,6 +6,7 @@ import {
   organizations,
 } from "@/lib/db/schema";
 import { validateCreateConnectionRequest } from "@/lib/github-webhook";
+import { createRequestId, logger } from "@/lib/logger";
 import { and, eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
@@ -28,14 +29,26 @@ async function resolveUserOrg(userId: string) {
 
 /** GET /api/github-connections — list GitHub connections for user's org */
 export async function GET() {
+  const requestId = createRequestId();
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) {
+    logger.warn("github_connections_list_unauthorized", {
+      requestId,
+      route: "/api/github-connections",
+      method: "GET",
+    });
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const org = await resolveUserOrg(session.user.id);
   if (!org) {
-    return NextResponse.json({ connections: [] });
+    logger.info("github_connections_list_no_org", {
+      requestId,
+      route: "/api/github-connections",
+      method: "GET",
+      userId: session.user.id,
+    });
+    return NextResponse.json({ connections: [], requestId });
   }
 
   const connections = await db
@@ -43,18 +56,38 @@ export async function GET() {
     .from(githubConnections)
     .where(eq(githubConnections.orgId, org.orgId));
 
-  return NextResponse.json({ connections });
+  logger.info("github_connections_list_completed", {
+    requestId,
+    route: "/api/github-connections",
+    method: "GET",
+    orgId: org.orgId,
+    connectionCount: connections.length,
+  });
+
+  return NextResponse.json({ connections, requestId });
 }
 
 /** POST /api/github-connections — create a new GitHub connection */
 export async function POST(request: Request) {
+  const requestId = createRequestId();
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) {
+    logger.warn("github_connections_create_unauthorized", {
+      requestId,
+      route: "/api/github-connections",
+      method: "POST",
+    });
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const org = await resolveUserOrg(session.user.id);
   if (!org) {
+    logger.warn("github_connections_create_no_org", {
+      requestId,
+      route: "/api/github-connections",
+      method: "POST",
+      userId: session.user.id,
+    });
     return NextResponse.json(
       { error: "No organization found" },
       { status: 403 },
@@ -62,6 +95,14 @@ export async function POST(request: Request) {
   }
 
   if (org.role !== "admin" && org.role !== "editor") {
+    logger.warn("github_connections_create_forbidden", {
+      requestId,
+      route: "/api/github-connections",
+      method: "POST",
+      userId: session.user.id,
+      role: org.role,
+      orgId: org.orgId,
+    });
     return NextResponse.json(
       { error: "Only admins and editors can manage GitHub connections" },
       { status: 403 },
@@ -72,6 +113,13 @@ export async function POST(request: Request) {
   const validation = validateCreateConnectionRequest(body);
 
   if (!validation.valid) {
+    logger.warn("github_connections_create_invalid_request", {
+      requestId,
+      route: "/api/github-connections",
+      method: "POST",
+      orgId: org.orgId,
+      error: validation.error,
+    });
     return NextResponse.json({ error: validation.error }, { status: 400 });
   }
 
@@ -97,7 +145,16 @@ export async function POST(request: Request) {
       .where(eq(githubConnections.id, existing[0].id))
       .returning();
 
-    return NextResponse.json({ connection: updated });
+    logger.info("github_connections_update_completed", {
+      requestId,
+      route: "/api/github-connections",
+      method: "POST",
+      orgId: org.orgId,
+      connectionId: updated.id,
+      installationId,
+    });
+
+    return NextResponse.json({ connection: updated, requestId });
   }
 
   const [connection] = await db
@@ -110,18 +167,39 @@ export async function POST(request: Request) {
     })
     .returning();
 
-  return NextResponse.json({ connection }, { status: 201 });
+  logger.info("github_connections_create_completed", {
+    requestId,
+    route: "/api/github-connections",
+    method: "POST",
+    orgId: org.orgId,
+    connectionId: connection.id,
+    installationId,
+  });
+
+  return NextResponse.json({ connection, requestId }, { status: 201 });
 }
 
 /** DELETE /api/github-connections — remove a GitHub connection */
 export async function DELETE(request: Request) {
+  const requestId = createRequestId();
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) {
+    logger.warn("github_connections_delete_unauthorized", {
+      requestId,
+      route: "/api/github-connections",
+      method: "DELETE",
+    });
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const org = await resolveUserOrg(session.user.id);
   if (!org) {
+    logger.warn("github_connections_delete_no_org", {
+      requestId,
+      route: "/api/github-connections",
+      method: "DELETE",
+      userId: session.user.id,
+    });
     return NextResponse.json(
       { error: "No organization found" },
       { status: 403 },
@@ -129,6 +207,14 @@ export async function DELETE(request: Request) {
   }
 
   if (org.role !== "admin") {
+    logger.warn("github_connections_delete_forbidden", {
+      requestId,
+      route: "/api/github-connections",
+      method: "DELETE",
+      userId: session.user.id,
+      role: org.role,
+      orgId: org.orgId,
+    });
     return NextResponse.json(
       { error: "Only admins can remove GitHub connections" },
       { status: 403 },
@@ -139,6 +225,12 @@ export async function DELETE(request: Request) {
   const connectionId = searchParams.get("id");
 
   if (!connectionId) {
+    logger.warn("github_connections_delete_missing_id", {
+      requestId,
+      route: "/api/github-connections",
+      method: "DELETE",
+      orgId: org.orgId,
+    });
     return NextResponse.json(
       { error: "Connection ID is required" },
       { status: 400 },
@@ -154,5 +246,13 @@ export async function DELETE(request: Request) {
       ),
     );
 
-  return NextResponse.json({ success: true });
+  logger.info("github_connections_delete_completed", {
+    requestId,
+    route: "/api/github-connections",
+    method: "DELETE",
+    orgId: org.orgId,
+    connectionId,
+  });
+
+  return NextResponse.json({ success: true, requestId });
 }

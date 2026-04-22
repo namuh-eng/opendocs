@@ -1,3 +1,4 @@
+import { createRequestId, logger } from "@/lib/logger";
 import { NextResponse } from "next/server";
 
 /**
@@ -5,6 +6,7 @@ import { NextResponse } from "next/server";
  * Accepts { method, url, headers, body } and returns { status, body, headers }.
  */
 export async function POST(req: Request): Promise<NextResponse> {
+  const requestId = createRequestId();
   try {
     const payload = await req.json();
     const { method, url, headers, body } = payload as {
@@ -15,6 +17,11 @@ export async function POST(req: Request): Promise<NextResponse> {
     };
 
     if (!url || !method) {
+      logger.warn("docs_proxy_missing_method_or_url", {
+        requestId,
+        route: "/api/docs/proxy",
+        method: "POST",
+      });
       return NextResponse.json(
         { error: "Missing method or url" },
         { status: 400 },
@@ -25,7 +32,14 @@ export async function POST(req: Request): Promise<NextResponse> {
     let parsedUrl: URL;
     try {
       parsedUrl = new URL(url);
-    } catch {
+    } catch (error) {
+      logger.warn("docs_proxy_invalid_url", {
+        requestId,
+        route: "/api/docs/proxy",
+        method: "POST",
+        url,
+        error: error instanceof Error ? error.message : "unknown",
+      });
       return NextResponse.json({ error: "Invalid URL" }, { status: 400 });
     }
 
@@ -42,6 +56,12 @@ export async function POST(req: Request): Promise<NextResponse> {
       hostname.endsWith(".internal") ||
       hostname.endsWith(".local")
     ) {
+      logger.warn("docs_proxy_blocked_internal_address", {
+        requestId,
+        route: "/api/docs/proxy",
+        method: "POST",
+        hostname,
+      });
       return NextResponse.json(
         { error: "Requests to internal addresses are not allowed" },
         { status: 403 },
@@ -77,12 +97,28 @@ export async function POST(req: Request): Promise<NextResponse> {
       responseHeaders[key] = value;
     });
 
+    logger.info("docs_proxy_completed", {
+      requestId,
+      route: "/api/docs/proxy",
+      method: "POST",
+      targetHost: parsedUrl.hostname,
+      targetMethod: method,
+      responseStatus: response.status,
+    });
+
     return NextResponse.json({
       status: response.status,
       body: responseBody,
       headers: responseHeaders,
+      requestId,
     });
   } catch (err) {
+    logger.error("docs_proxy_failed", {
+      requestId,
+      route: "/api/docs/proxy",
+      method: "POST",
+      error: err instanceof Error ? { message: err.message, stack: err.stack } : String(err),
+    });
     return NextResponse.json(
       {
         status: 0,
