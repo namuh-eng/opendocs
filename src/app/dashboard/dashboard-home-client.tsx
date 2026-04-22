@@ -63,6 +63,7 @@ interface ManualHandoffRow {
       resolvedByUserId?: string;
       resolvedByName?: string | null;
       resolvedAt?: string;
+      resolutionNote?: string | null;
     };
   };
 }
@@ -570,12 +571,19 @@ export function DashboardHomeClient({
                         {String(handoff.details.projectId ?? handoff.details.deploymentId ?? handoff.details.jobId ?? "manual follow-up required")}
                       </p>
                       {handoffView === "resolved" && handoff.details.resolution ? (
-                        <p className="text-xs text-gray-500 truncate mt-1">
-                          Resolved by {handoff.details.resolution.resolvedByName ?? handoff.details.resolution.resolvedByUserId ?? "unknown"}
-                          {handoff.details.resolution.resolvedAt
-                            ? ` • ${timeAgo(handoff.details.resolution.resolvedAt)}`
-                            : ""}
-                        </p>
+                        <>
+                          <p className="text-xs text-gray-500 truncate mt-1">
+                            Resolved by {handoff.details.resolution.resolvedByName ?? handoff.details.resolution.resolvedByUserId ?? "unknown"}
+                            {handoff.details.resolution.resolvedAt
+                              ? ` • ${timeAgo(handoff.details.resolution.resolvedAt)}`
+                              : ""}
+                          </p>
+                          {handoff.details.resolution.resolutionNote ? (
+                            <p className="text-xs text-gray-400 mt-1 line-clamp-2">
+                              Note: {handoff.details.resolution.resolutionNote}
+                            </p>
+                          ) : null}
+                        </>
                       ) : null}
                     </div>
                     <div className="flex items-center gap-3 shrink-0">
