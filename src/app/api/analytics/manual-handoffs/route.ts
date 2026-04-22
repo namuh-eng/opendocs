@@ -29,6 +29,7 @@ export async function GET(request: NextRequest) {
   const limitParam = Number.parseInt(searchParams.get("limit") ?? "20", 10);
   const action = searchParams.get("action");
   const projectId = searchParams.get("projectId");
+  const includeResolved = searchParams.get("includeResolved") === "true";
   const limit = Number.isFinite(limitParam)
     ? Math.min(Math.max(limitParam, 1), 100)
     : 20;
@@ -80,14 +81,24 @@ export async function GET(request: NextRequest) {
       createdAt: auditLogs.createdAt,
     })
     .from(auditLogs)
-    .where(and(...handoffConditions, unresolvedCondition))
+    .where(
+      and(
+        ...handoffConditions,
+        ...(includeResolved ? [] : [unresolvedCondition]),
+      ),
+    )
     .orderBy(desc(auditLogs.createdAt))
     .limit(limit);
 
   const total = await db
     .select({ count: sql<number>`count(*)::int` })
     .from(auditLogs)
-    .where(and(...handoffConditions, unresolvedCondition));
+    .where(
+      and(
+        ...handoffConditions,
+        ...(includeResolved ? [] : [unresolvedCondition]),
+      ),
+    );
 
   return NextResponse.json({
     handoffs: handoffs.map((row) => ({
@@ -98,6 +109,7 @@ export async function GET(request: NextRequest) {
     filters: {
       action: actionFilter,
       projectId,
+      includeResolved,
       limit,
     },
   });

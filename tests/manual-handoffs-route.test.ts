@@ -111,6 +111,7 @@ describe("GET /api/analytics/manual-handoffs", () => {
       filters: {
         action: null,
         projectId: null,
+        includeResolved: false,
         limit: 10,
       },
     });
@@ -157,6 +158,7 @@ describe("GET /api/analytics/manual-handoffs", () => {
       filters: {
         action: "deployment_manual_handoff_required",
         projectId: "proj-1",
+        includeResolved: false,
         limit: 5,
       },
     });
@@ -201,6 +203,70 @@ describe("GET /api/analytics/manual-handoffs", () => {
       filters: {
         action: null,
         projectId: null,
+        includeResolved: false,
+        limit: 20,
+      },
+    });
+  });
+
+  it("can include resolved handoffs when requested", async () => {
+    headersMock.mockResolvedValue(new Headers());
+    getSessionMock.mockResolvedValue({ user: { id: "user-1" } });
+
+    const membershipChain = {
+      from: vi.fn().mockReturnThis(),
+      where: vi.fn().mockReturnThis(),
+      limit: vi.fn().mockResolvedValue([{ orgId: "org-1" }]),
+    };
+
+    const handoffsChain = {
+      from: vi.fn().mockReturnThis(),
+      where: vi.fn().mockReturnThis(),
+      orderBy: vi.fn().mockReturnThis(),
+      limit: vi.fn().mockResolvedValue([
+        {
+          id: "audit-1",
+          action: "deployment_manual_handoff_required",
+          userId: "user-1",
+          details: { deploymentId: "dep-1", projectId: "proj-1" },
+          createdAt: new Date("2026-04-22T11:00:00.000Z"),
+        },
+      ]),
+    };
+
+    const totalChain = {
+      from: vi.fn().mockReturnThis(),
+      where: vi.fn().mockResolvedValue([{ count: 1 }]),
+    };
+
+    selectMock
+      .mockReturnValueOnce(membershipChain)
+      .mockReturnValueOnce(handoffsChain)
+      .mockReturnValueOnce(totalChain);
+
+    const { GET } = await import("@/app/api/analytics/manual-handoffs/route");
+    const response = await GET(
+      makeNextRequest(
+        "http://localhost:3000/api/analytics/manual-handoffs?includeResolved=true",
+      ),
+    );
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({
+      handoffs: [
+        {
+          id: "audit-1",
+          action: "deployment_manual_handoff_required",
+          userId: "user-1",
+          details: { deploymentId: "dep-1", projectId: "proj-1" },
+          createdAt: "2026-04-22T11:00:00.000Z",
+        },
+      ],
+      total: 1,
+      filters: {
+        action: null,
+        projectId: null,
+        includeResolved: true,
         limit: 20,
       },
     });
