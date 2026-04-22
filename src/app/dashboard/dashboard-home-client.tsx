@@ -54,12 +54,20 @@ interface ProjectInfo {
   customDomain: string | null;
 }
 
+interface ManualHandoffRow {
+  id: string;
+  action: string;
+  createdAt: string;
+  details: Record<string, unknown>;
+}
+
 interface Props {
   greeting: string;
   firstName: string;
   project: ProjectInfo | null;
   deployments: DeploymentRow[];
   previews: DeploymentRow[];
+  manualHandoffs: ManualHandoffRow[];
 }
 
 const ICON_MAP = {
@@ -190,6 +198,7 @@ export function DashboardHomeClient({
   project,
   deployments,
   previews,
+  manualHandoffs,
 }: Props) {
   const router = useRouter();
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -390,6 +399,50 @@ export function DashboardHomeClient({
                 </Wrapper>
               );
             })}
+          </div>
+
+          {/* Manual follow-up queue */}
+          <div className="mb-6 rounded-xl border border-amber-400/20 bg-amber-400/[0.06] p-4">
+            <div className="flex items-center justify-between gap-4 mb-2">
+              <div>
+                <h3 className="text-sm font-medium text-white">
+                  Manual follow-up queue
+                </h3>
+                <p className="text-xs text-gray-400 mt-1">
+                  Recent async work that was recorded without a live executor.
+                </p>
+              </div>
+              <span className="text-xs text-amber-300">
+                {manualHandoffs.length} recent
+              </span>
+            </div>
+
+            {manualHandoffs.length === 0 ? (
+              <p className="text-sm text-gray-500">
+                No manual handoffs recorded recently.
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {manualHandoffs.slice(0, 5).map((handoff) => (
+                  <div
+                    key={handoff.id}
+                    className="flex items-center justify-between gap-3 rounded-lg border border-white/[0.06] bg-black/20 px-3 py-2"
+                  >
+                    <div className="min-w-0">
+                      <p className="text-sm text-white truncate">
+                        {handoff.action}
+                      </p>
+                      <p className="text-xs text-gray-500 truncate">
+                        {String(handoff.details.projectId ?? handoff.details.deploymentId ?? handoff.details.jobId ?? "manual follow-up required")}
+                      </p>
+                    </div>
+                    <span className="text-xs text-gray-400 shrink-0">
+                      {timeAgo(handoff.createdAt)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Activity section */}
