@@ -235,6 +235,9 @@ export function DashboardHomeClient({
   );
   const [dismissedHandoffIds, setDismissedHandoffIds] = useState<string[]>([]);
   const [handoffNotice, setHandoffNotice] = useState<string | null>(null);
+  const [handoffResolutionNotes, setHandoffResolutionNotes] = useState<
+    Record<string, string>
+  >({});
   const [handoffView, setHandoffView] = useState<"active" | "resolved">(
     "active",
   );
@@ -311,6 +314,10 @@ export function DashboardHomeClient({
         `/api/analytics/manual-handoffs/${handoffId}/resolve`,
         {
           method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            note: handoffResolutionNotes[handoffId]?.trim() || undefined,
+          }),
         },
       );
 
@@ -319,6 +326,11 @@ export function DashboardHomeClient({
       }
 
       setDismissedHandoffIds((current) => [...current, handoffId]);
+      setHandoffResolutionNotes((current) => {
+        const next = { ...current };
+        delete next[handoffId];
+        return next;
+      });
       setHandoffNotice("Manual follow-up resolved.");
       router.refresh();
     } catch {
@@ -571,14 +583,28 @@ export function DashboardHomeClient({
                         {timeAgo(handoff.createdAt)}
                       </span>
                       {handoffView === "active" ? (
-                        <button
-                          type="button"
-                          onClick={() => resolveHandoff(handoff.id)}
-                          disabled={resolvingHandoffId === handoff.id}
-                          className="px-2 py-1 rounded-md text-xs bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25 disabled:opacity-50 transition-colors"
-                        >
-                          {resolvingHandoffId === handoff.id ? "Resolving..." : "Resolve"}
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={handoffResolutionNotes[handoff.id] ?? ""}
+                            onChange={(event) =>
+                              setHandoffResolutionNotes((current) => ({
+                                ...current,
+                                [handoff.id]: event.target.value,
+                              }))
+                            }
+                            placeholder="Add note"
+                            className="w-36 rounded-md border border-white/[0.08] bg-black/20 px-2 py-1 text-xs text-white placeholder:text-gray-500 focus:outline-none focus:ring-1 focus:ring-emerald-400/40"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => resolveHandoff(handoff.id)}
+                            disabled={resolvingHandoffId === handoff.id}
+                            className="px-2 py-1 rounded-md text-xs bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25 disabled:opacity-50 transition-colors"
+                          >
+                            {resolvingHandoffId === handoff.id ? "Resolving..." : "Resolve"}
+                          </button>
+                        </div>
                       ) : null}
                     </div>
                   </div>
