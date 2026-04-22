@@ -32,7 +32,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 interface DeploymentRow {
   id: string;
@@ -225,6 +225,8 @@ export function DashboardHomeClient({
   const [resolvingHandoffId, setResolvingHandoffId] = useState<string | null>(
     null,
   );
+  const [dismissedHandoffIds, setDismissedHandoffIds] = useState<string[]>([]);
+  const [handoffNotice, setHandoffNotice] = useState<string | null>(null);
 
   const latestDeployment = deployments[0] ?? null;
   const lastDeployedLabel = latestDeployment
@@ -234,7 +236,15 @@ export function DashboardHomeClient({
   const siteUrl = project
     ? buildSiteUrl(project.subdomain, project.customDomain)
     : "#";
-  const filteredManualHandoffs = manualHandoffs.filter((handoff) => {
+  const visibleManualHandoffs = useMemo(
+    () =>
+      manualHandoffs.filter(
+        (handoff) => !dismissedHandoffIds.includes(handoff.id),
+      ),
+    [dismissedHandoffIds, manualHandoffs],
+  );
+
+  const filteredManualHandoffs = visibleManualHandoffs.filter((handoff) => {
     if (handoffFilter === "all") return true;
     return classifyHandoffAction(handoff.action) === handoffFilter;
   });
@@ -284,10 +294,22 @@ export function DashboardHomeClient({
   async function resolveHandoff(handoffId: string) {
     setResolvingHandoffId(handoffId);
     try {
-      await fetch(`/api/analytics/manual-handoffs/${handoffId}/resolve`, {
-        method: "POST",
-      });
+      const response = await fetch(
+        `/api/analytics/manual-handoffs/${handoffId}/resolve`,
+        {
+          method: "POST",
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to resolve handoff");
+      }
+
+      setDismissedHandoffIds((current) => [...current, handoffId]);
+      setHandoffNotice("Manual follow-up resolved.");
       router.refresh();
+    } catch {
+      setHandoffNotice("Could not resolve handoff. Try again.");
     } finally {
       setResolvingHandoffId(null);
     }
@@ -450,6 +472,12 @@ export function DashboardHomeClient({
                 {filteredManualHandoffs.length} shown
               </span>
             </div>
+
+            {handoffNotice ? (
+              <div className="mb-3 rounded-md border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-xs text-emerald-200">
+                {handoffNotice}
+              </div>
+            ) : null}
 
             <div className="flex items-center gap-2 mb-3">
               {HANDOFF_FILTERS.map((filter) => (
