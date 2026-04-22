@@ -11,7 +11,7 @@ import { type NextRequest, NextResponse } from "next/server";
  * Appends a resolution audit record for a manual async handoff item.
  */
 export async function POST(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -20,6 +20,13 @@ export async function POST(
   }
 
   const { id } = await params;
+  const body = (await request.json().catch(() => null)) as {
+    note?: unknown;
+  } | null;
+  const resolutionNote =
+    typeof body?.note === "string" && body.note.trim().length > 0
+      ? body.note.trim().slice(0, 500)
+      : null;
 
   const [membership] = await db
     .select({ orgId: orgMemberships.orgId })
@@ -59,6 +66,7 @@ export async function POST(
         resolvedByUserId: session.user.id,
         resolvedByName: session.user.name ?? null,
         resolvedAt: new Date().toISOString(),
+        resolutionNote,
       },
     })
     .returning({
