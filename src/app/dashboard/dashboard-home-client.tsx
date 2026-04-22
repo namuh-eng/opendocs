@@ -80,7 +80,7 @@ function classifyHandoffAction(action: string) {
   return "all" as const;
 }
 
-function formatDuration(from: string, to: string) {
+function formatDuration(from: string, to: string, suffix = "open") {
   const start = new Date(from).getTime();
   const end = new Date(to).getTime();
   const diffMs = end - start;
@@ -88,15 +88,17 @@ function formatDuration(from: string, to: string) {
   if (!Number.isFinite(diffMs) || diffMs <= 0) return null;
 
   const totalMinutes = Math.floor(diffMs / 60000);
-  if (totalMinutes < 60) return `${totalMinutes}m open`;
+  if (totalMinutes < 60) return `${totalMinutes}m ${suffix}`;
 
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
-  if (hours < 24) return minutes > 0 ? `${hours}h ${minutes}m open` : `${hours}h open`;
+  if (hours < 24) {
+    return minutes > 0 ? `${hours}h ${minutes}m ${suffix}` : `${hours}h ${suffix}`;
+  }
 
   const days = Math.floor(hours / 24);
   const remHours = hours % 24;
-  return remHours > 0 ? `${days}d ${remHours}h open` : `${days}d open`;
+  return remHours > 0 ? `${days}d ${remHours}h ${suffix}` : `${days}d ${suffix}`;
 }
 
 interface Props {
@@ -307,6 +309,27 @@ export function DashboardHomeClient({
 
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
+
+  const unresolvedCount = visibleManualHandoffs.length;
+  const resolvedCount = resolvedManualHandoffs.length;
+  const resolvedDurations = resolvedManualHandoffs
+    .map((handoff) => {
+      const resolvedAt = handoff.details.resolution?.resolvedAt;
+      if (!resolvedAt) return null;
+      return new Date(resolvedAt).getTime() - new Date(handoff.createdAt).getTime();
+    })
+    .filter((value): value is number => value !== null && Number.isFinite(value) && value > 0);
+  const averageResolvedDuration =
+    resolvedDurations.length > 0
+      ? formatDuration(
+          new Date(0).toISOString(),
+          new Date(
+            resolvedDurations.reduce((sum, value) => sum + value, 0) /
+              resolvedDurations.length,
+          ).toISOString(),
+          "avg",
+        )
+      : null;
   const domainDisplay = project
     ? formatDomainDisplay(project.subdomain, project.customDomain)
     : "";
@@ -549,6 +572,21 @@ export function DashboardHomeClient({
                 {handoffNotice}
               </div>
             ) : null}
+
+            <div className="mb-3 grid grid-cols-3 gap-2 text-xs">
+              <div className="rounded-md border border-white/[0.06] bg-black/20 px-3 py-2 text-gray-300">
+                <span className="block text-gray-500">Unresolved</span>
+                <span className="text-white">{unresolvedCount}</span>
+              </div>
+              <div className="rounded-md border border-white/[0.06] bg-black/20 px-3 py-2 text-gray-300">
+                <span className="block text-gray-500">Resolved</span>
+                <span className="text-white">{resolvedCount}</span>
+              </div>
+              <div className="rounded-md border border-white/[0.06] bg-black/20 px-3 py-2 text-gray-300">
+                <span className="block text-gray-500">Avg resolve time</span>
+                <span className="text-white">{averageResolvedDuration ?? "—"}</span>
+              </div>
+            </div>
 
             <div className="flex items-center justify-between gap-3 mb-3">
               <div className="flex items-center gap-2">
