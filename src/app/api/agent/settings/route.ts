@@ -8,6 +8,7 @@
 import { validateAgentSettingsUpdate } from "@/lib/agent-settings";
 import { db } from "@/lib/db";
 import { agentSettings, orgMemberships, organizations } from "@/lib/db/schema";
+import { createRequestId, logger } from "@/lib/logger";
 import { getServerSession } from "@/lib/session";
 import { eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
@@ -36,13 +37,25 @@ async function resolveOrg(userId: string) {
 }
 
 export async function GET() {
+  const requestId = createRequestId();
   const session = await getServerSession();
   if (!session) {
+    logger.warn("agent_settings_get_unauthorized", {
+      requestId,
+      route: "/api/agent/settings",
+      method: "GET",
+    });
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const org = await resolveOrg(session.user.id);
   if (!org) {
+    logger.warn("agent_settings_get_no_org", {
+      requestId,
+      route: "/api/agent/settings",
+      method: "GET",
+      userId: session.user.id,
+    });
     return NextResponse.json(
       { error: "No organization found" },
       { status: 404 },
@@ -56,6 +69,16 @@ export async function GET() {
     .limit(1);
 
   const settings = rows[0] ?? null;
+
+  logger.info("agent_settings_get_completed", {
+    requestId,
+    route: "/api/agent/settings",
+    method: "GET",
+    userId: session.user.id,
+    orgId: org.id,
+    hasSettings: Boolean(settings),
+    plan: org.plan,
+  });
 
   return NextResponse.json({
     plan: org.plan,
@@ -74,17 +97,30 @@ export async function GET() {
           githubAppInstalled: false,
           connectedRepos: [],
         },
+    requestId,
   });
 }
 
 export async function PUT(request: NextRequest) {
+  const requestId = createRequestId();
   const session = await getServerSession();
   if (!session) {
+    logger.warn("agent_settings_update_unauthorized", {
+      requestId,
+      route: "/api/agent/settings",
+      method: "PUT",
+    });
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const org = await resolveOrg(session.user.id);
   if (!org) {
+    logger.warn("agent_settings_update_no_org", {
+      requestId,
+      route: "/api/agent/settings",
+      method: "PUT",
+      userId: session.user.id,
+    });
     return NextResponse.json(
       { error: "No organization found" },
       { status: 404 },
@@ -92,6 +128,14 @@ export async function PUT(request: NextRequest) {
   }
 
   if (org.role === "viewer") {
+    logger.warn("agent_settings_update_forbidden", {
+      requestId,
+      route: "/api/agent/settings",
+      method: "PUT",
+      userId: session.user.id,
+      orgId: org.id,
+      role: org.role,
+    });
     return NextResponse.json(
       { error: "Insufficient permissions" },
       { status: 403 },
@@ -102,17 +146,40 @@ export async function PUT(request: NextRequest) {
   try {
     body = await request.json();
   } catch {
+    logger.warn("agent_settings_update_invalid_json", {
+      requestId,
+      route: "/api/agent/settings",
+      method: "PUT",
+      userId: session.user.id,
+      orgId: org.id,
+    });
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
   const validation = validateAgentSettingsUpdate(body);
   if (!validation.valid) {
+    logger.warn("agent_settings_update_invalid_request", {
+      requestId,
+      route: "/api/agent/settings",
+      method: "PUT",
+      userId: session.user.id,
+      orgId: org.id,
+      error: validation.error,
+    });
     return NextResponse.json({ error: validation.error }, { status: 400 });
   }
 
   // Check plan gating for enabling agent
   if (validation.data.agentEnabled === true) {
     if (org.plan === "free") {
+      logger.warn("agent_settings_update_plan_forbidden", {
+        requestId,
+        route: "/api/agent/settings",
+        method: "PUT",
+        userId: session.user.id,
+        orgId: org.id,
+        plan: org.plan,
+      });
       return NextResponse.json(
         { error: "Agent requires Pro or Enterprise plan" },
         { status: 403 },
@@ -167,6 +234,15 @@ export async function PUT(request: NextRequest) {
 
   const settings = rows[0];
 
+  logger.info("agent_settings_update_completed", {
+    requestId,
+    route: "/api/agent/settings",
+    method: "PUT",
+    userId: session.user.id,
+    orgId: org.id,
+    plan: org.plan,
+  });
+
   return NextResponse.json({
     plan: org.plan,
     settings: {
@@ -176,5 +252,6 @@ export async function PUT(request: NextRequest) {
       githubAppInstalled: settings.githubAppInstalled,
       connectedRepos: settings.connectedRepos,
     },
+    requestId,
   });
 }

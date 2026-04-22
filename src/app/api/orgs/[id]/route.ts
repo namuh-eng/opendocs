@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { orgMemberships, organizations } from "@/lib/db/schema";
+import { createRequestId, logger } from "@/lib/logger";
 import { and, eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
@@ -13,8 +14,14 @@ export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const requestId = createRequestId();
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) {
+    logger.warn("org_delete_unauthorized", {
+      requestId,
+      route: "/api/orgs/[id]",
+      method: "DELETE",
+    });
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -25,6 +32,13 @@ export async function DELETE(
   try {
     body = await request.json();
   } catch {
+    logger.warn("org_delete_missing_body", {
+      requestId,
+      route: "/api/orgs/[id]",
+      method: "DELETE",
+      orgId: id,
+      userId: session.user.id,
+    });
     return NextResponse.json(
       { error: "Request body is required" },
       { status: 400 },
@@ -33,6 +47,14 @@ export async function DELETE(
 
   const reason = typeof body.reason === "string" ? body.reason.trim() : "";
   if (reason.length < MIN_REASON_LENGTH) {
+    logger.warn("org_delete_reason_too_short", {
+      requestId,
+      route: "/api/orgs/[id]",
+      method: "DELETE",
+      orgId: id,
+      userId: session.user.id,
+      reasonLength: reason.length,
+    });
     return NextResponse.json(
       {
         error: `Reason must be at least ${MIN_REASON_LENGTH} characters`,
@@ -41,6 +63,14 @@ export async function DELETE(
     );
   }
   if (reason.length > MAX_REASON_LENGTH) {
+    logger.warn("org_delete_reason_too_long", {
+      requestId,
+      route: "/api/orgs/[id]",
+      method: "DELETE",
+      orgId: id,
+      userId: session.user.id,
+      reasonLength: reason.length,
+    });
     return NextResponse.json(
       {
         error: `Reason must be at most ${MAX_REASON_LENGTH} characters`,
@@ -62,6 +92,13 @@ export async function DELETE(
     .limit(1);
 
   if (membership.length === 0) {
+    logger.warn("org_delete_missing_membership", {
+      requestId,
+      route: "/api/orgs/[id]",
+      method: "DELETE",
+      orgId: id,
+      userId: session.user.id,
+    });
     return NextResponse.json(
       { error: "Organization not found" },
       { status: 404 },
@@ -69,6 +106,14 @@ export async function DELETE(
   }
 
   if (membership[0].role !== "admin") {
+    logger.warn("org_delete_forbidden", {
+      requestId,
+      route: "/api/orgs/[id]",
+      method: "DELETE",
+      orgId: id,
+      userId: session.user.id,
+      role: membership[0].role,
+    });
     return NextResponse.json(
       { error: "Only admins can delete organizations" },
       { status: 403 },
@@ -83,6 +128,13 @@ export async function DELETE(
     .limit(1);
 
   if (existing.length === 0) {
+    logger.warn("org_delete_missing", {
+      requestId,
+      route: "/api/orgs/[id]",
+      method: "DELETE",
+      orgId: id,
+      userId: session.user.id,
+    });
     return NextResponse.json(
       { error: "Organization not found" },
       { status: 404 },
@@ -92,5 +144,13 @@ export async function DELETE(
   // Delete org — cascading deletes handle memberships, projects, pages, etc.
   await db.delete(organizations).where(eq(organizations.id, id));
 
-  return NextResponse.json({ success: true, reason });
+  logger.info("org_delete_completed", {
+    requestId,
+    route: "/api/orgs/[id]",
+    method: "DELETE",
+    orgId: id,
+    userId: session.user.id,
+  });
+
+  return NextResponse.json({ success: true, reason, requestId });
 }

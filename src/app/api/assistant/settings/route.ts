@@ -8,6 +8,7 @@
 import { validateAssistantSettingsUpdate } from "@/lib/assistant-settings";
 import { db } from "@/lib/db";
 import { assistantSettings, orgMemberships, projects } from "@/lib/db/schema";
+import { createRequestId, logger } from "@/lib/logger";
 import { getServerSession } from "@/lib/session";
 import { eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
@@ -37,13 +38,25 @@ async function resolveProject(userId: string) {
 }
 
 export async function GET() {
+  const requestId = createRequestId();
   const session = await getServerSession();
   if (!session) {
+    logger.warn("assistant_settings_get_unauthorized", {
+      requestId,
+      route: "/api/assistant/settings",
+      method: "GET",
+    });
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const ctx = await resolveProject(session.user.id);
   if (!ctx) {
+    logger.warn("assistant_settings_get_no_project", {
+      requestId,
+      route: "/api/assistant/settings",
+      method: "GET",
+      userId: session.user.id,
+    });
     return NextResponse.json({ error: "No project found" }, { status: 404 });
   }
 
@@ -54,6 +67,15 @@ export async function GET() {
     .limit(1);
 
   const s = rows[0] ?? null;
+
+  logger.info("assistant_settings_get_completed", {
+    requestId,
+    route: "/api/assistant/settings",
+    method: "GET",
+    userId: session.user.id,
+    projectId: ctx.projectId,
+    hasSettings: Boolean(s),
+  });
 
   return NextResponse.json({
     settings: s
@@ -77,21 +99,42 @@ export async function GET() {
           starterQuestionsEnabled: false,
           starterQuestions: [],
         },
+    requestId,
   });
 }
 
 export async function PUT(request: NextRequest) {
+  const requestId = createRequestId();
   const session = await getServerSession();
   if (!session) {
+    logger.warn("assistant_settings_update_unauthorized", {
+      requestId,
+      route: "/api/assistant/settings",
+      method: "PUT",
+    });
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const ctx = await resolveProject(session.user.id);
   if (!ctx) {
+    logger.warn("assistant_settings_update_no_project", {
+      requestId,
+      route: "/api/assistant/settings",
+      method: "PUT",
+      userId: session.user.id,
+    });
     return NextResponse.json({ error: "No project found" }, { status: 404 });
   }
 
   if (ctx.role === "viewer") {
+    logger.warn("assistant_settings_update_forbidden", {
+      requestId,
+      route: "/api/assistant/settings",
+      method: "PUT",
+      userId: session.user.id,
+      projectId: ctx.projectId,
+      role: ctx.role,
+    });
     return NextResponse.json(
       { error: "Insufficient permissions" },
       { status: 403 },
@@ -102,11 +145,26 @@ export async function PUT(request: NextRequest) {
   try {
     body = await request.json();
   } catch {
+    logger.warn("assistant_settings_update_invalid_json", {
+      requestId,
+      route: "/api/assistant/settings",
+      method: "PUT",
+      userId: session.user.id,
+      projectId: ctx.projectId,
+    });
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
   const validation = validateAssistantSettingsUpdate(body);
   if (!validation.valid) {
+    logger.warn("assistant_settings_update_invalid_request", {
+      requestId,
+      route: "/api/assistant/settings",
+      method: "PUT",
+      userId: session.user.id,
+      projectId: ctx.projectId,
+      error: validation.error,
+    });
     return NextResponse.json({ error: validation.error }, { status: 400 });
   }
 
@@ -145,6 +203,14 @@ export async function PUT(request: NextRequest) {
 
   const s = rows[0];
 
+  logger.info("assistant_settings_update_completed", {
+    requestId,
+    route: "/api/assistant/settings",
+    method: "PUT",
+    userId: session.user.id,
+    projectId: ctx.projectId,
+  });
+
   return NextResponse.json({
     settings: {
       enabled: s.enabled,
@@ -156,5 +222,6 @@ export async function PUT(request: NextRequest) {
       starterQuestionsEnabled: s.starterQuestionsEnabled,
       starterQuestions: s.starterQuestions,
     },
+    requestId,
   });
 }
