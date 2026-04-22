@@ -192,6 +192,7 @@ export async function POST(request: Request) {
     deploymentId: deployment.id,
     queuedStatus: "queued",
     simulationEnabled: enqueueResult.mode === "simulation",
+    executionHandoff: enqueueResult.handoff,
   });
 
   return NextResponse.json(

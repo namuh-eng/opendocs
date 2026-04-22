@@ -220,6 +220,7 @@ export async function POST(request: Request) {
     orgId,
     createdInitialDeployment: Boolean(deployment),
     simulationEnabled: enqueueResult?.mode === "simulation",
+    executionHandoff: enqueueResult?.handoff ?? null,
   });
 
   return NextResponse.json(

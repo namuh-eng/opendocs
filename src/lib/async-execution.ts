@@ -4,6 +4,11 @@ import { and, eq } from "drizzle-orm";
 
 export type AsyncExecutionMode = "simulation" | "manual";
 
+export interface AsyncEnqueueResult {
+  mode: AsyncExecutionMode;
+  handoff: "simulated" | "manual_followup_required";
+}
+
 export function isAsyncSimulationEnabled() {
   return process.env.ENABLE_ASYNC_SIMULATION === "true";
 }
@@ -58,11 +63,11 @@ async function enqueueSimulatedDeployment(
 
 export async function enqueueAgentJob(
   jobId: string,
-): Promise<{ mode: AsyncExecutionMode }> {
+): Promise<AsyncEnqueueResult> {
   const mode = getAsyncExecutionMode();
 
   if (mode !== "simulation") {
-    return { mode };
+    return { mode, handoff: "manual_followup_required" };
   }
 
   scheduleSimulation(500, async () => {
@@ -83,33 +88,33 @@ export async function enqueueAgentJob(
       .where(and(eq(agentJobs.id, jobId), eq(agentJobs.status, "running")));
   });
 
-  return { mode };
+  return { mode, handoff: "simulated" };
 }
 
 export async function enqueueDeployment(
   deploymentId: string,
   projectId: string,
-): Promise<{ mode: AsyncExecutionMode }> {
+): Promise<AsyncEnqueueResult> {
   const mode = getAsyncExecutionMode();
 
   if (mode !== "simulation") {
-    return { mode };
+    return { mode, handoff: "manual_followup_required" };
   }
 
   await enqueueSimulatedDeployment(deploymentId, projectId);
-  return { mode };
+  return { mode, handoff: "simulated" };
 }
 
 export async function enqueuePreviewDeployment(
   deploymentId: string,
   projectId: string,
-): Promise<{ mode: AsyncExecutionMode }> {
+): Promise<AsyncEnqueueResult> {
   const mode = getAsyncExecutionMode();
 
   if (mode !== "simulation") {
-    return { mode };
+    return { mode, handoff: "manual_followup_required" };
   }
 
   await enqueueSimulatedDeployment(deploymentId, projectId);
-  return { mode };
+  return { mode, handoff: "simulated" };
 }

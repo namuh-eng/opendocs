@@ -174,6 +174,7 @@ export async function POST(request: NextRequest) {
     projectId: project.id,
     jobId: job.id,
     simulationEnabled: enqueueResult.mode === "simulation",
+    executionHandoff: enqueueResult.handoff,
   });
 
   return NextResponse.json(

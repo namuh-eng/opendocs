@@ -211,6 +211,7 @@ export async function POST(request: Request) {
     deploymentId: deployment.id,
     branch: validation.branch,
     simulationEnabled: enqueueResult.mode === "simulation",
+    executionHandoff: enqueueResult.handoff,
   });
 
   return NextResponse.json(
