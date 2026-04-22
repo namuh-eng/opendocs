@@ -6,6 +6,7 @@ import {
   organizations,
   projects,
 } from "@/lib/db/schema";
+import { createRequestId, logger } from "@/lib/logger";
 import {
   generateSubdomain,
   slugifyProject,
@@ -17,8 +18,14 @@ import { NextResponse } from "next/server";
 
 /** GET /api/projects — list projects for the user's org */
 export async function GET() {
+  const requestId = createRequestId();
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) {
+    logger.warn("projects_list_unauthorized", {
+      requestId,
+      route: "/api/projects",
+      method: "GET",
+    });
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -56,13 +63,26 @@ export async function GET() {
     .where(eq(projects.orgId, orgId))
     .orderBy(projects.createdAt);
 
-  return NextResponse.json({ projects: orgProjects });
+  logger.info("projects_list_completed", {
+    requestId,
+    route: "/api/projects",
+    method: "GET",
+    projectCount: orgProjects.length,
+  });
+
+  return NextResponse.json({ projects: orgProjects, requestId });
 }
 
 /** POST /api/projects — create a new project in the user's org */
 export async function POST(request: Request) {
+  const requestId = createRequestId();
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) {
+    logger.warn("projects_create_unauthorized", {
+      requestId,
+      route: "/api/projects",
+      method: "POST",
+    });
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -79,6 +99,12 @@ export async function POST(request: Request) {
     .limit(1);
 
   if (membership.length === 0) {
+    logger.warn("projects_create_missing_org", {
+      requestId,
+      route: "/api/projects",
+      method: "POST",
+      userId: session.user.id,
+    });
     return NextResponse.json(
       { error: "You must belong to an organization" },
       { status: 403 },
@@ -88,6 +114,13 @@ export async function POST(request: Request) {
   const { orgId, orgSlug, role } = membership[0];
 
   if (role !== "admin" && role !== "editor") {
+    logger.warn("projects_create_forbidden", {
+      requestId,
+      route: "/api/projects",
+      method: "POST",
+      userId: session.user.id,
+      role,
+    });
     return NextResponse.json(
       { error: "Only admins and editors can create projects" },
       { status: 403 },
@@ -98,11 +131,23 @@ export async function POST(request: Request) {
   const validation = validateCreateProjectRequest(body);
 
   if (!validation.valid) {
+    logger.warn("projects_create_invalid_request", {
+      requestId,
+      route: "/api/projects",
+      method: "POST",
+      error: validation.error,
+    });
     return NextResponse.json({ error: validation.error }, { status: 400 });
   }
 
   const slug = slugifyProject(validation.name);
   if (!slug) {
+    logger.warn("projects_create_invalid_slug", {
+      requestId,
+      route: "/api/projects",
+      method: "POST",
+      projectName: validation.name,
+    });
     return NextResponse.json(
       { error: "Could not generate a valid slug from project name" },
       { status: 400 },
@@ -166,9 +211,21 @@ export async function POST(request: Request) {
     simulateBuildCompletion(deployment.id, project.id);
   }
 
-  return NextResponse.json(deployment ? { project, deployment } : { project }, {
-    status: 201,
+  logger.info("projects_create_completed", {
+    requestId,
+    route: "/api/projects",
+    method: "POST",
+    projectId: project.id,
+    orgId,
+    createdInitialDeployment: Boolean(deployment),
   });
+
+  return NextResponse.json(
+    deployment ? { project, deployment, requestId } : { project, requestId },
+    {
+      status: 201,
+    },
+  );
 }
 
 function simulateBuildCompletion(deploymentId: string, projectId: string) {

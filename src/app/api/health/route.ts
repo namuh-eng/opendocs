@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { buildHealthResponse } from "@/lib/deploy";
+import { createRequestId, logger } from "@/lib/logger";
 import { sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 
@@ -9,15 +10,28 @@ import { NextResponse } from "next/server";
  * Returns system status, version, uptime, and dependency checks.
  */
 export async function GET() {
+  const requestId = createRequestId();
   let dbConnected = false;
   let storageAvailable = false;
+
+  logger.info("health_check_started", {
+    requestId,
+    route: "/api/health",
+    method: "GET",
+  });
 
   // Check database connectivity
   try {
     await db.execute(sql`SELECT 1`);
     dbConnected = true;
-  } catch {
+  } catch (error) {
     dbConnected = false;
+    logger.warn("health_check_database_disconnected", {
+      requestId,
+      route: "/api/health",
+      method: "GET",
+      error: error instanceof Error ? error.message : "unknown",
+    });
   }
 
   // Check S3 availability (just verify env var is set — actual S3 check is too slow for health)
@@ -29,6 +43,16 @@ export async function GET() {
     dbConnected,
     storageAvailable,
     version,
+    requestId,
+  });
+
+  logger.info("health_check_completed", {
+    requestId,
+    route: "/api/health",
+    method: "GET",
+    status: response.status,
+    dbConnected,
+    storageAvailable,
   });
 
   // Always return 200 for container liveness checks (App Runner, ECS, K8s).

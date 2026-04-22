@@ -14,6 +14,7 @@ describe("Health check response", () => {
       dbConnected: true,
       storageAvailable: true,
       version: "1.0.0",
+      requestId: "req-health-ok",
       startTime: Date.now() - 60000,
     });
     expect(resp.status).toBe("ok");
@@ -28,6 +29,7 @@ describe("Health check response", () => {
       dbConnected: false,
       storageAvailable: true,
       version: "1.0.0",
+      requestId: "req-health-db-down",
       startTime: Date.now(),
     });
     expect(resp.status).toBe("degraded");
@@ -39,6 +41,7 @@ describe("Health check response", () => {
       dbConnected: true,
       storageAvailable: false,
       version: "1.0.0",
+      requestId: "req-health-storage-down",
       startTime: Date.now(),
     });
     expect(resp.status).toBe("degraded");
@@ -50,6 +53,7 @@ describe("Health check response", () => {
       dbConnected: true,
       storageAvailable: true,
       version: "1.0.0",
+      requestId: "req-health-timestamp",
       startTime: Date.now(),
     });
     expect(() => new Date(resp.timestamp)).not.toThrow();
@@ -62,10 +66,22 @@ describe("Health check response", () => {
       dbConnected: true,
       storageAvailable: true,
       version: "1.0.0",
+      requestId: "req-health-uptime",
       startTime,
     });
     expect(resp.uptime).toBeGreaterThanOrEqual(119);
     expect(resp.uptime).toBeLessThanOrEqual(121);
+  });
+
+  it("includes a request id for tracing", () => {
+    const resp = buildHealthResponse({
+      dbConnected: true,
+      storageAvailable: true,
+      version: "1.0.0",
+      requestId: "req-health-trace",
+      startTime: Date.now(),
+    });
+    expect(resp.requestId).toBe("req-health-trace");
   });
 });
 

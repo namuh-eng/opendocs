@@ -7,20 +7,35 @@ import {
   matchesPushTarget,
   verifyWebhookSignature,
 } from "@/lib/github-webhook";
+import { createRequestId, logger } from "@/lib/logger";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 
 /** POST /api/webhooks/github — receive GitHub push webhooks */
 export async function POST(request: Request) {
+  const requestId = createRequestId();
   const eventType = request.headers.get("x-github-event");
   const signature = request.headers.get("x-hub-signature-256");
   const rawBody = await request.text();
+
+  logger.info("github_webhook_received", {
+    requestId,
+    route: "/api/webhooks/github",
+    method: "POST",
+    eventType: eventType ?? "unknown",
+  });
 
   const secret = process.env.GITHUB_WEBHOOK_SECRET ?? "";
 
   // Verify signature if secret is configured
   if (secret) {
     if (!verifyWebhookSignature(rawBody, signature, secret)) {
+      logger.warn("github_webhook_invalid_signature", {
+        requestId,
+        route: "/api/webhooks/github",
+        method: "POST",
+        eventType: eventType ?? "unknown",
+      });
       return NextResponse.json(
         { error: "Invalid webhook signature" },
         { status: 401 },
@@ -30,17 +45,34 @@ export async function POST(request: Request) {
 
   // Only process push events
   if (eventType !== "push") {
+    logger.info("github_webhook_ignored_event", {
+      requestId,
+      route: "/api/webhooks/github",
+      method: "POST",
+      eventType: eventType ?? "unknown",
+    });
     return NextResponse.json({ message: `Ignored event: ${eventType}` });
   }
 
   let payload: unknown;
   try {
     payload = JSON.parse(rawBody);
-  } catch {
+  } catch (error) {
+    logger.warn("github_webhook_invalid_json", {
+      requestId,
+      route: "/api/webhooks/github",
+      method: "POST",
+      error: error instanceof Error ? error.message : "unknown",
+    });
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
   if (!isValidPushPayload(payload)) {
+    logger.warn("github_webhook_invalid_payload", {
+      requestId,
+      route: "/api/webhooks/github",
+      method: "POST",
+    });
     return NextResponse.json(
       { error: "Invalid push payload" },
       { status: 400 },
@@ -49,6 +81,12 @@ export async function POST(request: Request) {
 
   const branch = extractBranchFromRef(payload.ref);
   if (!branch) {
+    logger.info("github_webhook_non_branch_push", {
+      requestId,
+      route: "/api/webhooks/github",
+      method: "POST",
+      eventType,
+    });
     return NextResponse.json({ message: "Not a branch push, skipping" });
   }
 
@@ -123,8 +161,18 @@ export async function POST(request: Request) {
     }
   }
 
+  logger.info("github_webhook_processed", {
+    requestId,
+    route: "/api/webhooks/github",
+    method: "POST",
+    repoFullName,
+    branch,
+    deploymentsTriggered,
+  });
+
   return NextResponse.json({
     message: `Processed push event for ${repoFullName}@${branch}`,
     deploymentsTriggered,
+    requestId,
   });
 }
