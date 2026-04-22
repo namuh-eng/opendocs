@@ -312,6 +312,19 @@ export function DashboardHomeClient({
 
   const unresolvedCount = visibleManualHandoffs.length;
   const resolvedCount = resolvedManualHandoffs.length;
+  const oldestUnresolvedAge =
+    visibleManualHandoffs.length > 0
+      ? formatDuration(
+          visibleManualHandoffs.reduce(
+            (oldest, handoff) =>
+              new Date(handoff.createdAt).getTime() < new Date(oldest).getTime()
+                ? handoff.createdAt
+                : oldest,
+            visibleManualHandoffs[0].createdAt,
+          ),
+          new Date().toISOString(),
+        )
+      : null;
   const resolvedDurations = resolvedManualHandoffs
     .map((handoff) => {
       const resolvedAt = handoff.details.resolution?.resolvedAt;
@@ -573,7 +586,7 @@ export function DashboardHomeClient({
               </div>
             ) : null}
 
-            <div className="mb-3 grid grid-cols-3 gap-2 text-xs">
+            <div className="mb-3 grid grid-cols-4 gap-2 text-xs">
               <div className="rounded-md border border-white/[0.06] bg-black/20 px-3 py-2 text-gray-300">
                 <span className="block text-gray-500">Unresolved</span>
                 <span className="text-white">{unresolvedCount}</span>
@@ -585,6 +598,10 @@ export function DashboardHomeClient({
               <div className="rounded-md border border-white/[0.06] bg-black/20 px-3 py-2 text-gray-300">
                 <span className="block text-gray-500">Avg resolve time</span>
                 <span className="text-white">{averageResolvedDuration ?? "—"}</span>
+              </div>
+              <div className="rounded-md border border-white/[0.06] bg-black/20 px-3 py-2 text-gray-300">
+                <span className="block text-gray-500">Oldest unresolved</span>
+                <span className="text-white">{oldestUnresolvedAge ?? "—"}</span>
               </div>
             </div>
 
