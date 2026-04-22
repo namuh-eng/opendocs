@@ -61,6 +61,12 @@ interface ManualHandoffRow {
   details: Record<string, unknown>;
 }
 
+const HANDOFF_FILTERS = [
+  { key: "all", label: "All" },
+  { key: "deployment", label: "Deployments" },
+  { key: "agent", label: "Agent jobs" },
+] as const;
+
 interface Props {
   greeting: string;
   firstName: string;
@@ -207,6 +213,9 @@ export function DashboardHomeClient({
   const [creatingPreview, setCreatingPreview] = useState(false);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [previewBranch, setPreviewBranch] = useState("");
+  const [handoffFilter, setHandoffFilter] = useState<
+    (typeof HANDOFF_FILTERS)[number]["key"]
+  >("all");
 
   const latestDeployment = deployments[0] ?? null;
   const lastDeployedLabel = latestDeployment
@@ -216,6 +225,16 @@ export function DashboardHomeClient({
   const siteUrl = project
     ? buildSiteUrl(project.subdomain, project.customDomain)
     : "#";
+  const filteredManualHandoffs = manualHandoffs.filter((handoff) => {
+    if (handoffFilter === "all") return true;
+    if (handoffFilter === "deployment") {
+      return handoff.action.includes("deployment");
+    }
+    if (handoffFilter === "agent") {
+      return handoff.action.includes("agent");
+    }
+    return true;
+  });
   const domainDisplay = project
     ? formatDomainDisplay(project.subdomain, project.customDomain)
     : "";
@@ -403,7 +422,7 @@ export function DashboardHomeClient({
 
           {/* Manual follow-up queue */}
           <div className="mb-6 rounded-xl border border-amber-400/20 bg-amber-400/[0.06] p-4">
-            <div className="flex items-center justify-between gap-4 mb-2">
+            <div className="flex items-start justify-between gap-4 mb-3">
               <div>
                 <h3 className="text-sm font-medium text-white">
                   Manual follow-up queue
@@ -413,17 +432,35 @@ export function DashboardHomeClient({
                 </p>
               </div>
               <span className="text-xs text-amber-300">
-                {manualHandoffs.length} recent
+                {filteredManualHandoffs.length} shown
               </span>
             </div>
 
-            {manualHandoffs.length === 0 ? (
+            <div className="flex items-center gap-2 mb-3">
+              {HANDOFF_FILTERS.map((filter) => (
+                <button
+                  key={filter.key}
+                  type="button"
+                  onClick={() => setHandoffFilter(filter.key)}
+                  className={clsx(
+                    "px-2.5 py-1 rounded-md text-xs transition-colors",
+                    handoffFilter === filter.key
+                      ? "bg-white/[0.12] text-white"
+                      : "text-gray-400 hover:text-white hover:bg-white/[0.06]",
+                  )}
+                >
+                  {filter.label}
+                </button>
+              ))}
+            </div>
+
+            {filteredManualHandoffs.length === 0 ? (
               <p className="text-sm text-gray-500">
                 No manual handoffs recorded recently.
               </p>
             ) : (
               <div className="space-y-2">
-                {manualHandoffs.slice(0, 5).map((handoff) => (
+                {filteredManualHandoffs.slice(0, 5).map((handoff) => (
                   <div
                     key={handoff.id}
                     className="flex items-center justify-between gap-3 rounded-lg border border-white/[0.06] bg-black/20 px-3 py-2"
