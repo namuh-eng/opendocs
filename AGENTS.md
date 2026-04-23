@@ -12,6 +12,21 @@ An autonomously-built clone of a SaaS product. It has its own backend (AWS servi
 - If a local hardening or clone workflow generates new internal artifacts, add them to `.gitignore` before they can be staged.
 - If a file mixes product code with private operational notes, split the private material out before committing.
 
+## GitHub Claim Labels
+- In shared GitHub work, claim an issue or PR before implementation.
+- Use `agent:<name>` labels. Shadowfax uses `agent:shadowfax`.
+- If another `agent:*` label is present, do not start.
+- If no `agent:*` label is present, add `agent:shadowfax` and continue.
+- Continue only on items already labeled for Shadowfax unless Ashley explicitly overrides that.
+- Remove `agent:shadowfax` when done or when abandoning the item.
+- If multiple agent labels appear on the same item, stop and surface the conflict.
+- Preferred helper commands:
+  `agent-claim ensure-labels shadowfax walter`
+  `agent-claim claim issue <number> shadowfax`
+  `agent-claim claim pr <number> shadowfax`
+  `agent-claim release issue <number> shadowfax`
+  `agent-claim release pr <number> shadowfax`
+
 ## Commands
 - `make check` — typecheck + Biome lint/format. Run after every code change.
 - `make test` — run unit tests (Vitest). Must all pass.
