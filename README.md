@@ -13,8 +13,6 @@ A fully functional clone of [Mintlify](https://mintlify.com) built with Next.js 
 
 namuh-mintlify is a production-grade documentation platform that gives you the full Mintlify experience on your own infrastructure. Create organizations, manage documentation projects, write content in a dual-mode editor (visual WYSIWYG or markdown), and deploy beautiful docs sites with AI assistant, full-text search, and OpenAPI auto-documentation.
 
-Built by [ralph-to-ralph](https://github.com/namuh-eng/ralph-to-ralph), an autonomous product cloning system. 69 features, 54,000+ lines of TypeScript, 1,500+ tests — built and tested end-to-end with zero human intervention.
-
 ---
 
 ## Features
@@ -166,30 +164,7 @@ namuh-mintlify/
 │   └── types/            # TypeScript types
 ├── tests/                # Unit tests (Vitest)
 ├── tests/e2e/            # E2E tests (Playwright)
-└── target-docs/          # Extracted Mintlify documentation
 ```
-
----
-
-## Built by AI
-
-namuh-mintlify was built autonomously by **[ralph-to-ralph](https://github.com/namuh-eng/ralph-to-ralph)**, a multi-agent system that clones SaaS products end-to-end.
-
-| Metric | Result |
-|--------|--------|
-| Features built | **69** |
-| Lines of code | **54,000+** |
-| Unit tests passing | **1,521** |
-| API routes | **60** |
-| Dashboard pages | **12+** |
-| Total time | **~6 hours** (fully autonomous) |
-| Human intervention | **Zero** |
-
-The system:
-1. **Inspects** Mintlify using Claude + Ever CLI (9 iterations, 50+ screenshots)
-2. **Builds** a working clone with TDD — 69 features committed individually
-3. **Tests** every feature with Vitest + Playwright
-4. **Deploys** to AWS with real infrastructure
 
 ---
 

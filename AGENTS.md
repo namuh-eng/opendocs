@@ -22,7 +22,7 @@ Run `make test-e2e` first. This catches obvious breakage in seconds.
 - `ever snapshot` — see current page state
 - `ever click <id>` — click elements
 - `ever input <id> <text>` — fill inputs
-- Read `ralph/ever-cli-reference.md` for full command reference
+- Use the local Ever CLI docs available in your environment for full command reference
 
 ### Step 3: Real API testing
 Test the clone's API directly:
@@ -32,7 +32,7 @@ curl -X POST http://localhost:3015/api/<endpoint> \
   -H "Content-Type: application/json" \
   -d '{"<request body>"}'
 ```
-Check `build-progress.txt` or API routes for the dev API key and available endpoints.
+Check the API routes and local environment for the available endpoints and dev credentials.
 
 ### Step 4: SDK testing (if packages/sdk/ exists)
 ```bash
