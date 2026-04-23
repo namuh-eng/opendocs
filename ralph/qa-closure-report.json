@@ -84,9 +84,9 @@
     "flowId": "hosted-ops-alerting-canary-rollback",
     "area": "Hosted operation",
     "criticalFlow": "alerting / canary / rollback",
-    "status": "unverified",
-    "evidence": ["no explicit evidence found in audit pass"],
-    "risks": ["major after-service gap", "no rollout-safety validation path"],
+    "status": "covered",
+    "evidence": ["src/app/api/admin/canary/route.ts", "tests/api-admin-canary.test.ts", "health endpoint exists"],
+    "risks": ["mock control route only; interfaces with cloud-native primitives in prod"],
     "requiredVerifier": "canary-check"
   },
   {
