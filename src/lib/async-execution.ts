@@ -2,6 +2,13 @@ import { db } from "@/lib/db";
 import { agentJobs, deployments, projects } from "@/lib/db/schema";
 import { and, eq } from "drizzle-orm";
 
+export const ASYNC_SIMULATION_TIMINGS_MS = {
+  deploymentStart: 500,
+  deploymentFinish: 3000,
+  agentJobStart: 500,
+  agentJobFinish: 5000,
+} as const;
+
 export type AsyncExecutionMode = "simulation" | "manual";
 
 export interface AsyncEnqueueResult {
@@ -31,7 +38,7 @@ async function enqueueSimulatedDeployment(
   deploymentId: string,
   projectId: string,
 ) {
-  scheduleSimulation(500, async () => {
+  scheduleSimulation(ASYNC_SIMULATION_TIMINGS_MS.deploymentStart, async () => {
     await db
       .update(deployments)
       .set({ status: "in_progress", startedAt: new Date() })
@@ -44,7 +51,7 @@ async function enqueueSimulatedDeployment(
       .where(eq(projects.id, projectId));
   });
 
-  scheduleSimulation(3000, async () => {
+  scheduleSimulation(ASYNC_SIMULATION_TIMINGS_MS.deploymentFinish, async () => {
     await db
       .update(deployments)
       .set({ status: "succeeded", endedAt: new Date() })
@@ -70,14 +77,14 @@ export async function enqueueAgentJob(
     return { mode, handoff: "manual_followup_required" };
   }
 
-  scheduleSimulation(500, async () => {
+  scheduleSimulation(ASYNC_SIMULATION_TIMINGS_MS.agentJobStart, async () => {
     await db
       .update(agentJobs)
       .set({ status: "running", updatedAt: new Date() })
       .where(and(eq(agentJobs.id, jobId), eq(agentJobs.status, "pending")));
   });
 
-  scheduleSimulation(5000, async () => {
+  scheduleSimulation(ASYNC_SIMULATION_TIMINGS_MS.agentJobFinish, async () => {
     await db
       .update(agentJobs)
       .set({
