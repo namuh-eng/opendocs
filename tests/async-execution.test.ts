@@ -21,12 +21,17 @@ describe("async execution", () => {
   it("uses manual mode by default", async () => {
     const {
       getAsyncExecutionMode,
+      getDeploymentExecutionStrategy,
       isAsyncSimulationEnabled,
       enqueueDeployment,
     } = await import("@/lib/async-execution");
 
     expect(isAsyncSimulationEnabled()).toBe(false);
     expect(getAsyncExecutionMode()).toBe("manual");
+    expect(getDeploymentExecutionStrategy()).toEqual({
+      mode: "manual",
+      handoff: "manual_followup_required",
+    });
     await expect(enqueueDeployment("dep-1", "proj-1")).resolves.toEqual({
       mode: "manual",
       handoff: "manual_followup_required",
@@ -41,11 +46,17 @@ describe("async execution", () => {
         () => 0 as unknown as ReturnType<typeof setTimeout>,
       );
 
-    const { getAsyncExecutionMode, enqueueDeployment } = await import(
-      "@/lib/async-execution"
-    );
+    const {
+      getAsyncExecutionMode,
+      getDeploymentExecutionStrategy,
+      enqueueDeployment,
+    } = await import("@/lib/async-execution");
 
     expect(getAsyncExecutionMode()).toBe("simulation");
+    expect(getDeploymentExecutionStrategy()).toEqual({
+      mode: "simulation",
+      handoff: "simulated",
+    });
     await expect(enqueueDeployment("dep-1", "proj-1")).resolves.toEqual({
       mode: "simulation",
       handoff: "simulated",

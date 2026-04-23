@@ -17,6 +17,14 @@ export interface AsyncEnqueueResult {
   handoff: "simulated" | "manual_followup_required";
 }
 
+export function getDeploymentExecutionStrategy(): AsyncEnqueueResult {
+  const mode = getAsyncExecutionMode();
+  return {
+    mode,
+    handoff: mode === "simulation" ? "simulated" : "manual_followup_required",
+  };
+}
+
 export function getDeploymentExecutionMetadata(status: string): ExecutionMetadataOptions {
   const simulated = isAsyncSimulationEnabled();
   return {
@@ -125,26 +133,26 @@ export async function enqueueDeployment(
   deploymentId: string,
   projectId: string,
 ): Promise<AsyncEnqueueResult> {
-  const mode = getAsyncExecutionMode();
+  const strategy = getDeploymentExecutionStrategy();
 
-  if (mode !== "simulation") {
-    return { mode, handoff: "manual_followup_required" };
+  if (strategy.mode !== "simulation") {
+    return strategy;
   }
 
   await enqueueSimulatedDeployment(deploymentId, projectId);
-  return { mode, handoff: "simulated" };
+  return strategy;
 }
 
 export async function enqueuePreviewDeployment(
   deploymentId: string,
   projectId: string,
 ): Promise<AsyncEnqueueResult> {
-  const mode = getAsyncExecutionMode();
+  const strategy = getDeploymentExecutionStrategy();
 
-  if (mode !== "simulation") {
-    return { mode, handoff: "manual_followup_required" };
+  if (strategy.mode !== "simulation") {
+    return strategy;
   }
 
   await enqueueSimulatedDeployment(deploymentId, projectId);
-  return { mode, handoff: "simulated" };
+  return strategy;
 }
