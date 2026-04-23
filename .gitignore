@@ -12,7 +12,10 @@ test-results/
 playwright-report/
 drizzle/
 packages/sdk/dist/
-# target-docs/ — tracked for inspect phase
+# Internal extracted target docs and private hardening artifacts
+target-docs/
+ralph/docs/
+ralph-hardening/
 .current-feature.json
 tsconfig.tsbuildinfo
 
