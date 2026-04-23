@@ -25,6 +25,11 @@ export function validateProjectId(id: string): boolean {
   return UUID_RE.test(id);
 }
 
+export interface DeploymentExecutionOptions {
+  simulated?: boolean;
+  handoff?: "simulated" | "manual_followup_required";
+}
+
 interface DeploymentRow {
   id: string;
   projectId: string;
@@ -39,10 +44,7 @@ interface DeploymentRow {
 /** Format the trigger-deployment response (just statusId + status). */
 export function formatDeploymentTriggerResponse(
   deployment: DeploymentRow,
-  options?: {
-    simulated?: boolean;
-    handoff?: "simulated" | "manual_followup_required";
-  },
+  options?: DeploymentExecutionOptions,
 ): {
   statusId: string;
   status: string;
@@ -62,10 +64,7 @@ export function formatDeploymentTriggerResponse(
 /** Format the deployment status response. Returns null if deployment is null. */
 export function formatDeploymentStatusResponse(
   deployment: DeploymentRow | null,
-  options?: {
-    simulated?: boolean;
-    handoff?: "simulated" | "manual_followup_required";
-  },
+  options?: DeploymentExecutionOptions,
 ): {
   statusId: string;
   status: string;

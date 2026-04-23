@@ -71,9 +71,16 @@ export async function GET(
     );
   }
 
+  const simulated = isAsyncSimulationEnabled();
+  const handoff =
+    simulated || deployment.status !== "queued"
+      ? "simulated"
+      : "manual_followup_required";
+
   return NextResponse.json(
     formatDeploymentStatusResponse(deployment, {
-      simulated: isAsyncSimulationEnabled(),
+      simulated,
+      handoff,
     }),
   );
 }

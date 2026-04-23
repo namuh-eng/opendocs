@@ -79,6 +79,29 @@ describe("formatDeploymentTriggerResponse", () => {
 });
 
 describe("formatDeploymentStatusResponse", () => {
+  it("allows explicit execution handoff metadata to override inferred defaults", () => {
+    const result = formatDeploymentStatusResponse(
+      {
+        id: "deploy-explicit",
+        projectId: "proj-456",
+        status: "queued",
+        commitSha: null,
+        commitMessage: "Manual Update",
+        startedAt: null,
+        endedAt: null,
+        createdAt: new Date("2026-04-08T10:00:00Z"),
+      },
+      {
+        simulated: false,
+        handoff: "simulated",
+      },
+    );
+
+    expect(result).not.toBeNull();
+    expect(result?.executionMode).toBe("manual");
+    expect(result?.executionHandoff).toBe("simulated");
+  });
+
   it("returns full deployment info for a queued deployment", () => {
     const result = formatDeploymentStatusResponse({
       id: "deploy-123",
