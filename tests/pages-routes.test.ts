@@ -7,6 +7,7 @@ const {
   mockFrom,
   mockWhere,
   mockLimit,
+  mockOrderBy,
   mockInsert,
   mockValues,
   mockReturning,
@@ -21,6 +22,7 @@ const {
   mockFrom: vi.fn(),
   mockWhere: vi.fn(),
   mockLimit: vi.fn(),
+  mockOrderBy: vi.fn(),
   mockInsert: vi.fn(),
   mockValues: vi.fn(),
   mockReturning: vi.fn(),
@@ -51,7 +53,7 @@ vi.mock("next/headers", () => ({
   headers: mockHeaders,
 }));
 
-describe("page routes permissions", () => {
+describe("page routes permissions and contracts", () => {
   beforeEach(() => {
     vi.resetModules();
     vi.clearAllMocks();
@@ -64,8 +66,12 @@ describe("page routes permissions", () => {
     });
     mockFrom.mockReturnValue({
       where: mockWhere,
+      orderBy: mockOrderBy,
     });
     mockWhere.mockReturnValue({
+      limit: mockLimit,
+    });
+    mockOrderBy.mockReturnValue({
       limit: mockLimit,
     });
 
@@ -110,6 +116,64 @@ describe("page routes permissions", () => {
     expect(mockInsert).not.toHaveBeenCalled();
   });
 
+  it("returns 409 when creating a page with a duplicate path", async () => {
+    mockLimit
+      .mockResolvedValueOnce([{ orgId: "org-1", role: "editor" }])
+      .mockResolvedValueOnce([{ id: "project-1" }])
+      .mockResolvedValueOnce([{ id: "page-existing" }]);
+
+    const { POST } = await import("@/app/api/projects/[id]/pages/route");
+    const response = await POST(
+      new Request("http://localhost:3015/api/projects/project-1/pages", {
+        method: "POST",
+        body: JSON.stringify({ path: "guide", title: "Guide" }),
+      }),
+      { params: Promise.resolve({ id: "project-1" }) },
+    );
+
+    expect(response.status).toBe(409);
+    await expect(response.json()).resolves.toEqual({
+      error: "A page with this path already exists in this project",
+    });
+    expect(mockInsert).not.toHaveBeenCalled();
+  });
+
+  it("returns a single page for authorized readers", async () => {
+    mockLimit
+      .mockResolvedValueOnce([{ orgId: "org-1", role: "viewer" }])
+      .mockResolvedValueOnce([{ id: "project-1" }])
+      .mockResolvedValueOnce([{ id: "page-1" }])
+      .mockResolvedValueOnce([
+        {
+          id: "page-1",
+          projectId: "project-1",
+          path: "guide",
+          title: "Guide",
+          content: "# Hello",
+        },
+      ]);
+
+    const { GET } = await import(
+      "@/app/api/projects/[id]/pages/[pageId]/route"
+    );
+    const response = await GET(
+      new Request("http://localhost:3015/api/projects/project-1/pages/page-1"),
+      { params: Promise.resolve({ id: "project-1", pageId: "page-1" }) },
+    );
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({
+      page: {
+        id: "page-1",
+        projectId: "project-1",
+        path: "guide",
+        title: "Guide",
+        content: "# Hello",
+      },
+      requestId: expect.any(String),
+    });
+  });
+
   it("rejects page updates for viewers", async () => {
     mockLimit
       .mockResolvedValueOnce([{ orgId: "org-1", role: "viewer" }])
@@ -134,6 +198,31 @@ describe("page routes permissions", () => {
     expect(mockUpdate).not.toHaveBeenCalled();
   });
 
+  it("returns 409 when updating a page to a conflicting path", async () => {
+    mockLimit
+      .mockResolvedValueOnce([{ orgId: "org-1", role: "editor" }])
+      .mockResolvedValueOnce([{ id: "project-1" }])
+      .mockResolvedValueOnce([{ id: "page-1" }])
+      .mockResolvedValueOnce([{ id: "page-2" }]);
+
+    const { PUT } = await import(
+      "@/app/api/projects/[id]/pages/[pageId]/route"
+    );
+    const response = await PUT(
+      new Request("http://localhost:3015/api/projects/project-1/pages/page-1", {
+        method: "PUT",
+        body: JSON.stringify({ path: "guide" }),
+      }),
+      { params: Promise.resolve({ id: "project-1", pageId: "page-1" }) },
+    );
+
+    expect(response.status).toBe(409);
+    await expect(response.json()).resolves.toEqual({
+      error: "A page with this path already exists",
+    });
+    expect(mockUpdate).not.toHaveBeenCalled();
+  });
+
   it("rejects page deletion for viewers", async () => {
     mockLimit
       .mockResolvedValueOnce([{ orgId: "org-1", role: "viewer" }])
@@ -153,5 +242,28 @@ describe("page routes permissions", () => {
       error: "Only admins and editors can manage pages",
     });
     expect(mockDelete).not.toHaveBeenCalled();
+  });
+
+  it("deletes a page for editors", async () => {
+    mockLimit
+      .mockResolvedValueOnce([{ orgId: "org-1", role: "editor" }])
+      .mockResolvedValueOnce([{ id: "project-1" }])
+      .mockResolvedValueOnce([{ id: "page-1" }]);
+    mockDeleteWhere.mockResolvedValue(undefined);
+
+    const { DELETE } = await import(
+      "@/app/api/projects/[id]/pages/[pageId]/route"
+    );
+    const response = await DELETE(
+      new Request("http://localhost:3015/api/projects/project-1/pages/page-1"),
+      { params: Promise.resolve({ id: "project-1", pageId: "page-1" }) },
+    );
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({
+      success: true,
+      requestId: expect.any(String),
+    });
+    expect(mockDelete).toHaveBeenCalled();
   });
 });
