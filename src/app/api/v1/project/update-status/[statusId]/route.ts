@@ -7,7 +7,7 @@
 
 import { authenticateApiKey } from "@/lib/api-key-auth";
 import { formatDeploymentStatusResponse } from "@/lib/api-v1-deployments";
-import { isAsyncSimulationEnabled } from "@/lib/async-execution";
+import { getDeploymentExecutionMetadata } from "@/lib/async-execution";
 import { db } from "@/lib/db";
 import { deployments, projects } from "@/lib/db/schema";
 import { and, eq } from "drizzle-orm";
@@ -71,16 +71,10 @@ export async function GET(
     );
   }
 
-  const simulated = isAsyncSimulationEnabled();
-  const handoff =
-    simulated || deployment.status !== "queued"
-      ? "simulated"
-      : "manual_followup_required";
-
   return NextResponse.json(
-    formatDeploymentStatusResponse(deployment, {
-      simulated,
-      handoff,
-    }),
+    formatDeploymentStatusResponse(
+      deployment,
+      getDeploymentExecutionMetadata(deployment.status),
+    ),
   );
 }

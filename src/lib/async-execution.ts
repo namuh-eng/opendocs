@@ -1,3 +1,4 @@
+import type { ExecutionMetadataOptions } from "@/lib/async-metadata";
 import { db } from "@/lib/db";
 import { agentJobs, deployments, projects } from "@/lib/db/schema";
 import { and, eq } from "drizzle-orm";
@@ -14,6 +15,28 @@ export type AsyncExecutionMode = "simulation" | "manual";
 export interface AsyncEnqueueResult {
   mode: AsyncExecutionMode;
   handoff: "simulated" | "manual_followup_required";
+}
+
+export function getDeploymentExecutionMetadata(status: string): ExecutionMetadataOptions {
+  const simulated = isAsyncSimulationEnabled();
+  return {
+    simulated,
+    handoff:
+      simulated || status !== "queued"
+        ? "simulated"
+        : "manual_followup_required",
+  };
+}
+
+export function getAgentJobExecutionMetadata(status: string): ExecutionMetadataOptions {
+  const simulated = isAsyncSimulationEnabled();
+  return {
+    simulated,
+    handoff:
+      simulated || status !== "pending"
+        ? "simulated"
+        : "manual_followup_required",
+  };
 }
 
 export function isAsyncSimulationEnabled() {
