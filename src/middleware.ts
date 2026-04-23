@@ -9,6 +9,7 @@ const PROTECTED_PREFIXES = [
 ];
 
 export async function middleware(request: NextRequest) {
+  const start = Date.now();
   const sessionCookie = getSessionCookie(request);
   const { pathname, search } = request.nextUrl;
 
@@ -23,7 +24,13 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  return NextResponse.next();
+  const response = NextResponse.next();
+  const duration = Date.now() - start;
+
+  // Set Server-Timing header for performance monitoring
+  response.headers.set("Server-Timing", `middleware;dur=${duration}`);
+
+  return response;
 }
 
 export const config = {
