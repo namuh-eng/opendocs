@@ -38,6 +38,68 @@ describe("POST /api/docs/proxy", () => {
     vi.stubGlobal("fetch", fetchMock);
   });
 
+  it("returns 429 when rate limited", async () => {
+    applyRateLimitMock.mockReturnValue({
+      allowed: false,
+      limit: 20,
+      remaining: 0,
+      resetTime: Date.now() + 60_000,
+    });
+    buildRateLimitHeadersMock.mockReturnValue({
+      "x-ratelimit-limit": "20",
+      "x-ratelimit-remaining": "0",
+    });
+
+    const { POST } = await import("@/app/api/docs/proxy/route");
+    const response = await POST(
+      makeRequest(
+        {
+          method: "GET",
+          url: "https://example.com/docs.json",
+        },
+        { "x-forwarded-for": "203.0.113.10" },
+      ),
+    );
+
+    expect(response.status).toBe(429);
+    await expect(response.json()).resolves.toEqual({
+      error: "Too many proxy requests",
+    });
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("returns 400 when method or url is missing", async () => {
+    const { POST } = await import("@/app/api/docs/proxy/route");
+    const response = await POST(
+      makeRequest({
+        method: "",
+        url: "",
+      }),
+    );
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({
+      error: "Missing method or url",
+    });
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("returns 400 for invalid urls", async () => {
+    const { POST } = await import("@/app/api/docs/proxy/route");
+    const response = await POST(
+      makeRequest({
+        method: "GET",
+        url: "not-a-url",
+      }),
+    );
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({
+      error: "Invalid URL",
+    });
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
   it("blocks requests to .local hosts", async () => {
     const { POST } = await import("@/app/api/docs/proxy/route");
     const response = await POST(
@@ -100,6 +162,26 @@ describe("POST /api/docs/proxy", () => {
         "content-type": "application/json",
       },
       requestId: expect.any(String),
+    });
+  });
+
+  it("returns 502 when the upstream request fails", async () => {
+    fetchMock.mockRejectedValue(new Error("upstream failed"));
+
+    const { POST } = await import("@/app/api/docs/proxy/route");
+    const response = await POST(
+      makeRequest({
+        method: "POST",
+        url: "https://example.com/api/test",
+        body: '{"hello":"world"}',
+      }),
+    );
+
+    expect(response.status).toBe(502);
+    await expect(response.json()).resolves.toEqual({
+      status: 0,
+      body: "upstream failed",
+      headers: {},
     });
   });
 
