@@ -1,6 +1,7 @@
 "use client";
 
 import { getStoredActiveProjectId } from "@/components/layout/shell-preferences";
+import { selectActiveProject } from "@/hooks/project-hooks-core";
 import { useEffect, useState } from "react";
 
 export function useActiveProject<T extends { id: string }>() {
@@ -11,14 +12,11 @@ export function useActiveProject<T extends { id: string }>() {
     fetch("/api/projects")
       .then((res) => res.json())
       .then((data) => {
-        if (data.projects?.length > 0) {
-          const activeProjectId = getStoredActiveProjectId();
-          const resolvedProject =
-            data.projects.find(
-              (candidate: T) => candidate.id === activeProjectId,
-            ) ?? data.projects[0];
-          setProject(resolvedProject as T);
-        }
+        const resolvedProject = selectActiveProject<T>({
+          projects: data.projects ?? [],
+          activeProjectId: getStoredActiveProjectId(),
+        });
+        setProject(resolvedProject);
         setLoading(false);
       })
       .catch(() => setLoading(false));
