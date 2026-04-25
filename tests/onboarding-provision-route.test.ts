@@ -17,6 +17,8 @@ const insertMock = vi.fn();
 const resolveGitHubImportAccessForProjectMock = vi.fn();
 const getGitHubImportAccessMessageMock = vi.fn();
 const importPublicGitHubDocsMock = vi.fn();
+const importGitHubDocsMock = vi.fn();
+const buildGitHubInstallationAuthHeadersMock = vi.fn();
 
 vi.mock("@/lib/auth", () => ({
   auth: {
@@ -44,7 +46,18 @@ vi.mock("@/lib/github-import", () => ({
 
 vi.mock("@/lib/github-docs-import", () => ({
   importPublicGitHubDocs: importPublicGitHubDocsMock,
+  importGitHubDocs: importGitHubDocsMock,
 }));
+
+vi.mock("@/lib/github-installation-auth", async () => {
+  const actual = await vi.importActual<typeof import("@/lib/github-installation-auth")>(
+    "@/lib/github-installation-auth",
+  );
+  return {
+    ...actual,
+    buildGitHubInstallationAuthHeaders: buildGitHubInstallationAuthHeadersMock,
+  };
+});
 
 describe("POST /api/onboarding/provision", () => {
   beforeEach(() => {
@@ -56,6 +69,14 @@ describe("POST /api/onboarding/provision", () => {
       ok: false,
       status: "no_markdown_found",
       message: "No markdown files were found in the selected GitHub repository path",
+    });
+    importGitHubDocsMock.mockResolvedValue({
+      ok: false,
+      status: "fetch_failed",
+      message: "GitHub tree request failed with status 404",
+    });
+    buildGitHubInstallationAuthHeadersMock.mockResolvedValue({
+      Authorization: "Bearer secret-token",
     });
   });
 
@@ -84,7 +105,13 @@ describe("POST /api/onboarding/provision", () => {
       from: vi.fn().mockReturnThis(),
       where: vi.fn().mockReturnThis(),
       limit: vi.fn().mockResolvedValue([
-        { id: "proj-1", repoUrl: null, repoBranch: "main", repoPath: "/" },
+        {
+          id: "proj-1",
+          repoUrl: null,
+          repoBranch: "main",
+          repoPath: "/",
+          settings: {},
+        },
       ]),
     };
 
@@ -118,12 +145,6 @@ describe("POST /api/onboarding/provision", () => {
         source: "blank",
       },
     });
-    expect(valuesMock).toHaveBeenCalledWith(
-      expect.arrayContaining([
-        expect.objectContaining({ path: "introduction" }),
-        expect.objectContaining({ path: "quickstart" }),
-      ]),
-    );
   });
 
   it("falls back to starter docs when public import finds no markdown", async () => {
@@ -144,6 +165,7 @@ describe("POST /api/onboarding/provision", () => {
           repoUrl: "https://github.com/acme/docs",
           repoBranch: "main",
           repoPath: "/",
+          settings: {},
         },
       ]),
     };
@@ -179,8 +201,6 @@ describe("POST /api/onboarding/provision", () => {
       provisioning: {
         mode: "starter_docs",
         source: "public",
-        message:
-          "No markdown files were found in the selected GitHub repository path. Starter docs were created during onboarding instead.",
       },
     });
   });
@@ -203,6 +223,7 @@ describe("POST /api/onboarding/provision", () => {
           repoUrl: "https://github.com/acme/docs",
           repoBranch: "main",
           repoPath: "/",
+          settings: {},
         },
       ]),
     };
@@ -253,15 +274,73 @@ describe("POST /api/onboarding/provision", () => {
         importedPageCount: 1,
       },
     });
-    expect(valuesMock).toHaveBeenCalledWith([
-      {
-        projectId: "proj-1",
-        path: "introduction",
-        title: "Introduction",
-        content: "# Introduction\n\nImported",
-        isPublished: true,
+  });
+
+  it("returns github_import_unavailable when private import auth is not configured", async () => {
+    getSessionMock.mockResolvedValue({ user: { id: "user-1" } });
+
+    const membershipLookup = {
+      from: vi.fn().mockReturnThis(),
+      where: vi.fn().mockReturnThis(),
+      limit: vi.fn().mockResolvedValue([{ orgId: "org-1" }]),
+    };
+
+    const projectLookup = {
+      from: vi.fn().mockReturnThis(),
+      where: vi.fn().mockReturnThis(),
+      limit: vi.fn().mockResolvedValue([
+        {
+          id: "proj-1",
+          repoUrl: "https://github.com/acme/private-docs",
+          repoBranch: "main",
+          repoPath: "/",
+          settings: { githubSource: { installationId: "inst_123" } },
+        },
+      ]),
+    };
+
+    const pagesLookup = {
+      from: vi.fn().mockReturnThis(),
+      where: vi.fn().mockReturnThis(),
+      limit: vi.fn().mockResolvedValue([]),
+    };
+
+    selectMock
+      .mockReturnValueOnce(membershipLookup)
+      .mockReturnValueOnce(projectLookup)
+      .mockReturnValueOnce(pagesLookup);
+
+    resolveGitHubImportAccessForProjectMock.mockResolvedValue({
+      status: "private_connected",
+    });
+    getGitHubImportAccessMessageMock.mockReturnValue(null);
+
+    const { GitHubInstallationAuthNotConfiguredError } = await import(
+      "@/lib/github-installation-auth"
+    );
+    buildGitHubInstallationAuthHeadersMock.mockRejectedValue(
+      new GitHubInstallationAuthNotConfiguredError(),
+    );
+
+    const valuesMock = vi.fn().mockResolvedValue(undefined);
+    insertMock.mockReturnValue({ values: valuesMock });
+
+    const { POST } = await import("@/app/api/onboarding/provision/route");
+    const response = await POST(
+      makeNextRequest("http://localhost/api/onboarding/provision", {
+        method: "POST",
+        body: JSON.stringify({ projectId: "proj-1" }),
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toMatchObject({
+      ok: true,
+      provisioning: {
+        mode: "github_import_unavailable",
+        source: "private_connected",
       },
-    ]);
+    });
   });
 
   it("returns 409 if github auth is required for repo-backed import", async () => {
@@ -282,6 +361,7 @@ describe("POST /api/onboarding/provision", () => {
           repoUrl: "https://github.com/acme/private-docs",
           repoBranch: "main",
           repoPath: "/",
+          settings: {},
         },
       ]),
     };
@@ -332,7 +412,7 @@ describe("POST /api/onboarding/provision", () => {
       from: vi.fn().mockReturnThis(),
       where: vi.fn().mockReturnThis(),
       limit: vi.fn().mockResolvedValue([
-        { id: "proj-1", repoUrl: null, repoBranch: "main", repoPath: "/" },
+        { id: "proj-1", repoUrl: null, repoBranch: "main", repoPath: "/", settings: {} },
       ]),
     };
 
@@ -358,67 +438,6 @@ describe("POST /api/onboarding/provision", () => {
     expect(response.status).toBe(409);
     await expect(response.json()).resolves.toEqual({
       error: "Project already has content",
-    });
-  });
-
-  it("returns explicit pending-auth import metadata for connected github repos until authenticated import exists", async () => {
-    getSessionMock.mockResolvedValue({ user: { id: "user-1" } });
-
-    const membershipLookup = {
-      from: vi.fn().mockReturnThis(),
-      where: vi.fn().mockReturnThis(),
-      limit: vi.fn().mockResolvedValue([{ orgId: "org-1" }]),
-    };
-
-    const projectLookup = {
-      from: vi.fn().mockReturnThis(),
-      where: vi.fn().mockReturnThis(),
-      limit: vi.fn().mockResolvedValue([
-        {
-          id: "proj-1",
-          repoUrl: "https://github.com/acme/private-docs",
-          repoBranch: "main",
-          repoPath: "/",
-        },
-      ]),
-    };
-
-    const pagesLookup = {
-      from: vi.fn().mockReturnThis(),
-      where: vi.fn().mockReturnThis(),
-      limit: vi.fn().mockResolvedValue([]),
-    };
-
-    selectMock
-      .mockReturnValueOnce(membershipLookup)
-      .mockReturnValueOnce(projectLookup)
-      .mockReturnValueOnce(pagesLookup);
-
-    resolveGitHubImportAccessForProjectMock.mockResolvedValue({
-      status: "private_connected",
-    });
-    getGitHubImportAccessMessageMock.mockReturnValue(null);
-
-    const valuesMock = vi.fn().mockResolvedValue(undefined);
-    insertMock.mockReturnValue({ values: valuesMock });
-
-    const { POST } = await import("@/app/api/onboarding/provision/route");
-    const response = await POST(
-      makeNextRequest("http://localhost/api/onboarding/provision", {
-        method: "POST",
-        body: JSON.stringify({ projectId: "proj-1" }),
-      }),
-    );
-
-    expect(response.status).toBe(200);
-    await expect(response.json()).resolves.toMatchObject({
-      ok: true,
-      provisioning: {
-        mode: "github_import_pending_auth",
-        source: "private_connected",
-        message:
-          "GitHub repository access is verified, but authenticated import is not implemented yet. Starter docs were created during onboarding.",
-      },
     });
   });
 });

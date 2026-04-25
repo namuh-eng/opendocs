@@ -2,8 +2,12 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { orgMemberships, pages, projects } from "@/lib/db/schema";
 import { createRequestId, logger } from "@/lib/logger";
-import { importPublicGitHubDocs } from "@/lib/github-docs-import";
+import { importGitHubDocs, importPublicGitHubDocs } from "@/lib/github-docs-import";
 import { getGitHubImportAccessMessage, resolveGitHubImportAccessForProject } from "@/lib/github-import";
+import {
+  buildGitHubInstallationAuthHeaders,
+  GitHubInstallationAuthNotConfiguredError,
+} from "@/lib/github-installation-auth";
 import { and, eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
@@ -51,6 +55,7 @@ export async function POST(request: Request) {
       repoUrl: projects.repoUrl,
       repoBranch: projects.repoBranch,
       repoPath: projects.repoPath,
+      settings: projects.settings,
     })
     .from(projects)
     .where(and(eq(projects.id, projectId), eq(projects.orgId, membership[0].orgId)))
@@ -101,6 +106,11 @@ export async function POST(request: Request) {
       }
     | {
         mode: "github_import_pending_auth";
+        source: "private_connected";
+        message: string;
+      }
+    | {
+        mode: "github_import_unavailable";
         source: "private_connected";
         message: string;
       };
@@ -171,19 +181,67 @@ export async function POST(request: Request) {
       }
     ]);
 
-    provisioning =
-      importAccess.status === "private_connected"
-        ? {
-            mode: "github_import_pending_auth",
-            source: "private_connected",
-            message:
-              "GitHub repository access is verified, but authenticated import is not implemented yet. Starter docs were created during onboarding.",
-          }
-        : {
-            mode: "starter_docs",
-            source: "blank",
-            message: "Starter docs were created during onboarding.",
-          };
+    if (importAccess.status === "private_connected") {
+      const installationId =
+        (projectRows[0].settings?.githubSource as { installationId?: string } | undefined)
+          ?.installationId ?? null;
+
+      if (!installationId) {
+        provisioning = {
+          mode: "github_import_pending_auth",
+          source: "private_connected",
+          message:
+            "GitHub repository access is verified, but the selected installation id is missing from project settings. Starter docs were created during onboarding.",
+        };
+      } else {
+        try {
+          const headers = await buildGitHubInstallationAuthHeaders({
+            installationId,
+          });
+
+          const importResult = await importGitHubDocs({
+            repoUrl: projectRows[0].repoUrl,
+            repoBranch: projectRows[0].repoBranch,
+            repoPath: projectRows[0].repoPath,
+            headers,
+          });
+
+          provisioning = importResult.ok
+            ? {
+                mode: "github_import_pending_auth",
+                source: "private_connected",
+                message:
+                  "Authenticated GitHub import wiring is available, but private import replacement is not enabled yet. Starter docs were created during onboarding.",
+              }
+            : {
+                mode: "github_import_pending_auth",
+                source: "private_connected",
+                message: `${importResult.message}. Starter docs were created during onboarding.`,
+              };
+        } catch (error) {
+          provisioning =
+            error instanceof GitHubInstallationAuthNotConfiguredError
+              ? {
+                  mode: "github_import_unavailable",
+                  source: "private_connected",
+                  message:
+                    "GitHub repository access is verified, but installation-token auth is not configured yet. Starter docs were created during onboarding.",
+                }
+              : {
+                  mode: "github_import_pending_auth",
+                  source: "private_connected",
+                  message:
+                    "GitHub repository access is verified, but authenticated import is not ready yet. Starter docs were created during onboarding.",
+                };
+        }
+      }
+    } else {
+      provisioning = {
+        mode: "starter_docs",
+        source: "blank",
+        message: "Starter docs were created during onboarding.",
+      };
+    }
   }
 
   logger.info("onboarding_provision_completed", {
