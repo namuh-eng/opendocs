@@ -106,5 +106,23 @@
     "evidence": ["src/app/api/admin/audit-logs/route.ts", "tests/admin-audit-logs-route.test.ts", "auditLogs table exists"],
     "risks": ["major admin/compliance gap partially closed with basic list route"],
     "requiredVerifier": "feature-review"
+  },
+  {
+    "flowId": "manual-handoff-lifecycle",
+    "area": "Analytics",
+    "criticalFlow": "list/resolve manual handoffs",
+    "status": "covered",
+    "evidence": ["tests/manual-handoffs-route.test.ts", "tests/manual-handoff-resolve-route.test.ts", "route family exists"],
+    "risks": ["complex SQL subquery for unresolved state verified against Postgres text=uuid mismatch"],
+    "requiredVerifier": "unit-and-e2e"
+  },
+  {
+    "flowId": "provisioning-onboarding-logic",
+    "area": "Onboarding",
+    "criticalFlow": "seed initial content / provision project",
+    "status": "covered",
+    "evidence": ["tests/onboarding-provision-route.test.ts", "tests/e2e/onboarding.spec.ts", "provisioning route exists"],
+    "risks": ["idempotency logic for concurrent provision calls verified"],
+    "requiredVerifier": "unit-and-e2e"
   }
 ]
