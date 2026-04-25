@@ -1,5 +1,6 @@
 "use client";
 
+import { useActiveProject } from "@/hooks/use-active-project";
 import {
   getDatePresets,
   parseDateParam,
@@ -148,7 +149,8 @@ function AssistantContent() {
     parseDateParam(searchParams.get("from")) ?? defaultRange.from;
   const dateTo = parseDateParam(searchParams.get("to")) ?? defaultRange.to;
 
-  const [projectId, setProjectId] = useState<string | null>(null);
+  const { project, loading: projectLoading } = useActiveProject<{ id: string }>();
+  const projectId = project?.id ?? null;
   const [categories, setCategories] = useState<AssistantCategory[]>([]);
   const [chatHistory, setChatHistory] = useState<ChatHistoryEntry[]>([]);
   const [totalConversations, setTotalConversations] = useState(0);
@@ -157,21 +159,12 @@ function AssistantContent() {
     useState<AssistantSubTab>("categories");
   const [loading, setLoading] = useState(true);
 
-  // Fetch project ID
-  useEffect(() => {
-    async function fetchProject() {
-      const res = await fetch("/api/projects");
-      const data = await res.json();
-      if (data.projects?.length > 0) {
-        setProjectId(data.projects[0].id);
-      }
-    }
-    fetchProject();
-  }, []);
-
   // Fetch analytics data
   const fetchData = useCallback(async () => {
-    if (!projectId) return;
+    if (!projectId) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
 
     const fromStr = dateFrom.toISOString().split("T")[0];
@@ -194,6 +187,14 @@ function AssistantContent() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  if (projectLoading) {
+    return (
+      <div className="flex items-center justify-center py-20 text-sm text-gray-500">
+        Loading analytics...
+      </div>
+    );
+  }
 
   // CSV export handler
   function handleExportCsv() {
