@@ -25,10 +25,21 @@ interface ConnectionData {
   createdAt: string;
 }
 
+interface SelectedGitHubSource {
+  repoFullName: string;
+  owner: string;
+  repo: string;
+  installationId?: string;
+  branch?: string;
+  path?: string;
+  sourceType: "connected_repo" | "public_repo";
+}
+
 interface GitHubAppSettingsClientProps {
   initialConnections: ConnectionData[];
   isAdmin: boolean;
   selectedRepoFullName?: string | null;
+  selectedSource?: SelectedGitHubSource | null;
 }
 
 function GitHubIcon({
@@ -53,6 +64,7 @@ export function GitHubAppSettingsClient({
   initialConnections,
   isAdmin,
   selectedRepoFullName,
+  selectedSource,
 }: GitHubAppSettingsClientProps) {
   const [connections, setConnections] =
     useState<ConnectionData[]>(initialConnections);
@@ -211,7 +223,7 @@ export function GitHubAppSettingsClient({
                 selectedRepoConnected ? "text-emerald-300" : "text-amber-300",
               )}
             />
-            <div>
+            <div className="w-full">
               <p className="font-medium text-white">Selected repository</p>
               <p>{selectedRepoFullName}</p>
               <p className="mt-1 text-xs text-gray-300">
@@ -219,6 +231,31 @@ export function GitHubAppSettingsClient({
                   ? "This repository is available through the current GitHub connection."
                   : "This repository is not available in the current GitHub connection yet. Connect GitHub and select the repo before import."}
               </p>
+
+              {selectedSource && (
+                <div className="mt-3 rounded-md border border-white/10 bg-black/10 px-3 py-2 text-xs text-gray-300">
+                  <div>
+                    <span className="text-gray-500">Source type:</span>{" "}
+                    {selectedSource.sourceType === "connected_repo"
+                      ? "Connected GitHub repo"
+                      : "Public GitHub repo"}
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Branch:</span>{" "}
+                    {selectedSource.branch ?? "main"}
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Path:</span>{" "}
+                    {selectedSource.path ?? "/"}
+                  </div>
+                  {selectedSource.installationId && (
+                    <div>
+                      <span className="text-gray-500">Installation:</span>{" "}
+                      {selectedSource.installationId}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>

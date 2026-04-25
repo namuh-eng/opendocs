@@ -34,7 +34,7 @@ export default async function GitHubAppSettingsPage() {
       .where(eq(projects.orgId, orgId)),
   ]);
 
-  const selectedRepoFullName =
+  const selectedSource =
     orgProjects
       .map((project) =>
         resolveGitHubSource({
@@ -44,7 +44,7 @@ export default async function GitHubAppSettingsPage() {
           settings: project.settings,
         }),
       )
-      .find((source) => Boolean(source?.repoFullName))?.repoFullName ?? null;
+      .find((source) => Boolean(source?.repoFullName)) ?? null;
 
   return (
     <GitHubAppSettingsClient
@@ -62,7 +62,8 @@ export default async function GitHubAppSettingsPage() {
       isAdmin={
         membership[0].role === "admin" || membership[0].role === "editor"
       }
-      selectedRepoFullName={selectedRepoFullName}
+      selectedRepoFullName={selectedSource?.repoFullName ?? null}
+      selectedSource={selectedSource}
     />
   );
 }

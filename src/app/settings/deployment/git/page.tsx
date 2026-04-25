@@ -17,6 +17,16 @@ interface ProjectData {
   settings: Record<string, unknown> | null;
 }
 
+interface GitHubSourceDisplay {
+  repoFullName: string;
+  owner: string;
+  repo: string;
+  installationId?: string;
+  branch?: string;
+  path?: string;
+  sourceType: "connected_repo" | "public_repo";
+}
+
 export default function GitSettingsPage() {
   const [project, setProject] = useState<ProjectData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -87,7 +97,7 @@ export default function GitSettingsPage() {
     repoBranch: project?.repoBranch,
     repoPath: project?.repoPath,
     settings: project?.settings,
-  });
+  }) as GitHubSourceDisplay | null;
 
   const handleClone = (visibility: "public" | "private") => {
     if (!project?.repoUrl) return;
@@ -196,16 +206,49 @@ export default function GitSettingsPage() {
       <h1 className="text-xl font-semibold text-white mb-6">Git Settings</h1>
 
       {/* Repo info */}
-      <div className="mb-6">
-        <h2 className="text-sm font-medium text-white mb-1">Repository</h2>
-        <p className="text-sm text-gray-400">
-          {repoDisplay}
-          {githubSource && (
-            <span className="ml-2 text-xs text-gray-500">
-              (branch: {branch}, path: {repoPath})
-            </span>
-          )}
-        </p>
+      <div className="mb-6 space-y-3">
+        <div>
+          <h2 className="text-sm font-medium text-white mb-1">Repository</h2>
+          <p className="text-sm text-gray-400">
+            {repoDisplay}
+            {githubSource && (
+              <span className="ml-2 text-xs text-gray-500">
+                (branch: {branch}, path: {repoPath})
+              </span>
+            )}
+          </p>
+        </div>
+
+        {githubSource && (
+          <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] px-4 py-3">
+            <h3 className="text-xs font-medium uppercase tracking-wide text-gray-400">
+              Resolved GitHub source
+            </h3>
+            <div className="mt-2 space-y-1 text-sm text-gray-300">
+              <p>
+                <span className="text-gray-500">Repository:</span> {githubSource.repoFullName}
+              </p>
+              <p>
+                <span className="text-gray-500">Source type:</span>{" "}
+                {githubSource.sourceType === "connected_repo"
+                  ? "Connected GitHub repo"
+                  : "Public GitHub repo"}
+              </p>
+              <p>
+                <span className="text-gray-500">Branch:</span> {githubSource.branch ?? branch}
+              </p>
+              <p>
+                <span className="text-gray-500">Path:</span> {githubSource.path ?? repoPath}
+              </p>
+              {githubSource.installationId && (
+                <p>
+                  <span className="text-gray-500">Installation:</span>{" "}
+                  {githubSource.installationId}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Branch + path form */}
