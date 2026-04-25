@@ -1,5 +1,7 @@
 "use client";
 
+import { AlertCircle, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface ProfileData {
@@ -25,6 +27,14 @@ export default function ProfileSettingsPage() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [emailNotifications, setEmailNotifications] = useState(true);
+
+  // User deletion state
+  const [showUserConfirm, setShowUserConfirm] = useState(false);
+  const [userConfirmText, setUserConfirmText] = useState("");
+  const [deletingUser, setDeletingUser] = useState(false);
+  const [userError, setUserError] = useState("");
+
+  const router = useRouter();
 
   useEffect(() => {
     fetch("/api/users/profile")
@@ -100,6 +110,31 @@ export default function ProfileSettingsPage() {
       }
     } catch {
       setEmailNotifications(!newValue);
+    }
+  };
+
+  const handleDeleteUser = async () => {
+    if (userConfirmText !== profile?.email) return;
+    setDeletingUser(true);
+    setUserError("");
+
+    try {
+      const res = await fetch("/api/users/profile", {
+        method: "DELETE",
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        setUserError(data.error || "Failed to delete account");
+        setDeletingUser(false);
+        return;
+      }
+
+      // Final redirect to marketing site or login
+      window.location.href = "https://mintlify.app";
+    } catch {
+      setUserError("Something went wrong");
+      setDeletingUser(false);
     }
   };
 
@@ -249,6 +284,89 @@ export default function ProfileSettingsPage() {
           </button>
         </div>
       </div>
+
+      {/* ── Danger Zone Section ──────────────────────────────────── */}
+      <div className="mt-10 border-t border-white/[0.08] pt-6">
+        <h2 className="mb-4 text-sm font-medium text-white">Danger Zone</h2>
+
+        <div className="rounded-xl border border-red-900/50 bg-red-950/20 p-6">
+          <div className="mb-4 flex items-center gap-2">
+            <Trash2 className="h-5 w-5 text-red-400" />
+            <h3 className="text-sm font-semibold text-red-400">
+              Delete account
+            </h3>
+          </div>
+
+          <p className="mb-4 text-sm text-gray-300">
+            Permanently delete your account and all of your personal data. 
+            This action cannot be undone.
+          </p>
+
+          <button
+            type="button"
+            onClick={() => {
+              setShowUserConfirm(true);
+              setUserConfirmText("");
+            }}
+            className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-500"
+          >
+            Delete account
+          </button>
+        </div>
+      </div>
+
+      {/* User Deletion Confirmation Dialog */}
+      {showUserConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="w-full max-w-md rounded-xl border border-gray-800 bg-[#1a1a1a] p-6 shadow-2xl">
+            <div className="mb-4 flex items-center gap-2 text-red-400">
+              <AlertCircle className="h-5 w-5" />
+              <h2 className="text-lg font-semibold">Delete your account?</h2>
+            </div>
+            
+            <p className="mb-4 text-sm text-gray-400 leading-relaxed">
+              This will permanently delete your profile, preferences, and organization memberships.
+              If you are the only member of an organization, those projects will become inaccessible.
+            </p>
+
+            <div className="mb-4 space-y-1.5">
+              <label htmlFor="user-confirm" className="block text-sm text-gray-400">
+                To confirm, type <span className="font-mono text-white selection:bg-red-500/30">{profile.email}</span> below:
+              </label>
+              <input
+                id="user-confirm"
+                type="text"
+                value={userConfirmText}
+                onChange={(e) => setUserConfirmText(e.target.value)}
+                placeholder={profile.email}
+                className="w-full rounded-lg border border-white/[0.08] bg-[#111] px-4 py-2.5 text-sm text-white placeholder-gray-600 outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
+              />
+            </div>
+
+            {userError && (
+              <p className="mb-4 text-sm text-red-400">{userError}</p>
+            )}
+
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setShowUserConfirm(false)}
+                className="flex-1 rounded-lg border border-gray-700 px-4 py-2.5 text-sm text-gray-300 transition-colors hover:border-gray-500"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={userConfirmText !== profile.email || deletingUser}
+                onClick={handleDeleteUser}
+                className="flex-1 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {deletingUser ? "Deleting..." : "Permanently delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
