@@ -216,6 +216,14 @@ export default function OnboardingPage() {
     }
   }, [orgName]);
 
+  const selectedRepo = useMemo(
+    () =>
+      connectedRepos.find(
+        (repo) => repo.fullName.toLowerCase() === selectedRepoFullName.toLowerCase(),
+      ) ?? null,
+    [connectedRepos, selectedRepoFullName],
+  );
+
   const resolvedRepoUrl = useMemo(() => {
     if (selectedRepoFullName) {
       return `https://github.com/${selectedRepoFullName}`;
@@ -286,6 +294,7 @@ export default function OnboardingPage() {
         body: JSON.stringify({
           name: trimmed,
           repoUrl: resolvedRepoUrl.trim() || undefined,
+          githubInstallationId: selectedRepo?.installationId,
           createInitialDeployment: true,
         }),
       });
@@ -333,7 +342,7 @@ export default function OnboardingPage() {
     } finally {
       setProjectLoading(false);
     }
-  }, [projectName, resolvedRepoUrl]);
+  }, [projectName, resolvedRepoUrl, selectedRepo]);
 
   const handleGoToDashboard = useCallback(() => {
     clearOnboardingState();

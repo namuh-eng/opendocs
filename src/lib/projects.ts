@@ -79,6 +79,7 @@ export function validateCreateProjectRequest(body: unknown):
       valid: true;
       name: string;
       repoUrl?: string;
+      githubInstallationId?: string;
       createInitialDeployment?: boolean;
     }
   | { valid: false; error: string } {
@@ -96,6 +97,8 @@ export function validateCreateProjectRequest(body: unknown):
   if (error) return { valid: false, error };
 
   const repoUrl = (body as Record<string, unknown>).repoUrl;
+  const githubInstallationId = (body as Record<string, unknown>)
+    .githubInstallationId;
   const createInitialDeployment = (body as Record<string, unknown>)
     .createInitialDeployment;
 
@@ -113,11 +116,24 @@ export function validateCreateProjectRequest(body: unknown):
     valid: true;
     name: string;
     repoUrl?: string;
+    githubInstallationId?: string;
     createInitialDeployment?: boolean;
   } = { valid: true, name };
 
   if (createInitialDeployment) {
     result.createInitialDeployment = true;
+  }
+
+  if (
+    githubInstallationId !== undefined &&
+    githubInstallationId !== null &&
+    githubInstallationId !== ""
+  ) {
+    if (typeof githubInstallationId !== "string") {
+      return { valid: false, error: "GitHub installation ID must be a string" };
+    }
+
+    result.githubInstallationId = githubInstallationId.trim();
   }
 
   if (repoUrl !== undefined && repoUrl !== null && repoUrl !== "") {
@@ -165,6 +181,14 @@ export function validateUpdateProjectRequest(
     const subdomainError = validateSubdomain(raw.subdomain);
     if (subdomainError) return { valid: false, error: subdomainError };
     fields.subdomain = raw.subdomain;
+  }
+
+  if (raw.githubInstallationId !== undefined) {
+    if (typeof raw.githubInstallationId !== "string") {
+      return { valid: false, error: "GitHub installation ID must be a string" };
+    }
+
+    fields.githubInstallationId = raw.githubInstallationId.trim();
   }
 
   if (raw.repoUrl !== undefined) {

@@ -32,6 +32,14 @@ export default function NewProjectPage() {
       .catch(() => setLoadingRepos(false));
   }, []);
 
+  const selectedRepo = useMemo(
+    () =>
+      connectedRepos.find(
+        (repo) => repo.fullName.toLowerCase() === selectedRepoFullName.toLowerCase(),
+      ) ?? null,
+    [connectedRepos, selectedRepoFullName],
+  );
+
   const repoUrl = useMemo(() => {
     if (selectedRepoFullName) {
       return `https://github.com/${selectedRepoFullName}`;
@@ -59,6 +67,9 @@ export default function NewProjectPage() {
       const body: Record<string, string> = { name: trimmed };
       if (repoUrl.trim()) {
         body.repoUrl = repoUrl.trim();
+      }
+      if (selectedRepo?.installationId) {
+        body.githubInstallationId = selectedRepo.installationId;
       }
 
       const res = await fetch("/api/projects", {

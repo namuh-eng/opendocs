@@ -16,8 +16,10 @@ import {
 } from "@/lib/projects";
 import {
   getGitHubImportAccessMessage,
+  listConnectedGitHubRepos,
   resolveGitHubImportAccessForRepoUrl,
 } from "@/lib/github-import";
+import { buildGitHubSourceSelection, mergeProjectSettingsWithGitHubSource } from "@/lib/github-source";
 import { and, eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
@@ -203,6 +205,26 @@ export async function POST(request: Request) {
     "createInitialDeployment" in validation &&
     validation.createInitialDeployment === true;
 
+  let githubSourceSelection = null;
+  if (validation.repoUrl) {
+    const connectedRepos = await listConnectedGitHubRepos(orgId);
+    const matchedRepo = validation.githubInstallationId
+      ? connectedRepos.find(
+          (repo) =>
+            repo.installationId === validation.githubInstallationId &&
+            `https://github.com/${repo.fullName}`.toLowerCase() ===
+              validation.repoUrl?.toLowerCase(),
+        )
+      : null;
+
+    githubSourceSelection = buildGitHubSourceSelection({
+      repoUrl: validation.repoUrl,
+      installationId: matchedRepo?.installationId ?? validation.githubInstallationId,
+      repoBranch: matchedRepo?.branch ?? "main",
+      repoPath: "/",
+    });
+  }
+
   const { project, deployment } = await db.transaction(async (tx) => {
     const [createdProject] = await tx
       .insert(projects)
@@ -212,6 +234,10 @@ export async function POST(request: Request) {
         slug: finalSlug,
         subdomain,
         repoUrl: validation.repoUrl ?? null,
+        settings: mergeProjectSettingsWithGitHubSource(
+          {},
+          githubSourceSelection,
+        ),
         status: shouldCreateInitialDeployment ? "deploying" : "active",
       })
       .returning();

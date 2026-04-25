@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { orgMemberships, projects } from "@/lib/db/schema";
 import { validateUpdateProjectRequest } from "@/lib/projects";
+import { buildGitHubSourceSelection, mergeProjectSettingsWithGitHubSource } from "@/lib/github-source";
 import { createRequestId, logger } from "@/lib/logger";
 import { and, eq, ne, sql } from "drizzle-orm";
 import { headers } from "next/headers";
@@ -149,7 +150,7 @@ export async function PUT(
 
   // Verify project belongs to user's org
   const existing = await db
-    .select({ id: projects.id })
+    .select({ id: projects.id, repoUrl: projects.repoUrl, repoBranch: projects.repoBranch, repoPath: projects.repoPath, settings: projects.settings })
     .from(projects)
     .where(and(eq(projects.id, id), eq(projects.orgId, membership.orgId)))
     .limit(1);
@@ -166,9 +167,36 @@ export async function PUT(
     return NextResponse.json({ error: "Project not found" }, { status: 404 });
   }
 
+  const resolvedRepoUrl =
+    (validation.fields.repoUrl as string | undefined) ?? existing[0].repoUrl ?? null;
+  const resolvedRepoBranch =
+    (validation.fields.repoBranch as string | undefined) ?? existing[0].repoBranch ?? null;
+  const resolvedRepoPath =
+    (validation.fields.repoPath as string | undefined) ?? existing[0].repoPath ?? null;
+  const resolvedInstallationId =
+    (validation.fields.githubInstallationId as string | undefined) ??
+    ((existing[0].settings?.githubSource as { installationId?: string } | undefined)
+      ?.installationId ?? null);
+
+  const mergedSettings = mergeProjectSettingsWithGitHubSource(
+    existing[0].settings,
+    buildGitHubSourceSelection({
+      repoUrl: resolvedRepoUrl,
+      installationId: resolvedInstallationId,
+      repoBranch: resolvedRepoBranch,
+      repoPath: resolvedRepoPath,
+    }),
+  );
+
+  const updateFields = {
+    ...validation.fields,
+    settings: mergedSettings,
+    updatedAt: new Date(),
+  };
+
   const [updated] = await db
     .update(projects)
-    .set({ ...validation.fields, updatedAt: new Date() })
+    .set(updateFields)
     .where(eq(projects.id, id))
     .returning();
 
