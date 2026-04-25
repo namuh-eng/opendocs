@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { orgMemberships, organizations } from "@/lib/db/schema";
+import { createRequestId, logger } from "@/lib/logger";
 import { slugify, validateCreateOrgRequest } from "@/lib/orgs";
 import { eq, sql } from "drizzle-orm";
 import { headers } from "next/headers";
@@ -8,11 +9,17 @@ import { NextResponse } from "next/server";
 
 /** GET /api/orgs — list orgs the current user belongs to */
 export async function GET() {
+  const requestId = createRequestId();
   const session = await auth.api.getSession({
     headers: await headers(),
   });
 
   if (!session) {
+    logger.warn("orgs_list_unauthorized", {
+      requestId,
+      route: "/api/orgs",
+      method: "GET",
+    });
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -32,21 +39,35 @@ export async function GET() {
     .innerJoin(organizations, eq(orgMemberships.orgId, organizations.id))
     .where(eq(orgMemberships.userId, session.user.id));
 
+  logger.info("orgs_list_completed", {
+    requestId,
+    route: "/api/orgs",
+    method: "GET",
+    orgCount: memberships.length,
+  });
+
   return NextResponse.json({
     orgs: memberships.map((m) => ({
       ...m.org,
       role: m.role,
     })),
+    requestId,
   });
 }
 
 /** POST /api/orgs — create a new org, add current user as admin */
 export async function POST(request: Request) {
+  const requestId = createRequestId();
   const session = await auth.api.getSession({
     headers: await headers(),
   });
 
   if (!session) {
+    logger.warn("orgs_create_unauthorized", {
+      requestId,
+      route: "/api/orgs",
+      method: "POST",
+    });
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -54,12 +75,24 @@ export async function POST(request: Request) {
   const validation = validateCreateOrgRequest(body);
 
   if (!validation.valid) {
+    logger.warn("orgs_create_invalid_request", {
+      requestId,
+      route: "/api/orgs",
+      method: "POST",
+      error: validation.error,
+    });
     return NextResponse.json({ error: validation.error }, { status: 400 });
   }
 
   const slug = slugify(validation.name);
 
   if (!slug) {
+    logger.warn("orgs_create_invalid_slug", {
+      requestId,
+      route: "/api/orgs",
+      method: "POST",
+      orgName: validation.name,
+    });
     return NextResponse.json(
       { error: "Could not generate a valid slug from org name" },
       { status: 400 },
@@ -80,6 +113,12 @@ export async function POST(request: Request) {
       .limit(1);
 
     if (existingMembership.length > 0) {
+      logger.warn("orgs_create_already_member", {
+        requestId,
+        route: "/api/orgs",
+        method: "POST",
+        userId: session.user.id,
+      });
       return NextResponse.json(
         { error: "You already belong to an organization" },
         { status: 409 },
@@ -109,6 +148,15 @@ export async function POST(request: Request) {
       role: "admin",
     });
 
-    return NextResponse.json({ org }, { status: 201 });
+    logger.info("orgs_create_completed", {
+      requestId,
+      route: "/api/orgs",
+      method: "POST",
+      orgId: org.id,
+      orgSlug: org.slug,
+      userId: session.user.id,
+    });
+
+    return NextResponse.json({ org, requestId }, { status: 201 });
   });
 }
