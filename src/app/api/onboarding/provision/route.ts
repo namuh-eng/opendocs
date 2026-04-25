@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { orgMemberships, pages, projects } from "@/lib/db/schema";
 import { createRequestId, logger } from "@/lib/logger";
+import { importPublicGitHubDocs } from "@/lib/github-docs-import";
 import { getGitHubImportAccessMessage, resolveGitHubImportAccessForProject } from "@/lib/github-import";
 import { and, eq } from "drizzle-orm";
 import { headers } from "next/headers";
@@ -44,7 +45,13 @@ export async function POST(request: Request) {
   }
 
   const projectRows = await db
-    .select({ id: projects.id, status: projects.status })
+    .select({
+      id: projects.id,
+      status: projects.status,
+      repoUrl: projects.repoUrl,
+      repoBranch: projects.repoBranch,
+      repoPath: projects.repoPath,
+    })
     .from(projects)
     .where(and(eq(projects.id, projectId), eq(projects.orgId, membership[0].orgId)))
     .limit(1);
@@ -80,37 +87,99 @@ export async function POST(request: Request) {
     );
   }
 
-  // Provision initial content
-  await db.insert(pages).values([
-    {
-      projectId,
-      path: "introduction",
-      title: "Introduction",
-      content: "# Introduction\n\nWelcome to your new documentation site! This page was automatically generated during onboarding.",
-      isPublished: true,
-    },
-    {
-      projectId,
-      path: "quickstart",
-      title: "Quickstart",
-      content: "# Quickstart\n\nGet up and running in minutes with our quickstart guide.",
-      isPublished: true,
-    }
-  ]);
+  let provisioning:
+    | {
+        mode: "starter_docs";
+        source: "blank" | "public" | "private_connected";
+        message: string;
+      }
+    | {
+        mode: "github_import";
+        source: "public";
+        message: string;
+        importedPageCount: number;
+      };
 
-  const provisioning =
-    importAccess.status === "public" || importAccess.status === "private_connected"
-      ? {
-          mode: "starter_docs",
-          source: importAccess.status,
-          message:
-            "Starter docs were created during onboarding. Verified GitHub import has not run yet.",
-        }
-      : {
-          mode: "starter_docs",
-          source: "blank",
-          message: "Starter docs were created during onboarding.",
-        };
+  if (importAccess.status === "public" && projectRows[0].repoUrl) {
+    const importResult = await importPublicGitHubDocs({
+      repoUrl: projectRows[0].repoUrl,
+      repoBranch: projectRows[0].repoBranch,
+      repoPath: projectRows[0].repoPath,
+    });
+
+    if (importResult.ok) {
+      await db.insert(pages).values(
+        importResult.pages.map((page) => ({
+          projectId,
+          path: page.path,
+          title: page.title,
+          content: page.content,
+          isPublished: true,
+        })),
+      );
+
+      provisioning = {
+        mode: "github_import",
+        source: "public",
+        message: `Imported ${importResult.pages.length} page${importResult.pages.length === 1 ? "" : "s"} from the public GitHub repository.`,
+        importedPageCount: importResult.pages.length,
+      };
+    } else {
+      await db.insert(pages).values([
+        {
+          projectId,
+          path: "introduction",
+          title: "Introduction",
+          content: "# Introduction\n\nWelcome to your new documentation site! This page was automatically generated during onboarding.",
+          isPublished: true,
+        },
+        {
+          projectId,
+          path: "quickstart",
+          title: "Quickstart",
+          content: "# Quickstart\n\nGet up and running in minutes with our quickstart guide.",
+          isPublished: true,
+        },
+      ]);
+
+      provisioning = {
+        mode: "starter_docs",
+        source: "public",
+        message: `${importResult.message}. Starter docs were created during onboarding instead.`,
+      };
+    }
+  } else {
+    await db.insert(pages).values([
+      {
+        projectId,
+        path: "introduction",
+        title: "Introduction",
+        content: "# Introduction\n\nWelcome to your new documentation site! This page was automatically generated during onboarding.",
+        isPublished: true,
+      },
+      {
+        projectId,
+        path: "quickstart",
+        title: "Quickstart",
+        content: "# Quickstart\n\nGet up and running in minutes with our quickstart guide.",
+        isPublished: true,
+      }
+    ]);
+
+    provisioning =
+      importAccess.status === "private_connected"
+        ? {
+            mode: "starter_docs",
+            source: "private_connected",
+            message:
+              "Starter docs were created during onboarding. Verified GitHub import has not run yet.",
+          }
+        : {
+            mode: "starter_docs",
+            source: "blank",
+            message: "Starter docs were created during onboarding.",
+          };
+  }
 
   logger.info("onboarding_provision_completed", {
     requestId,

@@ -16,6 +16,7 @@ const selectMock = vi.fn();
 const insertMock = vi.fn();
 const resolveGitHubImportAccessForProjectMock = vi.fn();
 const getGitHubImportAccessMessageMock = vi.fn();
+const importPublicGitHubDocsMock = vi.fn();
 
 vi.mock("@/lib/auth", () => ({
   auth: {
@@ -41,12 +42,21 @@ vi.mock("@/lib/github-import", () => ({
   getGitHubImportAccessMessage: getGitHubImportAccessMessageMock,
 }));
 
+vi.mock("@/lib/github-docs-import", () => ({
+  importPublicGitHubDocs: importPublicGitHubDocsMock,
+}));
+
 describe("POST /api/onboarding/provision", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     headersMock.mockResolvedValue(new Headers());
     resolveGitHubImportAccessForProjectMock.mockResolvedValue({ status: "no_repo" });
     getGitHubImportAccessMessageMock.mockReturnValue(null);
+    importPublicGitHubDocsMock.mockResolvedValue({
+      ok: false,
+      status: "no_markdown_found",
+      message: "No markdown files were found in the selected GitHub repository path",
+    });
   });
 
   it("returns 401 when unauthenticated", async () => {
@@ -73,7 +83,9 @@ describe("POST /api/onboarding/provision", () => {
     const projectLookup = {
       from: vi.fn().mockReturnThis(),
       where: vi.fn().mockReturnThis(),
-      limit: vi.fn().mockResolvedValue([{ id: "proj-1" }]),
+      limit: vi.fn().mockResolvedValue([
+        { id: "proj-1", repoUrl: null, repoBranch: "main", repoPath: "/" },
+      ]),
     };
 
     const pagesLookup = {
@@ -114,7 +126,7 @@ describe("POST /api/onboarding/provision", () => {
     );
   });
 
-  it("still provisions starter pages when github access is public/no-auth", async () => {
+  it("falls back to starter docs when public import finds no markdown", async () => {
     getSessionMock.mockResolvedValue({ user: { id: "user-1" } });
 
     const membershipLookup = {
@@ -126,7 +138,14 @@ describe("POST /api/onboarding/provision", () => {
     const projectLookup = {
       from: vi.fn().mockReturnThis(),
       where: vi.fn().mockReturnThis(),
-      limit: vi.fn().mockResolvedValue([{ id: "proj-1" }]),
+      limit: vi.fn().mockResolvedValue([
+        {
+          id: "proj-1",
+          repoUrl: "https://github.com/acme/docs",
+          repoBranch: "main",
+          repoPath: "/",
+        },
+      ]),
     };
 
     const pagesLookup = {
@@ -161,15 +180,88 @@ describe("POST /api/onboarding/provision", () => {
         mode: "starter_docs",
         source: "public",
         message:
-          "Starter docs were created during onboarding. Verified GitHub import has not run yet.",
+          "No markdown files were found in the selected GitHub repository path. Starter docs were created during onboarding instead.",
       },
     });
-    expect(valuesMock).toHaveBeenCalledWith(
-      expect.arrayContaining([
-        expect.objectContaining({ path: "introduction" }),
-        expect.objectContaining({ path: "quickstart" }),
+  });
+
+  it("imports public github docs during onboarding when markdown is available", async () => {
+    getSessionMock.mockResolvedValue({ user: { id: "user-1" } });
+
+    const membershipLookup = {
+      from: vi.fn().mockReturnThis(),
+      where: vi.fn().mockReturnThis(),
+      limit: vi.fn().mockResolvedValue([{ orgId: "org-1" }]),
+    };
+
+    const projectLookup = {
+      from: vi.fn().mockReturnThis(),
+      where: vi.fn().mockReturnThis(),
+      limit: vi.fn().mockResolvedValue([
+        {
+          id: "proj-1",
+          repoUrl: "https://github.com/acme/docs",
+          repoBranch: "main",
+          repoPath: "/",
+        },
       ]),
+    };
+
+    const pagesLookup = {
+      from: vi.fn().mockReturnThis(),
+      where: vi.fn().mockReturnThis(),
+      limit: vi.fn().mockResolvedValue([]),
+    };
+
+    selectMock
+      .mockReturnValueOnce(membershipLookup)
+      .mockReturnValueOnce(projectLookup)
+      .mockReturnValueOnce(pagesLookup);
+
+    resolveGitHubImportAccessForProjectMock.mockResolvedValue({ status: "public" });
+    getGitHubImportAccessMessageMock.mockReturnValue(null);
+    importPublicGitHubDocsMock.mockResolvedValue({
+      ok: true,
+      status: "imported",
+      pages: [
+        {
+          path: "introduction",
+          title: "Introduction",
+          content: "# Introduction\n\nImported",
+        },
+      ],
+      source: { owner: "acme", repo: "docs", branch: "main", path: "/" },
+    });
+
+    const valuesMock = vi.fn().mockResolvedValue(undefined);
+    insertMock.mockReturnValue({ values: valuesMock });
+
+    const { POST } = await import("@/app/api/onboarding/provision/route");
+    const response = await POST(
+      makeNextRequest("http://localhost/api/onboarding/provision", {
+        method: "POST",
+        body: JSON.stringify({ projectId: "proj-1" }),
+      }),
     );
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toMatchObject({
+      ok: true,
+      provisioning: {
+        mode: "github_import",
+        source: "public",
+        importedPageCount: 1,
+      },
+    });
+    expect(valuesMock).toHaveBeenCalledWith([
+      {
+        projectId: "proj-1",
+        path: "introduction",
+        title: "Introduction",
+        content: "# Introduction\n\nImported",
+        isPublished: true,
+      },
+    ]);
   });
 
   it("returns 409 if github auth is required for repo-backed import", async () => {
@@ -184,7 +276,14 @@ describe("POST /api/onboarding/provision", () => {
     const projectLookup = {
       from: vi.fn().mockReturnThis(),
       where: vi.fn().mockReturnThis(),
-      limit: vi.fn().mockResolvedValue([{ id: "proj-1" }]),
+      limit: vi.fn().mockResolvedValue([
+        {
+          id: "proj-1",
+          repoUrl: "https://github.com/acme/private-docs",
+          repoBranch: "main",
+          repoPath: "/",
+        },
+      ]),
     };
 
     const pagesLookup = {
@@ -232,7 +331,9 @@ describe("POST /api/onboarding/provision", () => {
     const projectLookup = {
       from: vi.fn().mockReturnThis(),
       where: vi.fn().mockReturnThis(),
-      limit: vi.fn().mockResolvedValue([{ id: "proj-1" }]),
+      limit: vi.fn().mockResolvedValue([
+        { id: "proj-1", repoUrl: null, repoBranch: "main", repoPath: "/" },
+      ]),
     };
 
     const pagesLookup = {
@@ -272,7 +373,14 @@ describe("POST /api/onboarding/provision", () => {
     const projectLookup = {
       from: vi.fn().mockReturnThis(),
       where: vi.fn().mockReturnThis(),
-      limit: vi.fn().mockResolvedValue([{ id: "proj-1" }]),
+      limit: vi.fn().mockResolvedValue([
+        {
+          id: "proj-1",
+          repoUrl: "https://github.com/acme/private-docs",
+          repoBranch: "main",
+          repoPath: "/",
+        },
+      ]),
     };
 
     const pagesLookup = {
