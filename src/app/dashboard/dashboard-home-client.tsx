@@ -16,6 +16,7 @@ import {
 } from "@/lib/deployments";
 import { clsx } from "clsx";
 import {
+  AlertCircle,
   BarChart3,
   CheckCircle,
   ChevronDown,
@@ -29,6 +30,7 @@ import {
   RefreshCw,
   Rocket,
   Settings,
+  Trash2,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -386,6 +388,28 @@ export function DashboardHomeClient({
     }
   }
 
+  async function deleteHandoff(handoffId: string) {
+    if (!confirm("Are you sure you want to delete this handoff record?")) return;
+    try {
+      const response = await fetch(
+        `/api/analytics/manual-handoffs/${handoffId}`,
+        {
+          method: "DELETE",
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to delete handoff");
+      }
+
+      setDismissedHandoffIds((current) => [...current, handoffId]);
+      setHandoffNotice("Manual follow-up record deleted.");
+      router.refresh();
+    } catch {
+      setHandoffNotice("Could not delete handoff. Try again.");
+    }
+  }
+
   async function resolveHandoff(handoffId: string) {
     setResolvingHandoffId(handoffId);
     try {
@@ -592,8 +616,15 @@ export function DashboardHomeClient({
             </div>
 
             {handoffNotice ? (
-              <div className="mb-3 rounded-md border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-xs text-emerald-200">
-                {handoffNotice}
+              <div className="mb-3 rounded-md border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-xs text-emerald-200 flex items-center justify-between">
+                <span>{handoffNotice}</span>
+                <button 
+                  type="button" 
+                  onClick={() => setHandoffNotice(null)}
+                  className="text-emerald-400 hover:text-emerald-300"
+                >
+                  <Plus size={14} className="rotate-45" />
+                </button>
               </div>
             ) : null}
 
@@ -724,29 +755,12 @@ export function DashboardHomeClient({
                         <div className="flex items-center gap-2">
                           <button
                             type="button"
-                            onClick={() =>
-                              setExpandedNoteHandoffId((current) =>
-                                current === handoff.id ? null : handoff.id,
-                              )
-                            }
-                            className="px-2 py-1 rounded-md text-xs text-gray-400 hover:text-white hover:bg-white/[0.06] transition-colors"
+                            onClick={() => deleteHandoff(handoff.id)}
+                            className="p-1.5 rounded-md text-gray-500 hover:text-red-400 hover:bg-red-400/10 transition-colors"
+                            title="Delete record"
                           >
-                            {expandedNoteHandoffId === handoff.id ? "Hide note" : "Add note"}
+                            <Trash2 size={14} />
                           </button>
-                          {expandedNoteHandoffId === handoff.id ? (
-                            <input
-                              type="text"
-                              value={handoffResolutionNotes[handoff.id] ?? ""}
-                              onChange={(event) =>
-                                setHandoffResolutionNotes((current) => ({
-                                  ...current,
-                                  [handoff.id]: event.target.value,
-                                }))
-                              }
-                              placeholder="Add note"
-                              className="w-36 rounded-md border border-white/[0.08] bg-black/20 px-2 py-1 text-xs text-white placeholder:text-gray-500 focus:outline-none focus:ring-1 focus:ring-emerald-400/40"
-                            />
-                          ) : null}
                           <button
                             type="button"
                             onClick={() => resolveHandoff(handoff.id)}
