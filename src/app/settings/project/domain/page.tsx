@@ -1,5 +1,6 @@
 "use client";
 
+import { useActiveProject } from "@/hooks/use-active-project";
 import { useEffect, useState } from "react";
 
 type VerificationStatus = "not_configured" | "pending" | "verified" | "failed";
@@ -13,8 +14,7 @@ interface ProjectData {
 }
 
 export default function DomainSettingsPage() {
-  const [project, setProject] = useState<ProjectData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { project, setProject, loading } = useActiveProject<ProjectData>();
   const [saving, setSaving] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [domain, setDomain] = useState("");
@@ -26,24 +26,23 @@ export default function DomainSettingsPage() {
   } | null>(null);
 
   useEffect(() => {
-    fetch("/api/projects")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.projects?.length > 0) {
-          const p = data.projects[0] as ProjectData;
-          setProject(p);
-          if (p.customDomain) {
-            setDomain(p.customDomain);
-            const sub = p.subdomain ?? p.slug;
-            setCnameTarget(`${sub}.mintlify-hosting.app`);
-            const verifiedAt = p.settings?.domainVerifiedAt;
-            setStatus(verifiedAt ? "verified" : "pending");
-          }
-        }
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
+    if (!project) {
+      return;
+    }
+
+    if (project.customDomain) {
+      setDomain(project.customDomain);
+      const sub = project.subdomain ?? project.slug;
+      setCnameTarget(`${sub}.mintlify-hosting.app`);
+      const verifiedAt = project.settings?.domainVerifiedAt;
+      setStatus(verifiedAt ? "verified" : "pending");
+      return;
+    }
+
+    setDomain("");
+    setCnameTarget("");
+    setStatus("not_configured");
+  }, [project]);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -1,6 +1,6 @@
 "use client";
 
-import { getStoredActiveProjectId } from "@/components/layout/shell-preferences";
+import { useActiveProject } from "@/hooks/use-active-project";
 import { useEffect, useState } from "react";
 
 interface ProjectData {
@@ -13,8 +13,7 @@ interface ProjectData {
 }
 
 export default function SettingsGeneralPage() {
-  const [project, setProject] = useState<ProjectData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { project, setProject, loading } = useActiveProject<ProjectData>();
   const [saving, setSaving] = useState(false);
   const [name, setName] = useState("");
   const [subdomain, setSubdomain] = useState("");
@@ -24,23 +23,13 @@ export default function SettingsGeneralPage() {
   } | null>(null);
 
   useEffect(() => {
-    fetch("/api/projects")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.projects?.length > 0) {
-          const activeProjectId = getStoredActiveProjectId();
-          const p =
-            data.projects.find(
-              (candidate: ProjectData) => candidate.id === activeProjectId,
-            ) ?? data.projects[0];
-          setProject(p);
-          setName(p.name);
-          setSubdomain(p.subdomain ?? p.slug);
-        }
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
+    if (!project) {
+      return;
+    }
+
+    setName(project.name);
+    setSubdomain(project.subdomain ?? project.slug);
+  }, [project]);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
