@@ -4,6 +4,7 @@ import { orgMemberships, projects } from "@/lib/db/schema";
 import { validateUpdateProjectRequest } from "@/lib/projects";
 import { buildGitHubSourceSelection, mergeProjectSettingsWithGitHubSource } from "@/lib/github-source";
 import { createRequestId, logger } from "@/lib/logger";
+import { attachResolvedGitHubSource } from "@/lib/project-response";
 import { and, eq, ne, sql } from "drizzle-orm";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
@@ -84,7 +85,10 @@ export async function GET(
     projectId: id,
   });
 
-  return NextResponse.json({ project: result[0], requestId });
+  return NextResponse.json({
+    project: attachResolvedGitHubSource(result[0]),
+    requestId,
+  });
 }
 
 /** PUT /api/projects/[id] — update a project */
@@ -210,7 +214,10 @@ export async function PUT(
     updatedFields: Object.keys(validation.fields),
   });
 
-  return NextResponse.json({ project: updated, requestId });
+  return NextResponse.json({
+    project: attachResolvedGitHubSource(updated),
+    requestId,
+  });
 }
 
 /** DELETE /api/projects/[id] — delete a project (cannot delete last) */

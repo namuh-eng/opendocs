@@ -20,6 +20,7 @@ import {
   resolveGitHubImportAccessForRepoUrl,
 } from "@/lib/github-import";
 import { buildGitHubSourceSelection, mergeProjectSettingsWithGitHubSource } from "@/lib/github-source";
+import { attachResolvedGitHubSource } from "@/lib/project-response";
 import { and, eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
@@ -63,6 +64,8 @@ export async function GET() {
       repoBranch: projects.repoBranch,
       customDomain: projects.customDomain,
       subdomain: projects.subdomain,
+      repoPath: projects.repoPath,
+      settings: projects.settings,
       status: projects.status,
       createdAt: projects.createdAt,
       updatedAt: projects.updatedAt,
@@ -78,7 +81,10 @@ export async function GET() {
     projectCount: orgProjects.length,
   });
 
-  return NextResponse.json({ projects: orgProjects, requestId });
+  return NextResponse.json({
+    projects: orgProjects.map((project) => attachResolvedGitHubSource(project)),
+    requestId,
+  });
 }
 
 /** POST /api/projects — create a new project in the user's org */
