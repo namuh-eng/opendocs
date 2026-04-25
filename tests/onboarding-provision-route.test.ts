@@ -52,22 +52,24 @@ describe("POST /api/onboarding/provision", () => {
   it("returns 401 when unauthenticated", async () => {
     getSessionMock.mockResolvedValue(null);
     const { POST } = await import("@/app/api/onboarding/provision/route");
-    const response = await POST(makeNextRequest("http://localhost/api/onboarding/provision", {
-      method: "POST",
-      body: JSON.stringify({ projectId: "proj-1" })
-    }));
+    const response = await POST(
+      makeNextRequest("http://localhost/api/onboarding/provision", {
+        method: "POST",
+        body: JSON.stringify({ projectId: "proj-1" }),
+      }),
+    );
     expect(response.status).toBe(401);
   });
 
   it("provisions starter pages for a new project without a repo-backed import requirement", async () => {
     getSessionMock.mockResolvedValue({ user: { id: "user-1" } });
-    
+
     const membershipLookup = {
       from: vi.fn().mockReturnThis(),
       where: vi.fn().mockReturnThis(),
       limit: vi.fn().mockResolvedValue([{ orgId: "org-1" }]),
     };
-    
+
     const projectLookup = {
       from: vi.fn().mockReturnThis(),
       where: vi.fn().mockReturnThis(),
@@ -77,7 +79,7 @@ describe("POST /api/onboarding/provision", () => {
     const pagesLookup = {
       from: vi.fn().mockReturnThis(),
       where: vi.fn().mockReturnThis(),
-      limit: vi.fn().mockResolvedValue([]), // no pages yet
+      limit: vi.fn().mockResolvedValue([]),
     };
 
     selectMock
@@ -89,16 +91,27 @@ describe("POST /api/onboarding/provision", () => {
     insertMock.mockReturnValue({ values: valuesMock });
 
     const { POST } = await import("@/app/api/onboarding/provision/route");
-    const response = await POST(makeNextRequest("http://localhost/api/onboarding/provision", {
-      method: "POST",
-      body: JSON.stringify({ projectId: "proj-1" })
-    }));
+    const response = await POST(
+      makeNextRequest("http://localhost/api/onboarding/provision", {
+        method: "POST",
+        body: JSON.stringify({ projectId: "proj-1" }),
+      }),
+    );
 
     expect(response.status).toBe(200);
-    expect(valuesMock).toHaveBeenCalledWith(expect.arrayContaining([
-      expect.objectContaining({ path: "introduction" }),
-      expect.objectContaining({ path: "quickstart" }),
-    ]));
+    await expect(response.json()).resolves.toMatchObject({
+      ok: true,
+      provisioning: {
+        mode: "starter_docs",
+        source: "blank",
+      },
+    });
+    expect(valuesMock).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        expect.objectContaining({ path: "introduction" }),
+        expect.objectContaining({ path: "quickstart" }),
+      ]),
+    );
   });
 
   it("still provisions starter pages when github access is public/no-auth", async () => {
@@ -134,16 +147,29 @@ describe("POST /api/onboarding/provision", () => {
     insertMock.mockReturnValue({ values: valuesMock });
 
     const { POST } = await import("@/app/api/onboarding/provision/route");
-    const response = await POST(makeNextRequest("http://localhost/api/onboarding/provision", {
-      method: "POST",
-      body: JSON.stringify({ projectId: "proj-1" })
-    }));
+    const response = await POST(
+      makeNextRequest("http://localhost/api/onboarding/provision", {
+        method: "POST",
+        body: JSON.stringify({ projectId: "proj-1" }),
+      }),
+    );
 
     expect(response.status).toBe(200);
-    expect(valuesMock).toHaveBeenCalledWith(expect.arrayContaining([
-      expect.objectContaining({ path: "introduction" }),
-      expect.objectContaining({ path: "quickstart" }),
-    ]));
+    await expect(response.json()).resolves.toMatchObject({
+      ok: true,
+      provisioning: {
+        mode: "starter_docs",
+        source: "public",
+        message:
+          "Starter docs were created during onboarding. Verified GitHub import has not run yet.",
+      },
+    });
+    expect(valuesMock).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        expect.objectContaining({ path: "introduction" }),
+        expect.objectContaining({ path: "quickstart" }),
+      ]),
+    );
   });
 
   it("returns 409 if github auth is required for repo-backed import", async () => {
@@ -180,10 +206,12 @@ describe("POST /api/onboarding/provision", () => {
     );
 
     const { POST } = await import("@/app/api/onboarding/provision/route");
-    const response = await POST(makeNextRequest("http://localhost/api/onboarding/provision", {
-      method: "POST",
-      body: JSON.stringify({ projectId: "proj-1" })
-    }));
+    const response = await POST(
+      makeNextRequest("http://localhost/api/onboarding/provision", {
+        method: "POST",
+        body: JSON.stringify({ projectId: "proj-1" }),
+      }),
+    );
 
     expect(response.status).toBe(409);
     await expect(response.json()).resolves.toEqual({
@@ -194,13 +222,13 @@ describe("POST /api/onboarding/provision", () => {
 
   it("returns 409 if the project already has content", async () => {
     getSessionMock.mockResolvedValue({ user: { id: "user-1" } });
-    
+
     const membershipLookup = {
       from: vi.fn().mockReturnThis(),
       where: vi.fn().mockReturnThis(),
       limit: vi.fn().mockResolvedValue([{ orgId: "org-1" }]),
     };
-    
+
     const projectLookup = {
       from: vi.fn().mockReturnThis(),
       where: vi.fn().mockReturnThis(),
@@ -210,7 +238,7 @@ describe("POST /api/onboarding/provision", () => {
     const pagesLookup = {
       from: vi.fn().mockReturnThis(),
       where: vi.fn().mockReturnThis(),
-      limit: vi.fn().mockResolvedValue([{ id: "page-1" }]), // already has pages
+      limit: vi.fn().mockResolvedValue([{ id: "page-1" }]),
     };
 
     selectMock
@@ -219,12 +247,70 @@ describe("POST /api/onboarding/provision", () => {
       .mockReturnValueOnce(pagesLookup);
 
     const { POST } = await import("@/app/api/onboarding/provision/route");
-    const response = await POST(makeNextRequest("http://localhost/api/onboarding/provision", {
-      method: "POST",
-      body: JSON.stringify({ projectId: "proj-1" })
-    }));
+    const response = await POST(
+      makeNextRequest("http://localhost/api/onboarding/provision", {
+        method: "POST",
+        body: JSON.stringify({ projectId: "proj-1" }),
+      }),
+    );
 
     expect(response.status).toBe(409);
-    await expect(response.json()).resolves.toEqual({ error: "Project already has content" });
+    await expect(response.json()).resolves.toEqual({
+      error: "Project already has content",
+    });
+  });
+
+  it("returns explicit starter-doc metadata for connected github repos until real import exists", async () => {
+    getSessionMock.mockResolvedValue({ user: { id: "user-1" } });
+
+    const membershipLookup = {
+      from: vi.fn().mockReturnThis(),
+      where: vi.fn().mockReturnThis(),
+      limit: vi.fn().mockResolvedValue([{ orgId: "org-1" }]),
+    };
+
+    const projectLookup = {
+      from: vi.fn().mockReturnThis(),
+      where: vi.fn().mockReturnThis(),
+      limit: vi.fn().mockResolvedValue([{ id: "proj-1" }]),
+    };
+
+    const pagesLookup = {
+      from: vi.fn().mockReturnThis(),
+      where: vi.fn().mockReturnThis(),
+      limit: vi.fn().mockResolvedValue([]),
+    };
+
+    selectMock
+      .mockReturnValueOnce(membershipLookup)
+      .mockReturnValueOnce(projectLookup)
+      .mockReturnValueOnce(pagesLookup);
+
+    resolveGitHubImportAccessForProjectMock.mockResolvedValue({
+      status: "private_connected",
+    });
+    getGitHubImportAccessMessageMock.mockReturnValue(null);
+
+    const valuesMock = vi.fn().mockResolvedValue(undefined);
+    insertMock.mockReturnValue({ values: valuesMock });
+
+    const { POST } = await import("@/app/api/onboarding/provision/route");
+    const response = await POST(
+      makeNextRequest("http://localhost/api/onboarding/provision", {
+        method: "POST",
+        body: JSON.stringify({ projectId: "proj-1" }),
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toMatchObject({
+      ok: true,
+      provisioning: {
+        mode: "starter_docs",
+        source: "private_connected",
+        message:
+          "Starter docs were created during onboarding. Verified GitHub import has not run yet.",
+      },
+    });
   });
 });

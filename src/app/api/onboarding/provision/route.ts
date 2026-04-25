@@ -98,12 +98,28 @@ export async function POST(request: Request) {
     }
   ]);
 
+  const provisioning =
+    importAccess.status === "public" || importAccess.status === "private_connected"
+      ? {
+          mode: "starter_docs",
+          source: importAccess.status,
+          message:
+            "Starter docs were created during onboarding. Verified GitHub import has not run yet.",
+        }
+      : {
+          mode: "starter_docs",
+          source: "blank",
+          message: "Starter docs were created during onboarding.",
+        };
+
   logger.info("onboarding_provision_completed", {
     requestId,
     projectId,
     orgId: membership[0].orgId,
     userId: session.user.id,
+    provisioningMode: provisioning.mode,
+    provisioningSource: provisioning.source,
   });
 
-  return NextResponse.json({ ok: true, requestId });
+  return NextResponse.json({ ok: true, requestId, provisioning });
 }

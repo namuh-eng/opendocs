@@ -337,8 +337,9 @@ export default function OnboardingPage() {
         body: JSON.stringify({ projectId: data.project.id }),
       });
 
+      const provisionData = await provisionRes.json().catch(() => null);
+
       if (!provisionRes.ok) {
-        const provisionData = await provisionRes.json().catch(() => null);
         setProjectError(
           provisionData?.error || "Failed to provision initial content",
         );
@@ -349,6 +350,13 @@ export default function OnboardingPage() {
           );
         }
         return;
+      }
+
+      if (provisionData?.provisioning?.source === "public") {
+        setRepoHint(
+          provisionData.provisioning.message ||
+            "Starter docs were created during onboarding. Verified GitHub import has not run yet.",
+        );
       }
 
       setStep(3);
