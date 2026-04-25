@@ -19,6 +19,9 @@ export async function POST(request: Request) {
   const eventType = request.headers.get("x-github-event");
   const signature = request.headers.get("x-hub-signature-256");
   const forwardedFor = request.headers.get("x-forwarded-for") ?? "unknown";
+  const installationTargetId = request.headers.get(
+    "x-github-hook-installation-target-id",
+  );
   const rateLimit = applyRateLimit({
     key: `github-webhook:${forwardedFor}`,
     limit: 120,
@@ -154,11 +157,17 @@ export async function POST(request: Request) {
 
       const projectRepo = githubSource?.repoFullName ?? null;
       const branchMatch = !githubSource?.branch || githubSource.branch === branch;
+      const installationMatch =
+        !githubSource?.installationId ||
+        !installationTargetId ||
+        githubSource.installationId === installationTargetId ||
+        githubSource.installationId === `inst_${installationTargetId}`;
 
       if (
         (projectRepo &&
           projectRepo.toLowerCase() === repoFullName.toLowerCase() &&
-          branchMatch) ||
+          branchMatch &&
+          installationMatch) ||
         (!projectRepo && branchMatch)
       ) {
         const commitMessage = buildDeployMessage(payload, branch);
@@ -187,6 +196,7 @@ export async function POST(request: Request) {
     method: "POST",
     repoFullName,
     branch,
+    installationTargetId,
     deploymentsTriggered,
   });
 
