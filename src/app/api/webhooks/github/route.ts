@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
-import { deployments, githubConnections, projects } from "@/lib/db/schema";
+import { auditLogs, deployments, githubConnections, projects } from "@/lib/db/schema";
+import { enqueueDeployment } from "@/lib/async-execution";
 import { resolveGitHubSource } from "@/lib/github-source";
 import {
   buildDeployMessage,
@@ -173,17 +174,38 @@ export async function POST(request: Request) {
         const commitMessage = buildDeployMessage(payload, branch);
         const commitSha = payload.head_commit?.id ?? payload.after;
 
-        await db.insert(deployments).values({
-          projectId: project.id,
-          status: "queued",
-          commitSha: commitSha.slice(0, 40),
-          commitMessage,
-        });
+        const [deployment] = await db
+          .insert(deployments)
+          .values({
+            projectId: project.id,
+            status: "queued",
+            commitSha: commitSha.slice(0, 40),
+            commitMessage,
+          })
+          .returning();
 
         await db
           .update(projects)
           .set({ status: "deploying" })
           .where(eq(projects.id, project.id));
+
+        const enqueueResult = await enqueueDeployment(
+          deployment.id,
+          project.id,
+        );
+
+        if (enqueueResult.handoff === "manual_followup_required") {
+          await db.insert(auditLogs).values({
+            orgId: conn.orgId,
+            action: "deployment_manual_handoff_required",
+            details: {
+              requestId,
+              deploymentId: deployment.id,
+              projectId: project.id,
+              executionMode: enqueueResult.mode,
+            },
+          });
+        }
 
         deploymentsTriggered++;
       }
