@@ -21,7 +21,24 @@ export default async function DocsIndex({ params }: DocsIndexProps) {
     notFound();
   }
 
-  // Find first published page
+  // 1. Try to find 'introduction' first
+  const introductionPage = await db
+    .select({ path: pages.path })
+    .from(pages)
+    .where(
+      and(
+        eq(pages.projectId, projectResult[0].id),
+        eq(pages.path, "introduction"),
+        eq(pages.isPublished, true),
+      ),
+    )
+    .limit(1);
+
+  if (introductionPage.length > 0) {
+    redirect(`/docs/${subdomain}/${introductionPage[0].path}`);
+  }
+
+  // 2. Fallback to alphabetically first page
   const firstPage = await db
     .select({ path: pages.path })
     .from(pages)
