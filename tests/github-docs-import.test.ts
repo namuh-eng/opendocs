@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 describe("importPublicGitHubDocs", () => {
-  it("imports markdown pages from a public repo tree", async () => {
+  it("extracts markdown pages from a public repo tree", async () => {
     const fetchMock = vi.fn(async (url: string) => {
       if (url.includes("/git/trees/")) {
         return {
@@ -19,7 +19,14 @@ describe("importPublicGitHubDocs", () => {
       if (url.includes("README.md")) {
         return {
           ok: true,
-          text: async () => "# Welcome\n\nHello world",
+          text: async () => `
+<div align="center">
+  <h1 align="center">Namuh Send</h1>
+  <p>Some subtitle</p>
+</div>
+
+# This is a subtitle actually
+`,
         };
       }
 
@@ -56,11 +63,57 @@ describe("importPublicGitHubDocs", () => {
           content: "# Getting Started\n\nShip it",
         },
         {
-          path: "readme",
-          title: "Welcome",
-          content: "# Welcome\n\nHello world",
+          path: "introduction",
+          title: "Namuh Send",
+          content: expect.stringContaining("Namuh Send"),
         },
       ]);
+    }
+  });
+
+  it("extracts title from frontmatter", async () => {
+    const fetchMock = vi.fn(async (url: string) => {
+      if (url.includes("/git/trees/")) {
+        return {
+          ok: true,
+          json: async () => ({ tree: [{ path: "doc.md", type: "blob" }] }),
+        };
+      }
+      return {
+        ok: true,
+        text: async () => "---\ntitle: Custom Title\n---\n# Real Title",
+      };
+    });
+    const { importPublicGitHubDocs } = await import("@/lib/github-docs-import");
+    const result = await importPublicGitHubDocs({
+      repoUrl: "https://github.com/acme/docs",
+      fetchImpl: fetchMock as unknown as typeof fetch,
+    });
+    if (result.ok) {
+      expect(result.pages[0].title).toBe("Custom Title");
+    }
+  });
+
+  it("ignores H1 headings inside code blocks for title extraction", async () => {
+    const fetchMock = vi.fn(async (url: string) => {
+      if (url.includes("/git/trees/")) {
+        return {
+          ok: true,
+          json: async () => ({ tree: [{ path: "code.md", type: "blob" }] }),
+        };
+      }
+      return {
+        ok: true,
+        text: async () => "```bash\n# Comment\n```\n# Real Title",
+      };
+    });
+    const { importPublicGitHubDocs } = await import("@/lib/github-docs-import");
+    const result = await importPublicGitHubDocs({
+      repoUrl: "https://github.com/acme/docs",
+      fetchImpl: fetchMock as unknown as typeof fetch,
+    });
+    if (result.ok) {
+      expect(result.pages[0].title).toBe("Real Title");
     }
   });
 
@@ -136,14 +189,18 @@ describe("importPublicGitHubDocs", () => {
       1,
       expect.stringContaining("/git/trees/"),
       expect.objectContaining({
-        headers: expect.objectContaining({ Authorization: "Bearer secret-token" }),
+        headers: expect.objectContaining({
+          Authorization: "Bearer secret-token",
+        }),
       }),
     );
     expect(fetchMock).toHaveBeenNthCalledWith(
       2,
       expect.stringContaining("raw.githubusercontent.com"),
       expect.objectContaining({
-        headers: expect.objectContaining({ Authorization: "Bearer secret-token" }),
+        headers: expect.objectContaining({
+          Authorization: "Bearer secret-token",
+        }),
       }),
     );
   });
@@ -163,7 +220,8 @@ describe("importPublicGitHubDocs", () => {
     expect(result).toEqual({
       ok: false,
       status: "no_markdown_found",
-      message: "No markdown files were found in the selected GitHub repository path",
+      message:
+        "No markdown files were found in the selected GitHub repository path",
     });
   });
 });

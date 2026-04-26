@@ -1,3 +1,4 @@
+import { extractFrontmatter } from "@/lib/editor";
 import { parseGitHubUrl } from "@/lib/git-settings";
 
 export interface ImportedGitHubDocPage {
@@ -49,18 +50,42 @@ function toPagePath(filePath: string, basePath: string): string | null {
   if (!/\.(md|mdx)$/i.test(relative)) return null;
 
   const withoutExt = relative.replace(/\.(md|mdx)$/i, "");
-  if (/^index$/i.test(withoutExt)) {
+  if (/^index$|^readme$/i.test(withoutExt)) {
     return "introduction";
   }
 
-  const withoutIndex = withoutExt.replace(/\/index$/i, "");
+  const withoutIndex = withoutExt.replace(/\/index$|\/readme$/i, "");
   return (withoutIndex || "introduction").toLowerCase();
 }
 
 function toTitle(markdown: string, fallbackPath: string): string {
-  const heading = markdown.match(/^#\s+(.+)$/m)?.[1]?.trim();
-  if (heading) return heading;
+  // 1. Try frontmatter
+  const { frontmatter, body } = extractFrontmatter(markdown);
+  if (frontmatter.title) {
+    return frontmatter.title;
+  }
 
+  // 2. Try actual H1 heading (outside code blocks)
+  const lines = body.split("\n");
+  let inCodeBlock = false;
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (trimmed.startsWith("```")) {
+      inCodeBlock = !inCodeBlock;
+      continue;
+    }
+    if (inCodeBlock) continue;
+
+    // Markdown H1
+    const mdMatch = line.match(/^#\s+(.+)$/);
+    if (mdMatch) return mdMatch[1].trim();
+
+    // HTML H1 (common in READMEs)
+    const htmlMatch = line.match(/<h1[^>]*>(.*?)<\/h1>/i);
+    if (htmlMatch) return htmlMatch[1].trim();
+  }
+
+  // 3. Fallback to path
   const lastSegment = fallbackPath.split("/").pop() || fallbackPath;
   return lastSegment
     .split(/[-_]/g)

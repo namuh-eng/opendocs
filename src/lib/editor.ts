@@ -81,8 +81,17 @@ export interface TocEntry {
 export function extractToc(body: string): TocEntry[] {
   const entries: TocEntry[] = [];
   const lines = body.split("\n");
+  let inCodeBlock = false;
 
   for (const line of lines) {
+    // Toggle code block state
+    if (line.trim().startsWith("```")) {
+      inCodeBlock = !inCodeBlock;
+      continue;
+    }
+
+    if (inCodeBlock) continue;
+
     const match = line.match(/^(#{1,6})\s+(.+)$/);
     if (match) {
       const level = match[1].length;

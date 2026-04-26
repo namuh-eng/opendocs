@@ -1,4 +1,4 @@
-import { extractToc } from "@/lib/editor";
+import { extractFrontmatter, extractToc } from "@/lib/editor";
 import { describe, expect, it } from "vitest";
 
 describe("Table of Contents — extractToc", () => {
@@ -54,8 +54,6 @@ More text
   });
 
   it("does not extract headings inside code blocks", () => {
-    // Note: current implementation doesn't handle code blocks specially
-    // This test documents the current behavior
     const content = `## Real Heading
 \`\`\`markdown
 ## Inside Code Block
@@ -63,10 +61,21 @@ More text
 ## Another Real Heading`;
 
     const toc = extractToc(content);
-    // Current implementation extracts all lines matching heading pattern
-    // including those inside code blocks
-    expect(toc.length).toBeGreaterThanOrEqual(2);
+    expect(toc.length).toBe(2);
     expect(toc[0].text).toBe("Real Heading");
+    expect(toc[1].text).toBe("Another Real Heading");
+  });
+
+  it("handles indented code blocks", () => {
+    const content = `## Header
+    \`\`\`
+    # Indented Comment
+    \`\`\`
+## Footer`;
+    const toc = extractToc(content);
+    expect(toc.length).toBe(2);
+    expect(toc[0].text).toBe("Header");
+    expect(toc[1].text).toBe("Footer");
   });
 
   it("preserves heading level numbers correctly", () => {
@@ -80,6 +89,17 @@ More text
     expect(toc[1].level).toBe(3);
     expect(toc[2].level).toBe(4);
     expect(toc[3].level).toBe(5);
+  });
+});
+
+describe("Table of Contents — extractFrontmatter", () => {
+  it("extracts title from frontmatter", () => {
+    const content = `---
+title: "My Custom Title"
+---
+# Actual Heading`;
+    const { frontmatter } = extractFrontmatter(content);
+    expect(frontmatter.title).toBe("My Custom Title");
   });
 });
 
