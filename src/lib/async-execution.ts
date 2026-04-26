@@ -1,6 +1,8 @@
 import type { ExecutionMetadataOptions } from "@/lib/async-metadata";
 import { db } from "@/lib/db";
 import { agentJobs, deployments, projects } from "@/lib/db/schema";
+import { syncProjectDocsFromGitHub } from "@/lib/github-sync";
+import { createRequestId, logger } from "@/lib/logger";
 import { and, eq } from "drizzle-orm";
 
 export const ASYNC_SIMULATION_TIMINGS_MS = {
@@ -126,6 +128,28 @@ function buildDeploymentSimulationPlan(
     {
       delayMs: ASYNC_SIMULATION_TIMINGS_MS.deploymentFinish,
       task: async () => {
+        // Run real doc sync
+        try {
+          const [project] = await db
+            .select({ orgId: projects.orgId })
+            .from(projects)
+            .where(eq(projects.id, projectId))
+            .limit(1);
+
+          if (project) {
+            await syncProjectDocsFromGitHub({
+              projectId,
+              orgId: project.orgId,
+            });
+          }
+        } catch (err) {
+          logger.error("simulated_deployment_sync_failed", {
+            projectId,
+            deploymentId,
+            err,
+          });
+        }
+
         await db
           .update(deployments)
           .set({ status: "succeeded", endedAt: new Date() })
