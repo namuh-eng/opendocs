@@ -81,14 +81,15 @@ export default async function DashboardPage() {
     oldestUnresolvedMs?: number | null;
     averageResolutionMs?: number | null;
   } = {};
+  let publishedPages: Array<{ id: string; path: string; title: string }> = [];
   let publishedPageCount = 0;
 
   if (project) {
-    const publishedPages = await db
-      .select({ id: pages.id })
+    publishedPages = await db
+      .select({ id: pages.id, path: pages.path, title: pages.title })
       .from(pages)
       .where(and(eq(pages.projectId, project.id), eq(pages.isPublished, true)))
-      .limit(1);
+      .orderBy(pages.path);
     publishedPageCount = publishedPages.length;
 
     projectDeployments = await db
@@ -236,6 +237,7 @@ export default async function DashboardPage() {
       resolvedManualHandoffs={resolvedManualHandoffs}
       manualHandoffStats={manualHandoffStats}
       resolvedManualHandoffStats={resolvedManualHandoffStats}
+      publishedPages={publishedPages}
     />
   );
 }

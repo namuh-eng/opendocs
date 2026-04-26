@@ -123,6 +123,7 @@ interface Props {
     oldestUnresolvedMs?: number | null;
     averageResolutionMs?: number | null;
   };
+  publishedPages: Array<{ id: string; path: string; title: string }>;
 }
 
 const ICON_MAP = {
@@ -257,6 +258,7 @@ export function DashboardHomeClient({
   resolvedManualHandoffs,
   manualHandoffStats,
   resolvedManualHandoffStats,
+  publishedPages,
 }: Props) {
   const router = useRouter();
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -286,6 +288,7 @@ export function DashboardHomeClient({
   const [handoffView, setHandoffView] = useState<"active" | "resolved">(
     "active",
   );
+  const [pageViews, setPageViews] = useState<Record<string, number>>({});
 
   const latestDeployment = deployments[0] ?? null;
   const lastDeployedLabel = latestDeployment
@@ -368,6 +371,22 @@ export function DashboardHomeClient({
       card.href = siteUrl;
     }
   }
+
+  useEffect(() => {
+    if (project) {
+      fetch(`/api/analytics/views?projectId=${project.id}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.topPages) {
+            const views: Record<string, number> = {};
+            data.topPages.forEach((p: any) => {
+              views[p.pagePath] = p.views;
+            });
+            setPageViews(views);
+          }
+        });
+    }
+  }, [project]);
 
   async function triggerDeploy() {
     setTriggering(true);
@@ -1105,6 +1124,58 @@ export function DashboardHomeClient({
                     ))
                   )}
                 </div>
+
+                {/* Pages List */}
+                {publishedPages.length > 0 && (
+                  <div className="mt-8">
+                    <h3 className="text-sm font-medium text-white mb-4">Pages</h3>
+                    <div className="rounded-xl border border-white/[0.08] overflow-hidden">
+                      <div className="grid grid-cols-[1fr_120px_100px] gap-4 px-6 py-3 bg-[#0f0f0f] text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <span>Title</span>
+                        <span>Views</span>
+                        <span className="text-right">Actions</span>
+                      </div>
+                      <div className="divide-y divide-white/[0.04]">
+                        {publishedPages.map((page) => (
+                          <div
+                            key={page.id}
+                            className="grid grid-cols-[1fr_120px_100px] gap-4 px-6 py-3 items-center hover:bg-white/[0.02] transition-colors"
+                          >
+                            <div className="min-w-0">
+                              <div className="text-sm text-white font-medium truncate">
+                                {page.title}
+                              </div>
+                              <div className="text-xs text-gray-500 truncate">
+                                {page.path}
+                              </div>
+                            </div>
+                            <div className="text-sm text-gray-400 tabular-nums">
+                              {(pageViews[page.path === "introduction" ? "/" : `/${page.path}`] || 0).toLocaleString()}
+                            </div>
+                            <div className="flex justify-end gap-2">
+                              <Link
+                                href={`/editor/main?pageId=${page.id}`}
+                                className="p-1 text-gray-500 hover:text-white transition-colors"
+                                title="Edit page"
+                              >
+                                <Edit3 size={14} />
+                              </Link>
+                              <a
+                                href={buildSiteUrl(project.subdomain, project.customDomain) + (page.path === "introduction" ? "" : `/${page.path}`)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="p-1 text-gray-500 hover:text-emerald-400 transition-colors"
+                                title="View live"
+                              >
+                                <ExternalLink size={14} />
+                              </a>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
