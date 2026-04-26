@@ -89,6 +89,9 @@ const DEPLOY_ENV_ALLOWLIST = [
   "NEXT_PUBLIC_APP_URL",
   "ANTHROPIC_API_KEY",
   "NODE_ENV",
+  "ENABLE_ASYNC_SIMULATION",
+  "GITHUB_APP_ID",
+  "GITHUB_APP_PRIVATE_KEY",
 ] as const;
 
 export function filterEnvForDeploy(
