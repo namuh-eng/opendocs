@@ -206,18 +206,30 @@ export async function POST(request: Request) {
             headers,
           });
 
-          provisioning = importResult.ok
-            ? {
-                mode: "github_import_pending_auth",
-                source: "private_connected",
-                message:
-                  "Authenticated GitHub import wiring is available, but private import replacement is not enabled yet. Starter docs were created during onboarding.",
-              }
-            : {
-                mode: "github_import_pending_auth",
-                source: "private_connected",
-                message: `${importResult.message}. Starter docs were created during onboarding.`,
-              };
+          if (importResult.ok) {
+            await db.insert(pages).values(
+              importResult.pages.map((page) => ({
+                projectId,
+                path: page.path,
+                title: page.title,
+                content: page.content,
+                isPublished: true,
+              })),
+            );
+
+            provisioning = {
+              mode: "github_import",
+              source: "public",
+              message: `Imported ${importResult.pages.length} page${importResult.pages.length === 1 ? "" : "s"} from the connected GitHub repository.`,
+              importedPageCount: importResult.pages.length,
+            };
+          } else {
+            provisioning = {
+              mode: "github_import_pending_auth",
+              source: "private_connected",
+              message: `${importResult.message}. Starter docs were created during onboarding.`,
+            };
+          }
         } catch (error) {
           provisioning =
             error instanceof GitHubInstallationAuthNotConfiguredError

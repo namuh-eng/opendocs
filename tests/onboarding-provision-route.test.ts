@@ -343,6 +343,92 @@ describe("POST /api/onboarding/provision", () => {
     });
   });
 
+  it("imports connected private github docs when installation auth is available", async () => {
+    getSessionMock.mockResolvedValue({ user: { id: "user-1" } });
+
+    const membershipLookup = {
+      from: vi.fn().mockReturnThis(),
+      where: vi.fn().mockReturnThis(),
+      limit: vi.fn().mockResolvedValue([{ orgId: "org-1" }]),
+    };
+
+    const projectLookup = {
+      from: vi.fn().mockReturnThis(),
+      where: vi.fn().mockReturnThis(),
+      limit: vi.fn().mockResolvedValue([
+        {
+          id: "proj-1",
+          repoUrl: "https://github.com/acme/private-docs",
+          repoBranch: "main",
+          repoPath: "/",
+          settings: { githubSource: { installationId: "inst_123" } },
+        },
+      ]),
+    };
+
+    const pagesLookup = {
+      from: vi.fn().mockReturnThis(),
+      where: vi.fn().mockReturnThis(),
+      limit: vi.fn().mockResolvedValue([]),
+    };
+
+    selectMock
+      .mockReturnValueOnce(membershipLookup)
+      .mockReturnValueOnce(projectLookup)
+      .mockReturnValueOnce(pagesLookup);
+
+    resolveGitHubImportAccessForProjectMock.mockResolvedValue({
+      status: "private_connected",
+    });
+    getGitHubImportAccessMessageMock.mockReturnValue(null);
+    buildGitHubInstallationAuthHeadersMock.mockResolvedValue({
+      Authorization: "Bearer installation-token",
+    });
+    importGitHubDocsMock.mockResolvedValue({
+      ok: true,
+      status: "imported",
+      pages: [
+        {
+          path: "introduction",
+          title: "Introduction",
+          content: "# Imported private docs",
+        },
+      ],
+      source: {
+        owner: "acme",
+        repo: "private-docs",
+        branch: "main",
+        path: "/",
+      },
+    });
+
+    const valuesMock = vi.fn().mockResolvedValue(undefined);
+    insertMock.mockReturnValue({ values: valuesMock });
+
+    const { POST } = await import("@/app/api/onboarding/provision/route");
+    const response = await POST(
+      makeNextRequest("http://localhost/api/onboarding/provision", {
+        method: "POST",
+        body: JSON.stringify({ projectId: "proj-1" }),
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toMatchObject({
+      ok: true,
+      provisioning: {
+        mode: "github_import",
+        importedPageCount: 1,
+      },
+    });
+    expect(importGitHubDocsMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        repoUrl: "https://github.com/acme/private-docs",
+        headers: { Authorization: "Bearer installation-token" },
+      }),
+    );
+  });
+
   it("returns 409 if github auth is required for repo-backed import", async () => {
     getSessionMock.mockResolvedValue({ user: { id: "user-1" } });
 
