@@ -185,10 +185,57 @@ export async function importGitHubDocs(
     };
   }
 
+  // Rewrite relative images and links
+  const processedPages = importedPages.map((page) => {
+    const filePath = markdownFiles.find((f) => {
+      const p = toPagePath(f, basePath);
+      return p === page.path;
+    });
+
+    if (!filePath) return page;
+
+    const fileDir = filePath.split("/").slice(0, -1).join("/");
+    const rawBase = `https://raw.githubusercontent.com/${parsed.owner}/${parsed.repo}/${encodeURIComponent(branch)}`;
+
+    let content = page.content;
+
+    // 1. Rewrite images: ![alt](relative/path.png)
+    content = content.replace(
+      /!\[([^\]]*)\]\((?!https?:\/\/|ftp:\/\/|mailto:|\/)([^)]+)\)/g,
+      (match, alt, relPath) => {
+        const fullPath = fileDir ? `${fileDir}/${relPath}` : relPath;
+        const normalized = fullPath.replace(/\.\//g, "").replace(/\/+/g, "/");
+        return `![${alt}](${rawBase}/${normalized})`;
+      },
+    );
+
+    // 2. Rewrite links: [text](relative/path.md)
+    // For now we only rewrite if they end in .md/.mdx to avoid breaking external site links that happen to be relative
+    content = content.replace(
+      /\[([^\]]*)\]\((?!https?:\/\/|ftp:\/\/|mailto:|\/)([^)]+\.(md|mdx))\)/g,
+      (match, text, relPath) => {
+        const fullPath = fileDir ? `${fileDir}/${relPath}` : relPath;
+        const normalized = fullPath.replace(/\.\//g, "").replace(/\/+/g, "/");
+        const pagePath = toPagePath(normalized, basePath);
+
+        if (pagePath && importedPages.some((p) => p.path === pagePath)) {
+          // Internal doc link
+          return `[${text}](../${pagePath})`;
+        }
+
+        // Fallback to GitHub source
+        const githubUrl = `https://github.com/${parsed.owner}/${parsed.repo}/blob/${encodeURIComponent(branch)}/${normalized}`;
+        return `[${text}](${githubUrl})`;
+      },
+    );
+
+    return { ...page, content };
+  });
+
   return {
     ok: true,
     status: "imported",
-    pages: importedPages.sort((a, b) => a.path.localeCompare(b.path)),
+    pages: processedPages.sort((a, b) => a.path.localeCompare(b.path)),
     source: {
       owner: parsed.owner,
       repo: parsed.repo,

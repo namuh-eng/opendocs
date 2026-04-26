@@ -205,6 +205,54 @@ describe("importPublicGitHubDocs", () => {
     );
   });
 
+  it("rewrites relative images and markdown links to GitHub raw and doc routes", async () => {
+    const fetchMock = vi.fn(async (url: string) => {
+      if (url.includes("/git/trees/")) {
+        return {
+          ok: true,
+          json: async () => ({
+            tree: [
+              { path: "README.md", type: "blob" },
+              { path: "docs/guide.md", type: "blob" },
+            ],
+          }),
+        };
+      }
+      if (url.includes("README.md")) {
+        return {
+          ok: true,
+          text: async () => `
+# Welcome
+![Logo](assets/logo.png)
+[Guide](./docs/guide.md)
+[License](LICENSE)
+`,
+        };
+      }
+      return {
+        ok: true,
+        text: async () => "# Guide",
+      };
+    });
+
+    const { importGitHubDocs } = await import("@/lib/github-docs-import");
+    const result = await importGitHubDocs({
+      repoUrl: "https://github.com/acme/docs",
+      fetchImpl: fetchMock as unknown as typeof fetch,
+    });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      const readme = result.pages.find((p) => p.path === "introduction");
+      expect(readme?.content).toContain(
+        "![Logo](https://raw.githubusercontent.com/acme/docs/main/assets/logo.png)",
+      );
+      expect(readme?.content).toContain("[Guide](../docs/guide)");
+      // Note: we only rewrite .md links for now
+      expect(readme?.content).toContain("[License](LICENSE)");
+    }
+  });
+
   it("returns no_markdown_found when the repo path has no markdown files", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: true,
