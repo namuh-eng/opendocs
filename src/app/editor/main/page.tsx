@@ -624,7 +624,17 @@ export default function EditorPage() {
   }
 
   if (!projectId) {
-    return <EmptyState {...editorEmptyState} />;
+    return (
+      <EmptyState
+        icon={<FileText className="text-emerald-500" />}
+        title={editorEmptyState.title}
+        description={editorEmptyState.description}
+        action={{
+          label: editorEmptyState.ctaLabel,
+          onClick: () => setShowCreateModal(true),
+        }}
+      />
+    );
   }
 
   return (
@@ -750,7 +760,7 @@ export default function EditorPage() {
               onLink={handleLink}
               onImage={handleImage}
               onSave={handleSaveContent}
-              saving={saving}
+              isSaving={saving}
               hasUnsavedChanges={hasUnsavedChanges}
               showSettings={showSettings}
               onToggleSettings={() => setShowSettings(!showSettings)}
@@ -773,7 +783,7 @@ export default function EditorPage() {
                   {editorMode === "visual" ? (
                     <VisualEditor
                       ref={visualEditorRef}
-                      value={visualBody}
+                      content={visualBody}
                       onChange={handleContentChange}
                     />
                   ) : (
@@ -788,9 +798,19 @@ export default function EditorPage() {
 
               <TocPanel entries={tocEntries} />
 
-              {showSuggestions && <SuggestionsPanel content={content} />}
+              {showSuggestions && (
+                <SuggestionsPanel
+                  pageId={selectedPage.id}
+                  onClose={() => setShowSuggestions(false)}
+                />
+              )}
 
-              {showComments && <CommentsSidebar pageId={selectedPage.id} />}
+              {showComments && (
+                <CommentsSidebar
+                  pageId={selectedPage.id}
+                  onClose={() => setShowComments(false)}
+                />
+              )}
 
               {showAnalytics && (
                 <PageAnalyticsPanel pagePath={selectedPage.path} />
@@ -798,14 +818,23 @@ export default function EditorPage() {
 
               {showSettings && (
                 <PageSettingsPanel
-                  page={selectedPage}
+                  settings={selectedPage}
                   onSave={handleSaveSettings}
+                  onClose={() => setShowSettings(false)}
                 />
               )}
             </div>
           </>
         ) : (
-          <EmptyState {...editorEmptyState} />
+          <EmptyState
+            icon={<FileText className="text-emerald-500" />}
+            title={editorEmptyState.title}
+            description={editorEmptyState.description}
+            action={{
+              label: editorEmptyState.ctaLabel,
+              onClick: () => setShowCreateModal(true),
+            }}
+          />
         )}
       </main>
 

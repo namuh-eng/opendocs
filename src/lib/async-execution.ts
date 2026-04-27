@@ -152,21 +152,22 @@ function buildDeploymentSimulationPlan(
               .where(eq(deployments.id, deploymentId))
               .limit(1);
 
-            const branchToSync = (deployment?.type === "preview" && deployment.branch) 
-              ? deployment.branch 
-              : project.repoBranch;
+            const branchToSync =
+              deployment?.type === "preview" && deployment.branch
+                ? deployment.branch
+                : project.repoBranch;
 
             await syncProjectDocsFromGitHub({
               projectId,
               orgId: project.orgId,
-              branchOverride: branchToSync,
+              branchOverride: branchToSync ?? undefined,
             });
           }
-        } catch (err) {
+        } catch (error) {
           logger.error("simulated_deployment_sync_failed", {
             projectId,
             deploymentId,
-            err,
+            err: error instanceof Error ? error.message : String(error),
           });
         }
 

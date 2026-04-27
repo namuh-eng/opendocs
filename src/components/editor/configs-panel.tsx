@@ -29,10 +29,16 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 interface ConfigsPanelProps {
   projectId: string;
+  currentBranch?: string;
+  onBranchChange?: (branch: string) => void;
   onClose?: () => void;
 }
 
-export function ConfigsPanel({ projectId }: ConfigsPanelProps) {
+export function ConfigsPanel({
+  projectId,
+  currentBranch = "main",
+  onBranchChange,
+}: ConfigsPanelProps) {
   const [config, setConfig] = useState<DocsConfig>(mergeDocsConfig(undefined));
   const [loading, setLoading] = useState(true);
   const { saving, updateProject } = useProjectUpdater<{ settings: Record<string, unknown> }>({
@@ -82,14 +88,14 @@ export function ConfigsPanel({ projectId }: ConfigsPanelProps) {
     }
 
     setMessage(null);
-    const result = await updateProject({
+    const updateResult = await updateProject({
       settings: { ...projectSettings, docsConfig: config },
     });
 
-    if (!result.ok) {
+    if (!updateResult.ok) {
       setMessage({
         type: "error",
-        text: result.error || "Failed to save",
+        text: updateResult.error || "Failed to save",
       });
       return;
     }

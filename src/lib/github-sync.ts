@@ -62,8 +62,12 @@ export async function syncProjectDocsFromGitHub(params: {
     if (installationId) {
       try {
         headers = await buildGitHubInstallationAuthHeaders({ installationId });
-      } catch (err) {
-        logger.error("sync_docs_auth_failed", { requestId, projectId, err });
+      } catch (error) {
+        logger.error("sync_docs_auth_failed", {
+          requestId,
+          projectId,
+          err: error instanceof Error ? error.message : String(error),
+        });
         // Continue without headers; if it's actually private, importGitHubDocs will fail gracefully
       }
     }

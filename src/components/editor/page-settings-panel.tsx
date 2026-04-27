@@ -7,9 +7,9 @@ import { useCallback, useEffect, useState } from "react";
 interface PageSettings {
   title: string;
   path: string;
-  description: string;
+  description: string | null;
   isPublished: boolean;
-  frontmatter?: Record<string, unknown>;
+  frontmatter?: Record<string, unknown> | null;
 }
 
 interface PageSettingsPanelProps {
@@ -144,7 +144,7 @@ export function PageSettingsPanel({
         <SettingsField label="Description">
           <input
             type="text"
-            value={description}
+            value={description ?? ""}
             onChange={(e) => setDescription(e.target.value)}
             onBlur={handleSave}
             placeholder="Enter page description"

@@ -22,6 +22,7 @@ import {
   Search,
   Settings,
   Undo2,
+  BarChart3,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -33,6 +34,7 @@ interface EditorToolbarProps {
   onHeading?: () => void;
   onLink?: () => void;
   onImage?: () => void;
+  onSave?: () => void;
   onCodeBlock?: () => void;
   onUndo?: () => void;
   onRedo?: () => void;
@@ -49,6 +51,10 @@ interface EditorToolbarProps {
   canUndo?: boolean;
   canRedo?: boolean;
   isSaving?: boolean;
+  showSettings?: boolean;
+  showComments?: boolean;
+  showSuggestions?: boolean;
+  showAnalytics?: boolean;
   hasUnsavedChanges?: boolean;
 }
 
@@ -64,6 +70,10 @@ export function EditorToolbar({
   onUndo,
   onRedo,
   onInsertSnippet,
+  showSettings,
+  showComments,
+  showSuggestions,
+  showAnalytics,
   onToggleSettings,
   onToggleComments,
   onToggleSuggestions,
@@ -319,7 +329,12 @@ export function EditorToolbar({
         <button
           type="button"
           onClick={onToggleComments}
-          className="p-1.5 rounded text-gray-500 hover:text-white hover:bg-white/[0.06] transition-colors"
+          className={clsx(
+            "p-1.5 rounded transition-colors",
+            showComments
+              ? "bg-emerald-600/20 text-emerald-400"
+              : "text-gray-500 hover:text-white hover:bg-white/[0.06]",
+          )}
           aria-label="Comments"
           data-testid="comments-btn"
         >
@@ -329,7 +344,12 @@ export function EditorToolbar({
         <button
           type="button"
           onClick={onToggleSuggestions}
-          className="p-1.5 rounded text-gray-500 hover:text-white hover:bg-white/[0.06] transition-colors"
+          className={clsx(
+            "p-1.5 rounded transition-colors",
+            showSuggestions
+              ? "bg-emerald-600/20 text-emerald-400"
+              : "text-gray-500 hover:text-white hover:bg-white/[0.06]",
+          )}
           aria-label="Suggestions"
           data-testid="suggestions-btn"
         >
@@ -339,7 +359,12 @@ export function EditorToolbar({
         <button
           type="button"
           onClick={onToggleAnalytics}
-          className="p-1.5 rounded text-gray-500 hover:text-white hover:bg-white/[0.06] transition-colors"
+          className={clsx(
+            "p-1.5 rounded transition-colors",
+            showAnalytics
+              ? "bg-emerald-600/20 text-emerald-400"
+              : "text-gray-500 hover:text-white hover:bg-white/[0.06]",
+          )}
           aria-label="Page analytics"
           data-testid="analytics-btn"
         >
@@ -349,7 +374,12 @@ export function EditorToolbar({
         <button
           type="button"
           onClick={onToggleSettings}
-          className="p-1.5 rounded text-gray-500 hover:text-white hover:bg-white/[0.06] transition-colors"
+          className={clsx(
+            "p-1.5 rounded transition-colors",
+            showSettings
+              ? "bg-emerald-600/20 text-emerald-400"
+              : "text-gray-500 hover:text-white hover:bg-white/[0.06]",
+          )}
           aria-label="Page settings"
           data-testid="page-settings-btn"
         >

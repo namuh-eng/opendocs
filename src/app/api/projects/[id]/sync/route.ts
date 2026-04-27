@@ -67,7 +67,11 @@ export async function POST(
       requestId,
     });
   } catch (error) {
-    logger.error("manual_sync_failed", { requestId, projectId, error });
+    logger.error("manual_sync_failed", {
+      requestId,
+      projectId,
+      err: error instanceof Error ? error.message : String(error),
+    });
     return NextResponse.json(
       { error: "Failed to synchronize documentation", requestId },
       { status: 500 },

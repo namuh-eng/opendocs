@@ -2,6 +2,8 @@ import { db } from "@/lib/db";
 import { projects } from "@/lib/db/schema";
 import type { MetadataRoute } from "next";
 
+export const dynamic = "force-dynamic";
+
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3015";
 
 /**

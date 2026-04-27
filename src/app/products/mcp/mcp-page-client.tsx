@@ -2,7 +2,7 @@
 
 import { getMcpServerUrl, getMcpTools } from "@/lib/mcp";
 import { Check, Copy, ExternalLink, Sparkles } from "lucide-react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export function McpPageClient({ projectSlug }: { projectSlug: string }) {
   const mcpUrl = getMcpServerUrl(projectSlug);
