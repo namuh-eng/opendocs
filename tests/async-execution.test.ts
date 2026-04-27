@@ -2,13 +2,16 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 describe("async execution", () => {
   afterEach(() => {
+    // biome-ignore lint/performance/noDelete: tests must remove the env var rather than assign the string "undefined"
     delete process.env.ENABLE_ASYNC_SIMULATION;
     vi.resetModules();
     vi.restoreAllMocks();
   });
 
   it("exports the expected simulation timing constants", async () => {
-    const { ASYNC_SIMULATION_TIMINGS_MS } = await import("@/lib/async-execution");
+    const { ASYNC_SIMULATION_TIMINGS_MS } = await import(
+      "@/lib/async-execution"
+    );
 
     expect(ASYNC_SIMULATION_TIMINGS_MS).toEqual({
       deploymentStart: 500,
@@ -42,9 +45,7 @@ describe("async execution", () => {
     process.env.ENABLE_ASYNC_SIMULATION = "true";
     const setTimeoutSpy = vi
       .spyOn(globalThis, "setTimeout")
-      .mockImplementation(
-        () => 0 as unknown as ReturnType<typeof setTimeout>,
-      );
+      .mockImplementation(() => 0 as unknown as ReturnType<typeof setTimeout>);
 
     const {
       getAsyncExecutionMode,
@@ -62,16 +63,16 @@ describe("async execution", () => {
       handoff: "simulated",
     });
     expect(setTimeoutSpy).toHaveBeenCalledTimes(2);
-    expect(setTimeoutSpy.mock.calls.map((call) => call[1])).toEqual([500, 3000]);
+    expect(setTimeoutSpy.mock.calls.map((call) => call[1])).toEqual([
+      500, 3000,
+    ]);
   });
 
   it("schedules agent job simulation with the documented timing", async () => {
     process.env.ENABLE_ASYNC_SIMULATION = "true";
     const setTimeoutSpy = vi
       .spyOn(globalThis, "setTimeout")
-      .mockImplementation(
-        () => 0 as unknown as ReturnType<typeof setTimeout>,
-      );
+      .mockImplementation(() => 0 as unknown as ReturnType<typeof setTimeout>);
 
     const { getAgentJobExecutionStrategy, enqueueAgentJob } = await import(
       "@/lib/async-execution"
@@ -85,7 +86,9 @@ describe("async execution", () => {
       mode: "simulation",
       handoff: "simulated",
     });
-    expect(setTimeoutSpy.mock.calls.map((call) => call[1])).toEqual([500, 5000]);
+    expect(setTimeoutSpy.mock.calls.map((call) => call[1])).toEqual([
+      500, 5000,
+    ]);
   });
 
   it("uses manual follow-up strategy for agent jobs by default", async () => {

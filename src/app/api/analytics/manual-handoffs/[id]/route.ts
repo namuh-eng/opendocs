@@ -7,7 +7,7 @@ import { type NextRequest, NextResponse } from "next/server";
 
 /**
  * DELETE /api/analytics/manual-handoffs/[id]
- * 
+ *
  * Deletes a manual async handoff record for an organization admin.
  */
 export async function DELETE(
@@ -33,7 +33,10 @@ export async function DELETE(
   }
 
   if (membership.role !== "admin") {
-    return NextResponse.json({ error: "Forbidden - Admin required" }, { status: 403 });
+    return NextResponse.json(
+      { error: "Forbidden - Admin required" },
+      { status: 403 },
+    );
   }
 
   const result = await db

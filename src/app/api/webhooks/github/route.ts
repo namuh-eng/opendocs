@@ -1,6 +1,11 @@
-import { db } from "@/lib/db";
-import { auditLogs, deployments, githubConnections, projects } from "@/lib/db/schema";
 import { enqueueDeployment } from "@/lib/async-execution";
+import { db } from "@/lib/db";
+import {
+  auditLogs,
+  deployments,
+  githubConnections,
+  projects,
+} from "@/lib/db/schema";
 import { resolveGitHubSource } from "@/lib/github-source";
 import {
   buildDeployMessage,
@@ -157,7 +162,8 @@ export async function POST(request: Request) {
       });
 
       const projectRepo = githubSource?.repoFullName ?? null;
-      const branchMatch = !githubSource?.branch || githubSource.branch === branch;
+      const branchMatch =
+        !githubSource?.branch || githubSource.branch === branch;
       const installationMatch =
         !githubSource?.installationId ||
         !installationTargetId ||

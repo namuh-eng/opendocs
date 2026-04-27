@@ -1,7 +1,10 @@
 import type { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-function makeRequest(body: Record<string, unknown>, headers?: Record<string, string>) {
+function makeRequest(
+  body: Record<string, unknown>,
+  headers?: Record<string, string>,
+) {
   const request = new Request("http://localhost:3000/api/webhooks/github", {
     method: "POST",
     headers: {
@@ -35,6 +38,7 @@ vi.mock("@/lib/db", () => ({
 describe("POST /api/webhooks/github", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // biome-ignore lint/performance/noDelete: tests must remove the env var rather than assign the string "undefined"
     delete process.env.GITHUB_WEBHOOK_SECRET;
   });
 
@@ -98,7 +102,12 @@ describe("POST /api/webhooks/github", () => {
         ]),
       });
 
-    const insertValuesMock = vi.fn().mockResolvedValue(undefined);
+    const insertReturningMock = vi
+      .fn()
+      .mockResolvedValue([{ id: "deployment-1" }]);
+    const insertValuesMock = vi
+      .fn()
+      .mockReturnValue({ returning: insertReturningMock });
     insertMock.mockReturnValue({ values: insertValuesMock });
 
     const updateWhereMock = vi.fn().mockResolvedValue(undefined);
@@ -120,9 +129,11 @@ describe("POST /api/webhooks/github", () => {
     );
 
     expect(response.status).toBe(200);
-    expect(insertValuesMock).toHaveBeenCalledTimes(1);
     expect(insertValuesMock).toHaveBeenCalledWith(
       expect.objectContaining({ projectId: "project-1" }),
+    );
+    expect(insertValuesMock).not.toHaveBeenCalledWith(
+      expect.objectContaining({ projectId: "project-2" }),
     );
     expect(updateWhereMock).toHaveBeenCalledTimes(1);
   });

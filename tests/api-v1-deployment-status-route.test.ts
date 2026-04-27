@@ -1,10 +1,7 @@
 import type { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-function makeNextRequest(
-  url: string,
-  init: RequestInit = {},
-): NextRequest {
+function makeNextRequest(url: string, init: RequestInit = {}): NextRequest {
   const request = new Request(url, init) as NextRequest;
   Object.defineProperty(request, "nextUrl", {
     value: new URL(url),
@@ -34,10 +31,12 @@ describe("GET /api/v1/project/update-status/[statusId]", () => {
   it("returns 401 when unauthenticated", async () => {
     authenticateApiKeyMock.mockResolvedValue(null);
 
-    const { GET } = await import("@/app/api/v1/project/update-status/[statusId]/route");
+    const { GET } = await import(
+      "@/app/api/v1/project/update-status/[statusId]/route"
+    );
     const response = await GET(
       makeNextRequest("http://localhost/api/v1/project/update-status/deploy-1"),
-      { params: Promise.resolve({ statusId: "deploy-1" }) }
+      { params: Promise.resolve({ statusId: "deploy-1" }) },
     );
 
     expect(response.status).toBe(401);
@@ -47,12 +46,17 @@ describe("GET /api/v1/project/update-status/[statusId]", () => {
   });
 
   it("returns 403 for non-admin keys", async () => {
-    authenticateApiKeyMock.mockResolvedValue({ type: "readonly", orgId: "org-1" });
+    authenticateApiKeyMock.mockResolvedValue({
+      type: "readonly",
+      orgId: "org-1",
+    });
 
-    const { GET } = await import("@/app/api/v1/project/update-status/[statusId]/route");
+    const { GET } = await import(
+      "@/app/api/v1/project/update-status/[statusId]/route"
+    );
     const response = await GET(
       makeNextRequest("http://localhost/api/v1/project/update-status/deploy-1"),
-      { params: Promise.resolve({ statusId: "deploy-1" }) }
+      { params: Promise.resolve({ statusId: "deploy-1" }) },
     );
 
     expect(response.status).toBe(403);
@@ -66,10 +70,12 @@ describe("GET /api/v1/project/update-status/[statusId]", () => {
       limit: vi.fn().mockResolvedValue([]),
     });
 
-    const { GET } = await import("@/app/api/v1/project/update-status/[statusId]/route");
+    const { GET } = await import(
+      "@/app/api/v1/project/update-status/[statusId]/route"
+    );
     const response = await GET(
       makeNextRequest("http://localhost/api/v1/project/update-status/deploy-1"),
-      { params: Promise.resolve({ statusId: "deploy-1" }) }
+      { params: Promise.resolve({ statusId: "deploy-1" }) },
     );
 
     expect(response.status).toBe(404);
@@ -77,13 +83,17 @@ describe("GET /api/v1/project/update-status/[statusId]", () => {
 
   it("returns 404 when the project belongs to another org", async () => {
     authenticateApiKeyMock.mockResolvedValue({ type: "admin", orgId: "org-1" });
-    
+
     const deploymentLookup = {
       from: vi.fn().mockReturnThis(),
       where: vi.fn().mockReturnThis(),
-      limit: vi.fn().mockResolvedValue([{ id: "deploy-1", projectId: "proj-1", status: "queued" }]),
+      limit: vi
+        .fn()
+        .mockResolvedValue([
+          { id: "deploy-1", projectId: "proj-1", status: "queued" },
+        ]),
     };
-    
+
     const projectLookup = {
       from: vi.fn().mockReturnThis(),
       where: vi.fn().mockReturnThis(),
@@ -94,10 +104,12 @@ describe("GET /api/v1/project/update-status/[statusId]", () => {
       .mockReturnValueOnce(deploymentLookup)
       .mockReturnValueOnce(projectLookup);
 
-    const { GET } = await import("@/app/api/v1/project/update-status/[statusId]/route");
+    const { GET } = await import(
+      "@/app/api/v1/project/update-status/[statusId]/route"
+    );
     const response = await GET(
       makeNextRequest("http://localhost/api/v1/project/update-status/deploy-1"),
-      { params: Promise.resolve({ statusId: "deploy-1" }) }
+      { params: Promise.resolve({ statusId: "deploy-1" }) },
     );
 
     expect(response.status).toBe(404);
@@ -105,23 +117,25 @@ describe("GET /api/v1/project/update-status/[statusId]", () => {
 
   it("returns deployment status for authorized admin", async () => {
     authenticateApiKeyMock.mockResolvedValue({ type: "admin", orgId: "org-1" });
-    
+
     const now = new Date();
     const deploymentLookup = {
       from: vi.fn().mockReturnThis(),
       where: vi.fn().mockReturnThis(),
-      limit: vi.fn().mockResolvedValue([{ 
-        id: "deploy-1", 
-        projectId: "proj-1", 
-        status: "queued",
-        commitSha: "abc",
-        commitMessage: "feat: test",
-        createdAt: now,
-        startedAt: null,
-        endedAt: null
-      }]),
+      limit: vi.fn().mockResolvedValue([
+        {
+          id: "deploy-1",
+          projectId: "proj-1",
+          status: "queued",
+          commitSha: "abc",
+          commitMessage: "feat: test",
+          createdAt: now,
+          startedAt: null,
+          endedAt: null,
+        },
+      ]),
     };
-    
+
     const projectLookup = {
       from: vi.fn().mockReturnThis(),
       where: vi.fn().mockReturnThis(),
@@ -132,10 +146,12 @@ describe("GET /api/v1/project/update-status/[statusId]", () => {
       .mockReturnValueOnce(deploymentLookup)
       .mockReturnValueOnce(projectLookup);
 
-    const { GET } = await import("@/app/api/v1/project/update-status/[statusId]/route");
+    const { GET } = await import(
+      "@/app/api/v1/project/update-status/[statusId]/route"
+    );
     const response = await GET(
       makeNextRequest("http://localhost/api/v1/project/update-status/deploy-1"),
-      { params: Promise.resolve({ statusId: "deploy-1" }) }
+      { params: Promise.resolve({ statusId: "deploy-1" }) },
     );
 
     expect(response.status).toBe(200);
@@ -144,7 +160,7 @@ describe("GET /api/v1/project/update-status/[statusId]", () => {
       statusId: "deploy-1",
       status: "queued",
       executionMode: "manual",
-      executionHandoff: "manual_followup_required"
+      executionHandoff: "manual_followup_required",
     });
   });
 });

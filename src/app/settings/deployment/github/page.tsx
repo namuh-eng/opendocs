@@ -22,7 +22,10 @@ export default async function GitHubAppSettingsPage() {
   const orgId = membership[0].orgId;
 
   const [connections, orgProjects] = await Promise.all([
-    db.select().from(githubConnections).where(eq(githubConnections.orgId, orgId)),
+    db
+      .select()
+      .from(githubConnections)
+      .where(eq(githubConnections.orgId, orgId)),
     db
       .select({
         repoUrl: projects.repoUrl,

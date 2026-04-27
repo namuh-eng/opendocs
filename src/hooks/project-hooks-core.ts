@@ -7,9 +7,8 @@ export function selectActiveProject<T extends { id: string }>(params: {
   }
 
   return (
-    params.projects.find(
-      (project) => project.id === params.activeProjectId,
-    ) ?? params.projects[0]
+    params.projects.find((project) => project.id === params.activeProjectId) ??
+    params.projects[0]
   );
 }
 

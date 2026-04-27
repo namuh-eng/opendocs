@@ -8,19 +8,22 @@ import {
   organizations,
   projects,
 } from "@/lib/db/schema";
-import { createRequestId, logger } from "@/lib/logger";
-import {
-  generateSubdomain,
-  slugifyProject,
-  validateCreateProjectRequest,
-} from "@/lib/projects";
 import {
   getGitHubImportAccessMessage,
   listConnectedGitHubRepos,
   resolveGitHubImportAccessForRepoUrl,
 } from "@/lib/github-import";
-import { buildGitHubSourceSelection, mergeProjectSettingsWithGitHubSource } from "@/lib/github-source";
+import {
+  buildGitHubSourceSelection,
+  mergeProjectSettingsWithGitHubSource,
+} from "@/lib/github-source";
+import { createRequestId, logger } from "@/lib/logger";
 import { attachResolvedGitHubSource } from "@/lib/project-response";
+import {
+  generateSubdomain,
+  slugifyProject,
+  validateCreateProjectRequest,
+} from "@/lib/projects";
 import { and, eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
@@ -225,7 +228,8 @@ export async function POST(request: Request) {
 
     githubSourceSelection = buildGitHubSourceSelection({
       repoUrl: validation.repoUrl,
-      installationId: matchedRepo?.installationId ?? validation.githubInstallationId,
+      installationId:
+        matchedRepo?.installationId ?? validation.githubInstallationId,
       repoBranch: matchedRepo?.branch ?? "main",
       repoPath: "/",
     });
@@ -318,4 +322,3 @@ export async function POST(request: Request) {
     },
   );
 }
-

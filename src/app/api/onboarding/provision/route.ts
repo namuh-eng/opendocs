@@ -1,13 +1,19 @@
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { orgMemberships, pages, projects } from "@/lib/db/schema";
-import { createRequestId, logger } from "@/lib/logger";
-import { importGitHubDocs, importPublicGitHubDocs } from "@/lib/github-docs-import";
-import { getGitHubImportAccessMessage, resolveGitHubImportAccessForProject } from "@/lib/github-import";
 import {
-  buildGitHubInstallationAuthHeaders,
+  importGitHubDocs,
+  importPublicGitHubDocs,
+} from "@/lib/github-docs-import";
+import {
+  getGitHubImportAccessMessage,
+  resolveGitHubImportAccessForProject,
+} from "@/lib/github-import";
+import {
   GitHubInstallationAuthNotConfiguredError,
+  buildGitHubInstallationAuthHeaders,
 } from "@/lib/github-installation-auth";
+import { createRequestId, logger } from "@/lib/logger";
 import { and, eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
@@ -34,7 +40,10 @@ export async function POST(request: Request) {
 
   const { projectId } = body;
   if (!projectId) {
-    return NextResponse.json({ error: "projectId is required" }, { status: 400 });
+    return NextResponse.json(
+      { error: "projectId is required" },
+      { status: 400 },
+    );
   }
 
   // Verify project belongs to user's org
@@ -58,7 +67,9 @@ export async function POST(request: Request) {
       settings: projects.settings,
     })
     .from(projects)
-    .where(and(eq(projects.id, projectId), eq(projects.orgId, membership[0].orgId)))
+    .where(
+      and(eq(projects.id, projectId), eq(projects.orgId, membership[0].orgId)),
+    )
     .limit(1);
 
   if (projectRows.length === 0) {
@@ -73,7 +84,10 @@ export async function POST(request: Request) {
     .limit(1);
 
   if (existingPages.length > 0) {
-    return NextResponse.json({ error: "Project already has content" }, { status: 409 });
+    return NextResponse.json(
+      { error: "Project already has content" },
+      { status: 409 },
+    );
   }
 
   const importAccess = await resolveGitHubImportAccessForProject({
@@ -145,14 +159,16 @@ export async function POST(request: Request) {
           projectId,
           path: "introduction",
           title: "Introduction",
-          content: "# Introduction\n\nWelcome to your new documentation site! This page was automatically generated during onboarding.",
+          content:
+            "# Introduction\n\nWelcome to your new documentation site! This page was automatically generated during onboarding.",
           isPublished: true,
         },
         {
           projectId,
           path: "quickstart",
           title: "Quickstart",
-          content: "# Quickstart\n\nGet up and running in minutes with our quickstart guide.",
+          content:
+            "# Quickstart\n\nGet up and running in minutes with our quickstart guide.",
           isPublished: true,
         },
       ]);
@@ -169,22 +185,27 @@ export async function POST(request: Request) {
         projectId,
         path: "introduction",
         title: "Introduction",
-        content: "# Introduction\n\nWelcome to your new documentation site! This page was automatically generated during onboarding.",
+        content:
+          "# Introduction\n\nWelcome to your new documentation site! This page was automatically generated during onboarding.",
         isPublished: true,
       },
       {
         projectId,
         path: "quickstart",
         title: "Quickstart",
-        content: "# Quickstart\n\nGet up and running in minutes with our quickstart guide.",
+        content:
+          "# Quickstart\n\nGet up and running in minutes with our quickstart guide.",
         isPublished: true,
-      }
+      },
     ]);
 
     if (importAccess.status === "private_connected") {
       const installationId =
-        (projectRows[0].settings?.githubSource as { installationId?: string } | undefined)
-          ?.installationId ?? null;
+        (
+          projectRows[0].settings?.githubSource as
+            | { installationId?: string }
+            | undefined
+        )?.installationId ?? null;
 
       if (!installationId) {
         provisioning = {

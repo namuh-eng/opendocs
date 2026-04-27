@@ -379,9 +379,12 @@ export function DashboardHomeClient({
         .then((data) => {
           if (data.topPages) {
             const views: Record<string, number> = {};
-            data.topPages.forEach((p: any) => {
-              views[p.pagePath] = p.views;
-            });
+            for (const page of data.topPages as Array<{
+              pagePath: string;
+              views: number;
+            }>) {
+              views[page.pagePath] = page.views;
+            }
             setPageViews(views);
           }
         });
@@ -1128,7 +1131,9 @@ export function DashboardHomeClient({
                 {/* Pages List */}
                 {publishedPages.length > 0 && (
                   <div className="mt-8">
-                    <h3 className="text-sm font-medium text-white mb-4">Pages</h3>
+                    <h3 className="text-sm font-medium text-white mb-4">
+                      Pages
+                    </h3>
                     <div className="rounded-xl border border-white/[0.08] overflow-hidden">
                       <div className="grid grid-cols-[1fr_120px_100px] gap-4 px-6 py-3 bg-[#0f0f0f] text-xs font-medium text-gray-500 uppercase tracking-wider">
                         <span>Title</span>
@@ -1150,7 +1155,13 @@ export function DashboardHomeClient({
                               </div>
                             </div>
                             <div className="text-sm text-gray-400 tabular-nums">
-                              {(pageViews[page.path === "introduction" ? "/" : `/${page.path}`] || 0).toLocaleString()}
+                              {(
+                                pageViews[
+                                  page.path === "introduction"
+                                    ? "/"
+                                    : `/${page.path}`
+                                ] || 0
+                              ).toLocaleString()}
                             </div>
                             <div className="flex justify-end gap-2">
                               <Link
@@ -1161,7 +1172,15 @@ export function DashboardHomeClient({
                                 <Edit3 size={14} />
                               </Link>
                               <a
-                                href={buildSiteUrl(project.subdomain, project.customDomain) + (page.path === "introduction" ? "" : `/${page.path}`)}
+                                href={
+                                  buildSiteUrl(
+                                    project.subdomain,
+                                    project.customDomain,
+                                  ) +
+                                  (page.path === "introduction"
+                                    ? ""
+                                    : `/${page.path}`)
+                                }
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="p-1 text-gray-500 hover:text-emerald-400 transition-colors"

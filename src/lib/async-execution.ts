@@ -143,8 +143,8 @@ function buildDeploymentSimulationPlan(
             .limit(1);
 
           if (project) {
-            // Determine the branch to sync: 
-            // if it's a preview deployment, use the deployment's branch; 
+            // Determine the branch to sync:
+            // if it's a preview deployment, use the deployment's branch;
             // otherwise use the project's default branch.
             const [deployment] = await db
               .select({ type: deployments.type, branch: deployments.branch })

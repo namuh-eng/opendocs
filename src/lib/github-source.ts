@@ -50,7 +50,8 @@ export function readGitHubSourceFromSettings(
     typeof source.repoFullName !== "string" ||
     typeof source.owner !== "string" ||
     typeof source.repo !== "string" ||
-    (source.sourceType !== "connected_repo" && source.sourceType !== "public_repo")
+    (source.sourceType !== "connected_repo" &&
+      source.sourceType !== "public_repo")
   ) {
     return null;
   }
@@ -100,7 +101,7 @@ export function mergeProjectSettingsWithGitHubSource(
   if (selection) {
     next.githubSource = selection;
   } else {
-    delete next.githubSource;
+    next.githubSource = undefined;
   }
 
   return next;

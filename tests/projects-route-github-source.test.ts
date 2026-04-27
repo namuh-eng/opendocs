@@ -36,9 +36,7 @@ describe("project routes expose githubSource", () => {
         from: vi.fn().mockReturnThis(),
         innerJoin: vi.fn().mockReturnThis(),
         where: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockResolvedValue([
-          { orgId: "org-1", orgSlug: "acme" },
-        ]),
+        limit: vi.fn().mockResolvedValue([{ orgId: "org-1", orgSlug: "acme" }]),
       })
       .mockReturnValueOnce({
         from: vi.fn().mockReturnThis(),
@@ -126,9 +124,12 @@ describe("project routes expose githubSource", () => {
       });
 
     const { GET } = await import("@/app/api/projects/[id]/route");
-    const response = await GET(new Request("http://localhost/api/projects/project-1"), {
-      params: Promise.resolve({ id: "project-1" }),
-    });
+    const response = await GET(
+      new Request("http://localhost/api/projects/project-1"),
+      {
+        params: Promise.resolve({ id: "project-1" }),
+      },
+    );
     const data = await response.json();
 
     expect(response.status).toBe(200);

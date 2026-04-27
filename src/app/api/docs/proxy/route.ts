@@ -144,7 +144,10 @@ export async function POST(req: Request): Promise<NextResponse> {
       requestId,
       route: "/api/docs/proxy",
       method: "POST",
-      error: err instanceof Error ? { message: err.message, stack: err.stack } : String(err),
+      error:
+        err instanceof Error
+          ? { message: err.message, stack: err.stack }
+          : String(err),
     });
     return NextResponse.json(
       {

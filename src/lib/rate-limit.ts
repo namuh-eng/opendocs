@@ -43,7 +43,10 @@ export function applyRateLimit(options: {
       limit: options.limit,
       remaining: 0,
       resetAt: existing.resetAt,
-      retryAfterSeconds: Math.max(1, Math.ceil((existing.resetAt - now) / 1000)),
+      retryAfterSeconds: Math.max(
+        1,
+        Math.ceil((existing.resetAt - now) / 1000),
+      ),
     };
   }
 

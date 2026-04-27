@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { describe, expect, it, vi } from "vitest";
 
 const getSessionCookieMock = vi.fn();
@@ -20,7 +20,9 @@ describe("Middleware", () => {
   it("redirects unauthenticated users to login for protected routes", async () => {
     getSessionCookieMock.mockReturnValue(null);
     const { middleware } = await import("@/middleware");
-    const response = await middleware(makeNextRequest("http://localhost/dashboard"));
+    const response = await middleware(
+      makeNextRequest("http://localhost/dashboard"),
+    );
 
     expect(response?.status).toBe(307);
     expect(response?.headers.get("location")).toContain("/login");
@@ -29,7 +31,9 @@ describe("Middleware", () => {
   it("adds Server-Timing header for performance monitoring", async () => {
     getSessionCookieMock.mockReturnValue({ session: { id: "session-1" } });
     const { middleware } = await import("@/middleware");
-    const response = await middleware(makeNextRequest("http://localhost/dashboard"));
+    const response = await middleware(
+      makeNextRequest("http://localhost/dashboard"),
+    );
 
     expect(response?.headers.get("Server-Timing")).toContain("middleware;dur=");
   });

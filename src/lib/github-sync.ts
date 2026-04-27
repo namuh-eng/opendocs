@@ -111,7 +111,10 @@ export async function syncProjectDocsFromGitHub(params: {
       await tx
         .delete(pages)
         .where(
-          and(eq(pages.projectId, projectId), inArray(pages.id, pageIdsToDelete)),
+          and(
+            eq(pages.projectId, projectId),
+            inArray(pages.id, pageIdsToDelete),
+          ),
         );
     }
 
@@ -146,7 +149,6 @@ export async function syncProjectDocsFromGitHub(params: {
       }
     }
   });
-
 
   logger.info("sync_docs_completed", {
     requestId,

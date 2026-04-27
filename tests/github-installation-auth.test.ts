@@ -8,7 +8,9 @@ describe("github installation auth seam", () => {
   });
 
   it("throws a specific not-configured error by default", async () => {
+    // biome-ignore lint/performance/noDelete: tests must remove the env var rather than assign the string "undefined"
     delete process.env.GITHUB_APP_ID;
+    // biome-ignore lint/performance/noDelete: tests must remove the env var rather than assign the string "undefined"
     delete process.env.GITHUB_APP_PRIVATE_KEY;
 
     const {

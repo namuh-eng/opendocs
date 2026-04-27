@@ -1,5 +1,7 @@
 "use client";
 
+import { useActiveProject } from "@/hooks/use-active-project";
+import { useProjectUpdater } from "@/hooks/use-project-updater";
 import {
   type AddonsSettings,
   type CiCheckValue,
@@ -17,8 +19,6 @@ import {
   Type,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { useActiveProject } from "@/hooks/use-active-project";
-import { useProjectUpdater } from "@/hooks/use-project-updater";
 import { useEffect, useState } from "react";
 
 interface ProjectData {

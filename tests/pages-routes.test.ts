@@ -157,7 +157,9 @@ describe("page routes permissions and contracts", () => {
     );
 
     expect(response.status).toBe(403);
-    await expect(response.json()).resolves.toEqual({ error: "No organization" });
+    await expect(response.json()).resolves.toEqual({
+      error: "No organization",
+    });
   });
 
   it("returns 404 for page list when project is outside the org", async () => {
@@ -172,7 +174,9 @@ describe("page routes permissions and contracts", () => {
     );
 
     expect(response.status).toBe(404);
-    await expect(response.json()).resolves.toEqual({ error: "Project not found" });
+    await expect(response.json()).resolves.toEqual({
+      error: "Project not found",
+    });
   });
 
   it("rejects page creation for viewers", async () => {

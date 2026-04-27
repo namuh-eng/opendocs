@@ -1,8 +1,8 @@
 "use client";
 
 import {
-  ConnectedRepoSelect,
   type ConnectedRepoOption,
+  ConnectedRepoSelect,
 } from "@/components/github/connected-repo-select";
 import { validateOrgName } from "@/lib/orgs";
 import {
@@ -130,7 +130,10 @@ export default function OnboardingPage() {
     ])
       .then(([orgData, projectData, connectionData]) => {
         const repos = (connectionData.connections ?? []).flatMap(
-          (connection: { installationId: string; repos?: ConnectedRepoOption[] }) =>
+          (connection: {
+            installationId: string;
+            repos?: ConnectedRepoOption[];
+          }) =>
             (connection.repos ?? []).map((repo) => ({
               ...repo,
               installationId: connection.installationId,
@@ -139,7 +142,9 @@ export default function OnboardingPage() {
         setConnectedRepos(repos);
 
         const existingOrg = orgData.orgs?.[0];
-        const existingProject = projectData.projects?.[0] as ExistingProject | undefined;
+        const existingProject = projectData.projects?.[0] as
+          | ExistingProject
+          | undefined;
 
         if (existingOrg && existingProject) {
           clearOnboardingState();
@@ -234,7 +239,8 @@ export default function OnboardingPage() {
   const selectedRepo = useMemo(
     () =>
       connectedRepos.find(
-        (repo) => repo.fullName.toLowerCase() === selectedRepoFullName.toLowerCase(),
+        (repo) =>
+          repo.fullName.toLowerCase() === selectedRepoFullName.toLowerCase(),
       ) ?? null,
     [connectedRepos, selectedRepoFullName],
   );
@@ -343,7 +349,9 @@ export default function OnboardingPage() {
         setProjectError(
           provisionData?.error || "Failed to provision initial content",
         );
-        if (provisionData?.githubImportAccess?.status === "repo_not_connected") {
+        if (
+          provisionData?.githubImportAccess?.status === "repo_not_connected"
+        ) {
           setStep(1);
           setRepoHint(
             "GitHub connection is required before importing docs from that repository.",

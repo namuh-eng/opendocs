@@ -154,13 +154,13 @@ export async function PATCH(request: Request) {
 
 /**
  * DELETE /api/users/profile
- * 
+ *
  * Permanently deletes the authenticated user's account and all associated data.
  */
 export async function DELETE() {
   const requestId = createRequestId();
   const session = await auth.api.getSession({ headers: await headers() });
-  
+
   if (!session) {
     logger.warn("user_delete_unauthorized", { requestId });
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

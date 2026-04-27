@@ -17,23 +17,15 @@
     "flowId": "org-create",
     "area": "org-management",
     "status": "partial",
-    "evidence": [
-      "tests/orgs.test.ts",
-      "src/app/api/orgs/route.ts"
-    ],
-    "risks": [
-      "Needs explicit mutation-edge-case and auditability review."
-    ],
+    "evidence": ["tests/orgs.test.ts", "src/app/api/orgs/route.ts"],
+    "risks": ["Needs explicit mutation-edge-case and auditability review."],
     "requiredVerifier": "feature-review"
   },
   {
     "flowId": "org-delete",
     "area": "org-management",
     "status": "partial",
-    "evidence": [
-      "tests/danger-zone.test.ts",
-      "src/app/api/orgs/[id]/route.ts"
-    ],
+    "evidence": ["tests/danger-zone.test.ts", "src/app/api/orgs/[id]/route.ts"],
     "risks": [
       "Needs stronger serviceability and admin audit trail validation."
     ],
@@ -62,9 +54,7 @@
       "tests/e2e/deployments.spec.ts",
       "tests/e2e/preview-deployments.spec.ts"
     ],
-    "risks": [
-      "Lifecycle realism is limited by simulated completion behavior."
-    ],
+    "risks": ["Lifecycle realism is limited by simulated completion behavior."],
     "requiredVerifier": "architecture-review"
   },
   {
@@ -76,9 +66,7 @@
       "src/app/api/projects/[id]/pages/route.ts",
       "src/app/api/projects/[id]/pages/[pageId]/route.ts"
     ],
-    "risks": [
-      "Needs explicit route-level contract and security review."
-    ],
+    "risks": ["Needs explicit route-level contract and security review."],
     "requiredVerifier": "unit-and-e2e"
   },
   {
@@ -91,9 +79,7 @@
       "tests/e2e/docs-topbar.spec.ts",
       "tests/e2e/docs-toc.spec.ts"
     ],
-    "risks": [
-      "Still needs deployed-environment serviceability confidence."
-    ],
+    "risks": ["Still needs deployed-environment serviceability confidence."],
     "requiredVerifier": "unit-and-e2e"
   },
   {
@@ -104,22 +90,15 @@
       "tests/uploads-presign-route.test.ts",
       "tests/e2e/uploads-api.spec.ts"
     ],
-    "risks": [
-      "Still lacks explicit abuse controls and rate limiting."
-    ],
+    "risks": ["Still lacks explicit abuse controls and rate limiting."],
     "requiredVerifier": "security-review"
   },
   {
     "flowId": "api-keys-crud",
     "area": "api-keys",
     "status": "covered",
-    "evidence": [
-      "tests/api-keys.test.ts",
-      "tests/e2e/api-keys.spec.ts"
-    ],
-    "risks": [
-      "Needs stronger abuse and operational guardrails."
-    ],
+    "evidence": ["tests/api-keys.test.ts", "tests/e2e/api-keys.spec.ts"],
+    "risks": ["Needs stronger abuse and operational guardrails."],
     "requiredVerifier": "security-review"
   },
   {
@@ -143,9 +122,7 @@
       "src/app/api/github-connections/route.ts",
       "adjacent webhook coverage exists"
     ],
-    "risks": [
-      "Needs direct functional and security verification."
-    ],
+    "risks": ["Needs direct functional and security verification."],
     "requiredVerifier": "unit-and-e2e"
   },
   {
@@ -156,9 +133,7 @@
       "tests/assistant-settings.test.ts",
       "tests/e2e/assistant-settings.spec.ts"
     ],
-    "risks": [
-      "Needs stable contract discipline as settings surfaces evolve."
-    ],
+    "risks": ["Needs stable contract discipline as settings surfaces evolve."],
     "requiredVerifier": "unit-and-e2e"
   },
   {
@@ -169,9 +144,7 @@
       "tests/agent-settings.test.ts",
       "tests/e2e/agent-settings.spec.ts"
     ],
-    "risks": [
-      "Needs production plan-gating and runtime realism validation."
-    ],
+    "risks": ["Needs production plan-gating and runtime realism validation."],
     "requiredVerifier": "unit-and-e2e"
   },
   {
@@ -197,19 +170,14 @@
       "tests/e2e/workflows.spec.ts",
       "src/app/api/workflows/route.ts"
     ],
-    "risks": [
-      "CRUD is covered better than operational execution realism."
-    ],
+    "risks": ["CRUD is covered better than operational execution realism."],
     "requiredVerifier": "architecture-review"
   },
   {
     "flowId": "member-management",
     "area": "members",
     "status": "covered",
-    "evidence": [
-      "tests/members.test.ts",
-      "tests/e2e/members.spec.ts"
-    ],
+    "evidence": ["tests/members.test.ts", "tests/e2e/members.spec.ts"],
     "risks": [
       "Needs admin audit log capability for stronger production posture."
     ],
@@ -250,9 +218,7 @@
       "tests/api-playground.test.ts",
       "src/app/api/docs/proxy/route.ts"
     ],
-    "risks": [
-      "Needs deeper SSRF, timeout, and abuse-oriented verification."
-    ],
+    "risks": ["Needs deeper SSRF, timeout, and abuse-oriented verification."],
     "requiredVerifier": "security-review"
   },
   {
@@ -273,10 +239,7 @@
     "flowId": "health-endpoint",
     "area": "operations",
     "status": "covered",
-    "evidence": [
-      "tests/e2e/health.spec.ts",
-      "src/app/api/health/route.ts"
-    ],
+    "evidence": ["tests/e2e/health.spec.ts", "src/app/api/health/route.ts"],
     "risks": [
       "Current health model is still shallow for true production readiness."
     ],

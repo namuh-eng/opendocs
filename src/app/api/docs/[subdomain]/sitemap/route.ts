@@ -40,7 +40,9 @@ export async function GET(
   const sitemapEntries = publishedPages
     .map((page) => {
       const url = `${APP_URL}/docs/${subdomain}/${page.path === "introduction" ? "" : page.path}`;
-      const lastMod = page.updatedAt ? page.updatedAt.toISOString().split("T")[0] : new Date().toISOString().split("T")[0];
+      const lastMod = page.updatedAt
+        ? page.updatedAt.toISOString().split("T")[0]
+        : new Date().toISOString().split("T")[0];
       return `
   <url>
     <loc>${url}</loc>
