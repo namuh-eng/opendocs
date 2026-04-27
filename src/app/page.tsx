@@ -4,14 +4,12 @@ const links = [
   {
     href: "/login",
     label: "Log in",
-    style:
-      "border border-white/10 bg-white/5 text-white hover:bg-white/10",
+    style: "border border-white/10 bg-white/5 text-white hover:bg-white/10",
   },
   {
     href: "/onboarding",
     label: "Start onboarding",
-    style:
-      "bg-emerald-500 text-black hover:bg-emerald-400",
+    style: "bg-emerald-500 text-black hover:bg-emerald-400",
   },
   {
     href: "/dashboard",
@@ -55,7 +53,9 @@ export default function Home() {
 
         <div className="mt-16 grid gap-4 md:grid-cols-3">
           <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-            <h2 className="text-sm font-medium text-white">Docs and API publishing</h2>
+            <h2 className="text-sm font-medium text-white">
+              Docs and API publishing
+            </h2>
             <p className="mt-2 text-sm leading-6 text-white/65">
               Author MDX docs, generate API references, and publish a docs site
               with navigation, search, and structured content blocks.
@@ -63,7 +63,9 @@ export default function Home() {
           </section>
 
           <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-            <h2 className="text-sm font-medium text-white">Deployment workflow</h2>
+            <h2 className="text-sm font-medium text-white">
+              Deployment workflow
+            </h2>
             <p className="mt-2 text-sm leading-6 text-white/65">
               Track production and preview deployments, inspect branches, and
               manage documentation changes from a single dashboard.
@@ -71,7 +73,9 @@ export default function Home() {
           </section>
 
           <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-            <h2 className="text-sm font-medium text-white">AI-native team ops</h2>
+            <h2 className="text-sm font-medium text-white">
+              AI-native team ops
+            </h2>
             <p className="mt-2 text-sm leading-6 text-white/65">
               Layer in assistant experiences, analytics, collaboration, and
               operational settings without leaving the product surface.

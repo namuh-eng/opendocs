@@ -75,7 +75,9 @@ describe("/api/projects/[id]/openapi-spec", () => {
     });
 
     expect(response.status).toBe(403);
-    await expect(response.json()).resolves.toEqual({ error: "No organization" });
+    await expect(response.json()).resolves.toEqual({
+      error: "No organization",
+    });
   });
 
   it("GET returns the stored spec and spec URL", async () => {
@@ -93,7 +95,10 @@ describe("/api/projects/[id]/openapi-spec", () => {
         limit: vi.fn().mockResolvedValue([
           {
             settings: {
-              openApiSpec: { openapi: "3.1.0", info: { title: "API", version: "1.0.0" } },
+              openApiSpec: {
+                openapi: "3.1.0",
+                info: { title: "API", version: "1.0.0" },
+              },
               openApiSpecUrl: "https://example.com/openapi.json",
             },
           },
@@ -120,7 +125,9 @@ describe("/api/projects/[id]/openapi-spec", () => {
     const response = await POST(
       makeRequest("http://localhost:3000", {
         method: "POST",
-        body: { spec: { openapi: "3.1.0", info: { title: "API", version: "1.0.0" } } },
+        body: {
+          spec: { openapi: "3.1.0", info: { title: "API", version: "1.0.0" } },
+        },
       }),
       { params: Promise.resolve({ id: "project-1" }) },
     );
@@ -197,7 +204,9 @@ describe("/api/projects/[id]/openapi-spec", () => {
       { params: Promise.resolve({ id: "project-1" }) },
     );
 
-    expect(fetchSpecFromUrlMock).toHaveBeenCalledWith("https://example.com/openapi.json");
+    expect(fetchSpecFromUrlMock).toHaveBeenCalledWith(
+      "https://example.com/openapi.json",
+    );
     expect(response.status).toBe(400);
     await expect(response.json()).resolves.toEqual({
       error: "Invalid spec: must be OpenAPI 3.x, Swagger 2.x, or AsyncAPI",
@@ -234,7 +243,9 @@ describe("/api/projects/[id]/openapi-spec", () => {
     );
 
     expect(response.status).toBe(404);
-    await expect(response.json()).resolves.toEqual({ error: "Project not found" });
+    await expect(response.json()).resolves.toEqual({
+      error: "Project not found",
+    });
   });
 
   it("POST stores a valid inline spec in project settings", async () => {

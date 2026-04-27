@@ -8,7 +8,7 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3015";
 
 /**
  * GET /robots.txt
- * 
+ *
  * Dynamically generates a robots.txt file that refers to sitemaps for all docs sites.
  */
 export default async function robots(): Promise<MetadataRoute.Robots> {
@@ -16,8 +16,9 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
     .select({ subdomain: projects.subdomain })
     .from(projects);
 
-  const sitemaps = allProjects
-    .map((p) => `${APP_URL}/api/docs/${p.subdomain}/sitemap`);
+  const sitemaps = allProjects.map(
+    (p) => `${APP_URL}/api/docs/${p.subdomain}/sitemap`,
+  );
 
   return {
     rules: {

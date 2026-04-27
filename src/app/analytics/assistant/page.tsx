@@ -149,7 +149,9 @@ function AssistantContent() {
     parseDateParam(searchParams.get("from")) ?? defaultRange.from;
   const dateTo = parseDateParam(searchParams.get("to")) ?? defaultRange.to;
 
-  const { project, loading: projectLoading } = useActiveProject<{ id: string }>();
+  const { project, loading: projectLoading } = useActiveProject<{
+    id: string;
+  }>();
   const projectId = project?.id ?? null;
   const [categories, setCategories] = useState<AssistantCategory[]>([]);
   const [chatHistory, setChatHistory] = useState<ChatHistoryEntry[]>([]);

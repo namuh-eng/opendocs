@@ -1,10 +1,7 @@
 import type { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-function makeNextRequest(
-  url: string,
-  init: RequestInit = {},
-): NextRequest {
+function makeNextRequest(url: string, init: RequestInit = {}): NextRequest {
   const request = new Request(url, init) as NextRequest;
   Object.defineProperty(request, "nextUrl", {
     value: new URL(url),
@@ -45,10 +42,12 @@ describe("POST /api/v1/project/update/[projectId]", () => {
   });
 
   it("returns 400 for invalid project ID format", async () => {
-    const { POST } = await import("@/app/api/v1/project/update/[projectId]/route");
+    const { POST } = await import(
+      "@/app/api/v1/project/update/[projectId]/route"
+    );
     const response = await POST(
       makeNextRequest("http://localhost/api/v1/project/update/not-a-uuid"),
-      { params: Promise.resolve({ projectId: "not-a-uuid" }) }
+      { params: Promise.resolve({ projectId: "not-a-uuid" }) },
     );
 
     expect(response.status).toBe(400);
@@ -60,10 +59,18 @@ describe("POST /api/v1/project/update/[projectId]", () => {
   it("returns 401 when unauthenticated", async () => {
     authenticateApiKeyMock.mockResolvedValue(null);
 
-    const { POST } = await import("@/app/api/v1/project/update/[projectId]/route");
+    const { POST } = await import(
+      "@/app/api/v1/project/update/[projectId]/route"
+    );
     const response = await POST(
-      makeNextRequest("http://localhost/api/v1/project/update/550e8400-e29b-41d4-a716-446655440000"),
-      { params: Promise.resolve({ projectId: "550e8400-e29b-41d4-a716-446655440000" }) }
+      makeNextRequest(
+        "http://localhost/api/v1/project/update/550e8400-e29b-41d4-a716-446655440000",
+      ),
+      {
+        params: Promise.resolve({
+          projectId: "550e8400-e29b-41d4-a716-446655440000",
+        }),
+      },
     );
 
     expect(response.status).toBe(401);
@@ -80,10 +87,18 @@ describe("POST /api/v1/project/update/[projectId]", () => {
       limit: vi.fn().mockResolvedValue([]),
     });
 
-    const { POST } = await import("@/app/api/v1/project/update/[projectId]/route");
+    const { POST } = await import(
+      "@/app/api/v1/project/update/[projectId]/route"
+    );
     const response = await POST(
-      makeNextRequest("http://localhost/api/v1/project/update/550e8400-e29b-41d4-a716-446655440000"),
-      { params: Promise.resolve({ projectId: "550e8400-e29b-41d4-a716-446655440000" }) }
+      makeNextRequest(
+        "http://localhost/api/v1/project/update/550e8400-e29b-41d4-a716-446655440000",
+      ),
+      {
+        params: Promise.resolve({
+          projectId: "550e8400-e29b-41d4-a716-446655440000",
+        }),
+      },
     );
 
     expect(response.status).toBe(404);
@@ -92,20 +107,24 @@ describe("POST /api/v1/project/update/[projectId]", () => {
   it("triggers a deployment and returns manual handoff metadata", async () => {
     const projectId = "550e8400-e29b-41d4-a716-446655440000";
     authenticateApiKeyMock.mockResolvedValue({ type: "admin", orgId: "org-1" });
-    
+
     selectMock.mockReturnValue({
       from: vi.fn().mockReturnThis(),
       where: vi.fn().mockReturnThis(),
       limit: vi.fn().mockResolvedValue([{ id: projectId, orgId: "org-1" }]),
     });
 
-    const deploymentInsertReturning = vi.fn().mockResolvedValue([
-      { id: "deploy-1", projectId, status: "queued" }
-    ]);
+    const deploymentInsertReturning = vi
+      .fn()
+      .mockResolvedValue([{ id: "deploy-1", projectId, status: "queued" }]);
     const auditInsertValues = vi.fn().mockResolvedValue(undefined);
 
     insertMock
-      .mockReturnValueOnce({ values: vi.fn().mockReturnValue({ returning: deploymentInsertReturning }) })
+      .mockReturnValueOnce({
+        values: vi
+          .fn()
+          .mockReturnValue({ returning: deploymentInsertReturning }),
+      })
       .mockReturnValueOnce({ values: auditInsertValues });
 
     enqueueDeploymentMock.mockResolvedValue({
@@ -113,10 +132,12 @@ describe("POST /api/v1/project/update/[projectId]", () => {
       handoff: "manual_followup_required",
     });
 
-    const { POST } = await import("@/app/api/v1/project/update/[projectId]/route");
+    const { POST } = await import(
+      "@/app/api/v1/project/update/[projectId]/route"
+    );
     const response = await POST(
       makeNextRequest(`http://localhost/api/v1/project/update/${projectId}`),
-      { params: Promise.resolve({ projectId }) }
+      { params: Promise.resolve({ projectId }) },
     );
 
     expect(response.status).toBe(201);
@@ -128,9 +149,11 @@ describe("POST /api/v1/project/update/[projectId]", () => {
       executionHandoff: "manual_followup_required",
     });
     expect(enqueueDeploymentMock).toHaveBeenCalledWith("deploy-1", projectId);
-    expect(auditInsertValues).toHaveBeenCalledWith(expect.objectContaining({
-      orgId: "org-1",
-      action: "api_v1_deployment_manual_handoff_required",
-    }));
+    expect(auditInsertValues).toHaveBeenCalledWith(
+      expect.objectContaining({
+        orgId: "org-1",
+        action: "api_v1_deployment_manual_handoff_required",
+      }),
+    );
   });
 });

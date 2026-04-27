@@ -95,7 +95,8 @@ describe("github-import helpers", () => {
       }),
     ).resolves.toMatchObject({
       status: "repo_not_connected",
-      message: "Connect GitHub and select this repository before importing docs",
+      message:
+        "Connect GitHub and select this repository before importing docs",
     });
   });
 

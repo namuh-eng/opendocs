@@ -40,7 +40,7 @@ function normalizeBasePath(repoPath?: string | null): string {
 
 function toPagePath(filePath: string, basePath: string): string | null {
   const normalized = filePath.replace(/\\/g, "/").replace(/^\/+/, "");
-  
+
   let relative: string | null = null;
   if (!basePath) {
     relative = normalized;
@@ -95,7 +95,7 @@ function toTitle(markdown: string, fallbackPath: string): string {
     // HTML H1 (common in READMEs)
     const htmlMatch = line.match(/<h1[^>]*>(.*?)<\/h1>/i);
     if (htmlMatch) {
-       return htmlMatch[1].replace(/<[^>]*>/g, "").trim();
+      return htmlMatch[1].replace(/<[^>]*>/g, "").trim();
     }
   }
 
@@ -177,7 +177,8 @@ export async function importGitHubDocs(
     return {
       ok: false,
       status: "no_markdown_found",
-      message: "No markdown files were found in the selected GitHub repository path",
+      message:
+        "No markdown files were found in the selected GitHub repository path",
     };
   }
 
@@ -205,15 +206,16 @@ export async function importGitHubDocs(
     }),
   );
 
-  const importedPages = pages.filter(
-    (page): page is ImportedGitHubDocPage => Boolean(page),
+  const importedPages = pages.filter((page): page is ImportedGitHubDocPage =>
+    Boolean(page),
   );
 
   if (importedPages.length === 0) {
     return {
       ok: false,
       status: "no_markdown_found",
-      message: "No markdown files were found in the selected GitHub repository path",
+      message:
+        "No markdown files were found in the selected GitHub repository path",
     };
   }
 
@@ -247,13 +249,13 @@ export async function importGitHubDocs(
         let fullPath = fileDir ? `${fileDir}/${cleanPath}` : cleanPath;
         fullPath = fullPath.replace(/^\.\//, "");
         while (fullPath.includes("/../")) {
-           fullPath = fullPath.replace(/[^\/]+\/\.\.\//, "");
+          fullPath = fullPath.replace(/[^\/]+\/\.\.\//, "");
         }
         fullPath = fullPath.replace(/^\.\//, "").replace(/^\.\..?\//, "");
-        
+
         // Handle images in docs/ folder when the markdown file is in docs/ already
         if (fileDir === "docs" && cleanPath.startsWith("docs/")) {
-           fullPath = cleanPath;
+          fullPath = cleanPath;
         }
 
         return `![${alt}](${rawBase}/${fullPath.replace(/\/+/g, "/")}${titlePart})`;
@@ -269,7 +271,7 @@ export async function importGitHubDocs(
         let fullPath = fileDir ? `${fileDir}/${cleanPath}` : cleanPath;
         fullPath = fullPath.replace(/^\.\//, "");
         while (fullPath.includes("/../")) {
-           fullPath = fullPath.replace(/[^\/]+\/\.\.\//, "");
+          fullPath = fullPath.replace(/[^\/]+\/\.\.\//, "");
         }
         fullPath = fullPath.replace(/^\.\//, "").replace(/^\.\..?\//, "");
         const normalized = fullPath.replace(/\/+/g, "/");
@@ -281,9 +283,13 @@ export async function importGitHubDocs(
           targetPagePath = toPagePath(`${normalized}/README.md`, basePath);
         }
 
-        if (targetPagePath && importedPages.some((p) => p.path === targetPagePath)) {
+        if (
+          targetPagePath &&
+          importedPages.some((p) => p.path === targetPagePath)
+        ) {
           // If the link target is actually in our imported set, rewrite to doc-relative path.
-          const currentPathParts = page.path === "introduction" ? [] : page.path.split("/");
+          const currentPathParts =
+            page.path === "introduction" ? [] : page.path.split("/");
           let prefix = "";
           if (currentPathParts.length === 0) {
             // Root intro page to other pages

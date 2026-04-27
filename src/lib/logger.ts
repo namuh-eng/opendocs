@@ -1,7 +1,11 @@
 type LogLevel = "debug" | "info" | "warn" | "error";
 
 type LogPrimitive = string | number | boolean | null | undefined;
-type LogValue = LogPrimitive | LogPrimitive[] | Record<string, unknown> | unknown[];
+type LogValue =
+  | LogPrimitive
+  | LogPrimitive[]
+  | Record<string, unknown>
+  | unknown[];
 
 export type LogContext = Record<string, LogValue> & {
   requestId?: string;

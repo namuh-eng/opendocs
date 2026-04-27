@@ -8,12 +8,14 @@ export function McpPageClient({ projectSlug }: { projectSlug: string }) {
   const mcpUrl = getMcpServerUrl(projectSlug);
   const tools = getMcpTools(projectSlug);
   const [copied, setCopied] = useState(false);
-  const [searches, setSearches] = useState<any[]>([]);
+  const [searches, setSearches] = useState<
+    Array<{ query: string; createdAt: string }>
+  >([]);
   const [loadingAnalytics, setLoadingAnalytics] = useState(true);
 
   const fetchAnalytics = useCallback(async () => {
     try {
-      const res = await fetch(`/api/analytics/searches?trafficSource=agent`);
+      const res = await fetch("/api/analytics/searches?trafficSource=agent");
       if (res.ok) {
         const data = await res.json();
         setSearches(data.entries?.slice(0, 5) ?? []);
@@ -145,8 +147,11 @@ export function McpPageClient({ projectSlug }: { projectSlug: string }) {
         ) : searches.length > 0 ? (
           <div className="rounded-lg border border-zinc-700 bg-zinc-800/20 overflow-hidden">
             <div className="divide-y divide-zinc-700/50">
-              {searches.map((s, i) => (
-                <div key={i} className="px-4 py-3 text-sm flex items-center justify-between">
+              {searches.map((s) => (
+                <div
+                  key={`${s.createdAt}:${s.query}`}
+                  className="px-4 py-3 text-sm flex items-center justify-between"
+                >
                   <span className="text-zinc-300 truncate max-w-[400px] font-mono text-xs">
                     {s.query}
                   </span>
@@ -159,7 +164,9 @@ export function McpPageClient({ projectSlug }: { projectSlug: string }) {
           </div>
         ) : (
           <div className="rounded-lg border border-dashed border-zinc-700 p-8 text-center bg-zinc-800/10">
-            <p className="text-sm text-zinc-500">No recent MCP activity recorded</p>
+            <p className="text-sm text-zinc-500">
+              No recent MCP activity recorded
+            </p>
           </div>
         )}
       </section>

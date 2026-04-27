@@ -49,43 +49,69 @@ describe("Org Lifecycle Routes", () => {
     it("returns 401 when unauthenticated", async () => {
       getSessionMock.mockResolvedValue(null);
       const { POST } = await import("@/app/api/orgs/route");
-      const response = await POST(makeNextRequest("http://localhost/api/orgs", {
-        method: "POST",
-        body: JSON.stringify({ name: "New Org" })
-      }));
+      const response = await POST(
+        makeNextRequest("http://localhost/api/orgs", {
+          method: "POST",
+          body: JSON.stringify({ name: "New Org" }),
+        }),
+      );
       expect(response.status).toBe(401);
     });
 
     it("creates a new org and membership within a transaction", async () => {
-      getSessionMock.mockResolvedValue({ user: { id: "user-1", name: "User 1" } });
-      
+      getSessionMock.mockResolvedValue({
+        user: { id: "user-1", name: "User 1" },
+      });
+
       const mockTx = {
         execute: executeMock.mockResolvedValue(undefined),
         select: vi.fn(),
         insert: vi.fn(),
       };
-      
+
       transactionMock.mockImplementation(async (callback) => {
         return await callback(mockTx);
       });
 
       // No existing membership
-      mockTx.select.mockReturnValueOnce({ from: vi.fn().mockReturnThis(), where: vi.fn().mockReturnThis(), limit: vi.fn().mockResolvedValue([]) });
+      mockTx.select.mockReturnValueOnce({
+        from: vi.fn().mockReturnThis(),
+        where: vi.fn().mockReturnThis(),
+        limit: vi.fn().mockResolvedValue([]),
+      });
       // No existing slug
-      mockTx.select.mockReturnValueOnce({ from: vi.fn().mockReturnThis(), where: vi.fn().mockReturnThis(), limit: vi.fn().mockResolvedValue([]) });
-      
-      const insertOrgReturning = vi.fn().mockResolvedValue([{ id: "org-1", name: "New Org" }]);
-      const insertMembershipReturning = vi.fn().mockResolvedValue([{ orgId: "org-1", userId: "user-1", role: "admin" }]);
+      mockTx.select.mockReturnValueOnce({
+        from: vi.fn().mockReturnThis(),
+        where: vi.fn().mockReturnThis(),
+        limit: vi.fn().mockResolvedValue([]),
+      });
+
+      const insertOrgReturning = vi
+        .fn()
+        .mockResolvedValue([{ id: "org-1", name: "New Org" }]);
+      const insertMembershipReturning = vi
+        .fn()
+        .mockResolvedValue([
+          { orgId: "org-1", userId: "user-1", role: "admin" },
+        ]);
 
       mockTx.insert
-        .mockReturnValueOnce({ values: vi.fn().mockReturnValue({ returning: insertOrgReturning }) })
-        .mockReturnValueOnce({ values: vi.fn().mockReturnValue({ returning: insertMembershipReturning }) });
+        .mockReturnValueOnce({
+          values: vi.fn().mockReturnValue({ returning: insertOrgReturning }),
+        })
+        .mockReturnValueOnce({
+          values: vi
+            .fn()
+            .mockReturnValue({ returning: insertMembershipReturning }),
+        });
 
       const { POST } = await import("@/app/api/orgs/route");
-      const response = await POST(makeNextRequest("http://localhost/api/orgs", {
-        method: "POST",
-        body: JSON.stringify({ name: "New Org" })
-      }));
+      const response = await POST(
+        makeNextRequest("http://localhost/api/orgs", {
+          method: "POST",
+          body: JSON.stringify({ name: "New Org" }),
+        }),
+      );
 
       expect(response.status).toBe(201);
       const data = await response.json();
@@ -97,7 +123,7 @@ describe("Org Lifecycle Routes", () => {
   describe("DELETE /api/orgs/[id]", () => {
     it("returns 403 for non-admin members", async () => {
       getSessionMock.mockResolvedValue({ user: { id: "user-1" } });
-      
+
       selectMock.mockReturnValue({
         from: vi.fn().mockReturnThis(),
         where: vi.fn().mockReturnThis(),
@@ -105,10 +131,13 @@ describe("Org Lifecycle Routes", () => {
       });
 
       const { DELETE } = await import("@/app/api/orgs/[id]/route");
-      const response = await DELETE(makeNextRequest("http://localhost/api/orgs/org-1", {
-        method: "DELETE",
-        body: JSON.stringify({ reason: "Testing" })
-      }), { params: Promise.resolve({ id: "org-1" }) });
+      const response = await DELETE(
+        makeNextRequest("http://localhost/api/orgs/org-1", {
+          method: "DELETE",
+          body: JSON.stringify({ reason: "Testing" }),
+        }),
+        { params: Promise.resolve({ id: "org-1" }) },
+      );
 
       expect(response.status).toBe(403);
     });

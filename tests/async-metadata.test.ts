@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import { resolveExecutionMetadata } from "@/lib/async-metadata";
+import { describe, expect, it } from "vitest";
 
 describe("resolveExecutionMetadata", () => {
   it("defaults to manual follow-up when simulation is not enabled", () => {

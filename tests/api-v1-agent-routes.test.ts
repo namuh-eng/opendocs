@@ -1,10 +1,7 @@
 import type { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-function makeNextRequest(
-  url: string,
-  init: RequestInit = {},
-): NextRequest {
+function makeNextRequest(url: string, init: RequestInit = {}): NextRequest {
   const request = new Request(url, init) as NextRequest;
   Object.defineProperty(request, "nextUrl", {
     value: new URL(url),
@@ -74,7 +71,9 @@ describe("POST /api/v1/agent/create-job", () => {
     const projectLookupChain = {
       from: vi.fn().mockReturnThis(),
       where: vi.fn().mockReturnThis(),
-      limit: vi.fn().mockResolvedValue([{ id: "550e8400-e29b-41d4-a716-446655440000" }]),
+      limit: vi
+        .fn()
+        .mockResolvedValue([{ id: "550e8400-e29b-41d4-a716-446655440000" }]),
     };
 
     const insertJobReturning = vi.fn().mockResolvedValue([
@@ -97,7 +96,9 @@ describe("POST /api/v1/agent/create-job", () => {
     ]);
 
     const auditInsertValues = vi.fn().mockResolvedValue(undefined);
-    const jobInsertValues = vi.fn().mockReturnValue({ returning: insertJobReturning });
+    const jobInsertValues = vi
+      .fn()
+      .mockReturnValue({ returning: insertJobReturning });
 
     insertMock
       .mockReturnValueOnce({ values: jobInsertValues })

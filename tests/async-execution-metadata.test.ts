@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it } from "vitest";
 
 describe("async execution metadata helpers", () => {
   afterEach(() => {
+    // biome-ignore lint/performance/noDelete: tests must remove the env var rather than assign the string "undefined"
     delete process.env.ENABLE_ASYNC_SIMULATION;
   });
 
@@ -51,10 +52,8 @@ describe("async execution metadata helpers", () => {
 
   it("marks all states as simulated when async simulation is enabled", async () => {
     process.env.ENABLE_ASYNC_SIMULATION = "true";
-    const {
-      getDeploymentExecutionMetadata,
-      getAgentJobExecutionMetadata,
-    } = await import("@/lib/async-execution");
+    const { getDeploymentExecutionMetadata, getAgentJobExecutionMetadata } =
+      await import("@/lib/async-execution");
 
     expect(getDeploymentExecutionMetadata("queued")).toEqual({
       simulated: true,

@@ -43,7 +43,7 @@ describe("GET /api/admin/audit-logs", () => {
 
     const { GET } = await import("@/app/api/admin/audit-logs/route");
     const response = await GET(
-      makeNextRequest("http://localhost/api/admin/audit-logs")
+      makeNextRequest("http://localhost/api/admin/audit-logs"),
     );
 
     expect(response.status).toBe(401);
@@ -62,11 +62,13 @@ describe("GET /api/admin/audit-logs", () => {
 
     const { GET } = await import("@/app/api/admin/audit-logs/route");
     const response = await GET(
-      makeNextRequest("http://localhost/api/admin/audit-logs")
+      makeNextRequest("http://localhost/api/admin/audit-logs"),
     );
 
     expect(response.status).toBe(403);
-    await expect(response.json()).resolves.toEqual({ error: "Admin role required" });
+    await expect(response.json()).resolves.toEqual({
+      error: "Admin role required",
+    });
   });
 
   it("returns recent logs for the current org for admins", async () => {
@@ -84,7 +86,11 @@ describe("GET /api/admin/audit-logs", () => {
       where: vi.fn().mockReturnThis(),
       orderBy: vi.fn().mockReturnThis(),
       limit: vi.fn().mockResolvedValue([
-        { id: "log-1", action: "project_created", createdAt: new Date("2026-04-23T01:00:00Z") }
+        {
+          id: "log-1",
+          action: "project_created",
+          createdAt: new Date("2026-04-23T01:00:00Z"),
+        },
       ]),
     };
 
@@ -94,7 +100,7 @@ describe("GET /api/admin/audit-logs", () => {
 
     const { GET } = await import("@/app/api/admin/audit-logs/route");
     const response = await GET(
-      makeNextRequest("http://localhost/api/admin/audit-logs?limit=10")
+      makeNextRequest("http://localhost/api/admin/audit-logs?limit=10"),
     );
 
     expect(response.status).toBe(200);

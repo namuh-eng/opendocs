@@ -102,7 +102,9 @@ export async function getGitHubInstallationAccessToken(
   };
 
   if (!data.token) {
-    throw new Error("GitHub installation access token response did not include a token");
+    throw new Error(
+      "GitHub installation access token response did not include a token",
+    );
   }
 
   return {

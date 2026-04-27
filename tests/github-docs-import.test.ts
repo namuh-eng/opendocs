@@ -281,11 +281,11 @@ describe("importPublicGitHubDocs", () => {
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.pages[0].content).toContain(
-        "![Dashboard](https://raw.githubusercontent.com/acme/docs/main/docs/assets/dashboard.png \"Optional Title\")",
+        '![Dashboard](https://raw.githubusercontent.com/acme/docs/main/docs/assets/dashboard.png "Optional Title")',
       );
       // Fallback to GitHub URL because docs/guide.md is not in the imported pages list for this test
       expect(result.pages[0].content).toContain(
-        "[Guide](https://github.com/acme/docs/blob/main/docs/guide.md \"Another Title\")",
+        '[Guide](https://github.com/acme/docs/blob/main/docs/guide.md "Another Title")',
       );
     }
   });
@@ -340,7 +340,7 @@ describe("importPublicGitHubDocs", () => {
       }
       return {
         ok: true,
-        text: async () => `![Dashboard](docs/assets/dashboard.png)`,
+        text: async () => "![Dashboard](docs/assets/dashboard.png)",
       };
     });
 

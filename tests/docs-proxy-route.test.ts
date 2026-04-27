@@ -1,7 +1,10 @@
 import type { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-function makeRequest(body: Record<string, unknown>, headers?: HeadersInit): NextRequest {
+function makeRequest(
+  body: Record<string, unknown>,
+  headers?: HeadersInit,
+): NextRequest {
   return new Request("http://localhost:3000/api/docs/proxy", {
     method: "POST",
     headers: {
@@ -118,7 +121,7 @@ describe("POST /api/docs/proxy", () => {
 
   it("strips host/origin/referer headers when forwarding requests", async () => {
     fetchMock.mockResolvedValue(
-      new Response("{\"ok\":true}", {
+      new Response('{"ok":true}', {
         status: 200,
         headers: {
           "content-type": "application/json",

@@ -6,6 +6,7 @@ import { mdxSnippets } from "@/lib/editor";
 import * as Popover from "@radix-ui/react-popover";
 import { clsx } from "clsx";
 import {
+  BarChart3,
   Bold,
   ChevronDown,
   Code2,
@@ -22,7 +23,6 @@ import {
   Search,
   Settings,
   Undo2,
-  BarChart3,
 } from "lucide-react";
 import { useState } from "react";
 

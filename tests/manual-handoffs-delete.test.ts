@@ -1,7 +1,11 @@
 import type { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-function makeNextRequest(url: string, method = "GET", body?: any): NextRequest {
+function makeNextRequest(
+  url: string,
+  method = "GET",
+  body?: unknown,
+): NextRequest {
   const request = new Request(url, {
     method,
     body: body ? JSON.stringify(body) : undefined,
@@ -50,10 +54,15 @@ describe("DELETE /api/analytics/manual-handoffs/[id]", () => {
     headersMock.mockResolvedValue(new Headers());
     getSessionMock.mockResolvedValue(null);
 
-    const { DELETE } = await import("@/app/api/analytics/manual-handoffs/[id]/route");
+    const { DELETE } = await import(
+      "@/app/api/analytics/manual-handoffs/[id]/route"
+    );
     const response = await DELETE(
-      makeNextRequest("http://localhost:3000/api/analytics/manual-handoffs/handoff-1", "DELETE"),
-      { params: Promise.resolve({ id: "handoff-1" }) }
+      makeNextRequest(
+        "http://localhost:3000/api/analytics/manual-handoffs/handoff-1",
+        "DELETE",
+      ),
+      { params: Promise.resolve({ id: "handoff-1" }) },
     );
 
     expect(response.status).toBe(401);
@@ -69,14 +78,21 @@ describe("DELETE /api/analytics/manual-handoffs/[id]", () => {
       limit: limitMock.mockResolvedValue([{ orgId: "org-1", role: "editor" }]),
     });
 
-    const { DELETE } = await import("@/app/api/analytics/manual-handoffs/[id]/route");
+    const { DELETE } = await import(
+      "@/app/api/analytics/manual-handoffs/[id]/route"
+    );
     const response = await DELETE(
-      makeNextRequest("http://localhost:3000/api/analytics/manual-handoffs/handoff-1", "DELETE"),
-      { params: Promise.resolve({ id: "handoff-1" }) }
+      makeNextRequest(
+        "http://localhost:3000/api/analytics/manual-handoffs/handoff-1",
+        "DELETE",
+      ),
+      { params: Promise.resolve({ id: "handoff-1" }) },
     );
 
     expect(response.status).toBe(403);
-    await expect(response.json()).resolves.toEqual({ error: "Forbidden - Admin required" });
+    await expect(response.json()).resolves.toEqual({
+      error: "Forbidden - Admin required",
+    });
   });
 
   it("returns 404 when handoff record does not exist or user doesn't have access", async () => {
@@ -94,10 +110,15 @@ describe("DELETE /api/analytics/manual-handoffs/[id]", () => {
       returning: returningMock.mockResolvedValue([]),
     });
 
-    const { DELETE } = await import("@/app/api/analytics/manual-handoffs/[id]/route");
+    const { DELETE } = await import(
+      "@/app/api/analytics/manual-handoffs/[id]/route"
+    );
     const response = await DELETE(
-      makeNextRequest("http://localhost:3000/api/analytics/manual-handoffs/handoff-1", "DELETE"),
-      { params: Promise.resolve({ id: "handoff-1" }) }
+      makeNextRequest(
+        "http://localhost:3000/api/analytics/manual-handoffs/handoff-1",
+        "DELETE",
+      ),
+      { params: Promise.resolve({ id: "handoff-1" }) },
     );
 
     expect(response.status).toBe(404);
@@ -118,13 +139,21 @@ describe("DELETE /api/analytics/manual-handoffs/[id]", () => {
       returning: returningMock.mockResolvedValue([{ id: "handoff-1" }]),
     });
 
-    const { DELETE } = await import("@/app/api/analytics/manual-handoffs/[id]/route");
+    const { DELETE } = await import(
+      "@/app/api/analytics/manual-handoffs/[id]/route"
+    );
     const response = await DELETE(
-      makeNextRequest("http://localhost:3000/api/analytics/manual-handoffs/handoff-1", "DELETE"),
-      { params: Promise.resolve({ id: "handoff-1" }) }
+      makeNextRequest(
+        "http://localhost:3000/api/analytics/manual-handoffs/handoff-1",
+        "DELETE",
+      ),
+      { params: Promise.resolve({ id: "handoff-1" }) },
     );
 
     expect(response.status).toBe(200);
-    await expect(response.json()).resolves.toEqual({ ok: true, deletedId: "handoff-1" });
+    await expect(response.json()).resolves.toEqual({
+      ok: true,
+      deletedId: "handoff-1",
+    });
   });
 });

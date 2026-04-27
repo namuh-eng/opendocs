@@ -188,7 +188,10 @@ export async function POST(request: NextRequest) {
       requestId,
       route: "/api/uploads/presign",
       method: "POST",
-      error: error instanceof Error ? { message: error.message, stack: error.stack } : String(error),
+      error:
+        error instanceof Error
+          ? { message: error.message, stack: error.stack }
+          : String(error),
     });
     return NextResponse.json(
       { error: "Failed to generate presigned URL" },
@@ -287,7 +290,10 @@ export async function GET(request: NextRequest) {
       requestId,
       route: "/api/uploads/presign",
       method: "GET",
-      error: error instanceof Error ? { message: error.message, stack: error.stack } : String(error),
+      error:
+        error instanceof Error
+          ? { message: error.message, stack: error.stack }
+          : String(error),
     });
     return NextResponse.json(
       { error: "Failed to generate download URL" },

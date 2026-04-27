@@ -2,10 +2,7 @@
 
 import { useActiveProject } from "@/hooks/use-active-project";
 import { useProjectUpdater } from "@/hooks/use-project-updater";
-import {
-  buildZipDownloadUrl,
-  getRepoDisplayName,
-} from "@/lib/git-settings";
+import { buildZipDownloadUrl, getRepoDisplayName } from "@/lib/git-settings";
 import type { VcsProvider } from "@/lib/git-settings";
 import { useEffect, useState } from "react";
 
@@ -89,7 +86,11 @@ export default function GitSettingsPage() {
   const handleDownloadZip = () => {
     if (!githubSource) return;
 
-    const url = buildZipDownloadUrl(githubSource.owner, githubSource.repo, branch);
+    const url = buildZipDownloadUrl(
+      githubSource.owner,
+      githubSource.repo,
+      branch,
+    );
     window.open(url, "_blank", "noopener");
   };
 
@@ -147,7 +148,8 @@ export default function GitSettingsPage() {
     );
   }
 
-  const repoDisplay = githubSource?.repoFullName ?? getRepoDisplayName(project.repoUrl);
+  const repoDisplay =
+    githubSource?.repoFullName ?? getRepoDisplayName(project.repoUrl);
 
   return (
     <div className="p-6 max-w-2xl">
@@ -178,7 +180,8 @@ export default function GitSettingsPage() {
             </h3>
             <div className="mt-2 space-y-1 text-sm text-gray-300">
               <p>
-                <span className="text-gray-500">Repository:</span> {githubSource.repoFullName}
+                <span className="text-gray-500">Repository:</span>{" "}
+                {githubSource.repoFullName}
               </p>
               <p>
                 <span className="text-gray-500">Source type:</span>{" "}
@@ -187,10 +190,12 @@ export default function GitSettingsPage() {
                   : "Public GitHub repo"}
               </p>
               <p>
-                <span className="text-gray-500">Branch:</span> {githubSource.branch ?? branch}
+                <span className="text-gray-500">Branch:</span>{" "}
+                {githubSource.branch ?? branch}
               </p>
               <p>
-                <span className="text-gray-500">Path:</span> {githubSource.path ?? repoPath}
+                <span className="text-gray-500">Path:</span>{" "}
+                {githubSource.path ?? repoPath}
               </p>
               {githubSource.installationId && (
                 <p>
