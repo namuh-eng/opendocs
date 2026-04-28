@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { orgMemberships, organizations } from "@/lib/db/schema";
-import { and, eq, ne } from "drizzle-orm";
+import { and, eq, inArray, ne } from "drizzle-orm";
 
 interface MembershipRow {
   orgId: string;
@@ -20,10 +20,13 @@ export function findSoleAdminOrgIdsForDeletion(
     .map((membership) => membership.orgId);
 }
 
+type AccountDeletionDb = Pick<typeof db, "delete" | "select">;
+
 export async function deleteOrganizationsSolelyAdministeredByUser(
   userId: string,
+  database: AccountDeletionDb = db,
 ): Promise<string[]> {
-  const memberships = await db
+  const memberships = await database
     .select({ orgId: orgMemberships.orgId, role: orgMemberships.role })
     .from(orgMemberships)
     .where(eq(orgMemberships.userId, userId));
@@ -36,7 +39,7 @@ export async function deleteOrganizationsSolelyAdministeredByUser(
 
   await Promise.all(
     memberships.map(async ({ orgId }) => {
-      const otherMembers = await db
+      const otherMembers = await database
         .select({ id: orgMemberships.id })
         .from(orgMemberships)
         .where(
@@ -58,11 +61,11 @@ export async function deleteOrganizationsSolelyAdministeredByUser(
     orgIdsWithOtherMembers,
   );
 
-  await Promise.all(
-    orgIdsToDelete.map((orgId) =>
-      db.delete(organizations).where(eq(organizations.id, orgId)),
-    ),
-  );
+  if (orgIdsToDelete.length > 0) {
+    await database
+      .delete(organizations)
+      .where(inArray(organizations.id, orgIdsToDelete));
+  }
 
   return orgIdsToDelete;
 }
