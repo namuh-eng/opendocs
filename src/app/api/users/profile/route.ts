@@ -1,3 +1,4 @@
+import { deleteOrganizationsSolelyAdministeredByUser } from "@/lib/account-deletion";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { user } from "@/lib/db/auth-schema";
@@ -169,7 +170,10 @@ export async function DELETE() {
   const userId = session.user.id;
 
   try {
-    // Delete the user record from the 'user' table (Better Auth)
+    const deletedOrgIds =
+      await deleteOrganizationsSolelyAdministeredByUser(userId);
+
+    // Delete the user record from the 'user' table (Better Auth).
     // Cascading deletes in the schema handle memberships, prefs, sessions, accounts.
     await db.delete(user).where(eq(user.id, userId));
 
@@ -177,6 +181,7 @@ export async function DELETE() {
       requestId,
       userId,
       email: session.user.email,
+      deletedOrgCount: deletedOrgIds.length,
     });
 
     return NextResponse.json({ success: true, requestId });
