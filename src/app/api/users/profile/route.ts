@@ -170,12 +170,16 @@ export async function DELETE() {
   const userId = session.user.id;
 
   try {
-    const deletedOrgIds =
-      await deleteOrganizationsSolelyAdministeredByUser(userId);
+    const deletedOrgIds = await db.transaction(async (tx) => {
+      const deletedOrganizations =
+        await deleteOrganizationsSolelyAdministeredByUser(userId, tx);
 
-    // Delete the user record from the 'user' table (Better Auth).
-    // Cascading deletes in the schema handle memberships, prefs, sessions, accounts.
-    await db.delete(user).where(eq(user.id, userId));
+      // Delete the user record from the 'user' table (Better Auth).
+      // Cascading deletes in the schema handle memberships, prefs, sessions, accounts.
+      await tx.delete(user).where(eq(user.id, userId));
+
+      return deletedOrganizations;
+    });
 
     logger.info("user_delete_completed", {
       requestId,
