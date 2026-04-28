@@ -563,14 +563,6 @@ export function DashboardHomeClient({
                     <RefreshCw size={16} />
                   )}
                 </button>
-                <button
-                  type="button"
-                  onClick={() => router.refresh()}
-                  className="p-2 rounded-md bg-[#1a1a1a] border border-white/[0.08] text-gray-400 hover:text-white hover:bg-white/[0.06] transition-colors"
-                  title="Refresh Dashboard"
-                >
-                  <RefreshCw size={16} className="rotate-90 opacity-60" />
-                </button>
                 <a
                   href={siteUrl}
                   target="_blank"
