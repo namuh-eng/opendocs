@@ -8,7 +8,7 @@ const PROTECTED_PREFIXES = [
   "/analytics",
 ];
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const start = Date.now();
   const sessionCookie = getSessionCookie(request);
   const { pathname, search } = request.nextUrl;
@@ -28,7 +28,7 @@ export async function middleware(request: NextRequest) {
   const duration = Date.now() - start;
 
   // Set Server-Timing header for performance monitoring
-  response.headers.set("Server-Timing", `middleware;dur=${duration}`);
+  response.headers.set("Server-Timing", `proxy;dur=${duration}`);
 
   return response;
 }
