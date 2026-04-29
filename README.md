@@ -5,178 +5,277 @@
 
 **Open source Mintlify alternative — AI-native documentation platform for developer teams.**
 
-A fully functional clone of [Mintlify](https://mintlify.com) built with Next.js 16, TypeScript, and modern infrastructure. Write docs in MDX, get a beautiful docs site with AI-powered search and chat, analytics, and team collaboration — all self-hosted.
+OpenDocs is a production-grade documentation platform built with Next.js 16, TypeScript, PostgreSQL, AWS, and Better Auth. It includes a docs dashboard, MDX authoring, published docs sites, AI-powered search/chat, analytics, OpenAPI tooling, team collaboration, and a hardened production deployment path.
+
+**Live site:** https://opendocs.namuh.co
 
 ---
 
-## About
+## What OpenDocs does
 
-OpenDocs is a production-grade documentation platform that gives you the full Mintlify experience on your own infrastructure. Create organizations, manage documentation projects, write content in a dual-mode editor (visual WYSIWYG or markdown), and deploy beautiful docs sites with AI assistant, full-text search, and OpenAPI auto-documentation.
+OpenDocs gives teams the core Mintlify-style documentation workflow on infrastructure they control:
+
+- Create organizations and documentation projects.
+- Author docs in a dual-mode editor: visual WYSIWYG or Markdown/MDX.
+- Publish branded docs sites with navigation, search, SEO, versioning, i18n, and API references.
+- Configure AI assistant/search experiences powered by AWS Bedrock.
+- Track analytics for page views, visitors, searches, feedback, and assistant usage.
+- Manage project settings, authentication, domains, deployments, members, API keys, and exports.
+
+---
+
+## Current production status
+
+OpenDocs is deployed at **https://opendocs.namuh.co** on AWS ECS Fargate behind an ALB with HTTPS.
+
+Production is currently configured with:
+
+- ECS Fargate + ECR container deployment
+- PostgreSQL on AWS RDS via Drizzle ORM
+- S3-backed uploaded assets
+- Google OAuth through Better Auth
+- AWS Bedrock for AI features
+- `/api/health` production health checks
+- Strict production environment validation for public app/auth URLs
+- Docs proxy SSRF protections and an explicit `DOCS_PROXY_ALLOWED_HOSTS` allowlist
+- Scrypt-based docs password hashes with legacy compatibility
+- Signed docs access cookies that fail closed without production secrets
+- Public API redaction for sensitive docs auth settings
+- Security headers regression coverage
+
+Latest verified production deploy used staging commit `e01e6c2` and passed:
+
+- `npm run lint`
+- `npm run typecheck`
+- `npm test -- --run`
+- `npm run build`
+- `npm audit --omit=dev --json` with **0 critical / 0 high** vulnerabilities
+- `/api/health`
+- `/api/docs/proxy` deny/allow checks
+- Google OAuth smoke test redirecting through the `namuh-clones` client
 
 ---
 
 ## Features
 
 ### Dashboard
-- **Dual-Mode Editor** — Visual WYSIWYG (Tiptap/ProseMirror) and Markdown mode with syntax highlighting
-- **Configurations Panel** — Visual GUI editor for docs.json (branding, typography, navigation, 10+ sections)
-- **Deployment System** — Trigger deployments, real-time status tracking, deployment history
-- **GitHub Auto-Deploy** — Push to repo, docs auto-deploy via GitHub App webhooks
-- **Branch Previews** — Preview deployments from non-default branches
-- **Analytics Dashboard** — Page views, visitors, searches, feedback, assistant conversations
-- **Team Management** — Invite members, assign roles (admin/editor/viewer), RBAC
-- **Agent Management** — Create AI agent jobs, view PRs, send follow-up messages
-- **Assistant Settings** — Configure AI chat widget, deflection, search domains, starter questions
-- **Workflows** — 9 automation templates (changelog, translations, SEO audit, etc.)
-- **MCP Server** — Auto-generated Model Context Protocol server per project
 
-### Docs Site
-- **MDX Rendering** — 25+ components (Cards, Steps, Callouts, Tabs, Accordions, Code Groups, Mermaid diagrams, and more)
-- **AI Assistant** — Chat widget with SSE streaming via AWS Bedrock (Claude), source citations
-- **Full-Text Search** — Cmd+K search with relevance ranking, snippets, recent searches
-- **OpenAPI Auto-Docs** — Auto-generated API reference pages from OpenAPI/AsyncAPI specs
-- **API Playground** — Interactive endpoint testing with auth pre-fill
-- **Dark Mode** — Light/dark theme toggle with localStorage persistence
-- **i18n** — Multi-language support with language switcher and hreflang SEO tags
-- **Versioning** — Multi-version docs with version switcher
-- **LaTeX** — Inline and block math rendering with KaTeX
-- **SEO** — Auto-generated sitemap.xml, robots.txt, canonical URLs, meta tags
+- **Dual-mode editor** — Visual WYSIWYG powered by Tiptap/ProseMirror plus Markdown/MDX mode.
+- **Configuration UI** — Visual docs configuration for branding, typography, navigation, sections, redirects, snippets, i18n, versions, and custom CSS/JS.
+- **Deployment management** — Deployment triggers, status tracking, preview records, and deployment history.
+- **GitHub integrations** — GitHub connection routes, repository/project import helpers, and webhook handling that fails closed in production without a verified secret/signature.
+- **Branch previews** — Preview deployments for non-default branches.
+- **Analytics** — Views, visitors, searches, feedback, assistant conversations, and manual handoffs.
+- **Team management** — Organizations, memberships, invite flows, role updates, and RBAC.
+- **Project settings** — General, domain, authentication, navigation, appearance, deployment, exports, addons, and danger-zone settings.
+- **API keys** — Admin and assistant-scoped API keys with prefixed key formats.
+- **Agent/workflow surfaces** — Agent jobs, assistant messaging, workflow templates, and MCP-oriented product pages.
 
-### Developer Experience
-- **REST API** — 16+ endpoints for deployments, analytics, assistant, and agent management
-- **API Key Auth** — Admin (`mint_`) and assistant (`mint_dsc_`) prefixed keys
-- **llms.txt** — Auto-generated machine-readable documentation for LLM consumption
-- **Reusable Snippets** — Parameterized content reuse with variables
-- **URL Redirects** — Path redirects for SEO preservation
-- **Custom CSS/JS** — Inject custom stylesheets and scripts
+### Published docs sites
+
+- **MDX rendering** — Cards, Steps, Callouts, Tabs, Accordions, Code Groups, Mermaid diagrams, math, and more.
+- **Protected docs** — Optional password protection using scrypt hashes and signed access cookies.
+- **AI assistant** — Chat widget with streaming responses and source-aware retrieval.
+- **Full-text search** — Cmd+K search with snippets, ranking, and recent-search support.
+- **OpenAPI / AsyncAPI support** — Store specs, generate API docs, and render interactive playgrounds.
+- **API playground** — Interactive endpoint testing with safer attribute escaping and proxy protections.
+- **SEO** — Sitemap, robots.txt, canonical URLs, metadata, protected-docs noindex behavior, and hreflang support.
+- **i18n and versioning** — Language switcher, localized paths, version switcher, and version-aware page resolution.
+- **Theming** — Light/dark mode, custom branding, typography, CSS, and JS hooks.
+
+### Developer and platform capabilities
+
+- **REST APIs** for projects, pages, deployments, analytics, assistant flows, GitHub connections, uploads, API keys, and docs rendering.
+- **llms.txt** generation for machine-readable documentation.
+- **Project export** with sensitive authentication values redacted.
+- **Rate-limit hardening** with safer client keys.
+- **SSRF protection** for proxied docs/API playground requests, including internal/private address blocking and unsafe redirect blocking.
+- **Production deployment validation** for required env vars before rollout.
 
 ---
 
-## Quick Start
+## Quick start
 
-### Local Development
+### Local development
 
 ```bash
-# Clone the repository
 git clone https://github.com/namuh-eng/opendocs.git
 cd opendocs
-
-# Install dependencies
 npm install
-
-# Configure environment
 cp .env.example .env
-# Edit .env with your database URL, AWS credentials, and auth settings
-
-# Run database migrations
+# Edit .env with database, AWS, auth, and app URL settings.
 npm run db:push
-
-# Start the dev server (runs on http://localhost:3015)
 npm run dev
 ```
 
-### Docker (Coming Soon)
+The local dev server runs on http://localhost:3015.
 
-```bash
-git clone https://github.com/namuh-eng/opendocs.git
-cd opendocs
-docker compose up
-```
-
----
-
-## Tech Stack
-
-| Layer | Technology |
-|-------|-----------|
-| **Frontend** | Next.js 16, React 19, TypeScript |
-| **Styling** | Tailwind CSS, Radix UI |
-| **Editor** | Tiptap / ProseMirror (visual mode) |
-| **Database** | PostgreSQL (AWS RDS), Drizzle ORM |
-| **AI** | AWS Bedrock (Claude Sonnet 4) |
-| **Authentication** | Better Auth, Google OAuth |
-| **Storage** | AWS S3 (logos, media, doc assets) |
-| **Math** | KaTeX (LaTeX rendering) |
-| **Diagrams** | Mermaid (flowcharts, sequence diagrams) |
-| **Testing** | Vitest (1,500+ unit tests), Playwright (E2E) |
-| **Linting** | Biome |
-| **Deployment** | Docker, AWS ECR + ECS |
-
----
-
-## Development
-
-### Commands
+### Useful commands
 
 | Command | Description |
-|---------|-------------|
-| `npm run dev` | Start dev server on port 3015 |
-| `npm run build` | Production build |
-| `make check` | TypeScript typecheck + Biome lint |
-| `make test` | Run unit tests (Vitest) |
-| `make test-e2e` | Run E2E tests (Playwright) |
-| `make all` | check + test |
-| `npm run db:push` | Push Drizzle schema to Postgres |
+| --- | --- |
+| `npm run dev` | Start the dev server on port 3015 |
+| `npm run build` | Build the production Next.js app |
+| `npm run typecheck` | Run TypeScript checks |
+| `npm run lint` | Run Biome checks |
+| `npm run lint:fix` | Run Biome and apply safe fixes |
+| `npm test -- --run` | Run the full Vitest suite once |
+| `npm run test:e2e` | Run Playwright E2E tests |
+| `npm run db:generate` | Generate Drizzle migrations |
+| `npm run db:migrate` | Run Drizzle migrations |
+| `npm run db:push` | Push the Drizzle schema to the configured database |
 
-### Environment Variables
+---
 
-Copy `.env.example` to `.env` and configure:
+## Environment variables
+
+Copy `.env.example` to `.env` for local development. Production should provide these through the deployment environment or secrets manager.
+
+### Required core settings
 
 ```bash
-# Database
 DATABASE_URL=postgresql://user:password@host:5432/dbname
+NEXT_PUBLIC_APP_URL=http://localhost:3015
+BETTER_AUTH_URL=http://localhost:3015
+BETTER_AUTH_SECRET=your-random-secret
+```
 
-# AWS (for Bedrock AI + S3 uploads)
+In production, `NEXT_PUBLIC_APP_URL` and `BETTER_AUTH_URL` must use the live origin, for example:
+
+```bash
+NEXT_PUBLIC_APP_URL=https://opendocs.namuh.co
+BETTER_AUTH_URL=https://opendocs.namuh.co
+```
+
+### Auth and integrations
+
+```bash
+AUTH_GOOGLE_ID=your-google-oauth-client-id
+AUTH_GOOGLE_SECRET=your-google-oauth-client-secret
+GITHUB_WEBHOOK_SECRET=your-github-webhook-secret
+```
+
+Google OAuth must include this production redirect URI:
+
+```text
+https://opendocs.namuh.co/api/auth/callback/google
+```
+
+### AWS and storage
+
+```bash
 AWS_REGION=us-east-1
 AWS_BEDROCK_REGION=us-east-1
+S3_BUCKET=your-doc-assets-bucket
+```
 
-# Authentication
-AUTH_GOOGLE_ID=your-google-oauth-id
-AUTH_GOOGLE_SECRET=your-google-oauth-secret
-BETTER_AUTH_SECRET=your-random-secret
-BETTER_AUTH_URL=http://localhost:3015
+### Docs proxy allowlist
 
-# App
-NEXT_PUBLIC_APP_URL=http://localhost:3015
-DASHBOARD_KEY=your-dashboard-key
+Production docs/API playground proxying fails closed unless `DOCS_PROXY_ALLOWED_HOSTS` is configured.
+
+```bash
+DOCS_PROXY_ALLOWED_HOSTS=opendocs.namuh.co
+```
+
+Add only the public API hosts the docs playground should call, comma-separated:
+
+```bash
+DOCS_PROXY_ALLOWED_HOSTS=opendocs.namuh.co,api.yourservice.com
 ```
 
 ---
 
-## Project Structure
+## Docker and production deployment
 
+OpenDocs builds as a standalone Next.js container. The current production path is AWS ECR + ECS Fargate + ALB.
+
+The Docker build accepts production URL build args:
+
+```bash
+docker build \
+  --platform linux/amd64 \
+  --build-arg NEXT_PUBLIC_APP_URL=https://opendocs.namuh.co \
+  --build-arg BETTER_AUTH_URL=https://opendocs.namuh.co \
+  -t opendocs:local .
 ```
+
+For the current AWS production runbook, see:
+
+- [`docs/deployment/opendocs-production.md`](docs/deployment/opendocs-production.md)
+
+---
+
+## Tech stack
+
+| Layer | Technology |
+| --- | --- |
+| Frontend | Next.js 16, React 19, TypeScript |
+| Styling | Tailwind CSS, Radix UI |
+| Editor | Tiptap / ProseMirror, MDX |
+| Database | PostgreSQL, Drizzle ORM |
+| Authentication | Better Auth, Google OAuth |
+| AI | AWS Bedrock |
+| Storage | AWS S3 |
+| API docs | OpenAPI / AsyncAPI rendering and playground support |
+| Math | KaTeX |
+| Diagrams | Mermaid |
+| Testing | Vitest, Playwright |
+| Linting | Biome |
+| Deployment | Docker, AWS ECR, ECS Fargate, ALB, ACM |
+
+---
+
+## Project structure
+
+```text
 opendocs/
 ├── src/
-│   ├── app/              # Next.js App Router
-│   │   ├── (auth)/       # Login, signup pages
+│   ├── app/              # Next.js App Router pages and API routes
+│   │   ├── (auth)/       # Login and signup pages
+│   │   ├── analytics/    # Analytics dashboards
+│   │   ├── api/          # API routes
 │   │   ├── dashboard/    # Dashboard home
-│   │   ├── editor/       # Dual-mode MDX editor
-│   │   ├── analytics/    # Analytics dashboard
-│   │   ├── products/     # Agent, Assistant, Workflows, MCP
-│   │   ├── settings/     # Settings pages (12 sub-pages)
-│   │   ├── onboarding/   # Org + project setup wizard
-│   │   ├── docs/         # Public docs site renderer
-│   │   └── api/          # 60 API routes
+│   │   ├── docs/         # Published docs renderer
+│   │   ├── editor/       # Docs editor
+│   │   ├── onboarding/   # Organization/project onboarding
+│   │   ├── products/     # Agent, Assistant, Workflows, MCP pages
+│   │   └── settings/     # Workspace, org, project, deployment, and security settings
 │   ├── components/       # React components
-│   ├── lib/              # Utilities, DB client, services
-│   │   └── db/           # Drizzle ORM schema
-│   └── types/            # TypeScript types
-├── tests/                # Unit tests (Vitest)
-├── tests/e2e/            # E2E tests (Playwright)
+│   ├── lib/              # Utilities, services, auth, DB, deployment, security helpers
+│   │   └── db/           # Drizzle schema and DB client
+│   └── types/            # Shared TypeScript types
+├── tests/                # Vitest tests
+├── tests/e2e/            # Playwright tests
+├── docs/                 # Deployment and project documentation
+└── public/               # Static assets
 ```
+
+---
+
+## Security notes
+
+Recent hardening added or verified:
+
+- Production GitHub webhooks fail closed when the webhook secret/signature is missing or invalid.
+- Docs proxy blocks private/internal/metadata targets, blocks unsafe redirects, and requires an explicit production host allowlist.
+- Docs password auth stores new hashes with `scrypt:v1` and keeps legacy SHA-256/plaintext compatibility for existing settings.
+- Docs access cookies are signed and require `BETTER_AUTH_SECRET` in production.
+- Public docs APIs redact sensitive authentication settings.
+- API playground attribute rendering is escaped.
+- Security headers are covered by regression tests.
+- Tracked sensitive-path scans currently hit only `.env.example`, tests, or example placeholders, not real secrets.
 
 ---
 
 ## Contributing
 
-We welcome contributions! Whether it's bug fixes, new features, or improvements to documentation.
+We welcome contributions, including bug fixes, feature work, tests, and docs improvements.
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b my-feature`)
-3. Make your changes
-4. Run `make check && make test` to verify
-5. Open a pull request
+1. Fork the repository.
+2. Create a feature branch: `git checkout -b my-feature`.
+3. Make your changes.
+4. Run `npm run lint`, `npm run typecheck`, and `npm test -- --run`.
+5. Open a pull request.
 
 ---
 
@@ -188,7 +287,8 @@ We welcome contributions! Whether it's bug fixes, new features, or improvements 
 
 ## Support
 
-- **Issues** — Report bugs or request features on [GitHub Issues](https://github.com/namuh-eng/opendocs/issues)
+- **Live site:** https://opendocs.namuh.co
+- **Issues:** https://github.com/namuh-eng/opendocs/issues
 
 ---
 
@@ -196,6 +296,6 @@ We welcome contributions! Whether it's bug fixes, new features, or improvements 
 
 Built by [Ashley Ha](https://github.com/ashley-ha) and [Jaeyun Ha](https://github.com/jaeyunha)
 
-If you find this project helpful, consider giving it a star
+If you find this project helpful, consider giving it a star.
 
 </div>
