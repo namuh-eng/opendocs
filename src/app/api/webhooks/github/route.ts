@@ -1,4 +1,5 @@
 import { enqueueDeployment } from "@/lib/async-execution";
+import { getClientRateLimitKey } from "@/lib/client-rate-limit-key";
 import { db } from "@/lib/db";
 import {
   auditLogs,
@@ -24,12 +25,12 @@ export async function POST(request: Request) {
   const requestId = createRequestId();
   const eventType = request.headers.get("x-github-event");
   const signature = request.headers.get("x-hub-signature-256");
-  const forwardedFor = request.headers.get("x-forwarded-for") ?? "unknown";
+  const rateLimitKey = getClientRateLimitKey(request.headers, "github-webhook");
   const installationTargetId = request.headers.get(
     "x-github-hook-installation-target-id",
   );
   const rateLimit = applyRateLimit({
-    key: `github-webhook:${forwardedFor}`,
+    key: rateLimitKey,
     limit: 120,
     windowMs: 60_000,
   });
@@ -38,7 +39,7 @@ export async function POST(request: Request) {
       requestId,
       route: "/api/webhooks/github",
       method: "POST",
-      forwardedFor,
+      rateLimitKey,
       eventType: eventType ?? "unknown",
     });
     return NextResponse.json(
