@@ -1,7 +1,7 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import {
-  hashDocsPassword,
   readProjectAuthenticationSettings,
+  verifyDocsPasswordHash,
 } from "@/lib/project-authentication-settings";
 
 const COOKIE_PREFIX = "docs_access";
@@ -52,7 +52,7 @@ export async function isValidDocsPassword(
   const auth = readProjectAuthenticationSettings(settings);
   if (auth.mode !== "password") return false;
   if (auth.passwordHash) {
-    return safeEqual(auth.passwordHash, await hashDocsPassword(password));
+    return verifyDocsPasswordHash(auth.passwordHash, password);
   }
   return safeEqual(auth.password, password);
 }
