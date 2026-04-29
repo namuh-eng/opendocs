@@ -43,17 +43,27 @@ export async function POST(
     return NextResponse.redirect(url);
   }
 
-  const response = NextResponse.redirect(new URL(returnTo, request.url));
-  response.cookies.set({
-    name: getDocsAccessCookieName(subdomain),
-    value: createDocsAccessToken(
+  let accessToken: string;
+  try {
+    accessToken = createDocsAccessToken(
       subdomain,
       (
         project.settings as {
           authentication?: { passwordHash?: string; password?: string };
         }
       )?.authentication?.passwordHash || password,
-    ),
+    );
+  } catch {
+    return NextResponse.json(
+      { error: "Docs access tokens are not configured" },
+      { status: 503 },
+    );
+  }
+
+  const response = NextResponse.redirect(new URL(returnTo, request.url));
+  response.cookies.set({
+    name: getDocsAccessCookieName(subdomain),
+    value: accessToken,
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",

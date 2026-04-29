@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import {
   mergeProjectAuthenticationSettings,
@@ -105,5 +105,27 @@ describe("project authentication settings", () => {
       }),
     ).toBe(false);
     expect(isProjectPasswordProtected({ requireAuth: true })).toBe(false);
+  });
+});
+
+describe("docs access token production secret", () => {
+  it("fails closed in production when BETTER_AUTH_SECRET is missing", () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("BETTER_AUTH_SECRET", "");
+
+    try {
+      expect(() => createDocsAccessToken("docs", "secret")).toThrow(
+        "BETTER_AUTH_SECRET is required",
+      );
+      expect(
+        hasValidDocsAccess(
+          { authentication: { mode: "password", password: "secret" } },
+          "docs",
+          "forged-token",
+        ),
+      ).toBe(false);
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 });
