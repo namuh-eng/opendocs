@@ -52,7 +52,22 @@ function escapeHtml(text: string): string {
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function safeUrlAttribute(rawUrl: string): string {
+  const url = rawUrl.trim();
+  if (url.startsWith("#") || url.startsWith("/")) return escapeHtml(url);
+  try {
+    const parsed = new URL(url);
+    if (["https:", "http:", "mailto:"].includes(parsed.protocol)) {
+      return escapeHtml(url);
+    }
+  } catch {
+    // Relative URLs without a leading slash are intentionally not allowed here.
+  }
+  return "#";
 }
 
 // ── SVG Icon Map ─────────────────────────────────────────────────────────────
@@ -213,16 +228,21 @@ function applySyntaxHighlighting(code: string, lang: string): string {
 
 /** Convert inline markdown (bold, italic, code, links, images) to HTML. */
 function renderInline(text: string): string {
-  let result = text;
+  let result = escapeHtml(text);
 
   // Images first (before links since they share similar syntax)
   result = result.replace(
     /!\[([^\]]*)\]\(([^)]+)\)/g,
-    '<img src="$2" alt="$1" />',
+    (_match, alt: string, rawUrl: string) =>
+      `<img src="${safeUrlAttribute(rawUrl)}" alt="${alt}" />`,
   );
 
   // Links
-  result = result.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+  result = result.replace(
+    /\[([^\]]+)\]\(([^)]+)\)/g,
+    (_match, label: string, rawUrl: string) =>
+      `<a href="${safeUrlAttribute(rawUrl)}" rel="noopener noreferrer">${label}</a>`,
+  );
 
   // Inline code (before bold/italic to avoid conflicts)
   result = result.replace(/`([^`]+)`/g, "<code>$1</code>");

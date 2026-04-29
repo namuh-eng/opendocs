@@ -57,20 +57,37 @@ export async function POST(request: Request) {
   });
 
   const secret = process.env.GITHUB_WEBHOOK_SECRET ?? "";
+  const requiresSignature = process.env.NODE_ENV === "production" || !!secret;
 
-  if (secret) {
-    if (!verifyWebhookSignature(rawBody, signature, secret)) {
-      logger.warn("github_webhook_invalid_signature", {
-        requestId,
-        route: "/api/webhooks/github",
-        method: "POST",
-        eventType: eventType ?? "unknown",
-      });
-      return NextResponse.json(
-        { error: "Invalid webhook signature" },
-        { status: 401 },
-      );
-    }
+  if (requiresSignature && (!secret || !signature)) {
+    logger.warn("github_webhook_missing_signature_config", {
+      requestId,
+      route: "/api/webhooks/github",
+      method: "POST",
+      eventType: eventType ?? "unknown",
+      hasSecret: !!secret,
+      hasSignature: !!signature,
+    });
+    return NextResponse.json(
+      { error: "GitHub webhook signature is required" },
+      { status: 401 },
+    );
+  }
+
+  if (
+    requiresSignature &&
+    !verifyWebhookSignature(rawBody, signature, secret)
+  ) {
+    logger.warn("github_webhook_invalid_signature", {
+      requestId,
+      route: "/api/webhooks/github",
+      method: "POST",
+      eventType: eventType ?? "unknown",
+    });
+    return NextResponse.json(
+      { error: "Invalid webhook signature" },
+      { status: 401 },
+    );
   }
 
   if (eventType !== "push") {

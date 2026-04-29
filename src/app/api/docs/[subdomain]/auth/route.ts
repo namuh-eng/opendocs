@@ -37,7 +37,7 @@ export async function POST(
     return NextResponse.redirect(new URL(`/docs/${subdomain}`, request.url));
   }
 
-  if (!isValidDocsPassword(project.settings, password)) {
+  if (!(await isValidDocsPassword(project.settings, password))) {
     const url = new URL(`/docs/${subdomain}`, request.url);
     url.searchParams.set("auth", "failed");
     return NextResponse.redirect(url);
@@ -46,7 +46,14 @@ export async function POST(
   const response = NextResponse.redirect(new URL(returnTo, request.url));
   response.cookies.set({
     name: getDocsAccessCookieName(subdomain),
-    value: createDocsAccessToken(subdomain, password),
+    value: createDocsAccessToken(
+      subdomain,
+      (
+        project.settings as {
+          authentication?: { passwordHash?: string; password?: string };
+        }
+      )?.authentication?.passwordHash || password,
+    ),
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
