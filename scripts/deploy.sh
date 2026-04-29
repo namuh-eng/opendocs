@@ -25,7 +25,7 @@ echo ""
 
 # 1. Build Docker image
 echo "--- Building Docker image ---"
-PUBLIC_URL=$(grep "^NEXT_PUBLIC_APP_URL=" .env 2>/dev/null | cut -d= -f2- || echo "")
+PUBLIC_URL="${NEXT_PUBLIC_APP_URL:-https://opendocs.namuh.co}"
 docker build \
   --platform linux/amd64 \
   --build-arg NEXT_PUBLIC_APP_URL="${PUBLIC_URL}" \
