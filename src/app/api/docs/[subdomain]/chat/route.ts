@@ -17,6 +17,10 @@ import {
 import { db } from "@/lib/db";
 import { assistantConversations, pages, projects } from "@/lib/db/schema";
 import {
+  getDocsAccessCookieName,
+  hasValidDocsAccess,
+} from "@/lib/project-docs-access";
+import {
   BedrockRuntimeClient,
   ConverseStreamCommand,
 } from "@aws-sdk/client-bedrock-runtime";
@@ -34,7 +38,11 @@ export async function POST(
 
   // ── Find project by subdomain ──────────────────────────────────────────────
   const projectResult = await db
-    .select({ id: projects.id, name: projects.name })
+    .select({
+      id: projects.id,
+      name: projects.name,
+      settings: projects.settings,
+    })
     .from(projects)
     .where(eq(projects.subdomain, subdomain))
     .limit(1);
@@ -44,6 +52,18 @@ export async function POST(
   }
 
   const project = projectResult[0];
+  if (
+    !hasValidDocsAccess(
+      project.settings,
+      subdomain,
+      request.cookies.get(getDocsAccessCookieName(subdomain))?.value,
+    )
+  ) {
+    return NextResponse.json(
+      { message: "Docs password required" },
+      { status: 401 },
+    );
+  }
 
   // ── Parse body ─────────────────────────────────────────────────────────────
   let body: unknown;
