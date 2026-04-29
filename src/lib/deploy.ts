@@ -72,6 +72,7 @@ export function validateDeployConfig(config: Partial<DeployConfig>): {
       "DATABASE_URL",
       "BETTER_AUTH_SECRET",
       "BETTER_AUTH_URL",
+      "NEXT_PUBLIC_APP_URL",
     ]) {
       if (!config.envVars[key]) errors.push(`${key} is required in production`);
     }

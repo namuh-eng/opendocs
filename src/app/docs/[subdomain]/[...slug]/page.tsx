@@ -17,6 +17,7 @@ import {
 } from "@/components/docs/page-chrome";
 import { SearchModal } from "@/components/docs/search-modal";
 import { renderApiReferencePage } from "@/lib/api-reference";
+import { getPublicAppUrl } from "@/lib/app-url";
 import { db } from "@/lib/db";
 import { pages, projects } from "@/lib/db/schema";
 import { findRedirect, mergeDocsConfig } from "@/lib/docs-config";
@@ -74,7 +75,7 @@ interface DocsPageProps {
   searchParams?: Promise<{ auth?: string }>;
 }
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3015";
+const APP_URL = getPublicAppUrl();
 
 export async function generateMetadata({
   params,

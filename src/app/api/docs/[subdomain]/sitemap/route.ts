@@ -1,9 +1,10 @@
+import { getPublicAppUrl } from "@/lib/app-url";
 import { db } from "@/lib/db";
 import { pages, projects } from "@/lib/db/schema";
 import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3015";
+const APP_URL = getPublicAppUrl();
 
 /**
  * GET /api/docs/[subdomain]/sitemap
