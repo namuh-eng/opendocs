@@ -34,13 +34,13 @@ test.describe("Settings layout shell", () => {
     await expect(page.getByText("Domain Setup")).toBeVisible();
   });
 
-  test("placeholder pages render with coming soon message", async ({
+  test("exports page renders the project JSON download action", async ({
     page,
   }) => {
     await page.goto("/settings/advanced/exports");
     await expect(page.getByRole("heading", { name: "Exports" })).toBeVisible();
     await expect(
-      page.getByText("This settings page is coming soon"),
+      page.getByRole("button", { name: "Download JSON" }),
     ).toBeVisible();
   });
 
