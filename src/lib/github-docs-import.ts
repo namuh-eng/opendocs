@@ -108,6 +108,63 @@ function toTitle(markdown: string, fallbackPath: string): string {
     .join(" ");
 }
 
+function htmlAttributesToRecord(attrs: string): Record<string, string> {
+  const record: Record<string, string> = {};
+  attrs.replace(
+    /([A-Za-z_:][-A-Za-z0-9_:.]*)\s*=\s*("([^"]*)"|'([^']*)'|([^\s"'>]+))/g,
+    (_match, name, _raw, dquoted, squoted, bare) => {
+      record[name.toLowerCase()] = dquoted ?? squoted ?? bare ?? "";
+      return "";
+    },
+  );
+  return record;
+}
+
+function stripHtmlTags(value: string): string {
+  return value.replace(/<[^>]+>/g, "").trim();
+}
+
+function normalizeGitHubMarkdownContent(content: string): string {
+  let normalized = content.replace(/\r\n?/g, "\n");
+
+  normalized = normalized.replace(/<br\s*\/?\s*>/gi, "\n");
+
+  normalized = normalized.replace(
+    /<h([1-6])\b[^>]*>([\s\S]*?)<\/h\1>/gi,
+    (_match, level: string, inner: string) =>
+      `${"#".repeat(Number(level))} ${stripHtmlTags(inner)}`,
+  );
+
+  normalized = normalized.replace(
+    /<img\b([^>]*)\/?\s*>/gi,
+    (match: string, attrs: string) => {
+      const parsed = htmlAttributesToRecord(attrs);
+      if (!parsed.src) return match;
+      return `![${parsed.alt ?? ""}](${parsed.src})`;
+    },
+  );
+
+  normalized = normalized.replace(
+    /<a\b([^>]*)>([\s\S]*?)<\/a>/gi,
+    (match: string, attrs: string, inner: string) => {
+      const parsed = htmlAttributesToRecord(attrs);
+      const label = stripHtmlTags(inner);
+      if (!parsed.href || !label) return label || match;
+      return `[${label}](${parsed.href})`;
+    },
+  );
+
+  normalized = normalized.replace(/<\/?(?:p|div|span|center)\b[^>]*>/gi, "\n");
+  normalized = normalized.replace(/<!--([\s\S]*?)-->/g, "");
+
+  return normalized
+    .split("\n")
+    .map((line) => line.replace(/[ \t]+$/g, ""))
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
 const EXCLUDED_PATHS = [
   /^agents\.md$/i,
   /^claude\.md$/i,
@@ -193,7 +250,7 @@ export async function importGitHubDocs(
           `GitHub content request failed with status ${response.status} for ${filePath}`,
         );
       }
-      const content = await response.text();
+      const content = normalizeGitHubMarkdownContent(await response.text());
       const pagePath = toPagePath(filePath, basePath);
       if (!pagePath) {
         return null;
