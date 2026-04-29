@@ -33,7 +33,8 @@
       "tests/e2e/.auth",
       "drizzle",
       "*.d.ts",
-      "public"
+      "public",
+      "private"
     ]
   }
 }

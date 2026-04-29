@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { projects } from "@/lib/db/schema";
+import { isProjectPasswordProtected } from "@/lib/project-publication-auth";
 import { generateRobotsTxt } from "@/lib/seo";
 import { eq } from "drizzle-orm";
 
@@ -21,11 +22,11 @@ export async function GET(
     return new Response("Not found", { status: 404 });
   }
 
-  // If the project has auth-required settings, disallow crawling
-  const settings = (projectResult[0].settings || {}) as Record<string, unknown>;
-  const requiresAuth = settings.requireAuth === true;
-
-  const txt = generateRobotsTxt(APP_URL, subdomain, !requiresAuth);
+  const txt = generateRobotsTxt(
+    APP_URL,
+    subdomain,
+    !isProjectPasswordProtected(projectResult[0].settings),
+  );
 
   return new Response(txt, {
     headers: {
