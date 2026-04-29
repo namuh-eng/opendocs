@@ -102,6 +102,7 @@ export async function POST(req: Request): Promise<NextResponse> {
     const fetchOptions: RequestInit = {
       method,
       headers: fetchHeaders,
+      redirect: "manual",
       signal: controller.signal,
     };
 
@@ -111,6 +112,29 @@ export async function POST(req: Request): Promise<NextResponse> {
 
     const response = await fetch(parsedUrl.toString(), fetchOptions);
     clearTimeout(timeoutId);
+
+    if (response.status >= 300 && response.status < 400) {
+      const location = response.headers.get("location");
+      if (location) {
+        const redirectUrl = new URL(location, parsedUrl);
+        try {
+          await assertSafeProxyUrl(redirectUrl);
+        } catch (error) {
+          logger.warn("docs_proxy_blocked_unsafe_redirect", {
+            requestId,
+            route: "/api/docs/proxy",
+            method: "POST",
+            hostname: redirectUrl.hostname,
+            error: error instanceof Error ? error.message : "unsafe redirect",
+          });
+          return NextResponse.json(
+            { error: "Redirect target is not allowed" },
+            { status: 403, headers: buildRateLimitHeaders(rateLimit) },
+          );
+        }
+      }
+    }
+
     const responseBody = await response.text();
 
     // Collect response headers
