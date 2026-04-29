@@ -112,3 +112,34 @@ describe("auth configuration", () => {
     expect(mod.authClient.useSession).toBeDefined();
   });
 });
+
+describe("auth production origin configuration", () => {
+  it("requires BETTER_AUTH_URL in production", async () => {
+    vi.resetModules();
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("BETTER_AUTH_URL", "");
+
+    try {
+      await expect(import("@/lib/auth")).rejects.toThrow(
+        "BETTER_AUTH_URL is required in production",
+      );
+    } finally {
+      vi.unstubAllEnvs();
+      vi.resetModules();
+    }
+  });
+
+  it("keeps localhost fallback for non-production development", async () => {
+    vi.resetModules();
+    vi.stubEnv("NODE_ENV", "test");
+    vi.stubEnv("BETTER_AUTH_URL", "");
+
+    try {
+      const { getBetterAuthUrl } = await import("@/lib/auth");
+      expect(getBetterAuthUrl()).toBe("http://localhost:3015");
+    } finally {
+      vi.unstubAllEnvs();
+      vi.resetModules();
+    }
+  });
+});
