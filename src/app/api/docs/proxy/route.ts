@@ -1,5 +1,6 @@
 import { createRequestId, logger } from "@/lib/logger";
 import { applyRateLimit, buildRateLimitHeaders } from "@/lib/rate-limit";
+import { assertSafeProxyUrl } from "@/lib/ssrf-protection";
 import { NextResponse } from "next/server";
 
 /**
@@ -62,27 +63,23 @@ export async function POST(req: Request): Promise<NextResponse> {
       return NextResponse.json({ error: "Invalid URL" }, { status: 400 });
     }
 
-    // Block requests to localhost/internal IPs
-    const hostname = parsedUrl.hostname.toLowerCase();
-    if (
-      hostname === "localhost" ||
-      hostname === "127.0.0.1" ||
-      hostname === "0.0.0.0" ||
-      hostname === "::1" ||
-      hostname.startsWith("10.") ||
-      hostname.startsWith("192.168.") ||
-      hostname.startsWith("172.") ||
-      hostname.endsWith(".internal") ||
-      hostname.endsWith(".local")
-    ) {
+    try {
+      await assertSafeProxyUrl(parsedUrl);
+    } catch (error) {
       logger.warn("docs_proxy_blocked_internal_address", {
         requestId,
         route: "/api/docs/proxy",
         method: "POST",
-        hostname,
+        hostname: parsedUrl.hostname,
+        error: error instanceof Error ? error.message : "unsafe target",
       });
       return NextResponse.json(
-        { error: "Requests to internal addresses are not allowed" },
+        {
+          error:
+            error instanceof Error
+              ? error.message
+              : "Requests to this address are not allowed",
+        },
         { status: 403 },
       );
     }
@@ -111,7 +108,7 @@ export async function POST(req: Request): Promise<NextResponse> {
       fetchOptions.body = body;
     }
 
-    const response = await fetch(url, fetchOptions);
+    const response = await fetch(parsedUrl.toString(), fetchOptions);
     clearTimeout(timeoutId);
     const responseBody = await response.text();
 

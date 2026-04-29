@@ -4,6 +4,7 @@ import { useActiveProject } from "@/hooks/use-active-project";
 import { useProjectUpdater } from "@/hooks/use-project-updater";
 import {
   type ProjectAuthenticationMode,
+  hashDocsPassword,
   mergeProjectAuthenticationSettings,
   readProjectAuthenticationSettings,
   validateProjectAuthenticationSettings,
@@ -37,7 +38,7 @@ export default function AuthenticationSettingsPage() {
 
     const authentication = readProjectAuthenticationSettings(project.settings);
     setMode(authentication.mode);
-    setPassword(authentication.password);
+    setPassword("");
   }, [project]);
 
   const handleSave = async (event: React.FormEvent) => {
@@ -46,7 +47,13 @@ export default function AuthenticationSettingsPage() {
 
     setMessage(null);
 
-    const authentication = { mode, password: password.trim() };
+    const trimmedPassword = password.trim();
+    const authentication = {
+      mode,
+      password: trimmedPassword,
+      passwordHash:
+        mode === "password" ? await hashDocsPassword(trimmedPassword) : "",
+    };
     const validationError =
       validateProjectAuthenticationSettings(authentication);
     if (validationError) {

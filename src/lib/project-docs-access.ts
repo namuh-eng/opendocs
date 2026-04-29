@@ -1,5 +1,8 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { readProjectAuthenticationSettings } from "@/lib/project-authentication-settings";
+import {
+  hashDocsPassword,
+  readProjectAuthenticationSettings,
+} from "@/lib/project-authentication-settings";
 
 const COOKIE_PREFIX = "docs_access";
 
@@ -11,9 +14,9 @@ function getSigningSecret() {
   return process.env.BETTER_AUTH_SECRET || "development-docs-access-secret";
 }
 
-export function createDocsAccessToken(subdomain: string, password: string) {
+export function createDocsAccessToken(subdomain: string, credential: string) {
   return createHmac("sha256", getSigningSecret())
-    .update(`${subdomain}:${password}`)
+    .update(`${subdomain}:${credential}`)
     .digest("hex");
 }
 
@@ -29,12 +32,22 @@ export function isDocsAccessRequired(settings: ProjectSettings) {
   return readProjectAuthenticationSettings(settings).mode === "password";
 }
 
-export function isValidDocsPassword(
+function getStoredCredential(settings: ProjectSettings) {
+  const auth = readProjectAuthenticationSettings(settings);
+  if (auth.mode !== "password") return null;
+  return auth.passwordHash || auth.password || null;
+}
+
+export async function isValidDocsPassword(
   settings: ProjectSettings,
   password: string,
 ) {
   const auth = readProjectAuthenticationSettings(settings);
-  return auth.mode === "password" && safeEqual(auth.password, password);
+  if (auth.mode !== "password") return false;
+  if (auth.passwordHash) {
+    return safeEqual(auth.passwordHash, await hashDocsPassword(password));
+  }
+  return safeEqual(auth.password, password);
 }
 
 export function hasValidDocsAccess(
@@ -42,8 +55,8 @@ export function hasValidDocsAccess(
   subdomain: string,
   token: string | undefined,
 ) {
-  const auth = readProjectAuthenticationSettings(settings);
-  if (auth.mode !== "password") return true;
+  const credential = getStoredCredential(settings);
+  if (!credential) return true;
   if (!token) return false;
-  return safeEqual(token, createDocsAccessToken(subdomain, auth.password));
+  return safeEqual(token, createDocsAccessToken(subdomain, credential));
 }

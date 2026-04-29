@@ -137,4 +137,23 @@ describe("POST /api/webhooks/github", () => {
     );
     expect(updateWhereMock).toHaveBeenCalledTimes(1);
   });
+
+  it("fails closed in production when webhook secret is missing", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+
+    try {
+      const { POST } = await import("@/app/api/webhooks/github/route");
+      const response = await POST(
+        makeRequest({
+          ref: "refs/heads/main",
+          repository: { full_name: "namuh-eng/opendocs" },
+        }),
+      );
+
+      expect(response.status).toBe(401);
+      expect(selectMock).not.toHaveBeenCalled();
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
 });

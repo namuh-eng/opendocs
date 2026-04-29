@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { pages, projects } from "@/lib/db/schema";
+import { redactProjectAuthenticationSettings } from "@/lib/project-authentication-settings";
 import {
   getDocsAccessCookieName,
   hasValidDocsAccess,
@@ -70,7 +71,7 @@ export async function GET(
       id: projectData.id,
       name: projectData.name,
       subdomain: projectData.subdomain,
-      settings: projectData.settings,
+      settings: redactProjectAuthenticationSettings(projectData.settings),
     },
     pages: publishedPages,
   });

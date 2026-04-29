@@ -17,26 +17,39 @@ describe("project authentication settings", () => {
     expect(readProjectAuthenticationSettings(null)).toEqual({
       mode: "public",
       password: "",
+      passwordHash: "",
     });
   });
 
   it("reads password authentication from project settings", () => {
     expect(
       readProjectAuthenticationSettings({
-        authentication: { mode: "password", password: "secret" },
+        authentication: {
+          mode: "password",
+          password: "",
+          passwordHash: "hashed-secret",
+        },
       }),
-    ).toEqual({ mode: "password", password: "secret" });
+    ).toEqual({
+      mode: "password",
+      password: "",
+      passwordHash: "hashed-secret",
+    });
   });
 
   it("merges authentication without dropping other settings", () => {
     expect(
       mergeProjectAuthenticationSettings(
         { theme: "dark" },
-        { mode: "password", password: "secret" },
+        { mode: "password", password: "", passwordHash: "hashed-secret" },
       ),
     ).toEqual({
       theme: "dark",
-      authentication: { mode: "password", password: "secret" },
+      authentication: {
+        mode: "password",
+        password: "",
+        passwordHash: "hashed-secret",
+      },
     });
   });
 
@@ -44,10 +57,10 @@ describe("project authentication settings", () => {
     expect(
       mergeProjectAuthenticationSettings(
         { authentication: { mode: "password", password: "secret" } },
-        { mode: "public", password: "secret" },
+        { mode: "public", password: "secret", passwordHash: "" },
       ),
     ).toEqual({
-      authentication: { mode: "public", password: "" },
+      authentication: { mode: "public", password: "", passwordHash: "" },
     });
   });
 
@@ -57,12 +70,12 @@ describe("project authentication settings", () => {
     ).toBe("Password protection requires a password.");
   });
 
-  it("validates docs access passwords and cookies", () => {
+  it("validates docs access passwords and cookies", async () => {
     const settings = {
       authentication: { mode: "password", password: "secret" },
     };
-    expect(isValidDocsPassword(settings, "secret")).toBe(true);
-    expect(isValidDocsPassword(settings, "wrong")).toBe(false);
+    expect(await isValidDocsPassword(settings, "secret")).toBe(true);
+    expect(await isValidDocsPassword(settings, "wrong")).toBe(false);
     expect(hasValidDocsAccess(settings, "docs", undefined)).toBe(false);
     expect(
       hasValidDocsAccess(
@@ -88,7 +101,7 @@ describe("project authentication settings", () => {
     ).toBe(true);
     expect(
       isProjectPasswordProtected({
-        authentication: { mode: "public", password: "" },
+        authentication: { mode: "public", password: "", passwordHash: "" },
       }),
     ).toBe(false);
     expect(isProjectPasswordProtected({ requireAuth: true })).toBe(false);
