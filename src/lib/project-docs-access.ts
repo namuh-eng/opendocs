@@ -11,11 +11,18 @@ export function getDocsAccessCookieName(subdomain: string) {
 }
 
 function getSigningSecret() {
-  return process.env.BETTER_AUTH_SECRET || "development-docs-access-secret";
+  const secret = process.env.BETTER_AUTH_SECRET;
+  if (secret) return secret;
+  if (process.env.NODE_ENV === "production") return null;
+  return "development-docs-access-secret";
 }
 
 export function createDocsAccessToken(subdomain: string, credential: string) {
-  return createHmac("sha256", getSigningSecret())
+  const secret = getSigningSecret();
+  if (!secret) {
+    throw new Error("BETTER_AUTH_SECRET is required for docs access tokens");
+  }
+  return createHmac("sha256", secret)
     .update(`${subdomain}:${credential}`)
     .digest("hex");
 }
@@ -58,5 +65,9 @@ export function hasValidDocsAccess(
   const credential = getStoredCredential(settings);
   if (!credential) return true;
   if (!token) return false;
-  return safeEqual(token, createDocsAccessToken(subdomain, credential));
+  try {
+    return safeEqual(token, createDocsAccessToken(subdomain, credential));
+  } catch {
+    return false;
+  }
 }
