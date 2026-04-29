@@ -1,9 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 
 import {
+  hashDocsPassword,
   mergeProjectAuthenticationSettings,
   readProjectAuthenticationSettings,
   validateProjectAuthenticationSettings,
+  verifyDocsPasswordHash,
 } from "@/lib/project-authentication-settings";
 import {
   createDocsAccessToken,
@@ -70,9 +72,29 @@ describe("project authentication settings", () => {
     ).toBe("Password protection requires a password.");
   });
 
+  it("hashes docs passwords with scrypt and verifies them", async () => {
+    const hash = await hashDocsPassword("secret");
+
+    expect(hash).toMatch(/^scrypt:v1:[a-f0-9]{32}:[a-f0-9]{128}$/);
+    expect(await verifyDocsPasswordHash(hash, "secret")).toBe(true);
+    expect(await verifyDocsPasswordHash(hash, "wrong")).toBe(false);
+  });
+
+  it("keeps legacy SHA-256 password hashes verifiable", async () => {
+    const legacyHash =
+      "2bb80d537b1da3e38bd30361aa855686bde0eacd7162fef6a25fe97bf527a25b";
+
+    expect(await verifyDocsPasswordHash(legacyHash, "secret")).toBe(true);
+    expect(await verifyDocsPasswordHash(legacyHash, "wrong")).toBe(false);
+  });
+
   it("validates docs access passwords and cookies", async () => {
     const settings = {
-      authentication: { mode: "password", password: "secret" },
+      authentication: {
+        mode: "password",
+        password: "",
+        passwordHash: await hashDocsPassword("secret"),
+      },
     };
     expect(await isValidDocsPassword(settings, "secret")).toBe(true);
     expect(await isValidDocsPassword(settings, "wrong")).toBe(false);
@@ -81,7 +103,10 @@ describe("project authentication settings", () => {
       hasValidDocsAccess(
         settings,
         "docs",
-        createDocsAccessToken("docs", "secret"),
+        createDocsAccessToken(
+          "docs",
+          readProjectAuthenticationSettings(settings).passwordHash ?? "",
+        ),
       ),
     ).toBe(true);
     expect(

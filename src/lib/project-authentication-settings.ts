@@ -1,10 +1,17 @@
+import {
+  randomBytes,
+  scrypt as scryptCallback,
+  timingSafeEqual,
+} from "node:crypto";
+import { promisify } from "node:util";
+
 export type ProjectAuthenticationMode = "public" | "password";
 
 export interface ProjectAuthenticationSettings {
   mode: ProjectAuthenticationMode;
   /** Deprecated legacy plaintext value. Only read for backward compatibility. */
   password: string;
-  /** SHA-256 hash of the shared docs password. */
+  /** Slow password hash for the shared docs password. */
   passwordHash?: string;
 }
 
@@ -19,16 +26,51 @@ interface ProjectSettingsWithAuthentication {
   authentication?: Partial<ProjectAuthenticationSettings> | null;
 }
 
-export function isPasswordHash(value: string) {
+const scrypt = promisify(scryptCallback);
+const SCRYPT_PREFIX = "scrypt:v1";
+const SCRYPT_KEY_LENGTH = 64;
+
+export function isLegacySha256PasswordHash(value: string) {
   return /^[a-f0-9]{64}$/i.test(value);
 }
 
-export async function hashDocsPassword(password: string) {
+export function isDocsPasswordHash(value: string) {
+  return (
+    isLegacySha256PasswordHash(value) ||
+    new RegExp(`^${SCRYPT_PREFIX}:[a-f0-9]{32}:[a-f0-9]{128}$`, "i").test(value)
+  );
+}
+
+async function hashLegacySha256Password(password: string) {
   const data = new TextEncoder().encode(password);
   const digest = await crypto.subtle.digest("SHA-256", data);
   return Array.from(new Uint8Array(digest))
     .map((byte) => byte.toString(16).padStart(2, "0"))
     .join("");
+}
+
+export async function hashDocsPassword(password: string) {
+  const salt = randomBytes(16).toString("hex");
+  const key = (await scrypt(password, salt, SCRYPT_KEY_LENGTH)) as Buffer;
+  return `${SCRYPT_PREFIX}:${salt}:${key.toString("hex")}`;
+}
+
+function safeEqual(a: string, b: string) {
+  const left = Buffer.from(a, "hex");
+  const right = Buffer.from(b, "hex");
+  return left.length === right.length && timingSafeEqual(left, right);
+}
+
+export async function verifyDocsPasswordHash(hash: string, password: string) {
+  if (isLegacySha256PasswordHash(hash)) {
+    return safeEqual(hash, await hashLegacySha256Password(password));
+  }
+
+  const [prefix, version, salt, key] = hash.split(":");
+  if (`${prefix}:${version}` !== SCRYPT_PREFIX || !salt || !key) return false;
+
+  const derived = (await scrypt(password, salt, SCRYPT_KEY_LENGTH)) as Buffer;
+  return safeEqual(key, derived.toString("hex"));
 }
 
 export function readProjectAuthenticationSettings(
@@ -41,7 +83,7 @@ export function readProjectAuthenticationSettings(
   const passwordHash =
     typeof authSettings?.passwordHash === "string"
       ? authSettings.passwordHash
-      : isPasswordHash(password)
+      : isDocsPasswordHash(password)
         ? password
         : "";
 
