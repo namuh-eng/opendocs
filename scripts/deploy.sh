@@ -5,7 +5,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-APP_NAME="namuh-mintlify"
+APP_NAME="opendocs"
 AWS_REGION="${AWS_REGION:-us-east-1}"
 IMAGE_TAG="${1:-$(git rev-parse --short HEAD 2>/dev/null || echo 'latest')}"
 ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)

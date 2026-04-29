@@ -188,7 +188,7 @@ describe("/api/github-connections", () => {
           installationId: "123",
           repos: [
             {
-              fullName: "namuh-eng/namuh-mintlify",
+              fullName: "namuh-eng/opendocs",
               branch: "main",
               permissions: "admin",
             },
@@ -257,7 +257,7 @@ describe("/api/github-connections", () => {
         installationId: "123",
         repos: [
           {
-            fullName: "namuh-eng/namuh-mintlify",
+            fullName: "namuh-eng/opendocs",
             branch: "main",
             permissions: "admin",
           },
@@ -277,7 +277,7 @@ describe("/api/github-connections", () => {
           installationId: "123",
           repos: [
             {
-              fullName: "namuh-eng/namuh-mintlify",
+              fullName: "namuh-eng/opendocs",
               branch: "main",
               permissions: "admin",
             },
@@ -292,7 +292,7 @@ describe("/api/github-connections", () => {
       installationId: "123",
       repos: [
         {
-          fullName: "namuh-eng/namuh-mintlify",
+          fullName: "namuh-eng/opendocs",
           branch: "main",
           permissions: "admin",
         },
@@ -307,7 +307,7 @@ describe("/api/github-connections", () => {
         installationId: "123",
         repos: [
           {
-            fullName: "namuh-eng/namuh-mintlify",
+            fullName: "namuh-eng/opendocs",
             branch: "main",
             permissions: "admin",
           },
@@ -359,7 +359,7 @@ describe("/api/github-connections", () => {
         installationId: "123",
         repos: [
           {
-            fullName: "namuh-eng/namuh-mintlify",
+            fullName: "namuh-eng/opendocs",
             branch: "main",
             permissions: "admin",
           },
@@ -381,7 +381,7 @@ describe("/api/github-connections", () => {
           installationId: "123",
           repos: [
             {
-              fullName: "namuh-eng/namuh-mintlify",
+              fullName: "namuh-eng/opendocs",
               branch: "main",
               permissions: "admin",
             },
@@ -394,7 +394,7 @@ describe("/api/github-connections", () => {
     expect(setMock).toHaveBeenCalledWith({
       repos: [
         {
-          fullName: "namuh-eng/namuh-mintlify",
+          fullName: "namuh-eng/opendocs",
           branch: "main",
           permissions: "admin",
         },
@@ -409,7 +409,7 @@ describe("/api/github-connections", () => {
         installationId: "123",
         repos: [
           {
-            fullName: "namuh-eng/namuh-mintlify",
+            fullName: "namuh-eng/opendocs",
             branch: "main",
             permissions: "admin",
           },

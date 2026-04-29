@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Namuh Mintlify",
+  title: "OpenDocs",
   description:
     "AI-native documentation platform for teams shipping docs, APIs, and product knowledge.",
 };

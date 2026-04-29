@@ -87,9 +87,9 @@ describe("Health check response", () => {
 
 describe("Deploy config validation", () => {
   const validConfig: DeployConfig = {
-    ecrUri: "699486076867.dkr.ecr.us-east-1.amazonaws.com/namuh-mintlify",
+    ecrUri: "699486076867.dkr.ecr.us-east-1.amazonaws.com/opendocs",
     region: "us-east-1",
-    serviceName: "namuh-mintlify-prod",
+    serviceName: "opendocs-prod",
     imageTag: "latest",
     port: 3000,
     envVars: {},
@@ -143,17 +143,17 @@ describe("Deploy config validation", () => {
 describe("Image URI builder", () => {
   it("appends tag to ECR URI", () => {
     const uri = buildImageUri(
-      "699486076867.dkr.ecr.us-east-1.amazonaws.com/namuh-mintlify",
+      "699486076867.dkr.ecr.us-east-1.amazonaws.com/opendocs",
       "v1.0.0",
     );
     expect(uri).toBe(
-      "699486076867.dkr.ecr.us-east-1.amazonaws.com/namuh-mintlify:v1.0.0",
+      "699486076867.dkr.ecr.us-east-1.amazonaws.com/opendocs:v1.0.0",
     );
   });
 
   it("handles latest tag", () => {
     const uri = buildImageUri(
-      "699486076867.dkr.ecr.us-east-1.amazonaws.com/namuh-mintlify",
+      "699486076867.dkr.ecr.us-east-1.amazonaws.com/opendocs",
       "latest",
     );
     expect(uri).toContain(":latest");
@@ -162,15 +162,11 @@ describe("Image URI builder", () => {
 
 describe("Service name generator", () => {
   it("creates service name from app name and env", () => {
-    expect(generateServiceName("namuh-mintlify", "prod")).toBe(
-      "namuh-mintlify-prod",
-    );
+    expect(generateServiceName("opendocs", "prod")).toBe("opendocs-prod");
   });
 
   it("handles staging env", () => {
-    expect(generateServiceName("namuh-mintlify", "staging")).toBe(
-      "namuh-mintlify-staging",
-    );
+    expect(generateServiceName("opendocs", "staging")).toBe("opendocs-staging");
   });
 });
 
