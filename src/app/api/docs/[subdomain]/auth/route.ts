@@ -8,6 +8,13 @@ import {
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 
+export function normalizeDocsReturnTo(returnTo: string, subdomain: string) {
+  const fallback = `/docs/${subdomain}`;
+  if (!returnTo.startsWith(fallback)) return fallback;
+  if (returnTo.startsWith("//") || returnTo.includes("://")) return fallback;
+  return returnTo;
+}
+
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ subdomain: string }> },
@@ -15,7 +22,10 @@ export async function POST(
   const { subdomain } = await params;
   const formData = await request.formData();
   const password = String(formData.get("password") ?? "");
-  const returnTo = String(formData.get("returnTo") ?? `/docs/${subdomain}`);
+  const returnTo = normalizeDocsReturnTo(
+    String(formData.get("returnTo") ?? ""),
+    subdomain,
+  );
 
   const [project] = await db
     .select({ settings: projects.settings })
