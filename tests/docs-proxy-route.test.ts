@@ -155,6 +155,7 @@ describe("POST /api/docs/proxy", () => {
         Accept: "application/json",
       },
       body: '{"hello":"world"}',
+      redirect: "manual",
       signal: expect.any(AbortSignal),
     });
 
@@ -211,8 +212,33 @@ describe("POST /api/docs/proxy", () => {
     expect(fetchMock).toHaveBeenCalledWith("https://example.com/docs.json", {
       method: "GET",
       headers: {},
+      redirect: "manual",
       signal: expect.any(AbortSignal),
     });
     expect(response.status).toBe(200);
+  });
+
+  it("blocks redirects to internal addresses", async () => {
+    fetchMock.mockResolvedValue(
+      new Response("", {
+        status: 302,
+        headers: {
+          location: "http://169.254.169.254/latest/meta-data",
+        },
+      }),
+    );
+
+    const { POST } = await import("@/app/api/docs/proxy/route");
+    const response = await POST(
+      makeRequest({
+        method: "GET",
+        url: "https://example.com/redirect",
+      }),
+    );
+
+    expect(response.status).toBe(403);
+    await expect(response.json()).resolves.toEqual({
+      error: "Redirect target is not allowed",
+    });
   });
 });
