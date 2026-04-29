@@ -5,6 +5,7 @@ import {
   readProjectAuthenticationSettings,
   validateProjectAuthenticationSettings,
 } from "@/lib/project-authentication-settings";
+import { isProjectPasswordProtected } from "@/lib/project-publication-auth";
 
 describe("project authentication settings", () => {
   it("defaults to public authentication", () => {
@@ -49,5 +50,19 @@ describe("project authentication settings", () => {
     expect(
       validateProjectAuthenticationSettings({ mode: "password", password: "" }),
     ).toBe("Password protection requires a password.");
+  });
+
+  it("detects password-protected published docs settings", () => {
+    expect(
+      isProjectPasswordProtected({
+        authentication: { mode: "password", password: "secret" },
+      }),
+    ).toBe(true);
+    expect(
+      isProjectPasswordProtected({
+        authentication: { mode: "public", password: "" },
+      }),
+    ).toBe(false);
+    expect(isProjectPasswordProtected({ requireAuth: true })).toBe(false);
   });
 });
