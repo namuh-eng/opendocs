@@ -67,6 +67,15 @@ export function validateDeployConfig(config: Partial<DeployConfig>): {
   ) {
     errors.push("ecrUri must be a valid ECR URI");
   }
+  if (config.envVars?.NODE_ENV === "production") {
+    for (const key of [
+      "DATABASE_URL",
+      "BETTER_AUTH_SECRET",
+      "BETTER_AUTH_URL",
+    ]) {
+      if (!config.envVars[key]) errors.push(`${key} is required in production`);
+    }
+  }
   return { valid: errors.length === 0, errors };
 }
 
