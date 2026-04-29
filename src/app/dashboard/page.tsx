@@ -1,4 +1,5 @@
 import { ACTIVE_PROJECT_COOKIE, findActiveProject } from "@/lib/active-project";
+import { getBetterAuthUrl } from "@/lib/auth";
 import { projectDisplayStatus } from "@/lib/dashboard";
 import { db } from "@/lib/db";
 import {
@@ -137,19 +138,17 @@ export default async function DashboardPage() {
       .limit(20);
 
     const cookieHeader = (await cookies()).toString();
+    const authBaseUrl = getBetterAuthUrl();
     const [manualHandoffResponse, resolvedManualHandoffResponse] =
       await Promise.all([
-        fetch(
-          `${process.env.BETTER_AUTH_URL ?? "http://localhost:3000"}/api/analytics/manual-handoffs?limit=20`,
-          {
-            headers: {
-              Cookie: cookieHeader,
-            },
-            cache: "no-store",
+        fetch(`${authBaseUrl}/api/analytics/manual-handoffs?limit=20`, {
+          headers: {
+            Cookie: cookieHeader,
           },
-        ),
+          cache: "no-store",
+        }),
         fetch(
-          `${process.env.BETTER_AUTH_URL ?? "http://localhost:3000"}/api/analytics/manual-handoffs?limit=20&includeResolved=true`,
+          `${authBaseUrl}/api/analytics/manual-handoffs?limit=20&includeResolved=true`,
           {
             headers: {
               Cookie: cookieHeader,
