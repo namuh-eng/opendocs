@@ -29,10 +29,48 @@ describe("SSRF protection", () => {
     ).rejects.toThrow("internal");
   });
 
-  it("allows public HTTP(S) targets", async () => {
-    const { assertSafeProxyUrl } = await import("@/lib/ssrf-protection");
-    await expect(
-      assertSafeProxyUrl(new URL("https://public.example.com/resource")),
-    ).resolves.toBeUndefined();
+  it("allows public HTTP(S) targets outside production", async () => {
+    vi.stubEnv("NODE_ENV", "test");
+    vi.stubEnv("DOCS_PROXY_ALLOWED_HOSTS", "");
+
+    try {
+      const { assertSafeProxyUrl } = await import("@/lib/ssrf-protection");
+      await expect(
+        assertSafeProxyUrl(new URL("https://public.example.com/resource")),
+      ).resolves.toBeUndefined();
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
+
+  it("requires an explicit host allowlist in production", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("DOCS_PROXY_ALLOWED_HOSTS", "");
+
+    try {
+      const { assertSafeProxyUrl } = await import("@/lib/ssrf-protection");
+      await expect(
+        assertSafeProxyUrl(new URL("https://public.example.com/resource")),
+      ).rejects.toThrow("DOCS_PROXY_ALLOWED_HOSTS is required in production");
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
+
+  it("allows only configured public hosts in production", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("DOCS_PROXY_ALLOWED_HOSTS", "public.example.com");
+
+    try {
+      const { assertSafeProxyUrl } = await import("@/lib/ssrf-protection");
+      await expect(
+        assertSafeProxyUrl(new URL("https://public.example.com/resource")),
+      ).resolves.toBeUndefined();
+      await expect(
+        assertSafeProxyUrl(new URL("https://other.example.com/resource")),
+      ).rejects.toThrow("Requests to this host are not allowed");
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 });

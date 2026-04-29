@@ -73,6 +73,7 @@ export function validateDeployConfig(config: Partial<DeployConfig>): {
       "BETTER_AUTH_SECRET",
       "BETTER_AUTH_URL",
       "NEXT_PUBLIC_APP_URL",
+      "DOCS_PROXY_ALLOWED_HOSTS",
     ]) {
       if (!config.envVars[key]) errors.push(`${key} is required in production`);
     }
@@ -102,6 +103,7 @@ const DEPLOY_ENV_ALLOWLIST = [
   "ENABLE_ASYNC_SIMULATION",
   "GITHUB_APP_ID",
   "GITHUB_APP_PRIVATE_KEY",
+  "DOCS_PROXY_ALLOWED_HOSTS",
 ] as const;
 
 export function filterEnvForDeploy(

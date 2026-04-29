@@ -63,6 +63,9 @@ export async function assertSafeProxyUrl(url: URL) {
     .split(",")
     .map((host) => host.trim().toLowerCase())
     .filter(Boolean);
+  if (allowedHosts.length === 0 && process.env.NODE_ENV === "production") {
+    throw new Error("DOCS_PROXY_ALLOWED_HOSTS is required in production");
+  }
   if (allowedHosts.length > 0 && !allowedHosts.includes(hostname)) {
     throw new Error("Requests to this host are not allowed");
   }
