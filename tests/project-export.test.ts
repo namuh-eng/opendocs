@@ -41,6 +41,26 @@ describe("project export helpers", () => {
     vi.useRealTimers();
   });
 
+  it("redacts authentication passwords from exported settings", () => {
+    const exported = buildProjectExport({
+      id: "project-1",
+      name: "Docs",
+      slug: "docs",
+      subdomain: "docs",
+      customDomain: null,
+      repoUrl: null,
+      repoBranch: null,
+      repoPath: null,
+      settings: {
+        authentication: { mode: "password", password: "super-secret" },
+      },
+    });
+
+    expect(exported.project.settings).toEqual({
+      authentication: { mode: "password", password: "" },
+    });
+  });
+
   it("sanitizes export filenames", () => {
     expect(buildProjectExportFilename({ slug: "My Docs!" })).toBe(
       "my-docs--export.json",

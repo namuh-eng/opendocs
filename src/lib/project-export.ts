@@ -10,6 +10,20 @@ export interface ExportableProject {
   settings: Record<string, unknown> | null;
 }
 
+function redactSensitiveSettings(settings: Record<string, unknown> | null) {
+  const safeSettings = { ...(settings ?? {}) };
+  const authentication = safeSettings.authentication;
+
+  if (authentication && typeof authentication === "object") {
+    safeSettings.authentication = {
+      ...(authentication as Record<string, unknown>),
+      password: "",
+    };
+  }
+
+  return safeSettings;
+}
+
 export function buildProjectExport(project: ExportableProject) {
   return {
     exportedAt: new Date().toISOString(),
@@ -24,7 +38,7 @@ export function buildProjectExport(project: ExportableProject) {
         branch: project.repoBranch ?? "main",
         path: project.repoPath ?? "/",
       },
-      settings: project.settings ?? {},
+      settings: redactSensitiveSettings(project.settings),
     },
   };
 }
