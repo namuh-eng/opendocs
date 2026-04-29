@@ -14,7 +14,7 @@ export type LogContext = Record<string, LogValue> & {
   event?: string;
 };
 
-const APP_NAME = "namuh-mintlify";
+const APP_NAME = "opendocs";
 
 function safeSerializeError(error: unknown) {
   if (error instanceof Error) {

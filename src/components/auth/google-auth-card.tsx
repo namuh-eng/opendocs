@@ -82,9 +82,7 @@ export function GoogleAuthCard({ callbackURL, mode }: GoogleAuthCardProps) {
       </button>
 
       <p className="text-center text-xs text-gray-500">
-        {isSignup
-          ? "Already have an account? "
-          : "Don&apos;t have an account? "}
+        {isSignup ? "Already have an account? " : "Don't have an account? "}
         <a
           href={isSignup ? "/login" : "/signup"}
           className="text-green-500 hover:text-green-400"

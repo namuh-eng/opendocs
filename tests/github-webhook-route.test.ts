@@ -52,7 +52,7 @@ describe("POST /api/webhooks/github", () => {
             installationId: "inst_123",
             repos: [
               {
-                fullName: "namuh-eng/namuh-mintlify",
+                fullName: "namuh-eng/opendocs",
                 branch: "main",
                 permissions: "admin",
               },
@@ -67,14 +67,14 @@ describe("POST /api/webhooks/github", () => {
         where: vi.fn().mockResolvedValue([
           {
             id: "project-1",
-            repoUrl: "https://github.com/namuh-eng/namuh-mintlify",
+            repoUrl: "https://github.com/namuh-eng/opendocs",
             repoBranch: "main",
             repoPath: "/",
             settings: {
               githubSource: {
-                repoFullName: "namuh-eng/namuh-mintlify",
+                repoFullName: "namuh-eng/opendocs",
                 owner: "namuh-eng",
-                repo: "namuh-mintlify",
+                repo: "opendocs",
                 installationId: "inst_123",
                 branch: "main",
                 path: "/",
@@ -84,14 +84,14 @@ describe("POST /api/webhooks/github", () => {
           },
           {
             id: "project-2",
-            repoUrl: "https://github.com/namuh-eng/namuh-mintlify",
+            repoUrl: "https://github.com/namuh-eng/opendocs",
             repoBranch: "main",
             repoPath: "/",
             settings: {
               githubSource: {
-                repoFullName: "namuh-eng/namuh-mintlify",
+                repoFullName: "namuh-eng/opendocs",
                 owner: "namuh-eng",
-                repo: "namuh-mintlify",
+                repo: "opendocs",
                 installationId: "inst_other",
                 branch: "main",
                 path: "/",
@@ -120,7 +120,7 @@ describe("POST /api/webhooks/github", () => {
         {
           ref: "refs/heads/main",
           after: "abc123def456",
-          repository: { full_name: "namuh-eng/namuh-mintlify" },
+          repository: { full_name: "namuh-eng/opendocs" },
           head_commit: { message: "Update docs", id: "abc123def456" },
           installation: { id: 123 },
         },

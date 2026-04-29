@@ -10,7 +10,7 @@ import { type NextRequest, NextResponse } from "next/server";
  * POST /api/admin/canary
  *
  * Mock canary/rollback control endpoint. Admins only.
- * In a real environment, this would interface with App Runner/ECS/CloudWatch.
+ * In a real environment, this would interface with ECS/CloudWatch.
  */
 export async function POST(request: NextRequest) {
   const requestId = createRequestId();

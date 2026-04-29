@@ -10,9 +10,9 @@ describe("github-source readers", () => {
         repoPath: "/guides",
         settings: {
           githubSource: {
-            repoFullName: "namuh-eng/namuh-mintlify",
+            repoFullName: "namuh-eng/opendocs",
             owner: "namuh-eng",
-            repo: "namuh-mintlify",
+            repo: "opendocs",
             installationId: "inst_123",
             branch: "main",
             path: "/docs",
@@ -21,9 +21,9 @@ describe("github-source readers", () => {
         },
       }),
     ).toEqual({
-      repoFullName: "namuh-eng/namuh-mintlify",
+      repoFullName: "namuh-eng/opendocs",
       owner: "namuh-eng",
-      repo: "namuh-mintlify",
+      repo: "opendocs",
       installationId: "inst_123",
       branch: "develop",
       path: "/guides",

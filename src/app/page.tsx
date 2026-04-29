@@ -25,7 +25,7 @@ export default function Home() {
       <div className="mx-auto flex min-h-screen max-w-6xl flex-col justify-center px-6 py-20">
         <div className="max-w-3xl">
           <div className="mb-6 inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-xs text-white/70">
-            Namuh Mintlify
+            OpenDocs
           </div>
 
           <h1 className="text-4xl font-semibold tracking-tight sm:text-6xl">

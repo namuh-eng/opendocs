@@ -9,7 +9,7 @@ AWS account: `699486076867`
 
 - ECS cluster: `opendocs`
 - ECS service: `opendocs`
-- Task definition family: `opendocs`
+- Task definition family: `opendocs` (current verified revision: `opendocs:3`)
 - ECR repository: `699486076867.dkr.ecr.us-east-1.amazonaws.com/opendocs`
 - Current image tag: `c4c9167`
 - ALB: `opendocs-alb`
@@ -22,6 +22,8 @@ AWS account: `699486076867`
   - `opendocs/db-password`
   - `opendocs/database-url`
   - `opendocs/better-auth-secret`
+  - `opendocs/google-client-id`
+  - `opendocs/google-client-secret`
 
 Secret values must never be committed, printed, or pasted into chat.
 
@@ -44,7 +46,7 @@ Verified health response through the ALB:
 
 `https://opendocs.namuh.co` is live. ACM validation completed through Cloudflare DNS, and the ALB has an HTTPS listener on port 443.
 
-## DNS / certificate blocker
+## DNS / certificate state
 
 `namuh.co` is Cloudflare-authoritative:
 
@@ -86,8 +88,20 @@ aws ecr get-login-password --region us-east-1 \
 ```
 
 - This repo does not currently have generated Drizzle migration files in `./drizzle`; `npm run db:migrate` failed without useful detail. For the initial production database, `npm run db:push -- --force` applied the schema successfully. Future work should add proper migration artifacts before relying on `db:migrate` in production.
-- The app can boot without Google OAuth credentials, but Better Auth logs a warning and Google login will not work until `AUTH_GOOGLE_ID` and `AUTH_GOOGLE_SECRET` are provided.
+- The app can boot without Google OAuth credentials, but Google login will not work unless `AUTH_GOOGLE_ID` and `AUTH_GOOGLE_SECRET` are present in the ECS task definition.
+- This deployment intentionally uses ECS Fargate + ALB. Do not deploy OpenDocs with AWS App Runner.
 - Keep repo changes on agent branches with PRs into `staging`; deployment resource mutations are external operations and should be documented here without secrets.
+
+## Google OAuth production checklist
+
+For `https://opendocs.namuh.co` Google sign-in, the Google Cloud OAuth client must include:
+
+- Authorized JavaScript origin: `https://opendocs.namuh.co`
+- Authorized redirect URI: `https://opendocs.namuh.co/api/auth/callback/google`
+- OAuth consent screen authorized domain: `namuh.co`
+- If the OAuth app is still in testing, the intended login account must be listed as a test user.
+
+Shadowfax can verify AWS/ECS runtime wiring locally, but Google Cloud Console verification requires an authenticated `gcloud` account/project or browser access to the correct Google Cloud project.
 
 ## HTTPS completion update - 2026-04-29
 
@@ -96,3 +110,9 @@ aws ecr get-login-password --region us-east-1 \
 - ALB HTTPS listener: active on port `443`.
 - Verified `https://opendocs.namuh.co` returns HTTP 200.
 - Verified `https://opendocs.namuh.co/api/health` returns `status: ok`, version `c4c9167`, database connected, and storage available.
+
+## OAuth runtime update - 2026-04-30
+
+- `AUTH_GOOGLE_ID` and `AUTH_GOOGLE_SECRET` are now wired into ECS task definition `opendocs:3` from Secrets Manager.
+- Production sign-in smoke check returned a Google OAuth URL with redirect URI `https://opendocs.namuh.co/api/auth/callback/google`, no Better Auth server error.
+- Remaining console-side requirement: Google Cloud OAuth client and consent screen must include the production origin/redirect/domain listed above. This cannot be verified from this machine until `gcloud` is authenticated to the correct Google Cloud project.

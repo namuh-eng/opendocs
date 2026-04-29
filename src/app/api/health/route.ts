@@ -55,7 +55,7 @@ export async function GET() {
     storageAvailable,
   });
 
-  // Always return 200 for container liveness checks (App Runner, ECS, K8s).
+  // Always return 200 for container liveness checks (ECS, K8s).
   // Degraded status is reported in the response body for monitoring dashboards.
   return NextResponse.json(response, { status: 200 });
 }
