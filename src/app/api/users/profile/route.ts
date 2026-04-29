@@ -1,3 +1,4 @@
+import { deleteOrganizationsSolelyAdministeredByUser } from "@/lib/account-deletion";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { user } from "@/lib/db/auth-schema";
@@ -154,13 +155,13 @@ export async function PATCH(request: Request) {
 
 /**
  * DELETE /api/users/profile
- * 
+ *
  * Permanently deletes the authenticated user's account and all associated data.
  */
 export async function DELETE() {
   const requestId = createRequestId();
   const session = await auth.api.getSession({ headers: await headers() });
-  
+
   if (!session) {
     logger.warn("user_delete_unauthorized", { requestId });
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -169,14 +170,22 @@ export async function DELETE() {
   const userId = session.user.id;
 
   try {
-    // Delete the user record from the 'user' table (Better Auth)
-    // Cascading deletes in the schema handle memberships, prefs, sessions, accounts.
-    await db.delete(user).where(eq(user.id, userId));
+    const deletedOrgIds = await db.transaction(async (tx) => {
+      const deletedOrganizations =
+        await deleteOrganizationsSolelyAdministeredByUser(userId, tx);
+
+      // Delete the user record from the 'user' table (Better Auth).
+      // Cascading deletes in the schema handle memberships, prefs, sessions, accounts.
+      await tx.delete(user).where(eq(user.id, userId));
+
+      return deletedOrganizations;
+    });
 
     logger.info("user_delete_completed", {
       requestId,
       userId,
       email: session.user.email,
+      deletedOrgCount: deletedOrgIds.length,
     });
 
     return NextResponse.json({ success: true, requestId });

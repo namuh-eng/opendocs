@@ -1,7 +1,10 @@
 import type { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-function makeRequest(body: Record<string, unknown>, headers?: HeadersInit): NextRequest {
+function makeRequest(
+  body: Record<string, unknown>,
+  headers?: HeadersInit,
+): NextRequest {
   return new Request("http://localhost:3000/api/docs/proxy", {
     method: "POST",
     headers: {
@@ -118,7 +121,7 @@ describe("POST /api/docs/proxy", () => {
 
   it("strips host/origin/referer headers when forwarding requests", async () => {
     fetchMock.mockResolvedValue(
-      new Response("{\"ok\":true}", {
+      new Response('{"ok":true}', {
         status: 200,
         headers: {
           "content-type": "application/json",
@@ -152,6 +155,7 @@ describe("POST /api/docs/proxy", () => {
         Accept: "application/json",
       },
       body: '{"hello":"world"}',
+      redirect: "manual",
       signal: expect.any(AbortSignal),
     });
 
@@ -208,8 +212,33 @@ describe("POST /api/docs/proxy", () => {
     expect(fetchMock).toHaveBeenCalledWith("https://example.com/docs.json", {
       method: "GET",
       headers: {},
+      redirect: "manual",
       signal: expect.any(AbortSignal),
     });
     expect(response.status).toBe(200);
+  });
+
+  it("blocks redirects to internal addresses", async () => {
+    fetchMock.mockResolvedValue(
+      new Response("", {
+        status: 302,
+        headers: {
+          location: "http://169.254.169.254/latest/meta-data",
+        },
+      }),
+    );
+
+    const { POST } = await import("@/app/api/docs/proxy/route");
+    const response = await POST(
+      makeRequest({
+        method: "GET",
+        url: "https://example.com/redirect",
+      }),
+    );
+
+    expect(response.status).toBe(403);
+    await expect(response.json()).resolves.toEqual({
+      error: "Redirect target is not allowed",
+    });
   });
 });

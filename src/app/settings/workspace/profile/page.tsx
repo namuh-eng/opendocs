@@ -298,8 +298,8 @@ export default function ProfileSettingsPage() {
           </div>
 
           <p className="mb-4 text-sm text-gray-300">
-            Permanently delete your account and all of your personal data. 
-            This action cannot be undone.
+            Permanently delete your account and all of your personal data. This
+            action cannot be undone.
           </p>
 
           <button
@@ -323,15 +323,23 @@ export default function ProfileSettingsPage() {
               <AlertCircle className="h-5 w-5" />
               <h2 className="text-lg font-semibold">Delete your account?</h2>
             </div>
-            
+
             <p className="mb-4 text-sm text-gray-400 leading-relaxed">
-              This will permanently delete your profile, preferences, and organization memberships.
-              If you are the only member of an organization, those projects will become inaccessible.
+              This will permanently delete your profile, preferences, and
+              organization memberships. If you are the only member of an
+              organization, those projects will become inaccessible.
             </p>
 
             <div className="mb-4 space-y-1.5">
-              <label htmlFor="user-confirm" className="block text-sm text-gray-400">
-                To confirm, type <span className="font-mono text-white selection:bg-red-500/30">{profile.email}</span> below:
+              <label
+                htmlFor="user-confirm"
+                className="block text-sm text-gray-400"
+              >
+                To confirm, type{" "}
+                <span className="font-mono text-white selection:bg-red-500/30">
+                  {profile.email}
+                </span>{" "}
+                below:
               </label>
               <input
                 id="user-confirm"

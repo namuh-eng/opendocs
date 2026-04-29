@@ -1,11 +1,16 @@
 import { db } from "@/lib/db";
 import { pages, projects } from "@/lib/db/schema";
+import { redactProjectAuthenticationSettings } from "@/lib/project-authentication-settings";
+import {
+  getDocsAccessCookieName,
+  hasValidDocsAccess,
+} from "@/lib/project-docs-access";
 import { and, eq } from "drizzle-orm";
-import { NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 
 /** GET /api/docs/[subdomain] — public endpoint to fetch all published pages for a docs site */
 export async function GET(
-  _request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ subdomain: string }> },
 ) {
   const { subdomain } = await params;
@@ -30,6 +35,18 @@ export async function GET(
   }
 
   const projectData = project[0];
+  if (
+    !hasValidDocsAccess(
+      projectData.settings,
+      subdomain,
+      request.cookies.get(getDocsAccessCookieName(subdomain))?.value,
+    )
+  ) {
+    return NextResponse.json(
+      { error: "Docs password required" },
+      { status: 401 },
+    );
+  }
 
   // Fetch all published pages for this project
   const publishedPages = await db
@@ -54,7 +71,7 @@ export async function GET(
       id: projectData.id,
       name: projectData.name,
       subdomain: projectData.subdomain,
-      settings: projectData.settings,
+      settings: redactProjectAuthenticationSettings(projectData.settings),
     },
     pages: publishedPages,
   });

@@ -4,10 +4,10 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-APP_NAME="namuh-mintlify"
+APP_NAME="opendocs"
 AWS_REGION="${AWS_REGION:-us-east-1}"
-DB_NAME="namuh_mintlify"
-DB_USER="mintlify_admin"
+DB_NAME="opendocs"
+DB_USER="opendocs_admin"
 DB_INSTANCE_CLASS="${DB_INSTANCE_CLASS:-db.t3.micro}"
 
 echo "=== Pre-flight Setup (AWS Full Stack) ==="

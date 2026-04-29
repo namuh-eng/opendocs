@@ -67,6 +67,17 @@ export function validateDeployConfig(config: Partial<DeployConfig>): {
   ) {
     errors.push("ecrUri must be a valid ECR URI");
   }
+  if (config.envVars?.NODE_ENV === "production") {
+    for (const key of [
+      "DATABASE_URL",
+      "BETTER_AUTH_SECRET",
+      "BETTER_AUTH_URL",
+      "NEXT_PUBLIC_APP_URL",
+      "DOCS_PROXY_ALLOWED_HOSTS",
+    ]) {
+      if (!config.envVars[key]) errors.push(`${key} is required in production`);
+    }
+  }
   return { valid: errors.length === 0, errors };
 }
 
@@ -92,6 +103,7 @@ const DEPLOY_ENV_ALLOWLIST = [
   "ENABLE_ASYNC_SIMULATION",
   "GITHUB_APP_ID",
   "GITHUB_APP_PRIVATE_KEY",
+  "DOCS_PROXY_ALLOWED_HOSTS",
 ] as const;
 
 export function filterEnvForDeploy(

@@ -1,6 +1,6 @@
-# namuh-mintlify
+# OpenDocs
 
-[![GitHub stars](https://img.shields.io/github/stars/namuh-eng/namuh-mintlify?style=flat-square)](https://github.com/namuh-eng/namuh-mintlify)
+[![GitHub stars](https://img.shields.io/github/stars/namuh-eng/opendocs?style=flat-square)](https://github.com/namuh-eng/opendocs)
 [![License: ELv2](https://img.shields.io/badge/License-Elastic%202.0-blue.svg?style=flat-square)](LICENSE)
 
 **Open source Mintlify alternative — AI-native documentation platform for developer teams.**
@@ -11,7 +11,7 @@ A fully functional clone of [Mintlify](https://mintlify.com) built with Next.js 
 
 ## About
 
-namuh-mintlify is a production-grade documentation platform that gives you the full Mintlify experience on your own infrastructure. Create organizations, manage documentation projects, write content in a dual-mode editor (visual WYSIWYG or markdown), and deploy beautiful docs sites with AI assistant, full-text search, and OpenAPI auto-documentation.
+OpenDocs is a production-grade documentation platform that gives you the full Mintlify experience on your own infrastructure. Create organizations, manage documentation projects, write content in a dual-mode editor (visual WYSIWYG or markdown), and deploy beautiful docs sites with AI assistant, full-text search, and OpenAPI auto-documentation.
 
 ---
 
@@ -58,8 +58,8 @@ namuh-mintlify is a production-grade documentation platform that gives you the f
 
 ```bash
 # Clone the repository
-git clone https://github.com/namuh-eng/namuh-mintlify.git
-cd namuh-mintlify
+git clone https://github.com/namuh-eng/opendocs.git
+cd opendocs
 
 # Install dependencies
 npm install
@@ -78,8 +78,8 @@ npm run dev
 ### Docker (Coming Soon)
 
 ```bash
-git clone https://github.com/namuh-eng/namuh-mintlify.git
-cd namuh-mintlify
+git clone https://github.com/namuh-eng/opendocs.git
+cd opendocs
 docker compose up
 ```
 
@@ -146,7 +146,7 @@ DASHBOARD_KEY=your-dashboard-key
 ## Project Structure
 
 ```
-namuh-mintlify/
+opendocs/
 ├── src/
 │   ├── app/              # Next.js App Router
 │   │   ├── (auth)/       # Login, signup pages
@@ -188,7 +188,7 @@ We welcome contributions! Whether it's bug fixes, new features, or improvements 
 
 ## Support
 
-- **Issues** — Report bugs or request features on [GitHub Issues](https://github.com/namuh-eng/namuh-mintlify/issues)
+- **Issues** — Report bugs or request features on [GitHub Issues](https://github.com/namuh-eng/opendocs/issues)
 
 ---
 

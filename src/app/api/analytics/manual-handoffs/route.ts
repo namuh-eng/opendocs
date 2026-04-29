@@ -45,7 +45,10 @@ export async function GET(request: NextRequest) {
   }
 
   const actionFilter =
-    action && MANUAL_HANDOFF_ACTIONS.includes(action as (typeof MANUAL_HANDOFF_ACTIONS)[number])
+    action &&
+    MANUAL_HANDOFF_ACTIONS.includes(
+      action as (typeof MANUAL_HANDOFF_ACTIONS)[number],
+    )
       ? action
       : null;
 

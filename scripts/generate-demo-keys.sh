@@ -5,7 +5,15 @@ set -euo pipefail
 
 COUNT="${1:-20}"
 API_URL="${2:-http://127.0.0.1:3002}"
-MASTER_KEY="${DASHBOARD_KEY:-re_dev_token_123}"
+if [ -z "${DASHBOARD_KEY:-}" ]; then
+  echo "DASHBOARD_KEY must be set explicitly for local demo-key generation." >&2
+  exit 1
+fi
+if [ "${ALLOW_DEMO_KEY_GENERATION:-}" != "local-only" ]; then
+  echo "Set ALLOW_DEMO_KEY_GENERATION=local-only to confirm this is a local-only demo operation." >&2
+  exit 1
+fi
+MASTER_KEY="$DASHBOARD_KEY"
 
 echo "=== Generating $COUNT demo API keys ==="
 echo "API: $API_URL"
@@ -18,14 +26,14 @@ for i in $(seq 1 $COUNT); do
     fetch('${API_URL}/api/api-keys', {
       method: 'POST',
       headers: {'Content-Type':'application/json','Authorization':'Bearer ${MASTER_KEY}'},
-      body: JSON.stringify({name:'${NAME}',permission:'full_access'})
+      body: JSON.stringify({name:'${NAME}',permission:'read'})
     }).then(r=>r.json()).then(d=>console.log(JSON.stringify(d))).catch(e=>console.error(e))
   " 2>&1)
 
   TOKEN=$(echo "$RESULT" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('token','ERROR'))" 2>/dev/null || echo "ERROR")
 
   if [ "$TOKEN" != "ERROR" ]; then
-    echo "$TOKEN,$NAME,full_access"
+    echo "$TOKEN,$NAME,read"
   else
     echo "FAILED,$NAME,error: $RESULT"
   fi
@@ -33,4 +41,4 @@ done
 
 echo ""
 echo "=== Done. Distribute keys to demo attendees. ==="
-echo "Each key unlocks both the dashboard AND the API."
+echo "Each key is generated with read permission only."

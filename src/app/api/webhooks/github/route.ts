@@ -1,6 +1,12 @@
-import { db } from "@/lib/db";
-import { auditLogs, deployments, githubConnections, projects } from "@/lib/db/schema";
 import { enqueueDeployment } from "@/lib/async-execution";
+import { getClientRateLimitKey } from "@/lib/client-rate-limit-key";
+import { db } from "@/lib/db";
+import {
+  auditLogs,
+  deployments,
+  githubConnections,
+  projects,
+} from "@/lib/db/schema";
 import { resolveGitHubSource } from "@/lib/github-source";
 import {
   buildDeployMessage,
@@ -19,12 +25,12 @@ export async function POST(request: Request) {
   const requestId = createRequestId();
   const eventType = request.headers.get("x-github-event");
   const signature = request.headers.get("x-hub-signature-256");
-  const forwardedFor = request.headers.get("x-forwarded-for") ?? "unknown";
+  const rateLimitKey = getClientRateLimitKey(request.headers, "github-webhook");
   const installationTargetId = request.headers.get(
     "x-github-hook-installation-target-id",
   );
   const rateLimit = applyRateLimit({
-    key: `github-webhook:${forwardedFor}`,
+    key: rateLimitKey,
     limit: 120,
     windowMs: 60_000,
   });
@@ -33,7 +39,7 @@ export async function POST(request: Request) {
       requestId,
       route: "/api/webhooks/github",
       method: "POST",
-      forwardedFor,
+      rateLimitKey,
       eventType: eventType ?? "unknown",
     });
     return NextResponse.json(
@@ -52,20 +58,37 @@ export async function POST(request: Request) {
   });
 
   const secret = process.env.GITHUB_WEBHOOK_SECRET ?? "";
+  const requiresSignature = process.env.NODE_ENV === "production" || !!secret;
 
-  if (secret) {
-    if (!verifyWebhookSignature(rawBody, signature, secret)) {
-      logger.warn("github_webhook_invalid_signature", {
-        requestId,
-        route: "/api/webhooks/github",
-        method: "POST",
-        eventType: eventType ?? "unknown",
-      });
-      return NextResponse.json(
-        { error: "Invalid webhook signature" },
-        { status: 401 },
-      );
-    }
+  if (requiresSignature && (!secret || !signature)) {
+    logger.warn("github_webhook_missing_signature_config", {
+      requestId,
+      route: "/api/webhooks/github",
+      method: "POST",
+      eventType: eventType ?? "unknown",
+      hasSecret: !!secret,
+      hasSignature: !!signature,
+    });
+    return NextResponse.json(
+      { error: "GitHub webhook signature is required" },
+      { status: 401 },
+    );
+  }
+
+  if (
+    requiresSignature &&
+    !verifyWebhookSignature(rawBody, signature, secret)
+  ) {
+    logger.warn("github_webhook_invalid_signature", {
+      requestId,
+      route: "/api/webhooks/github",
+      method: "POST",
+      eventType: eventType ?? "unknown",
+    });
+    return NextResponse.json(
+      { error: "Invalid webhook signature" },
+      { status: 401 },
+    );
   }
 
   if (eventType !== "push") {
@@ -157,7 +180,8 @@ export async function POST(request: Request) {
       });
 
       const projectRepo = githubSource?.repoFullName ?? null;
-      const branchMatch = !githubSource?.branch || githubSource.branch === branch;
+      const branchMatch =
+        !githubSource?.branch || githubSource.branch === branch;
       const installationMatch =
         !githubSource?.installationId ||
         !installationTargetId ||

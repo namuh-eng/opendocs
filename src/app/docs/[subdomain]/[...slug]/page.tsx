@@ -4,6 +4,7 @@ import { ChatWidget } from "@/components/docs/chat-widget";
 import { CustomCodeInjection } from "@/components/docs/custom-code-injection";
 import { DocsFooter } from "@/components/docs/docs-footer";
 import { DocsPagination } from "@/components/docs/docs-pagination";
+import { DocsPasswordGate } from "@/components/docs/docs-password-gate";
 import { DocsSidebar } from "@/components/docs/docs-sidebar";
 import { DocsToc } from "@/components/docs/docs-toc";
 import { DocsTopbar } from "@/components/docs/docs-topbar";
@@ -16,6 +17,7 @@ import {
 } from "@/components/docs/page-chrome";
 import { SearchModal } from "@/components/docs/search-modal";
 import { renderApiReferencePage } from "@/lib/api-reference";
+import { getPublicAppUrl } from "@/lib/app-url";
 import { db } from "@/lib/db";
 import { pages, projects } from "@/lib/db/schema";
 import { findRedirect, mergeDocsConfig } from "@/lib/docs-config";
@@ -46,6 +48,10 @@ import {
   renderApiPlaygroundHtml,
 } from "@/lib/openapi-parser";
 import { getGroupName } from "@/lib/page-chrome";
+import {
+  getDocsAccessCookieName,
+  hasValidDocsAccess,
+} from "@/lib/project-docs-access";
 import { buildPageMetadata } from "@/lib/seo";
 import {
   buildVariablesMap,
@@ -61,13 +67,15 @@ import {
 } from "@/lib/versions";
 import { and, eq } from "drizzle-orm";
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { notFound, permanentRedirect } from "next/navigation";
 
 interface DocsPageProps {
   params: Promise<{ subdomain: string; slug: string[] }>;
+  searchParams?: Promise<{ auth?: string }>;
 }
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3015";
+const APP_URL = getPublicAppUrl();
 
 export async function generateMetadata({
   params,
@@ -199,8 +207,12 @@ export async function generateMetadata({
   return metadata;
 }
 
-export default async function DocsPage({ params }: DocsPageProps) {
+export default async function DocsPage({
+  params,
+  searchParams,
+}: DocsPageProps) {
   const { subdomain, slug } = await params;
+  const query = await searchParams;
 
   // Find project
   const projectResult = await db
@@ -219,6 +231,21 @@ export default async function DocsPage({ params }: DocsPageProps) {
   }
 
   const project = projectResult[0];
+  const cookieStore = await cookies();
+  if (
+    !hasValidDocsAccess(
+      project.settings,
+      subdomain,
+      cookieStore.get(getDocsAccessCookieName(subdomain))?.value,
+    )
+  ) {
+    return (
+      <DocsPasswordGate
+        subdomain={subdomain}
+        error={query?.auth === "failed" ? "Incorrect password." : undefined}
+      />
+    );
+  }
 
   // Parse i18n + versions configuration
   const docsSettings = (project.settings || {}) as Record<string, unknown>;

@@ -8,8 +8,8 @@
  * 4. Render endpoint pages on-the-fly (no DB pages needed)
  */
 
-import { type OpenApiEndpoint, parseOpenApiSpec } from "@/lib/openapi-parser";
 import { getCached, setCache } from "@/lib/cache/redis";
+import { type OpenApiEndpoint, parseOpenApiSpec } from "@/lib/openapi-parser";
 
 // ── Types ───────────────────────────────────────────────────────────────────────
 
@@ -56,7 +56,7 @@ export async function fetchSpecFromUrl(
   url: string,
 ): Promise<Record<string, unknown> | null> {
   if (!url.trim()) return null;
-  
+
   const cacheKey = `spec:url:${url}`;
   const cached = await getCached<Record<string, unknown>>(cacheKey);
   if (cached) return cached;
@@ -69,7 +69,7 @@ export async function fetchSpecFromUrl(
     if (!res.ok) return null;
     const text = await res.text();
     const parsed = JSON.parse(text) as Record<string, unknown>;
-    
+
     // Cache for 1 hour
     await setCache(cacheKey, parsed, 3600);
     return parsed;

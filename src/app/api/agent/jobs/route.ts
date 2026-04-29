@@ -7,7 +7,12 @@
 
 import { enqueueAgentJob } from "@/lib/async-execution";
 import { db } from "@/lib/db";
-import { agentJobs, auditLogs, orgMemberships, projects } from "@/lib/db/schema";
+import {
+  agentJobs,
+  auditLogs,
+  orgMemberships,
+  projects,
+} from "@/lib/db/schema";
 import { createRequestId, logger } from "@/lib/logger";
 import { getServerSession } from "@/lib/session";
 import { desc, eq } from "drizzle-orm";
@@ -207,4 +212,3 @@ export async function POST(request: NextRequest) {
     { status: 201 },
   );
 }
-

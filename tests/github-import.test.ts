@@ -21,7 +21,7 @@ describe("github-import helpers", () => {
           installationId: "inst_123",
           repos: [
             {
-              fullName: "namuh-eng/namuh-mintlify",
+              fullName: "namuh-eng/opendocs",
               branch: "main",
               permissions: "admin",
             },
@@ -33,7 +33,7 @@ describe("github-import helpers", () => {
     const mod = await import("@/lib/github-import");
     await expect(mod.listConnectedGitHubRepos("org-1")).resolves.toEqual([
       {
-        fullName: "namuh-eng/namuh-mintlify",
+        fullName: "namuh-eng/opendocs",
         branch: "main",
         permissions: "admin",
         installationId: "inst_123",
@@ -49,7 +49,7 @@ describe("github-import helpers", () => {
           installationId: "inst_123",
           repos: [
             {
-              fullName: "namuh-eng/namuh-mintlify",
+              fullName: "namuh-eng/opendocs",
               branch: "main",
               permissions: "admin",
             },
@@ -62,11 +62,11 @@ describe("github-import helpers", () => {
     await expect(
       mod.resolveGitHubImportAccessForRepoUrl({
         orgId: "org-1",
-        repoUrl: "https://github.com/namuh-eng/namuh-mintlify",
+        repoUrl: "https://github.com/namuh-eng/opendocs",
       }),
     ).resolves.toMatchObject({
       status: "private_connected",
-      repoFullName: "namuh-eng/namuh-mintlify",
+      repoFullName: "namuh-eng/opendocs",
     });
   });
 
@@ -91,11 +91,12 @@ describe("github-import helpers", () => {
     await expect(
       mod.resolveGitHubImportAccessForRepoUrl({
         orgId: "org-1",
-        repoUrl: "https://github.com/namuh-eng/namuh-mintlify?private=true",
+        repoUrl: "https://github.com/namuh-eng/opendocs?private=true",
       }),
     ).resolves.toMatchObject({
       status: "repo_not_connected",
-      message: "Connect GitHub and select this repository before importing docs",
+      message:
+        "Connect GitHub and select this repository before importing docs",
     });
   });
 
@@ -107,7 +108,7 @@ describe("github-import helpers", () => {
           installationId: "inst_other",
           repos: [
             {
-              fullName: "namuh-eng/namuh-mintlify",
+              fullName: "namuh-eng/opendocs",
               branch: "main",
               permissions: "admin",
             },
@@ -120,14 +121,14 @@ describe("github-import helpers", () => {
     await expect(
       mod.resolveGitHubImportAccess({
         orgId: "org-1",
-        repoUrl: "https://github.com/namuh-eng/namuh-mintlify",
+        repoUrl: "https://github.com/namuh-eng/opendocs",
         repoBranch: "main",
         repoPath: "/",
         settings: {
           githubSource: {
-            repoFullName: "namuh-eng/namuh-mintlify",
+            repoFullName: "namuh-eng/opendocs",
             owner: "namuh-eng",
-            repo: "namuh-mintlify",
+            repo: "opendocs",
             installationId: "inst_123",
             branch: "main",
             path: "/",

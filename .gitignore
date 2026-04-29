@@ -52,3 +52,12 @@ test.txt
 .inspect-complete
 .ralph_to_ralph_source/
 tests/e2e/.auth/
+
+# clawhip runtime state
+.clawhip/state/
+
+# Local/private agent artifacts
+.claude/settings.json
+.superset/config.json
+ralph/qa-report.json
+ralph/qa-closure-report.json

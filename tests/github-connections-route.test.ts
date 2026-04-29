@@ -90,9 +90,11 @@ describe("/api/github-connections", () => {
         from: vi.fn().mockReturnThis(),
         innerJoin: vi.fn().mockReturnThis(),
         where: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockResolvedValue([
-          { orgId: "org-1", role: "admin", orgName: "Org" },
-        ]),
+        limit: vi
+          .fn()
+          .mockResolvedValue([
+            { orgId: "org-1", role: "admin", orgName: "Org" },
+          ]),
       })
       .mockReturnValueOnce({
         from: vi.fn().mockReturnThis(),
@@ -171,9 +173,11 @@ describe("/api/github-connections", () => {
       from: vi.fn().mockReturnThis(),
       innerJoin: vi.fn().mockReturnThis(),
       where: vi.fn().mockReturnThis(),
-      limit: vi.fn().mockResolvedValue([
-        { orgId: "org-1", role: "viewer", orgName: "Org" },
-      ]),
+      limit: vi
+        .fn()
+        .mockResolvedValue([
+          { orgId: "org-1", role: "viewer", orgName: "Org" },
+        ]),
     });
 
     const { POST } = await import("@/app/api/github-connections/route");
@@ -184,7 +188,7 @@ describe("/api/github-connections", () => {
           installationId: "123",
           repos: [
             {
-              fullName: "namuh-eng/namuh-mintlify",
+              fullName: "namuh-eng/opendocs",
               branch: "main",
               permissions: "admin",
             },
@@ -207,9 +211,9 @@ describe("/api/github-connections", () => {
       from: vi.fn().mockReturnThis(),
       innerJoin: vi.fn().mockReturnThis(),
       where: vi.fn().mockReturnThis(),
-      limit: vi.fn().mockResolvedValue([
-        { orgId: "org-1", role: "admin", orgName: "Org" },
-      ]),
+      limit: vi
+        .fn()
+        .mockResolvedValue([{ orgId: "org-1", role: "admin", orgName: "Org" }]),
     });
 
     const { POST } = await import("@/app/api/github-connections/route");
@@ -234,9 +238,11 @@ describe("/api/github-connections", () => {
         from: vi.fn().mockReturnThis(),
         innerJoin: vi.fn().mockReturnThis(),
         where: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockResolvedValue([
-          { orgId: "org-1", role: "admin", orgName: "Org" },
-        ]),
+        limit: vi
+          .fn()
+          .mockResolvedValue([
+            { orgId: "org-1", role: "admin", orgName: "Org" },
+          ]),
       })
       .mockReturnValueOnce({
         from: vi.fn().mockReturnThis(),
@@ -251,7 +257,7 @@ describe("/api/github-connections", () => {
         installationId: "123",
         repos: [
           {
-            fullName: "namuh-eng/namuh-mintlify",
+            fullName: "namuh-eng/opendocs",
             branch: "main",
             permissions: "admin",
           },
@@ -271,7 +277,7 @@ describe("/api/github-connections", () => {
           installationId: "123",
           repos: [
             {
-              fullName: "namuh-eng/namuh-mintlify",
+              fullName: "namuh-eng/opendocs",
               branch: "main",
               permissions: "admin",
             },
@@ -286,7 +292,7 @@ describe("/api/github-connections", () => {
       installationId: "123",
       repos: [
         {
-          fullName: "namuh-eng/namuh-mintlify",
+          fullName: "namuh-eng/opendocs",
           branch: "main",
           permissions: "admin",
         },
@@ -301,7 +307,7 @@ describe("/api/github-connections", () => {
         installationId: "123",
         repos: [
           {
-            fullName: "namuh-eng/namuh-mintlify",
+            fullName: "namuh-eng/opendocs",
             branch: "main",
             permissions: "admin",
           },
@@ -320,9 +326,11 @@ describe("/api/github-connections", () => {
         from: vi.fn().mockReturnThis(),
         innerJoin: vi.fn().mockReturnThis(),
         where: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockResolvedValue([
-          { orgId: "org-1", role: "admin", orgName: "Org" },
-        ]),
+        limit: vi
+          .fn()
+          .mockResolvedValue([
+            { orgId: "org-1", role: "admin", orgName: "Org" },
+          ]),
       })
       .mockReturnValueOnce({
         from: vi.fn().mockReturnThis(),
@@ -351,7 +359,7 @@ describe("/api/github-connections", () => {
         installationId: "123",
         repos: [
           {
-            fullName: "namuh-eng/namuh-mintlify",
+            fullName: "namuh-eng/opendocs",
             branch: "main",
             permissions: "admin",
           },
@@ -373,7 +381,7 @@ describe("/api/github-connections", () => {
           installationId: "123",
           repos: [
             {
-              fullName: "namuh-eng/namuh-mintlify",
+              fullName: "namuh-eng/opendocs",
               branch: "main",
               permissions: "admin",
             },
@@ -386,7 +394,7 @@ describe("/api/github-connections", () => {
     expect(setMock).toHaveBeenCalledWith({
       repos: [
         {
-          fullName: "namuh-eng/namuh-mintlify",
+          fullName: "namuh-eng/opendocs",
           branch: "main",
           permissions: "admin",
         },
@@ -401,7 +409,7 @@ describe("/api/github-connections", () => {
         installationId: "123",
         repos: [
           {
-            fullName: "namuh-eng/namuh-mintlify",
+            fullName: "namuh-eng/opendocs",
             branch: "main",
             permissions: "admin",
           },
@@ -456,9 +464,11 @@ describe("/api/github-connections", () => {
       from: vi.fn().mockReturnThis(),
       innerJoin: vi.fn().mockReturnThis(),
       where: vi.fn().mockReturnThis(),
-      limit: vi.fn().mockResolvedValue([
-        { orgId: "org-1", role: "editor", orgName: "Org" },
-      ]),
+      limit: vi
+        .fn()
+        .mockResolvedValue([
+          { orgId: "org-1", role: "editor", orgName: "Org" },
+        ]),
     });
 
     const { DELETE } = await import("@/app/api/github-connections/route");
@@ -481,9 +491,9 @@ describe("/api/github-connections", () => {
       from: vi.fn().mockReturnThis(),
       innerJoin: vi.fn().mockReturnThis(),
       where: vi.fn().mockReturnThis(),
-      limit: vi.fn().mockResolvedValue([
-        { orgId: "org-1", role: "admin", orgName: "Org" },
-      ]),
+      limit: vi
+        .fn()
+        .mockResolvedValue([{ orgId: "org-1", role: "admin", orgName: "Org" }]),
     });
 
     const { DELETE } = await import("@/app/api/github-connections/route");
@@ -506,9 +516,9 @@ describe("/api/github-connections", () => {
       from: vi.fn().mockReturnThis(),
       innerJoin: vi.fn().mockReturnThis(),
       where: vi.fn().mockReturnThis(),
-      limit: vi.fn().mockResolvedValue([
-        { orgId: "org-1", role: "admin", orgName: "Org" },
-      ]),
+      limit: vi
+        .fn()
+        .mockResolvedValue([{ orgId: "org-1", role: "admin", orgName: "Org" }]),
     });
 
     const whereMock = vi.fn().mockResolvedValue(undefined);

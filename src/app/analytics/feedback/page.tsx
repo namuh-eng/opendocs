@@ -287,7 +287,9 @@ function FeedbackContent() {
     parseDateParam(searchParams.get("from")) ?? defaultRange.from;
   const dateTo = parseDateParam(searchParams.get("to")) ?? defaultRange.to;
 
-  const { project, loading: projectLoading } = useActiveProject<{ id: string }>();
+  const { project, loading: projectLoading } = useActiveProject<{
+    id: string;
+  }>();
   const projectId = project?.id ?? null;
   const [entries, setEntries] = useState<FeedbackEntry[]>([]);
   const [ratingsByPage, setRatingsByPage] = useState<RatingsByPage[]>([]);

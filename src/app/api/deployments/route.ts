@@ -180,10 +180,7 @@ export async function POST(request: Request) {
     })
     .returning();
 
-  const enqueueResult = await enqueueDeployment(
-    deployment.id,
-    ctx.project.id,
-  );
+  const enqueueResult = await enqueueDeployment(deployment.id, ctx.project.id);
 
   if (enqueueResult.handoff === "manual_followup_required") {
     await db.insert(auditLogs).values({
@@ -223,4 +220,3 @@ export async function POST(request: Request) {
     { status: 201 },
   );
 }
-

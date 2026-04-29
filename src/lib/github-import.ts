@@ -131,7 +131,11 @@ export async function resolveGitHubImportAccess(params: {
     };
   }
 
-  if (repoUrl && !githubSource?.installationId && isLikelyPublicGitHubRepo(repoUrl)) {
+  if (
+    repoUrl &&
+    !githubSource?.installationId &&
+    isLikelyPublicGitHubRepo(repoUrl)
+  ) {
     return {
       status: "public",
       owner,

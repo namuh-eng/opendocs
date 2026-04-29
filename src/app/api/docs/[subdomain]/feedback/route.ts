@@ -1,8 +1,12 @@
 import { db } from "@/lib/db";
 import { analyticsEvents, projects } from "@/lib/db/schema";
 import { validateFeedbackPayload } from "@/lib/feedback";
+import {
+  getDocsAccessCookieName,
+  hasValidDocsAccess,
+} from "@/lib/project-docs-access";
 import { eq } from "drizzle-orm";
-import { NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 
 /**
  * POST /api/docs/[subdomain]/feedback
@@ -11,14 +15,14 @@ import { NextResponse } from "next/server";
  * Body: { page: string, rating: "helpful" | "not_helpful", comment?: string }
  */
 export async function POST(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ subdomain: string }> },
 ) {
   const { subdomain } = await params;
 
   // Find project by subdomain
   const [project] = await db
-    .select({ id: projects.id })
+    .select({ id: projects.id, settings: projects.settings })
     .from(projects)
     .where(eq(projects.subdomain, subdomain))
     .limit(1);
@@ -27,6 +31,19 @@ export async function POST(
     return NextResponse.json(
       { error: "Documentation site not found" },
       { status: 404 },
+    );
+  }
+
+  if (
+    !hasValidDocsAccess(
+      project.settings,
+      subdomain,
+      request.cookies.get(getDocsAccessCookieName(subdomain))?.value,
+    )
+  ) {
+    return NextResponse.json(
+      { error: "Docs password required" },
+      { status: 401 },
     );
   }
 

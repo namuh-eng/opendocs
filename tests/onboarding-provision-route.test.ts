@@ -50,9 +50,9 @@ vi.mock("@/lib/github-docs-import", () => ({
 }));
 
 vi.mock("@/lib/github-installation-auth", async () => {
-  const actual = await vi.importActual<typeof import("@/lib/github-installation-auth")>(
-    "@/lib/github-installation-auth",
-  );
+  const actual = await vi.importActual<
+    typeof import("@/lib/github-installation-auth")
+  >("@/lib/github-installation-auth");
   return {
     ...actual,
     buildGitHubInstallationAuthHeaders: buildGitHubInstallationAuthHeadersMock,
@@ -63,12 +63,15 @@ describe("POST /api/onboarding/provision", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     headersMock.mockResolvedValue(new Headers());
-    resolveGitHubImportAccessForProjectMock.mockResolvedValue({ status: "no_repo" });
+    resolveGitHubImportAccessForProjectMock.mockResolvedValue({
+      status: "no_repo",
+    });
     getGitHubImportAccessMessageMock.mockReturnValue(null);
     importPublicGitHubDocsMock.mockResolvedValue({
       ok: false,
       status: "no_markdown_found",
-      message: "No markdown files were found in the selected GitHub repository path",
+      message:
+        "No markdown files were found in the selected GitHub repository path",
     });
     importGitHubDocsMock.mockResolvedValue({
       ok: false,
@@ -181,7 +184,9 @@ describe("POST /api/onboarding/provision", () => {
       .mockReturnValueOnce(projectLookup)
       .mockReturnValueOnce(pagesLookup);
 
-    resolveGitHubImportAccessForProjectMock.mockResolvedValue({ status: "public" });
+    resolveGitHubImportAccessForProjectMock.mockResolvedValue({
+      status: "public",
+    });
     getGitHubImportAccessMessageMock.mockReturnValue(null);
 
     const valuesMock = vi.fn().mockResolvedValue(undefined);
@@ -239,7 +244,9 @@ describe("POST /api/onboarding/provision", () => {
       .mockReturnValueOnce(projectLookup)
       .mockReturnValueOnce(pagesLookup);
 
-    resolveGitHubImportAccessForProjectMock.mockResolvedValue({ status: "public" });
+    resolveGitHubImportAccessForProjectMock.mockResolvedValue({
+      status: "public",
+    });
     getGitHubImportAccessMessageMock.mockReturnValue(null);
     importPublicGitHubDocsMock.mockResolvedValue({
       ok: true,
@@ -498,7 +505,13 @@ describe("POST /api/onboarding/provision", () => {
       from: vi.fn().mockReturnThis(),
       where: vi.fn().mockReturnThis(),
       limit: vi.fn().mockResolvedValue([
-        { id: "proj-1", repoUrl: null, repoBranch: "main", repoPath: "/", settings: {} },
+        {
+          id: "proj-1",
+          repoUrl: null,
+          repoBranch: "main",
+          repoPath: "/",
+          settings: {},
+        },
       ]),
     };
 

@@ -41,7 +41,9 @@ export function ConfigsPanel({
 }: ConfigsPanelProps) {
   const [config, setConfig] = useState<DocsConfig>(mergeDocsConfig(undefined));
   const [loading, setLoading] = useState(true);
-  const { saving, updateProject } = useProjectUpdater<{ settings: Record<string, unknown> }>({
+  const { saving, updateProject } = useProjectUpdater<{
+    settings: Record<string, unknown>;
+  }>({
     projectId,
     setProject: (project) => setProjectSettings(project.settings ?? {}),
   });
@@ -103,7 +105,7 @@ export function ConfigsPanel({
     setProjectSettings((prev) => ({ ...prev, docsConfig: config }));
     setMessage({ type: "success", text: "Saved" });
     setTimeout(() => setMessage(null), 2000);
-  }, [config, projectId, projectSettings]);
+  }, [config, projectSettings, updateProject]);
 
   // Update a top-level section
   function updateSection<K extends keyof DocsConfig>(

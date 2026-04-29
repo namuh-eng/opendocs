@@ -1,9 +1,10 @@
+import { getPublicAppUrl } from "@/lib/app-url";
 import { db } from "@/lib/db";
 import { pages, projects } from "@/lib/db/schema";
 import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3015";
+const APP_URL = getPublicAppUrl();
 
 /**
  * GET /api/docs/[subdomain]/sitemap
@@ -40,7 +41,9 @@ export async function GET(
   const sitemapEntries = publishedPages
     .map((page) => {
       const url = `${APP_URL}/docs/${subdomain}/${page.path === "introduction" ? "" : page.path}`;
-      const lastMod = page.updatedAt ? page.updatedAt.toISOString().split("T")[0] : new Date().toISOString().split("T")[0];
+      const lastMod = page.updatedAt
+        ? page.updatedAt.toISOString().split("T")[0]
+        : new Date().toISOString().split("T")[0];
       return `
   <url>
     <loc>${url}</loc>

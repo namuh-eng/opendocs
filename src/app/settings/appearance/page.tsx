@@ -1,5 +1,7 @@
 "use client";
 
+import { useActiveProject } from "@/hooks/use-active-project";
+import { useProjectUpdater } from "@/hooks/use-project-updater";
 import {
   type AppearanceSettings,
   DEFAULT_APPEARANCE,
@@ -8,8 +10,6 @@ import {
   mergeAppearance,
   validateAppearance,
 } from "@/lib/appearance";
-import { useActiveProject } from "@/hooks/use-active-project";
-import { useProjectUpdater } from "@/hooks/use-project-updater";
 import { clsx } from "clsx";
 import { Monitor, Moon, Sun, Upload, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";

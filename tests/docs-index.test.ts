@@ -16,6 +16,12 @@ vi.mock("next/navigation", () => ({
   redirect: vi.fn(),
 }));
 
+vi.mock("next/headers", () => ({
+  cookies: vi.fn(async () => ({
+    get: vi.fn(() => undefined),
+  })),
+}));
+
 describe("DocsIndex Page", () => {
   beforeEach(() => {
     vi.clearAllMocks();

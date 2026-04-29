@@ -1,7 +1,10 @@
 import type { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-function makeNextRequest(url: string, body?: Record<string, unknown>): NextRequest {
+function makeNextRequest(
+  url: string,
+  body?: Record<string, unknown>,
+): NextRequest {
   const request = new Request(url, {
     method: "POST",
     headers: body ? { "Content-Type": "application/json" } : undefined,
@@ -93,7 +96,9 @@ describe("POST /api/analytics/manual-handoffs/[id]/resolve", () => {
     const valuesMock = vi.fn().mockReturnValue({ returning: returningMock });
     insertMock.mockReturnValue({ values: valuesMock });
 
-    selectMock.mockReturnValueOnce(membershipChain).mockReturnValueOnce(handoffChain);
+    selectMock
+      .mockReturnValueOnce(membershipChain)
+      .mockReturnValueOnce(handoffChain);
 
     const { POST } = await import(
       "@/app/api/analytics/manual-handoffs/[id]/resolve/route"
@@ -179,7 +184,8 @@ describe("POST /api/analytics/manual-handoffs/[id]/resolve", () => {
     expect(valuesMock).toHaveBeenCalledWith(
       expect.objectContaining({
         details: expect.objectContaining({
-          resolutionNote: "Resolved after confirming deploy completed manually.",
+          resolutionNote:
+            "Resolved after confirming deploy completed manually.",
         }),
       }),
     );

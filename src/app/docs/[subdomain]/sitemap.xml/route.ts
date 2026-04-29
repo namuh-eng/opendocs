@@ -1,9 +1,11 @@
+import { getPublicAppUrl } from "@/lib/app-url";
 import { db } from "@/lib/db";
 import { pages, projects } from "@/lib/db/schema";
+import { isProjectPasswordProtected } from "@/lib/project-publication-auth";
 import { generateSitemapEntries, renderSitemapXml } from "@/lib/seo";
 import { and, eq } from "drizzle-orm";
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3015";
+const APP_URL = getPublicAppUrl();
 
 export async function GET(
   _request: Request,
@@ -12,13 +14,22 @@ export async function GET(
   const { subdomain } = await params;
 
   const projectResult = await db
-    .select({ id: projects.id })
+    .select({ id: projects.id, settings: projects.settings })
     .from(projects)
     .where(eq(projects.subdomain, subdomain))
     .limit(1);
 
   if (projectResult.length === 0) {
     return new Response("Not found", { status: 404 });
+  }
+
+  if (isProjectPasswordProtected(projectResult[0].settings)) {
+    return new Response(renderSitemapXml([]), {
+      headers: {
+        "Content-Type": "application/xml; charset=utf-8",
+        "Cache-Control": "private, no-store",
+      },
+    });
   }
 
   const allPages = await db

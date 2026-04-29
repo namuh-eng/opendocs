@@ -1,7 +1,11 @@
 type LogLevel = "debug" | "info" | "warn" | "error";
 
 type LogPrimitive = string | number | boolean | null | undefined;
-type LogValue = LogPrimitive | LogPrimitive[] | Record<string, unknown> | unknown[];
+type LogValue =
+  | LogPrimitive
+  | LogPrimitive[]
+  | Record<string, unknown>
+  | unknown[];
 
 export type LogContext = Record<string, LogValue> & {
   requestId?: string;
@@ -10,7 +14,7 @@ export type LogContext = Record<string, LogValue> & {
   event?: string;
 };
 
-const APP_NAME = "namuh-mintlify";
+const APP_NAME = "opendocs";
 
 function safeSerializeError(error: unknown) {
   if (error instanceof Error) {

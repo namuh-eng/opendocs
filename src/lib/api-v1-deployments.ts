@@ -8,8 +8,8 @@
  */
 
 import {
-  resolveExecutionMetadata,
   type ExecutionMetadataOptions,
+  resolveExecutionMetadata,
 } from "@/lib/async-metadata";
 
 const UUID_RE =

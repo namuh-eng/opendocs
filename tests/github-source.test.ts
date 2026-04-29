@@ -8,15 +8,15 @@ describe("github-source helpers", () => {
   it("builds connected repo source metadata", () => {
     expect(
       buildGitHubSourceSelection({
-        repoUrl: "https://github.com/namuh-eng/namuh-mintlify",
+        repoUrl: "https://github.com/namuh-eng/opendocs",
         installationId: "inst_123",
         repoBranch: "main",
         repoPath: "/docs",
       }),
     ).toEqual({
-      repoFullName: "namuh-eng/namuh-mintlify",
+      repoFullName: "namuh-eng/opendocs",
       owner: "namuh-eng",
-      repo: "namuh-mintlify",
+      repo: "opendocs",
       installationId: "inst_123",
       branch: "main",
       path: "/docs",

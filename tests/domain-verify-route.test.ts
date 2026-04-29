@@ -2,9 +2,12 @@ import type { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 function makeRequest(): NextRequest {
-  return new Request("http://localhost:3000/api/projects/project-1/domain/verify", {
-    method: "POST",
-  }) as NextRequest;
+  return new Request(
+    "http://localhost:3000/api/projects/project-1/domain/verify",
+    {
+      method: "POST",
+    },
+  ) as NextRequest;
 }
 
 const getSessionMock = vi.fn();
@@ -48,7 +51,9 @@ describe("POST /api/projects/[id]/domain/verify", () => {
   it("returns 401 when unauthenticated", async () => {
     getSessionMock.mockResolvedValue(null);
 
-    const { POST } = await import("@/app/api/projects/[id]/domain/verify/route");
+    const { POST } = await import(
+      "@/app/api/projects/[id]/domain/verify/route"
+    );
     const response = await POST(makeRequest(), {
       params: Promise.resolve({ id: "project-1" }),
     });
@@ -66,13 +71,17 @@ describe("POST /api/projects/[id]/domain/verify", () => {
       limit: vi.fn().mockResolvedValue([]),
     });
 
-    const { POST } = await import("@/app/api/projects/[id]/domain/verify/route");
+    const { POST } = await import(
+      "@/app/api/projects/[id]/domain/verify/route"
+    );
     const response = await POST(makeRequest(), {
       params: Promise.resolve({ id: "project-1" }),
     });
 
     expect(response.status).toBe(403);
-    await expect(response.json()).resolves.toEqual({ error: "No organization" });
+    await expect(response.json()).resolves.toEqual({
+      error: "No organization",
+    });
   });
 
   it("returns 404 when the project is outside the user's organization", async () => {
@@ -90,13 +99,17 @@ describe("POST /api/projects/[id]/domain/verify", () => {
         limit: vi.fn().mockResolvedValue([]),
       });
 
-    const { POST } = await import("@/app/api/projects/[id]/domain/verify/route");
+    const { POST } = await import(
+      "@/app/api/projects/[id]/domain/verify/route"
+    );
     const response = await POST(makeRequest(), {
       params: Promise.resolve({ id: "project-1" }),
     });
 
     expect(response.status).toBe(404);
-    await expect(response.json()).resolves.toEqual({ error: "Project not found" });
+    await expect(response.json()).resolves.toEqual({
+      error: "Project not found",
+    });
   });
 
   it("returns 400 when no custom domain is configured", async () => {
@@ -123,7 +136,9 @@ describe("POST /api/projects/[id]/domain/verify", () => {
         ]),
       });
 
-    const { POST } = await import("@/app/api/projects/[id]/domain/verify/route");
+    const { POST } = await import(
+      "@/app/api/projects/[id]/domain/verify/route"
+    );
     const response = await POST(makeRequest(), {
       params: Promise.resolve({ id: "project-1" }),
     });
@@ -163,7 +178,9 @@ describe("POST /api/projects/[id]/domain/verify", () => {
     const setMock = vi.fn().mockReturnValue({ where: whereMock });
     updateMock.mockReturnValue({ set: setMock });
 
-    const { POST } = await import("@/app/api/projects/[id]/domain/verify/route");
+    const { POST } = await import(
+      "@/app/api/projects/[id]/domain/verify/route"
+    );
     const response = await POST(makeRequest(), {
       params: Promise.resolve({ id: "project-1" }),
     });
@@ -209,7 +226,9 @@ describe("POST /api/projects/[id]/domain/verify", () => {
         ]),
       });
 
-    const { POST } = await import("@/app/api/projects/[id]/domain/verify/route");
+    const { POST } = await import(
+      "@/app/api/projects/[id]/domain/verify/route"
+    );
     const response = await POST(makeRequest(), {
       params: Promise.resolve({ id: "project-1" }),
     });
@@ -250,7 +269,9 @@ describe("POST /api/projects/[id]/domain/verify", () => {
         ]),
       });
 
-    const { POST } = await import("@/app/api/projects/[id]/domain/verify/route");
+    const { POST } = await import(
+      "@/app/api/projects/[id]/domain/verify/route"
+    );
     const response = await POST(makeRequest(), {
       params: Promise.resolve({ id: "project-1" }),
     });

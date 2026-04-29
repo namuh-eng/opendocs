@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Namuh Mintlify",
-  description: "AI-native documentation platform for teams shipping docs, APIs, and product knowledge.",
+  title: "OpenDocs",
+  description:
+    "AI-native documentation platform for teams shipping docs, APIs, and product knowledge.",
 };
 
 export default function RootLayout({

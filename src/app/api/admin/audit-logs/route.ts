@@ -54,7 +54,9 @@ export async function GET(request: NextRequest) {
 
   const searchParams = request.nextUrl.searchParams;
   const limitParam = Number.parseInt(searchParams.get("limit") ?? "50", 10);
-  const limit = Number.isFinite(limitParam) ? Math.min(Math.max(limitParam, 1), 100) : 50;
+  const limit = Number.isFinite(limitParam)
+    ? Math.min(Math.max(limitParam, 1), 100)
+    : 50;
 
   const logs = await db
     .select()

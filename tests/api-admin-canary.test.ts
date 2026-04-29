@@ -41,10 +41,12 @@ describe("POST /api/admin/canary", () => {
   it("returns 401 when unauthenticated", async () => {
     getSessionMock.mockResolvedValue(null);
     const { POST } = await import("@/app/api/admin/canary/route");
-    const response = await POST(makeNextRequest("http://localhost/api/admin/canary", {
-      method: "POST",
-      body: JSON.stringify({ action: "promote" })
-    }));
+    const response = await POST(
+      makeNextRequest("http://localhost/api/admin/canary", {
+        method: "POST",
+        body: JSON.stringify({ action: "promote" }),
+      }),
+    );
     expect(response.status).toBe(401);
   });
 
@@ -57,10 +59,12 @@ describe("POST /api/admin/canary", () => {
     });
 
     const { POST } = await import("@/app/api/admin/canary/route");
-    const response = await POST(makeNextRequest("http://localhost/api/admin/canary", {
-      method: "POST",
-      body: JSON.stringify({ action: "promote" })
-    }));
+    const response = await POST(
+      makeNextRequest("http://localhost/api/admin/canary", {
+        method: "POST",
+        body: JSON.stringify({ action: "promote" }),
+      }),
+    );
     expect(response.status).toBe(403);
   });
 
@@ -73,10 +77,12 @@ describe("POST /api/admin/canary", () => {
     });
 
     const { POST } = await import("@/app/api/admin/canary/route");
-    const response = await POST(makeNextRequest("http://localhost/api/admin/canary", {
-      method: "POST",
-      body: JSON.stringify({ action: "promote", version: "v1.2.3" })
-    }));
+    const response = await POST(
+      makeNextRequest("http://localhost/api/admin/canary", {
+        method: "POST",
+        body: JSON.stringify({ action: "promote", version: "v1.2.3" }),
+      }),
+    );
 
     expect(response.status).toBe(200);
     const data = await response.json();
@@ -93,10 +99,12 @@ describe("POST /api/admin/canary", () => {
     });
 
     const { POST } = await import("@/app/api/admin/canary/route");
-    const response = await POST(makeNextRequest("http://localhost/api/admin/canary", {
-      method: "POST",
-      body: JSON.stringify({ action: "delete-everything" })
-    }));
+    const response = await POST(
+      makeNextRequest("http://localhost/api/admin/canary", {
+        method: "POST",
+        body: JSON.stringify({ action: "delete-everything" }),
+      }),
+    );
     expect(response.status).toBe(400);
   });
 });

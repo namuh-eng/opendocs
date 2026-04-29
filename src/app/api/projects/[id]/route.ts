@@ -1,10 +1,13 @@
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { orgMemberships, projects } from "@/lib/db/schema";
-import { validateUpdateProjectRequest } from "@/lib/projects";
-import { buildGitHubSourceSelection, mergeProjectSettingsWithGitHubSource } from "@/lib/github-source";
+import {
+  buildGitHubSourceSelection,
+  mergeProjectSettingsWithGitHubSource,
+} from "@/lib/github-source";
 import { createRequestId, logger } from "@/lib/logger";
 import { attachResolvedGitHubSource } from "@/lib/project-response";
+import { validateUpdateProjectRequest } from "@/lib/projects";
 import { and, eq, ne, sql } from "drizzle-orm";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
@@ -154,7 +157,13 @@ export async function PUT(
 
   // Verify project belongs to user's org
   const existing = await db
-    .select({ id: projects.id, repoUrl: projects.repoUrl, repoBranch: projects.repoBranch, repoPath: projects.repoPath, settings: projects.settings })
+    .select({
+      id: projects.id,
+      repoUrl: projects.repoUrl,
+      repoBranch: projects.repoBranch,
+      repoPath: projects.repoPath,
+      settings: projects.settings,
+    })
     .from(projects)
     .where(and(eq(projects.id, id), eq(projects.orgId, membership.orgId)))
     .limit(1);
@@ -172,15 +181,25 @@ export async function PUT(
   }
 
   const resolvedRepoUrl =
-    (validation.fields.repoUrl as string | undefined) ?? existing[0].repoUrl ?? null;
+    (validation.fields.repoUrl as string | undefined) ??
+    existing[0].repoUrl ??
+    null;
   const resolvedRepoBranch =
-    (validation.fields.repoBranch as string | undefined) ?? existing[0].repoBranch ?? null;
+    (validation.fields.repoBranch as string | undefined) ??
+    existing[0].repoBranch ??
+    null;
   const resolvedRepoPath =
-    (validation.fields.repoPath as string | undefined) ?? existing[0].repoPath ?? null;
+    (validation.fields.repoPath as string | undefined) ??
+    existing[0].repoPath ??
+    null;
   const resolvedInstallationId =
     (validation.fields.githubInstallationId as string | undefined) ??
-    ((existing[0].settings?.githubSource as { installationId?: string } | undefined)
-      ?.installationId ?? null);
+    (
+      existing[0].settings?.githubSource as
+        | { installationId?: string }
+        | undefined
+    )?.installationId ??
+    null;
 
   const mergedSettings = mergeProjectSettingsWithGitHubSource(
     existing[0].settings,

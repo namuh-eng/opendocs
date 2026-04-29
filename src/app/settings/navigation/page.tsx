@@ -1,5 +1,7 @@
 "use client";
 
+import { useActiveProject } from "@/hooks/use-active-project";
+import { useProjectUpdater } from "@/hooks/use-project-updater";
 import {
   type NavAnchor,
   type NavEntry,
@@ -17,8 +19,6 @@ import {
   moveItem,
   validateNavigation,
 } from "@/lib/navigation";
-import { useActiveProject } from "@/hooks/use-active-project";
-import { useProjectUpdater } from "@/hooks/use-project-updater";
 import { clsx } from "clsx";
 import {
   ChevronDown,

@@ -318,7 +318,9 @@ test.describe("onboarding wizard — multi-step flow", () => {
     page,
   }) => {
     await page.goto("/onboarding");
-    await page.getByLabel(/organization name/i).fill(`Public Repo Copy Org ${Date.now()}`);
+    await page
+      .getByLabel(/organization name/i)
+      .fill(`Public Repo Copy Org ${Date.now()}`);
     await page.getByRole("button", { name: /continue/i }).click();
     await page
       .getByLabel(/Or paste a public GitHub repo URL/i)
@@ -326,7 +328,9 @@ test.describe("onboarding wizard — multi-step flow", () => {
     await page.getByRole("button", { name: /connect repository/i }).click();
 
     await expect(
-      page.getByText(/starter docs now, and verified github sync can be connected later/i),
+      page.getByText(
+        /starter docs now, and verified github sync can be connected later/i,
+      ),
     ).toBeVisible();
   });
 });

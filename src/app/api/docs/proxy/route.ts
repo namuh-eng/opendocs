@@ -1,5 +1,7 @@
+import { getClientRateLimitKey } from "@/lib/client-rate-limit-key";
 import { createRequestId, logger } from "@/lib/logger";
 import { applyRateLimit, buildRateLimitHeaders } from "@/lib/rate-limit";
+import { assertSafeProxyUrl } from "@/lib/ssrf-protection";
 import { NextResponse } from "next/server";
 
 /**
@@ -8,9 +10,9 @@ import { NextResponse } from "next/server";
  */
 export async function POST(req: Request): Promise<NextResponse> {
   const requestId = createRequestId();
-  const forwardedFor = req.headers.get("x-forwarded-for") ?? "unknown";
+  const rateLimitKey = getClientRateLimitKey(req.headers, "docs-proxy");
   const rateLimit = applyRateLimit({
-    key: `docs-proxy:${forwardedFor}`,
+    key: rateLimitKey,
     limit: 20,
     windowMs: 60_000,
   });
@@ -19,7 +21,7 @@ export async function POST(req: Request): Promise<NextResponse> {
       requestId,
       route: "/api/docs/proxy",
       method: "POST",
-      forwardedFor,
+      rateLimitKey,
     });
     return NextResponse.json(
       { error: "Too many proxy requests" },
@@ -62,27 +64,23 @@ export async function POST(req: Request): Promise<NextResponse> {
       return NextResponse.json({ error: "Invalid URL" }, { status: 400 });
     }
 
-    // Block requests to localhost/internal IPs
-    const hostname = parsedUrl.hostname.toLowerCase();
-    if (
-      hostname === "localhost" ||
-      hostname === "127.0.0.1" ||
-      hostname === "0.0.0.0" ||
-      hostname === "::1" ||
-      hostname.startsWith("10.") ||
-      hostname.startsWith("192.168.") ||
-      hostname.startsWith("172.") ||
-      hostname.endsWith(".internal") ||
-      hostname.endsWith(".local")
-    ) {
+    try {
+      await assertSafeProxyUrl(parsedUrl);
+    } catch (error) {
       logger.warn("docs_proxy_blocked_internal_address", {
         requestId,
         route: "/api/docs/proxy",
         method: "POST",
-        hostname,
+        hostname: parsedUrl.hostname,
+        error: error instanceof Error ? error.message : "unsafe target",
       });
       return NextResponse.json(
-        { error: "Requests to internal addresses are not allowed" },
+        {
+          error:
+            error instanceof Error
+              ? error.message
+              : "Requests to this address are not allowed",
+        },
         { status: 403 },
       );
     }
@@ -104,6 +102,7 @@ export async function POST(req: Request): Promise<NextResponse> {
     const fetchOptions: RequestInit = {
       method,
       headers: fetchHeaders,
+      redirect: "manual",
       signal: controller.signal,
     };
 
@@ -111,8 +110,31 @@ export async function POST(req: Request): Promise<NextResponse> {
       fetchOptions.body = body;
     }
 
-    const response = await fetch(url, fetchOptions);
+    const response = await fetch(parsedUrl.toString(), fetchOptions);
     clearTimeout(timeoutId);
+
+    if (response.status >= 300 && response.status < 400) {
+      const location = response.headers.get("location");
+      if (location) {
+        const redirectUrl = new URL(location, parsedUrl);
+        try {
+          await assertSafeProxyUrl(redirectUrl);
+        } catch (error) {
+          logger.warn("docs_proxy_blocked_unsafe_redirect", {
+            requestId,
+            route: "/api/docs/proxy",
+            method: "POST",
+            hostname: redirectUrl.hostname,
+            error: error instanceof Error ? error.message : "unsafe redirect",
+          });
+          return NextResponse.json(
+            { error: "Redirect target is not allowed" },
+            { status: 403, headers: buildRateLimitHeaders(rateLimit) },
+          );
+        }
+      }
+    }
+
     const responseBody = await response.text();
 
     // Collect response headers
@@ -144,7 +166,10 @@ export async function POST(req: Request): Promise<NextResponse> {
       requestId,
       route: "/api/docs/proxy",
       method: "POST",
-      error: err instanceof Error ? { message: err.message, stack: err.stack } : String(err),
+      error:
+        err instanceof Error
+          ? { message: err.message, stack: err.stack }
+          : String(err),
     });
     return NextResponse.json(
       {

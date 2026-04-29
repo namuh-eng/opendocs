@@ -1,7 +1,10 @@
 import type { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-function makeRequest(body: Record<string, unknown>, headers?: Record<string, string>) {
+function makeRequest(
+  body: Record<string, unknown>,
+  headers?: Record<string, string>,
+) {
   const request = new Request("http://localhost:3000/api/webhooks/github", {
     method: "POST",
     headers: {
@@ -35,6 +38,7 @@ vi.mock("@/lib/db", () => ({
 describe("POST /api/webhooks/github", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // biome-ignore lint/performance/noDelete: tests must remove the env var rather than assign the string "undefined"
     delete process.env.GITHUB_WEBHOOK_SECRET;
   });
 
@@ -48,7 +52,7 @@ describe("POST /api/webhooks/github", () => {
             installationId: "inst_123",
             repos: [
               {
-                fullName: "namuh-eng/namuh-mintlify",
+                fullName: "namuh-eng/opendocs",
                 branch: "main",
                 permissions: "admin",
               },
@@ -63,14 +67,14 @@ describe("POST /api/webhooks/github", () => {
         where: vi.fn().mockResolvedValue([
           {
             id: "project-1",
-            repoUrl: "https://github.com/namuh-eng/namuh-mintlify",
+            repoUrl: "https://github.com/namuh-eng/opendocs",
             repoBranch: "main",
             repoPath: "/",
             settings: {
               githubSource: {
-                repoFullName: "namuh-eng/namuh-mintlify",
+                repoFullName: "namuh-eng/opendocs",
                 owner: "namuh-eng",
-                repo: "namuh-mintlify",
+                repo: "opendocs",
                 installationId: "inst_123",
                 branch: "main",
                 path: "/",
@@ -80,14 +84,14 @@ describe("POST /api/webhooks/github", () => {
           },
           {
             id: "project-2",
-            repoUrl: "https://github.com/namuh-eng/namuh-mintlify",
+            repoUrl: "https://github.com/namuh-eng/opendocs",
             repoBranch: "main",
             repoPath: "/",
             settings: {
               githubSource: {
-                repoFullName: "namuh-eng/namuh-mintlify",
+                repoFullName: "namuh-eng/opendocs",
                 owner: "namuh-eng",
-                repo: "namuh-mintlify",
+                repo: "opendocs",
                 installationId: "inst_other",
                 branch: "main",
                 path: "/",
@@ -98,7 +102,12 @@ describe("POST /api/webhooks/github", () => {
         ]),
       });
 
-    const insertValuesMock = vi.fn().mockResolvedValue(undefined);
+    const insertReturningMock = vi
+      .fn()
+      .mockResolvedValue([{ id: "deployment-1" }]);
+    const insertValuesMock = vi
+      .fn()
+      .mockReturnValue({ returning: insertReturningMock });
     insertMock.mockReturnValue({ values: insertValuesMock });
 
     const updateWhereMock = vi.fn().mockResolvedValue(undefined);
@@ -111,7 +120,7 @@ describe("POST /api/webhooks/github", () => {
         {
           ref: "refs/heads/main",
           after: "abc123def456",
-          repository: { full_name: "namuh-eng/namuh-mintlify" },
+          repository: { full_name: "namuh-eng/opendocs" },
           head_commit: { message: "Update docs", id: "abc123def456" },
           installation: { id: 123 },
         },
@@ -120,10 +129,31 @@ describe("POST /api/webhooks/github", () => {
     );
 
     expect(response.status).toBe(200);
-    expect(insertValuesMock).toHaveBeenCalledTimes(1);
     expect(insertValuesMock).toHaveBeenCalledWith(
       expect.objectContaining({ projectId: "project-1" }),
     );
+    expect(insertValuesMock).not.toHaveBeenCalledWith(
+      expect.objectContaining({ projectId: "project-2" }),
+    );
     expect(updateWhereMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("fails closed in production when webhook secret is missing", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+
+    try {
+      const { POST } = await import("@/app/api/webhooks/github/route");
+      const response = await POST(
+        makeRequest({
+          ref: "refs/heads/main",
+          repository: { full_name: "namuh-eng/opendocs" },
+        }),
+      );
+
+      expect(response.status).toBe(401);
+      expect(selectMock).not.toHaveBeenCalled();
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 });

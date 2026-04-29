@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 import { describe, expect, it, vi } from "vitest";
 
 const getSessionCookieMock = vi.fn();
@@ -16,11 +16,11 @@ function makeNextRequest(url: string): NextRequest {
   return request;
 }
 
-describe("Middleware", () => {
+describe("Proxy", () => {
   it("redirects unauthenticated users to login for protected routes", async () => {
     getSessionCookieMock.mockReturnValue(null);
-    const { middleware } = await import("@/middleware");
-    const response = await middleware(makeNextRequest("http://localhost/dashboard"));
+    const { proxy } = await import("@/proxy");
+    const response = await proxy(makeNextRequest("http://localhost/dashboard"));
 
     expect(response?.status).toBe(307);
     expect(response?.headers.get("location")).toContain("/login");
@@ -28,16 +28,16 @@ describe("Middleware", () => {
 
   it("adds Server-Timing header for performance monitoring", async () => {
     getSessionCookieMock.mockReturnValue({ session: { id: "session-1" } });
-    const { middleware } = await import("@/middleware");
-    const response = await middleware(makeNextRequest("http://localhost/dashboard"));
+    const { proxy } = await import("@/proxy");
+    const response = await proxy(makeNextRequest("http://localhost/dashboard"));
 
-    expect(response?.headers.get("Server-Timing")).toContain("middleware;dur=");
+    expect(response?.headers.get("Server-Timing")).toContain("proxy;dur=");
   });
 
   it("allows access to unprotected routes", async () => {
     getSessionCookieMock.mockReturnValue(null);
-    const { middleware } = await import("@/middleware");
-    const response = await middleware(makeNextRequest("http://localhost/"));
+    const { proxy } = await import("@/proxy");
+    const response = await proxy(makeNextRequest("http://localhost/"));
 
     // NextResponse.next() in tests returns a response with status 200 or similar
     expect(response?.status).toBe(200);
