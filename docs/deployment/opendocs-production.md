@@ -42,7 +42,7 @@ Verified health response through the ALB:
 }
 ```
 
-Public `https://opendocs.namuh.co` is not live yet because DNS/ACM validation must be created in the authoritative Cloudflare zone for `namuh.co`.
+`https://opendocs.namuh.co` is live. ACM validation completed through Cloudflare DNS, and the ALB has an HTTPS listener on port 443.
 
 ## DNS / certificate blocker
 
@@ -51,9 +51,9 @@ Public `https://opendocs.namuh.co` is not live yet because DNS/ACM validation mu
 - `aryanna.ns.cloudflare.com`
 - `chip.ns.cloudflare.com`
 
-The AWS account has an ACM certificate request for `opendocs.namuh.co`, currently pending DNS validation.
+The AWS account has an issued ACM certificate for `opendocs.namuh.co`. The validation record remains in Cloudflare for renewal.
 
-Create this Cloudflare DNS validation record:
+Cloudflare ACM validation record:
 
 ```txt
 Type: CNAME
@@ -62,7 +62,7 @@ Target: _5f8079670a7e3350cdfb2c5777c8c063.jkddzztszm.acm-validations.aws
 Proxy: DNS only
 ```
 
-Then create the production app DNS record:
+Production app DNS record:
 
 ```txt
 Type: CNAME
@@ -71,7 +71,7 @@ Target: opendocs-alb-1587657213.us-east-1.elb.amazonaws.com
 Proxy: DNS only initially
 ```
 
-After ACM validates, add an HTTPS listener on the ALB with the issued certificate and optionally redirect HTTP to HTTPS.
+The ALB HTTPS listener is active on port 443 with the issued ACM certificate. HTTP on port 80 remains enabled.
 
 ## Reusable deployment notes
 
@@ -88,3 +88,11 @@ aws ecr get-login-password --region us-east-1 \
 - This repo does not currently have generated Drizzle migration files in `./drizzle`; `npm run db:migrate` failed without useful detail. For the initial production database, `npm run db:push -- --force` applied the schema successfully. Future work should add proper migration artifacts before relying on `db:migrate` in production.
 - The app can boot without Google OAuth credentials, but Better Auth logs a warning and Google login will not work until `AUTH_GOOGLE_ID` and `AUTH_GOOGLE_SECRET` are provided.
 - Keep repo changes on agent branches with PRs into `staging`; deployment resource mutations are external operations and should be documented here without secrets.
+
+## HTTPS completion update - 2026-04-29
+
+- Cloudflare DNS records were created with the token retrieved from macOS Keychain; the token was not printed or stored.
+- ACM certificate status: `ISSUED`.
+- ALB HTTPS listener: active on port `443`.
+- Verified `https://opendocs.namuh.co` returns HTTP 200.
+- Verified `https://opendocs.namuh.co/api/health` returns `status: ok`, version `c4c9167`, database connected, and storage available.
