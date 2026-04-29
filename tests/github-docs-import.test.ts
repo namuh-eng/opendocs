@@ -253,6 +253,52 @@ describe("importPublicGitHubDocs", () => {
     }
   });
 
+  it("normalizes common README HTML wrappers before import", async () => {
+    const fetchMock = vi.fn(async (url: string) => {
+      if (url.includes("/git/trees/")) {
+        return {
+          ok: true,
+          json: async () => ({ tree: [{ path: "README.md", type: "blob" }] }),
+        };
+      }
+      return {
+        ok: true,
+        text: async () => `<p align="center">
+  <h1 align="center">Opensend</h1>
+  <a href="https://example.com/docs"><img alt="Docs" src="docs.png" /></a>
+</p>
+
+Quick start:
+${"```"}bash
+git clone https://github.com/namuh-eng/opensend.git
+${"```"}
+
+| Command | Purpose |
+|---|---|
+| bun test | run tests |
+`,
+      };
+    });
+
+    const { importGitHubDocs } = await import("@/lib/github-docs-import");
+    const result = await importGitHubDocs({
+      repoUrl: "https://github.com/acme/docs",
+      fetchImpl: fetchMock as unknown as typeof fetch,
+    });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.pages[0].title).toBe("Opensend");
+      expect(result.pages[0].content).toContain("# Opensend");
+      expect(result.pages[0].content).toContain(
+        "[![Docs](https://raw.githubusercontent.com/acme/docs/main/docs.png)](https://example.com/docs)",
+      );
+      expect(result.pages[0].content).toContain("```bash");
+      expect(result.pages[0].content).toContain("| Command | Purpose |");
+      expect(result.pages[0].content).not.toContain('<p align="center">');
+    }
+  });
+
   it("handles relative links with titles", async () => {
     const fetchMock = vi.fn(async (url: string) => {
       if (url.includes("/git/trees/")) {

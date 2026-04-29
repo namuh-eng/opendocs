@@ -54,13 +54,13 @@ export function buildSiteUrl(
   return "#";
 }
 
-/** Format a domain for display (strip protocol, trailing slash). */
+/** Format the dashboard site target for display. */
 export function formatDomainDisplay(
   subdomain: string | null,
   customDomain: string | null,
 ): string {
   if (customDomain) return customDomain;
-  if (subdomain) return `${subdomain}.mintlify.app`;
+  if (subdomain) return `/docs/${subdomain}`;
   return "";
 }
 
@@ -77,6 +77,10 @@ export function projectDisplayStatus(params: {
     params.latestDeploymentStatus === "failed"
   ) {
     return "error";
+  }
+
+  if (params.publishedPageCount > 0) {
+    return "active";
   }
 
   if (

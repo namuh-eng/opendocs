@@ -415,7 +415,12 @@ export function parseMdxToHtml(content: string): string {
       !/^[-*+]\s+/.test(lines[i]) &&
       !/^\d+\.\s+/.test(lines[i]) &&
       !lines[i].startsWith("> ") &&
-      !/^(-{3,}|\*{3,}|_{3,})\s*$/.test(lines[i])
+      !/^(-{3,}|\*{3,}|_{3,})\s*$/.test(lines[i]) &&
+      !(
+        lines[i].includes("|") &&
+        i + 1 < lines.length &&
+        /^\|?\s*[-:]+[-| :]*$/.test(lines[i + 1])
+      )
     ) {
       paraLines.push(lines[i]);
       i++;

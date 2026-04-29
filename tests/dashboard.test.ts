@@ -83,10 +83,8 @@ describe("formatDomainDisplay", () => {
     );
   });
 
-  it("appends .mintlify.app to subdomain", () => {
-    expect(formatDomainDisplay("my-project", null)).toBe(
-      "my-project.mintlify.app",
-    );
+  it("shows the canonical docs route for generated subdomains", () => {
+    expect(formatDomainDisplay("my-project", null)).toBe("/docs/my-project");
   });
 
   it("returns empty string when nothing set", () => {
@@ -141,11 +139,21 @@ describe("projectDisplayStatus", () => {
     ).toBe("active");
   });
 
-  it("keeps queued and running deployments in updating state", () => {
+  it("keeps published projects live even when manual deployment handoff is queued", () => {
     expect(
       projectDisplayStatus({
         projectStatus: "active",
         publishedPageCount: 1,
+        latestDeploymentStatus: "queued",
+      }),
+    ).toBe("active");
+  });
+
+  it("keeps projects without published pages in updating state", () => {
+    expect(
+      projectDisplayStatus({
+        projectStatus: "active",
+        publishedPageCount: 0,
         latestDeploymentStatus: "queued",
       }),
     ).toBe("deploying");
