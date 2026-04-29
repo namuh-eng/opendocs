@@ -1,3 +1,4 @@
+import { getClientRateLimitKey } from "@/lib/client-rate-limit-key";
 import { createRequestId, logger } from "@/lib/logger";
 import { applyRateLimit, buildRateLimitHeaders } from "@/lib/rate-limit";
 import { assertSafeProxyUrl } from "@/lib/ssrf-protection";
@@ -9,9 +10,9 @@ import { NextResponse } from "next/server";
  */
 export async function POST(req: Request): Promise<NextResponse> {
   const requestId = createRequestId();
-  const forwardedFor = req.headers.get("x-forwarded-for") ?? "unknown";
+  const rateLimitKey = getClientRateLimitKey(req.headers, "docs-proxy");
   const rateLimit = applyRateLimit({
-    key: `docs-proxy:${forwardedFor}`,
+    key: rateLimitKey,
     limit: 20,
     windowMs: 60_000,
   });
@@ -20,7 +21,7 @@ export async function POST(req: Request): Promise<NextResponse> {
       requestId,
       route: "/api/docs/proxy",
       method: "POST",
-      forwardedFor,
+      rateLimitKey,
     });
     return NextResponse.json(
       { error: "Too many proxy requests" },
