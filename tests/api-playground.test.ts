@@ -329,3 +329,29 @@ describe("API Playground HTML Renderer", () => {
     expect(html).toContain('"email"');
   });
 });
+
+describe("renderApiPlaygroundHtml security", () => {
+  it("escapes OpenAPI-derived attribute values", () => {
+    const html = renderApiPlaygroundHtml({
+      method: "GET",
+      path: '/users/" onclick="alert(1)',
+      operationId: 'op" onmouseover="alert(1)',
+      summary: "Safe summary",
+      parameters: [
+        {
+          name: 'q" autofocus onfocus="alert(1)',
+          in: "query",
+          required: false,
+          schema: { type: 'string" onfocus="alert(1)', default: 'x" y' },
+        },
+      ],
+      baseUrl: 'https://api.example.com/" onclick="alert(1)',
+      responses: {},
+    });
+
+    expect(html).not.toContain('onclick="alert(1)');
+    expect(html).not.toContain('onfocus="alert(1)');
+    expect(html).toContain("&quot; onclick=&quot;alert(1)");
+    expect(html).toContain("q&quot; autofocus onfocus=&quot;alert(1)");
+  });
+});
