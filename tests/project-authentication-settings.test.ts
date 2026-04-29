@@ -5,6 +5,11 @@ import {
   readProjectAuthenticationSettings,
   validateProjectAuthenticationSettings,
 } from "@/lib/project-authentication-settings";
+import {
+  createDocsAccessToken,
+  hasValidDocsAccess,
+  isValidDocsPassword,
+} from "@/lib/project-docs-access";
 import { isProjectPasswordProtected } from "@/lib/project-publication-auth";
 
 describe("project authentication settings", () => {
@@ -50,6 +55,29 @@ describe("project authentication settings", () => {
     expect(
       validateProjectAuthenticationSettings({ mode: "password", password: "" }),
     ).toBe("Password protection requires a password.");
+  });
+
+  it("validates docs access passwords and cookies", () => {
+    const settings = {
+      authentication: { mode: "password", password: "secret" },
+    };
+    expect(isValidDocsPassword(settings, "secret")).toBe(true);
+    expect(isValidDocsPassword(settings, "wrong")).toBe(false);
+    expect(hasValidDocsAccess(settings, "docs", undefined)).toBe(false);
+    expect(
+      hasValidDocsAccess(
+        settings,
+        "docs",
+        createDocsAccessToken("docs", "secret"),
+      ),
+    ).toBe(true);
+    expect(
+      hasValidDocsAccess(
+        { authentication: { mode: "public" } },
+        "docs",
+        undefined,
+      ),
+    ).toBe(true);
   });
 
   it("detects password-protected published docs settings", () => {

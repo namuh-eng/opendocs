@@ -15,6 +15,10 @@
 import { buildSearchQuery } from "@/lib/assistant";
 import { db } from "@/lib/db";
 import { pages, projects } from "@/lib/db/schema";
+import {
+  getDocsAccessCookieName,
+  hasValidDocsAccess,
+} from "@/lib/project-docs-access";
 import { extractSnippet, getBreadcrumb } from "@/lib/search";
 import { and, eq, ilike, or, sql } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
@@ -46,13 +50,26 @@ export async function GET(request: NextRequest, context: RouteContext) {
 
   // Find the project by subdomain
   const projectResult = await db
-    .select({ id: projects.id })
+    .select({ id: projects.id, settings: projects.settings })
     .from(projects)
     .where(eq(projects.subdomain, subdomain))
     .limit(1);
 
   if (projectResult.length === 0) {
     return NextResponse.json({ message: "Project not found" }, { status: 404 });
+  }
+
+  if (
+    !hasValidDocsAccess(
+      projectResult[0].settings,
+      subdomain,
+      request.cookies.get(getDocsAccessCookieName(subdomain))?.value,
+    )
+  ) {
+    return NextResponse.json(
+      { message: "Docs password required" },
+      { status: 401 },
+    );
   }
 
   const projectId = projectResult[0].id;
