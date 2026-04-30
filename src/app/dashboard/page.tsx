@@ -1,6 +1,9 @@
 import { ACTIVE_PROJECT_COOKIE, findActiveProject } from "@/lib/active-project";
 import { getBetterAuthUrl } from "@/lib/auth";
-import { projectDisplayStatus } from "@/lib/dashboard";
+import {
+  effectiveDeploymentStatus,
+  projectDisplayStatus,
+} from "@/lib/dashboard";
 import { db } from "@/lib/db";
 import {
   deployments,
@@ -201,6 +204,25 @@ export default async function DashboardPage() {
     }
   }
 
+  const isPublishedProjectLive =
+    project?.status === "active" && publishedPageCount > 0;
+  const visibleManualHandoffs = manualHandoffs.filter((handoff) => {
+    const detailsProjectId = handoff.details.projectId;
+    if (
+      isPublishedProjectLive &&
+      detailsProjectId === project?.id &&
+      (handoff.action === "deployment_manual_handoff_required" ||
+        handoff.action === "project_initial_deployment_manual_handoff_required")
+    ) {
+      return false;
+    }
+    return true;
+  });
+  const visibleManualHandoffStats =
+    visibleManualHandoffs.length === 0
+      ? { ...manualHandoffStats, oldestUnresolvedMs: null }
+      : manualHandoffStats;
+
   return (
     <DashboardHomeClient
       greeting={greeting}
@@ -222,6 +244,13 @@ export default async function DashboardPage() {
       }
       deployments={projectDeployments.map((d) => ({
         ...d,
+        status: project
+          ? effectiveDeploymentStatus({
+              status: d.status,
+              projectStatus: project.status,
+              publishedPageCount,
+            })
+          : d.status,
         startedAt: d.startedAt?.toISOString() ?? null,
         endedAt: d.endedAt?.toISOString() ?? null,
         createdAt: d.createdAt.toISOString(),
@@ -232,9 +261,9 @@ export default async function DashboardPage() {
         endedAt: d.endedAt?.toISOString() ?? null,
         createdAt: d.createdAt.toISOString(),
       }))}
-      manualHandoffs={manualHandoffs}
+      manualHandoffs={visibleManualHandoffs}
       resolvedManualHandoffs={resolvedManualHandoffs}
-      manualHandoffStats={manualHandoffStats}
+      manualHandoffStats={visibleManualHandoffStats}
       resolvedManualHandoffStats={resolvedManualHandoffStats}
       publishedPages={publishedPages}
     />
