@@ -66,6 +66,31 @@ export function formatDomainDisplay(
 
 export type ProjectDisplayStatus = "active" | "deploying" | "error";
 
+type DeploymentStatus = "queued" | "in_progress" | "succeeded" | "failed";
+
+/**
+ * Normalize deployment rows for dashboard display.
+ *
+ * In manual execution mode, deployment rows can remain queued/in_progress even
+ * after the project has published pages. For the user's dashboard, published
+ * live content is the stronger source of truth, so show those stale rows as
+ * successful instead of leaving the activity feed stuck on Updating.
+ */
+export function effectiveDeploymentStatus(params: {
+  status: string;
+  projectStatus: string;
+  publishedPageCount: number;
+}): DeploymentStatus {
+  if (params.status === "failed") return "failed";
+  if (params.status === "succeeded") return "succeeded";
+
+  if (params.projectStatus === "active" && params.publishedPageCount > 0) {
+    return "succeeded";
+  }
+
+  return params.status === "in_progress" ? "in_progress" : "queued";
+}
+
 /** Determine the dashboard status from deploy state and published content. */
 export function projectDisplayStatus(params: {
   projectStatus: string;

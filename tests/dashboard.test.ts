@@ -1,6 +1,7 @@
 import {
   buildQuickActionCards,
   buildSiteUrl,
+  effectiveDeploymentStatus,
   formatDomainDisplay,
   projectDisplayStatus,
   projectStatusSummary,
@@ -115,6 +116,48 @@ describe("projectStatusSummary", () => {
     expect(projectStatusSummary("active", "Something", null)).toBe(
       "No deployments yet",
     );
+  });
+});
+
+describe("effectiveDeploymentStatus", () => {
+  it("shows stale queued deployment rows as successful once published docs are live", () => {
+    expect(
+      effectiveDeploymentStatus({
+        status: "queued",
+        projectStatus: "active",
+        publishedPageCount: 3,
+      }),
+    ).toBe("succeeded");
+  });
+
+  it("shows stale in-progress deployment rows as successful once published docs are live", () => {
+    expect(
+      effectiveDeploymentStatus({
+        status: "in_progress",
+        projectStatus: "active",
+        publishedPageCount: 3,
+      }),
+    ).toBe("succeeded");
+  });
+
+  it("preserves failed deployment rows", () => {
+    expect(
+      effectiveDeploymentStatus({
+        status: "failed",
+        projectStatus: "active",
+        publishedPageCount: 3,
+      }),
+    ).toBe("failed");
+  });
+
+  it("keeps deployments pending while no pages are published", () => {
+    expect(
+      effectiveDeploymentStatus({
+        status: "in_progress",
+        projectStatus: "active",
+        publishedPageCount: 0,
+      }),
+    ).toBe("in_progress");
   });
 });
 
