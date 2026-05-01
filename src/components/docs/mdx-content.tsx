@@ -18,6 +18,25 @@ export function MdxContent({ html }: MdxContentProps) {
     const container = containerRef.current;
     if (!container) return;
 
+    // Imported READMEs often include dynamic GitHub shields that render as
+    // "invalid" when the source repo is private, renamed, or unavailable. Hide
+    // those volatile social/count badges rather than surfacing broken chrome at
+    // the top of generated docs pages.
+    const volatileBadgeImages = container.querySelectorAll<HTMLImageElement>(
+      'img[src*="img.shields.io/github/stars"], img[src*="img.shields.io/github/issues"]',
+    );
+    for (const img of volatileBadgeImages) {
+      const parentAnchor = img.parentElement;
+      if (
+        parentAnchor?.tagName === "A" &&
+        parentAnchor.textContent?.trim() === ""
+      ) {
+        parentAnchor.remove();
+      } else {
+        img.remove();
+      }
+    }
+
     // Wire up tab switching
     const tabButtons = container.querySelectorAll<HTMLButtonElement>(
       ".tab-bar .tab-button",
