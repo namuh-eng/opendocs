@@ -105,22 +105,6 @@ function applyProjectBrandCasing(title: string, projectName: string): string {
     : title;
 }
 
-function applyProjectBrandCasingToContent(
-  content: string,
-  projectName: string,
-): string {
-  const brandName = projectName.replace(/\s+docs$/i, "").trim();
-  if (!brandName || !/^[a-z0-9]+$/i.test(brandName)) return content;
-
-  return content.replace(
-    new RegExp(
-      `\\b${brandName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`,
-      "gi",
-    ),
-    brandName,
-  );
-}
-
 export async function generateMetadata({
   params,
 }: DocsPageProps): Promise<Metadata> {
@@ -455,10 +439,7 @@ export default async function DocsPage({
     // Render DB page (existing behavior)
     pageTitle = applyProjectBrandCasing(currentPage.title, project.name);
     pageDescription = currentPage.description || "";
-    pageContent = applyProjectBrandCasingToContent(
-      currentPage.content || "",
-      project.name,
-    );
+    pageContent = currentPage.content || "";
 
     // Resolve snippets and variables before rendering
     const snippetPages = allPages
