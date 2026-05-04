@@ -1,4 +1,6 @@
+import { getServerSession } from "@/lib/session";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 const links = [
   {
@@ -19,7 +21,13 @@ const links = [
   },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const session = await getServerSession();
+
+  if (session) {
+    redirect("/dashboard");
+  }
+
   return (
     <main className="min-h-screen bg-[#0b0b0d] text-white">
       <div className="mx-auto flex min-h-screen max-w-6xl flex-col justify-center px-6 py-20">

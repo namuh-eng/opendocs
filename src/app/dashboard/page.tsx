@@ -18,7 +18,14 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { DashboardHomeClient } from "./dashboard-home-client";
 
-export default async function DashboardPage() {
+interface DashboardPageProps {
+  params?: Promise<{ orgSlug?: string; projectSlug?: string }>;
+}
+
+export default async function DashboardPage({
+  params,
+}: DashboardPageProps = {}) {
+  const routeParams = await params;
   const session = await getServerSession();
   if (!session) redirect("/login");
 
@@ -35,7 +42,14 @@ export default async function DashboardPage() {
     })
     .from(orgMemberships)
     .innerJoin(organizations, eq(orgMemberships.orgId, organizations.id))
-    .where(eq(orgMemberships.userId, session.user.id))
+    .where(
+      routeParams?.orgSlug
+        ? and(
+            eq(orgMemberships.userId, session.user.id),
+            eq(organizations.slug, routeParams.orgSlug),
+          )
+        : eq(orgMemberships.userId, session.user.id),
+    )
     .limit(1);
 
   if (membership.length === 0) redirect("/onboarding");
@@ -49,7 +63,11 @@ export default async function DashboardPage() {
     .orderBy(projects.createdAt);
 
   const activeProjectId = (await cookies()).get(ACTIVE_PROJECT_COOKIE)?.value;
-  const project = findActiveProject(orgProjects, activeProjectId);
+  const project = routeParams?.projectSlug
+    ? (orgProjects.find(
+        (candidate) => candidate.slug === routeParams.projectSlug,
+      ) ?? findActiveProject(orgProjects, activeProjectId))
+    : findActiveProject(orgProjects, activeProjectId);
 
   type DeploymentRow = {
     id: string;
@@ -204,8 +222,7 @@ export default async function DashboardPage() {
     }
   }
 
-  const isPublishedProjectLive =
-    project?.status === "active" && publishedPageCount > 0;
+  const isPublishedProjectLive = project?.status === "active";
   const visibleManualHandoffs = manualHandoffs.filter((handoff) => {
     const detailsProjectId = handoff.details.projectId;
     if (
@@ -233,6 +250,9 @@ export default async function DashboardPage() {
               id: project.id,
               name: project.name,
               subdomain: project.subdomain,
+              repoUrl: project.repoUrl,
+              repoBranch: project.repoBranch,
+              repoPath: project.repoPath,
               status: projectDisplayStatus({
                 projectStatus: project.status,
                 publishedPageCount,

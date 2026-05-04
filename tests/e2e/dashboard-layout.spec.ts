@@ -118,6 +118,8 @@ test.describe("Dashboard Layout", () => {
     await page.goto("/dashboard");
     await expect(page.getByTestId("trial-banner")).toBeVisible();
     await expect(page.getByText("free trial")).toBeVisible();
+    await expect(page.getByText("May 18, 2026")).toBeVisible();
+    await expect(page.getByText("April 19, 2026")).toBeHidden();
   });
 
   test("trial banner dismissal persists after reload", async ({ page }) => {
