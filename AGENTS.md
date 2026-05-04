@@ -80,3 +80,54 @@ Test the SDK manually: import it, call the API, verify response.
 - Commit fixes: `git commit -m "fix: <description>"`
 - Push after every commit: `git push`
 - **NEVER weaken or delete tests to make them pass.** Fix the code, not the test.
+
+## Recovery Rules (autonomous loop — DO NOT pause)
+
+Ashley is building a closed-loop environment. You must keep working autonomously and never halt for human input unless every recovery path is exhausted. Optional human intervention is fine; mandatory waiting is not.
+
+### Detection signals (any of these means you are blocked)
+
+- HTTP 429 / "rate limit" / "too many requests" from Anthropic, OpenAI, GitHub, Vercel, AWS, or any external API
+- Build or test hangs > 5 min with no output
+- `make check` / `make test` / `make test-e2e` failing in a way you cannot diagnose in 2 attempts
+- Merge conflict on rebase or PR
+- Codex / agent stops to ask "approval required" / "needs review"
+- Tooling auth failed (gh CLI, AWS, npm registry)
+
+### Recovery procedure (in order — do not skip)
+
+1. **Print a clearly-keyworded line** so clawhip catches it. Use one of: `rate limit`, `merge conflict`, `tests failed`, `error TS`, `approval required`, `blocked`, `needs review`, `auth failed` — verbatim.
+2. **Log the blocker** to `private/recovery-log.jsonl` (gitignored) with timestamp, signal type, and one-line context.
+3. **Backoff schedule for rate limits**: 1 min → 5 min → 15 min → 30 min → 60 min → 2 h. Never sleep longer than 2 h in one stretch.
+4. **Do not pause the whole agent**. Switch to fallback work (see below) and emit a heartbeat every 4 min so clawhip stale-detection does not fire.
+5. **For merge conflicts**: rebase on `staging` (never `main`), resolve in favor of the more recent semantically-correct change, run `make check && make test`, force-push the agent branch. Never abandon the PR.
+6. **For test failures you cannot fix in 2 attempts**: emit `tests failed: <one-line>`, switch to fallback work, retry the failing test set later with a fresh shell.
+7. **After 4 failed retry rounds** (≈3.75 h cumulative blocked on the same task): emit `blocked: <task> exceeded all retries — needs human review`, stop attempting that task for the day, continue all other work.
+
+### Fallback work while blocked (always available, never empty)
+
+In priority order — if the current task is stuck, pick the next available item:
+
+1. Review other open PRs labeled `agent:shadowfax` and finish anything ready to merge into `staging`.
+2. Run `make check && make test` on a clean checkout of `staging` and report any drift.
+3. Pick another open issue labeled `agent:shadowfax` and start it (claim per the GitHub Claim Labels section).
+4. Lint/format pass: `make check` then commit any auto-fix output.
+5. Documentation polish in `docs/` or inline comments where coverage is thin.
+6. Tidy `private/recovery-log.jsonl` and reconcile with closed issues.
+
+### Hard rules
+
+- Never wait silently. clawhip's stale-detection fires after 5 minutes of no pane output — emit at least one line per 4 minutes.
+- Never weaken or delete tests to make them pass.
+- Never push to `main`. Always branch -> PR into `staging` -> verify -> merge into `staging` only.
+- Never use `--no-verify` / `--no-gpg-sign` / `git push --force` to main.
+- If you discover a blocker that genuinely requires human judgment (security, payment, account access), emit `needs human: <one-line>` and continue with fallback work.
+
+### Heartbeat format
+
+Every 4 minutes minimum during long-running work, print one line:
+```
+[heartbeat] <iso8601> | task=<short> | status=<running|sleeping|fallback> | next=<one-line>
+```
+
+This keeps the autonomous loop alive and gives clawhip a clean trail.
