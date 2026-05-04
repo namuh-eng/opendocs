@@ -42,14 +42,7 @@ export default async function DashboardPage({
     })
     .from(orgMemberships)
     .innerJoin(organizations, eq(orgMemberships.orgId, organizations.id))
-    .where(
-      routeParams?.orgSlug
-        ? and(
-            eq(orgMemberships.userId, session.user.id),
-            eq(organizations.slug, routeParams.orgSlug),
-          )
-        : eq(orgMemberships.userId, session.user.id),
-    )
+    .where(eq(orgMemberships.userId, session.user.id))
     .limit(1);
 
   if (membership.length === 0) redirect("/onboarding");
