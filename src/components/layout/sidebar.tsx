@@ -56,27 +56,31 @@ const mainNavItems: NavItem[] = [
 
 const agentNavItems: NavItem[] = [
   {
+    label: "Workflows",
+    href: "/products/workflows",
+    icon: <GitBranch size={18} />,
+    badge: "New",
+  },
+  {
     label: "Agent",
     href: "/products/agent",
     icon: <Bot size={18} />,
-    badge: "New",
   },
   {
     label: "Assistant",
     href: "/products/assistant",
     icon: <MessageCircle size={18} />,
   },
-  {
-    label: "Workflows",
-    href: "/products/workflows",
-    icon: <GitBranch size={18} />,
-  },
   { label: "MCP", href: "/products/mcp", icon: <Server size={18} /> },
 ];
 
 function isActive(pathname: string, href: string): boolean {
   if (href === "/dashboard") {
-    return pathname === "/dashboard" || pathname.endsWith("/dashboard");
+    return (
+      pathname === "/dashboard" ||
+      pathname.endsWith("/dashboard") ||
+      pathname.endsWith("/home")
+    );
   }
   return pathname.startsWith(href);
 }
@@ -412,6 +416,31 @@ export function Sidebar({
             ))}
           </div>
         </nav>
+
+        <div className="px-3 pb-3">
+          <Link
+            href="/products/workflows"
+            onClick={() => onCloseMobile?.()}
+            className={clsx(
+              "block rounded-xl border p-3 transition-colors",
+              theme === "light"
+                ? "border-slate-200 bg-slate-50 hover:bg-slate-100"
+                : "border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.06]",
+            )}
+          >
+            <div
+              className={clsx("text-xs font-medium", shellTheme.primaryText)}
+            >
+              Workflows
+            </div>
+            <div className={clsx("mt-1 text-xs", shellTheme.secondaryText)}>
+              Control when the agent takes autonomous actions
+            </div>
+            <div className="mt-2 text-xs font-medium text-emerald-400">
+              Check it out
+            </div>
+          </Link>
+        </div>
 
         <div className={clsx("border-t px-3 py-3", shellTheme.divider)}>
           {isMobile ? (
