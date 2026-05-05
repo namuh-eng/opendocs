@@ -27,10 +27,7 @@ interface SearchResultGroup {
 
 /** Returns true if the shortcut should open the search modal */
 export function handleSearchShortcut(event: KeyboardEvent): boolean {
-  if (event.key === "k" && (event.metaKey || event.ctrlKey)) {
-    return true;
-  }
-  return false;
+  return event.key.toLowerCase() === "k" && (event.metaKey || event.ctrlKey);
 }
 
 /** Filter pages by search query (case-insensitive, matches title or path) — client-side fallback */
@@ -50,6 +47,16 @@ export function filterPages(
 
 const RECENT_KEY = "docs-recent-searches";
 const MAX_RECENT = 5;
+
+type DocsSearchWindow = Window & { __docsSearchRequested?: boolean };
+
+function consumePendingSearchRequest(): boolean {
+  if (typeof window === "undefined") return false;
+  const docsWindow = window as DocsSearchWindow;
+  if (!docsWindow.__docsSearchRequested) return false;
+  docsWindow.__docsSearchRequested = false;
+  return true;
+}
 
 function getRecentSearches(): string[] {
   if (typeof window === "undefined") return [];
@@ -211,15 +218,7 @@ export function SearchModal({ pages, subdomain }: SearchModalProps) {
     function onKeyDown(e: KeyboardEvent) {
       if (handleSearchShortcut(e)) {
         e.preventDefault();
-        setIsOpen((prev) => {
-          if (!prev) {
-            setQuery("");
-            setResults([]);
-            setSelectedIdx(0);
-            setRecentSearches(getRecentSearches());
-          }
-          return !prev;
-        });
+        open();
       }
       if (e.key === "Escape" && isOpen) {
         close();
@@ -227,7 +226,7 @@ export function SearchModal({ pages, subdomain }: SearchModalProps) {
     }
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
-  }, [isOpen, close]);
+  }, [isOpen, close, open]);
 
   // Auto-focus input
   useEffect(() => {
@@ -236,9 +235,14 @@ export function SearchModal({ pages, subdomain }: SearchModalProps) {
     }
   }, [isOpen]);
 
-  // Expose open via custom event
+  // Expose open via custom event and consume any shortcut pressed before hydration.
   useEffect(() => {
+    if (consumePendingSearchRequest()) {
+      open();
+    }
+
     function handleOpenSearch() {
+      consumePendingSearchRequest();
       open();
     }
     document.addEventListener("open-search", handleOpenSearch);

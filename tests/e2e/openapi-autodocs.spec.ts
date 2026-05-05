@@ -1,6 +1,8 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("OpenAPI/AsyncAPI auto-documentation", () => {
+  test.use({ storageState: { cookies: [], origins: [] } });
+
   test("openapi-spec API route returns 401 without auth", async ({
     request,
   }) => {

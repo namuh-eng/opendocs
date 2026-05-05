@@ -10,7 +10,11 @@ interface DocsTocProps {
 export function DocsToc({ entries }: DocsTocProps) {
   // Filter to H2 and H3 only for display
   const displayEntries = entries.filter((e) => e.level >= 2 && e.level <= 3);
-  const [activeId, setActiveId] = useState<string>("");
+  const [activeId, setActiveId] = useState<string>(displayEntries[0]?.id ?? "");
+
+  useEffect(() => {
+    setActiveId((current) => current || displayEntries[0]?.id || "");
+  }, [displayEntries]);
 
   useEffect(() => {
     if (displayEntries.length === 0) return;
