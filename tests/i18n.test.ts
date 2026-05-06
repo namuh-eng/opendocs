@@ -348,4 +348,14 @@ describe("getAvailableLocalesForPage", () => {
     );
     expect(locales).toEqual(["en"]);
   });
+
+  it("can expose all configured locales for generated routes", () => {
+    const locales = getAvailableLocalesForPage(
+      allPages,
+      "api-reference/get-plants",
+      config,
+      { includeConfiguredRoutes: true },
+    );
+    expect(locales).toEqual(["en", "fr", "es"]);
+  });
 });

@@ -289,8 +289,10 @@ export function getAvailableLocalesForPage(
   allPages: { path: string }[],
   pagePath: string,
   config: LanguagesConfig,
+  options?: { includeConfiguredRoutes?: boolean },
 ): string[] {
   if (!config.enabled) return [config.defaultLanguage];
+  if (options?.includeConfiguredRoutes) return config.supportedLanguages;
 
   const available: string[] = [];
 
