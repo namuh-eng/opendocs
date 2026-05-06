@@ -68,11 +68,13 @@ export function PageHeaderActions({
       <button
         type="button"
         data-testid="copy-page-btn"
-        className="page-action-btn"
+        className={`page-action-btn page-copy-btn${copied ? " copied" : ""}`}
         onClick={handleCopy}
-        title="Copy page as markdown"
+        aria-label={copied ? "Copied page markdown" : "Copy page as markdown"}
+        title={copied ? "Copied" : "Copy page as markdown"}
       >
         {copied ? <Check size={16} /> : <Copy size={16} />}
+        {copied && <span>Copied</span>}
       </button>
 
       <div className="page-actions-dropdown" ref={menuRef}>

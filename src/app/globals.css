@@ -330,6 +330,15 @@ body {
   border-color: #4b5563;
 }
 
+.page-copy-btn.copied {
+  width: auto;
+  gap: 6px;
+  padding: 0 10px;
+  color: #d1fae5;
+  border-color: rgba(16, 185, 129, 0.45);
+  background: rgba(16, 185, 129, 0.12);
+}
+
 .page-actions-dropdown {
   position: relative;
 }
@@ -2273,6 +2282,12 @@ pre.mermaid svg {
   background: #f3f4f6;
   color: #111827;
   border-color: #9ca3af;
+}
+
+[data-theme="light"] .page-copy-btn.copied {
+  color: #047857;
+  border-color: rgba(16, 185, 129, 0.5);
+  background: #ecfdf5;
 }
 
 [data-theme="light"] .page-actions-menu {
