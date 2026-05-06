@@ -310,7 +310,7 @@ export function parseMdxToHtml(content: string): string {
       const text = headingMatch[2].trim();
       const id = slugify(text);
       output.push(
-        `<h${level} id="${id}"><a href="#${id}" class="heading-anchor">${renderInline(text)}</a></h${level}>`,
+        `<h${level} id="${id}"><a href="#${id}" class="heading-anchor" aria-label="Navigate to header">${renderInline(text)}</a></h${level}>`,
       );
       i++;
       continue;
