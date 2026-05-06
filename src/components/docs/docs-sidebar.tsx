@@ -8,7 +8,7 @@ import {
 import type { DocsNavEntry } from "@/lib/mdx-renderer";
 import { ChevronDown, FileText } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useId, useState } from "react";
 
 interface DocsSidebarProps {
   nav: DocsNavEntry[];
@@ -132,14 +132,17 @@ function NavGroup({
   activePath: string;
   subdomain: string;
 }) {
-  const isGroupActive = entry.items.some((item) => item.path === activePath);
   const [isOpen, setIsOpen] = useState(true);
+  const groupItemsId = useId();
 
   return (
     <div className="docs-nav-group">
       <button
         type="button"
         className="docs-nav-group-label"
+        aria-label={`Toggle ${entry.label} section`}
+        aria-expanded={isOpen}
+        aria-controls={groupItemsId}
         onClick={() => setIsOpen(!isOpen)}
       >
         <span>{entry.label}</span>
@@ -149,7 +152,7 @@ function NavGroup({
         />
       </button>
       {isOpen && (
-        <div className="docs-nav-group-items">
+        <div className="docs-nav-group-items" id={groupItemsId}>
           {entry.items.map((item) => (
             <NavItem
               key={item.pageId}
