@@ -18,6 +18,13 @@ interface ChatState {
   threadId: string | null;
 }
 
+interface ChatAttachment {
+  id: string;
+  name: string;
+  size: number;
+  type: string;
+}
+
 type ChatAction =
   | { type: "TOGGLE" }
   | { type: "OPEN" }
@@ -147,8 +154,10 @@ export function ChatWidget({ subdomain, currentPath }: ChatWidgetProps) {
   });
 
   const [input, setInput] = useState("");
+  const [attachments, setAttachments] = useState<ChatAttachment[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
 
   // Listen for toggle-ask-ai custom event from topbar button
@@ -199,10 +208,22 @@ export function ChatWidget({ subdomain, currentPath }: ChatWidgetProps) {
 
   const sendMessage = useCallback(async () => {
     const trimmed = input.trim();
-    if (!trimmed || state.isStreaming) return;
+    if ((!trimmed && attachments.length === 0) || state.isStreaming) return;
+
+    const attachmentSummary =
+      attachments.length > 0
+        ? `\n\nAttachments selected (metadata only): ${attachments
+            .map((file) => `${file.name} (${file.type || "unknown type"})`)
+            .join(", ")}`
+        : "";
+    const messageContent =
+      trimmed || "Please review the selected attachment metadata.";
+    const contentWithAttachments = `${messageContent}${attachmentSummary}`;
 
     setInput("");
-    dispatch({ type: "ADD_USER_MESSAGE", content: trimmed });
+    setAttachments([]);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    dispatch({ type: "ADD_USER_MESSAGE", content: contentWithAttachments });
     dispatch({ type: "START_STREAMING" });
 
     // Build messages for request (current messages + new user message)
@@ -215,7 +236,7 @@ export function ChatWidget({ subdomain, currentPath }: ChatWidgetProps) {
       {
         id: `msg-${Date.now()}`,
         role: "user",
-        content: trimmed,
+        content: contentWithAttachments,
       },
     ];
 
@@ -300,6 +321,7 @@ export function ChatWidget({ subdomain, currentPath }: ChatWidgetProps) {
     }
   }, [
     input,
+    attachments,
     state.isStreaming,
     state.messages,
     state.threadId,
@@ -312,6 +334,21 @@ export function ChatWidget({ subdomain, currentPath }: ChatWidgetProps) {
       e.preventDefault();
       sendMessage();
     }
+  };
+
+  const handleAttachmentChange = (files: FileList | null) => {
+    const selected = Array.from(files ?? []).map((file) => ({
+      id: `${file.name}-${file.size}-${file.lastModified}`,
+      name: file.name,
+      size: file.size,
+      type: file.type,
+    }));
+    setAttachments(selected);
+  };
+
+  const removeAttachment = (id: string) => {
+    setAttachments((current) => current.filter((file) => file.id !== id));
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   if (!state.isOpen) return null;
@@ -474,6 +511,25 @@ export function ChatWidget({ subdomain, currentPath }: ChatWidgetProps) {
 
       {/* Input */}
       <div className="chat-widget-input-area">
+        {attachments.length > 0 && (
+          <div className="chat-attachments" data-testid="chat-attachments">
+            {attachments.map((file) => (
+              <span className="chat-attachment-chip" key={file.id}>
+                {file.name}
+                <button
+                  type="button"
+                  aria-label={`Remove attachment ${file.name}`}
+                  onClick={() => removeAttachment(file.id)}
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+            <span className="chat-attachment-note">
+              File contents are not uploaded yet.
+            </span>
+          </div>
+        )}
         <textarea
           ref={inputRef}
           data-testid="chat-input"
@@ -485,11 +541,45 @@ export function ChatWidget({ subdomain, currentPath }: ChatWidgetProps) {
           rows={1}
           disabled={state.isStreaming}
         />
+        <input
+          ref={fileInputRef}
+          data-testid="chat-attachment-input"
+          className="chat-attachment-input"
+          type="file"
+          multiple
+          accept="image/*,.pdf,.js,.jsx,.ts,.tsx,.mjs,.cjs,.md,.mdx,.json,.html,.css,.py,.csv,.txt,.yaml,.yml,.xml"
+          onChange={(e) => handleAttachmentChange(e.target.files)}
+        />
+        <button
+          type="button"
+          data-testid="chat-attachment-btn"
+          className="chat-widget-attachment-btn"
+          aria-label="Add attachment"
+          title="Add attachment"
+          disabled={state.isStreaming}
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M21.44 11.05 12.25 20.24a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+          </svg>
+        </button>
         <button
           type="button"
           data-testid="chat-send-btn"
           className="chat-widget-send-btn"
-          disabled={!input.trim() || state.isStreaming}
+          disabled={
+            (!input.trim() && attachments.length === 0) || state.isStreaming
+          }
           onClick={sendMessage}
           title="Send message"
         >
