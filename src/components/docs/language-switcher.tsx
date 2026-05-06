@@ -60,6 +60,7 @@ export function LanguageSwitcher({
         type="button"
         className="lang-switcher-btn"
         onClick={() => setOpen((v) => !v)}
+        aria-label={`Select docs language, current language ${currentInfo?.name ?? currentLocale}`}
         aria-expanded={open}
         aria-haspopup="listbox"
         data-testid="language-switcher-btn"
@@ -109,6 +110,7 @@ export function LanguageSwitcher({
               <button
                 key={locale}
                 type="button"
+                aria-label={`Switch to ${info?.name ?? locale}`}
                 aria-current={isActive ? "true" : undefined}
                 className={`lang-switcher-option ${isActive ? "lang-switcher-option-active" : ""}`}
                 onClick={() => handleSelect(locale)}

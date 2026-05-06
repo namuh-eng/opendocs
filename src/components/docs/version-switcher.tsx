@@ -69,6 +69,7 @@ export function VersionSwitcher({
         type="button"
         className="version-switcher-btn"
         onClick={() => setOpen((v) => !v)}
+        aria-label={`Select docs version, current version ${currentInfo?.name ?? currentVersion}`}
         aria-expanded={open}
         aria-haspopup="listbox"
         data-testid="version-switcher-btn"
@@ -118,6 +119,7 @@ export function VersionSwitcher({
               <button
                 key={tag}
                 type="button"
+                aria-label={`Switch to docs version ${info?.name ?? tag}${isDefault ? " (default)" : ""}`}
                 aria-current={isActive ? "true" : undefined}
                 className={`version-switcher-option ${isActive ? "version-switcher-option-active" : ""}`}
                 onClick={() => handleSelect(tag)}
