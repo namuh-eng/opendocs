@@ -1,9 +1,20 @@
-import { describe, expect, it, vi } from "vitest";
+import { act, createElement } from "react";
+import { createRoot } from "react-dom/client";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 // Mock next/navigation
 vi.mock("next/navigation", () => ({
   usePathname: () => "/docs/test-project/quickstart",
 }));
+
+// React 19 requires this flag for act() in non-testing-library environments.
+(
+  globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }
+).IS_REACT_ACT_ENVIRONMENT = true;
+
+afterEach(() => {
+  document.body.innerHTML = "";
+});
 
 describe("Docs topbar — feature-014a", () => {
   describe("DocsTopbar component exports", () => {
@@ -96,6 +107,45 @@ describe("Docs topbar — feature-014a", () => {
       expect(events).toHaveLength(1);
 
       document.removeEventListener("toggle-ask-ai", handler);
+    });
+
+    it("renders Mintlify-parity labels for the topbar search and assistant buttons", async () => {
+      const { AskAiButton, DocsTopbar } = await import(
+        "@/components/docs/docs-topbar"
+      );
+
+      const container = document.createElement("div");
+      document.body.appendChild(container);
+      const root = createRoot(container);
+
+      await act(async () => {
+        root.render(
+          createElement(
+            "div",
+            null,
+            createElement(AskAiButton),
+            createElement(DocsTopbar, {
+              projectName: "Test Project",
+              subdomain: "test-project",
+            }),
+          ),
+        );
+      });
+
+      const askButton = container.querySelector<HTMLButtonElement>(
+        '[data-testid="ask-ai-btn"]',
+      );
+      const searchButton =
+        container.querySelector<HTMLButtonElement>(".docs-search-btn");
+
+      expect(askButton?.getAttribute("aria-label")).toBe(
+        "Toggle assistant panel",
+      );
+      expect(searchButton?.getAttribute("aria-label")).toBe("Open search");
+
+      await act(async () => {
+        root.unmount();
+      });
     });
   });
 

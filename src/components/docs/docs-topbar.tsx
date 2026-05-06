@@ -63,6 +63,7 @@ export function AskAiButton() {
       type="button"
       data-testid="ask-ai-btn"
       className="docs-topbar-ask-ai"
+      aria-label="Toggle assistant panel"
       onClick={() => {
         document.dispatchEvent(new CustomEvent("toggle-ask-ai"));
       }}
@@ -137,6 +138,7 @@ export function DocsTopbar({
         <button
           type="button"
           className="docs-search-btn"
+          aria-label="Open search"
           onClick={() => {
             document.dispatchEvent(new CustomEvent("open-search"));
           }}
@@ -148,9 +150,8 @@ export function DocsTopbar({
             fill="none"
             stroke="currentColor"
             strokeWidth="2"
-            aria-label="Search"
+            aria-hidden="true"
           >
-            <title>Search</title>
             <circle cx="11" cy="11" r="8" />
             <path d="m21 21-4.35-4.35" />
           </svg>
