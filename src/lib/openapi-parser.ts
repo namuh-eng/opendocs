@@ -354,6 +354,7 @@ export function renderApiPlaygroundHtml(endpoint: OpenApiEndpoint): string {
     <h4 class="api-section-title">Response</h4>
     <span class="api-status-code"></span>
     <span class="api-response-time"></span>
+    <a class="api-response-download" aria-label="Download response file" download="response.txt" href="#" style="display:none">Download</a>
   </div>
   <div class="api-response-tabs">
     <button class="api-resp-tab active" data-resp-tab="body">Body</button>

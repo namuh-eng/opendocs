@@ -304,6 +304,9 @@ describe("API Playground HTML Renderer", () => {
     const endpoints = parseOpenApiSpec(SAMPLE_OPENAPI_SPEC);
     const html = renderApiPlaygroundHtml(endpoints[0]);
     expect(html).toContain('class="api-response"');
+    expect(html).toContain('class="api-response-download"');
+    expect(html).toContain('aria-label="Download response file"');
+    expect(html).toContain('download="response.txt"');
   });
 
   it("renders different method badges with correct classes", () => {
