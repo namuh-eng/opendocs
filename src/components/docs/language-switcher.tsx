@@ -62,6 +62,7 @@ export function LanguageSwitcher({
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-haspopup="listbox"
+        aria-label="Select docs language"
         data-testid="language-switcher-btn"
       >
         <svg
@@ -110,6 +111,7 @@ export function LanguageSwitcher({
                 key={locale}
                 type="button"
                 aria-current={isActive ? "true" : undefined}
+                aria-label={`Select docs language ${info?.nativeName ?? locale}`}
                 className={`lang-switcher-option ${isActive ? "lang-switcher-option-active" : ""}`}
                 onClick={() => handleSelect(locale)}
                 data-testid={`lang-option-${locale}`}
