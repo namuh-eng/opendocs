@@ -304,6 +304,19 @@ describe("API Playground HTML Renderer", () => {
     const endpoints = parseOpenApiSpec(SAMPLE_OPENAPI_SPEC);
     const html = renderApiPlaygroundHtml(endpoints[0]);
     expect(html).toContain('class="api-response"');
+    expect(html).toContain('role="tablist" aria-label="Response sections"');
+    expect(html).toContain(
+      'role="tab" aria-selected="true" aria-label="Show response body"',
+    );
+    expect(html).toContain(
+      'role="tab" aria-selected="false" aria-label="Show response headers"',
+    );
+    expect(html).toContain(
+      'class="api-response-body" role="tabpanel" aria-label="Response body"',
+    );
+    expect(html).toContain(
+      'class="api-response-headers" role="tabpanel" aria-label="Response headers"',
+    );
   });
 
   it("renders different method badges with correct classes", () => {
