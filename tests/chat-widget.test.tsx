@@ -51,6 +51,48 @@ describe("Docs chat widget code context", () => {
     ).not.toBeNull();
   });
 
+  it("shows starter suggestions and applies one to the input", async () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const root = createRoot(container);
+
+    await act(async () => {
+      root.render(
+        <>
+          <AskAiButton />
+          <ChatWidget subdomain="feature004-qa" currentPath="introduction" />
+        </>,
+      );
+    });
+
+    await act(async () => {
+      container
+        .querySelector<HTMLButtonElement>('[data-testid="ask-ai-btn"]')
+        ?.click();
+    });
+
+    const suggestions = container.querySelector(
+      '[data-testid="chat-suggestions"]',
+    );
+    expect(suggestions?.textContent).toContain("Suggestions");
+    expect(suggestions?.textContent).toContain("How do I get started?");
+
+    await act(async () => {
+      Array.from(
+        container.querySelectorAll<HTMLButtonElement>(
+          ".chat-widget-suggestion",
+        ),
+      )
+        .find((button) => button.textContent === "How do I get started?")
+        ?.click();
+    });
+
+    expect(
+      container.querySelector<HTMLTextAreaElement>('[data-testid="chat-input"]')
+        ?.value,
+    ).toBe("How do I get started?");
+  });
+
   it("opens the chat panel with code context when a code-block Ask AI button is clicked", async () => {
     const html = renderMdxContent("```ts app.ts\nconst answer = 42;\n```");
     const container = document.createElement("div");
