@@ -18,6 +18,13 @@ describe("MDX Renderer utilities", () => {
       expect(result).toContain("Hello World");
     });
 
+    it("labels heading permalink anchors for assistive technology", () => {
+      const result = parseMdxToHtml("## Getting Started");
+      expect(result).toContain('href="#getting-started"');
+      expect(result).toContain('class="heading-anchor"');
+      expect(result).toContain('aria-label="Navigate to header"');
+    });
+
     it("converts bold and italic text", () => {
       const result = parseMdxToHtml("**bold** and *italic*");
       expect(result).toContain("<strong>bold</strong>");
