@@ -90,7 +90,8 @@ export function FeedbackWidget({ subdomain, pagePath }: FeedbackWidgetProps) {
               data-testid="feedback-thumbs-up"
               aria-label="Yes, this page was helpful"
             >
-              <ThumbsUp size={16} />
+              <ThumbsUp size={16} aria-hidden="true" />
+              <span className="docs-feedback-btn-label">Yes</span>
             </button>
             <button
               type="button"
@@ -99,7 +100,8 @@ export function FeedbackWidget({ subdomain, pagePath }: FeedbackWidgetProps) {
               data-testid="feedback-thumbs-down"
               aria-label="No, this page was not helpful"
             >
-              <ThumbsDown size={16} />
+              <ThumbsDown size={16} aria-hidden="true" />
+              <span className="docs-feedback-btn-label">No</span>
             </button>
           </div>
         </div>
