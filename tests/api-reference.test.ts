@@ -309,7 +309,15 @@ describe("renderApiReferencePage", () => {
 
   it("renders code section with language tabs and labeled actions", () => {
     const html = renderApiReferencePage(endpoint);
+    expect(html).toContain('role="tablist"');
+    expect(html).toContain('aria-label="Code examples"');
     expect(html).toContain("api-ref-lang-tab");
+    expect(html).toContain('role="tab"');
+    expect(html).toContain('aria-selected="true"');
+    expect(html).toContain('aria-selected="false"');
+    expect(html).toContain('aria-controls="api-ref-code-panel-curl"');
+    expect(html).toContain('role="tabpanel"');
+    expect(html).toContain('aria-labelledby="api-ref-lang-tab-curl"');
     expect(html).toContain("cURL");
     expect(html).toContain("Python");
     expect(html).toContain("JavaScript");

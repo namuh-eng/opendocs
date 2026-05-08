@@ -264,6 +264,15 @@ function escapeHtml(str: string): string {
     .replace(/"/g, "&quot;");
 }
 
+function safeAttributeId(str: string): string {
+  return (
+    str
+      .toLowerCase()
+      .replace(/[^a-z0-9_-]+/g, "-")
+      .replace(/^-+|-+$/g, "") || "code"
+  );
+}
+
 /**
  * Render a full API reference endpoint page as HTML.
  * Includes: method+URL header, cURL code block with language selector,
@@ -285,24 +294,24 @@ export function renderApiReferencePage(endpoint: OpenApiEndpoint): string {
   // Code examples with language selector
   const examples = generateCodeExamples(endpoint);
   const langTabs = examples
-    .map(
-      (ex, i) =>
-        `<button class="api-ref-lang-tab${i === 0 ? " active" : ""}" data-lang="${escapeHtml(ex.language)}">${escapeHtml(ex.label)}</button>`,
-    )
+    .map((ex, i) => {
+      const langId = safeAttributeId(ex.language);
+      return `<button id="api-ref-lang-tab-${langId}" class="api-ref-lang-tab${i === 0 ? " active" : ""}" data-lang="${escapeHtml(ex.language)}" role="tab" aria-selected="${i === 0 ? "true" : "false"}" aria-controls="api-ref-code-panel-${langId}" tabindex="${i === 0 ? "0" : "-1"}">${escapeHtml(ex.label)}</button>`;
+    })
     .join("\n  ");
 
   const codeBlocks = examples
-    .map(
-      (ex, i) =>
-        `<div class="api-ref-code-block${i === 0 ? " active" : ""}" data-lang="${escapeHtml(ex.language)}">
+    .map((ex, i) => {
+      const langId = safeAttributeId(ex.language);
+      return `<div id="api-ref-code-panel-${langId}" class="api-ref-code-block${i === 0 ? " active" : ""}" data-lang="${escapeHtml(ex.language)}" role="tabpanel" aria-labelledby="api-ref-lang-tab-${langId}"${i === 0 ? "" : " hidden"}>
     <pre><code>${escapeHtml(ex.code)}</code></pre>
-  </div>`,
-    )
+  </div>`;
+    })
     .join("\n");
 
   const codeSection = `<div class="api-ref-code-section" data-testid="code-section">
   <div class="api-ref-code-header">
-    <div class="api-ref-lang-tabs">
+    <div class="api-ref-lang-tabs" role="tablist" aria-label="Code examples">
       ${langTabs}
     </div>
     <div class="api-ref-code-actions">
