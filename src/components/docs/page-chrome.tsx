@@ -23,6 +23,7 @@ export function PageHeaderActions({
   const [copied, setCopied] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
   const menuId = useId();
 
   const handleCopy = useCallback(async () => {
@@ -43,16 +44,41 @@ export function PageHeaderActions({
     setMenuOpen(false);
   }, [pageUrl]);
 
-  // Close menu on click outside
+  const handleToggleMenu = useCallback(() => {
+    menuButtonRef.current?.focus();
+    setMenuOpen((open) => !open);
+  }, []);
+
+  // Close menu on click outside or Escape.
   useEffect(() => {
     if (!menuOpen) return;
-    function handleClick(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setMenuOpen(false);
+
+    function closeMenu({ restoreFocus }: { restoreFocus: boolean }) {
+      setMenuOpen(false);
+      if (restoreFocus) {
+        menuButtonRef.current?.focus();
       }
     }
+
+    function handleClick(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        closeMenu({ restoreFocus: false });
+      }
+    }
+
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        closeMenu({ restoreFocus: true });
+      }
+    }
+
     document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
+    window.addEventListener("keydown", handleKeyDown, true);
+    return () => {
+      document.removeEventListener("mousedown", handleClick);
+      window.removeEventListener("keydown", handleKeyDown, true);
+    };
   }, [menuOpen]);
 
   return (
@@ -80,10 +106,11 @@ export function PageHeaderActions({
 
       <div className="page-actions-dropdown" ref={menuRef}>
         <button
+          ref={menuButtonRef}
           type="button"
           data-testid="page-actions-btn"
           className="page-action-btn"
-          onClick={() => setMenuOpen(!menuOpen)}
+          onClick={handleToggleMenu}
           aria-label="More page actions"
           aria-haspopup="menu"
           aria-expanded={menuOpen}

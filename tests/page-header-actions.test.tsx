@@ -88,4 +88,40 @@ describe("PageHeaderActions", () => {
       ).map((item) => item.getAttribute("role")),
     ).toEqual(["menuitem", "menuitem"]);
   });
+
+  it("closes the more actions menu with Escape and restores trigger focus", async () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const root = createRoot(container);
+
+    await act(async () => {
+      root.render(
+        <PageHeaderActions
+          title="Introduction"
+          content="Welcome to the docs."
+          pageUrl="/docs/test-project/introduction.md"
+        />,
+      );
+    });
+
+    const moreButton = container.querySelector<HTMLButtonElement>(
+      '[data-testid="page-actions-btn"]',
+    );
+
+    await act(async () => {
+      moreButton?.click();
+    });
+
+    expect(container.querySelector(".page-actions-menu")).not.toBeNull();
+
+    await act(async () => {
+      window.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Escape", bubbles: true }),
+      );
+    });
+
+    expect(container.querySelector(".page-actions-menu")).toBeNull();
+    expect(moreButton?.getAttribute("aria-expanded")).toBe("false");
+    expect(document.activeElement).toBe(moreButton);
+  });
 });
