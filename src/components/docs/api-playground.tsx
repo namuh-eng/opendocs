@@ -32,31 +32,78 @@ export function ApiPlayground({ html }: ApiPlaygroundProps) {
     // Wire up response tab switching
     const respTabButtons =
       container.querySelectorAll<HTMLButtonElement>(".api-resp-tab");
+    const activateResponseTab = (btn: HTMLButtonElement) => {
+      const playground = btn.closest(".api-playground");
+      if (!playground) return;
+      const tab = btn.dataset.respTab;
+
+      // Deactivate all tabs
+      const allTabs =
+        playground.querySelectorAll<HTMLButtonElement>(".api-resp-tab");
+      for (const t of allTabs) {
+        t.classList.remove("active");
+        t.setAttribute("aria-selected", String(t === btn));
+        t.tabIndex = t === btn ? 0 : -1;
+      }
+      btn.classList.add("active");
+
+      // Show/hide panels
+      const bodyPanel =
+        playground.querySelector<HTMLDivElement>(".api-response-body");
+      const headersPanel = playground.querySelector<HTMLDivElement>(
+        ".api-response-headers",
+      );
+      if (bodyPanel)
+        bodyPanel.style.display = tab === "body" ? "block" : "none";
+      if (headersPanel)
+        headersPanel.style.display = tab === "headers" ? "block" : "none";
+    };
+
+    const moveResponseTabFocus = (
+      btn: HTMLButtonElement,
+      direction: "first" | "last" | "next" | "previous",
+    ) => {
+      const playground = btn.closest(".api-playground");
+      if (!playground) return;
+      const tabs = Array.from(
+        playground.querySelectorAll<HTMLButtonElement>(".api-resp-tab"),
+      );
+      const currentIndex = tabs.indexOf(btn);
+      if (currentIndex === -1) return;
+
+      const targetIndex =
+        direction === "first"
+          ? 0
+          : direction === "last"
+            ? tabs.length - 1
+            : direction === "next"
+              ? (currentIndex + 1) % tabs.length
+              : (currentIndex - 1 + tabs.length) % tabs.length;
+
+      const target = tabs[targetIndex];
+      target.focus();
+      activateResponseTab(target);
+    };
+
     for (const btn of respTabButtons) {
-      btn.addEventListener("click", () => {
-        const playground = btn.closest(".api-playground");
-        if (!playground) return;
-        const tab = btn.dataset.respTab;
-
-        // Deactivate all tabs
-        const allTabs =
-          playground.querySelectorAll<HTMLButtonElement>(".api-resp-tab");
-        for (const t of allTabs) {
-          t.classList.remove("active");
-          t.setAttribute("aria-selected", String(t === btn));
+      btn.addEventListener("click", () => activateResponseTab(btn));
+      btn.addEventListener("keydown", (event) => {
+        if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+          event.preventDefault();
+          moveResponseTabFocus(btn, "next");
+        } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+          event.preventDefault();
+          moveResponseTabFocus(btn, "previous");
+        } else if (event.key === "Home") {
+          event.preventDefault();
+          moveResponseTabFocus(btn, "first");
+        } else if (event.key === "End") {
+          event.preventDefault();
+          moveResponseTabFocus(btn, "last");
+        } else if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          activateResponseTab(btn);
         }
-        btn.classList.add("active");
-
-        // Show/hide panels
-        const bodyPanel =
-          playground.querySelector<HTMLDivElement>(".api-response-body");
-        const headersPanel = playground.querySelector<HTMLDivElement>(
-          ".api-response-headers",
-        );
-        if (bodyPanel)
-          bodyPanel.style.display = tab === "body" ? "block" : "none";
-        if (headersPanel)
-          headersPanel.style.display = tab === "headers" ? "block" : "none";
       });
     }
   }, [html]);

@@ -311,16 +311,16 @@ describe("API Playground HTML Renderer", () => {
     expect(html).toContain('class="api-response"');
     expect(html).toContain('role="tablist" aria-label="Response sections"');
     expect(html).toContain(
-      'role="tab" aria-selected="true" aria-label="Show response body"',
+      'role="tab" aria-selected="true" aria-controls="api-response-body-panel" tabindex="0" aria-label="Show response body"',
     );
     expect(html).toContain(
-      'role="tab" aria-selected="false" aria-label="Show response headers"',
+      'role="tab" aria-selected="false" aria-controls="api-response-headers-panel" tabindex="-1" aria-label="Show response headers"',
     );
     expect(html).toContain(
-      'class="api-response-body" role="tabpanel" aria-label="Response body"',
+      'class="api-response-body" role="tabpanel" aria-labelledby="api-response-body-tab" aria-label="Response body"',
     );
     expect(html).toContain(
-      'class="api-response-headers" role="tabpanel" aria-label="Response headers"',
+      'class="api-response-headers" role="tabpanel" aria-labelledby="api-response-headers-tab" aria-label="Response headers"',
     );
     expect(html).toContain('class="api-response-download"');
     expect(html).toContain('aria-label="Download response file"');
