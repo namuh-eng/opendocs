@@ -148,27 +148,69 @@ export function ApiReferenceLayout({ html }: ApiReferenceLayoutProps) {
       ".api-ref-status-panel",
     );
 
+    const activateStatusTab = (tab: HTMLButtonElement) => {
+      const status = tab.dataset.status;
+      for (const t of statusTabs) {
+        t.classList.remove("active");
+        t.setAttribute("aria-selected", "false");
+        t.tabIndex = -1;
+      }
+      for (const p of statusPanels) {
+        p.classList.remove("active");
+        p.hidden = true;
+      }
+      tab.classList.add("active");
+      tab.setAttribute("aria-selected", "true");
+      tab.tabIndex = 0;
+      const target = container.querySelector<HTMLDivElement>(
+        `.api-ref-status-panel[data-status="${status}"]`,
+      );
+      if (target) {
+        target.classList.add("active");
+        target.hidden = false;
+      }
+    };
+
+    const moveStatusTabFocus = (
+      tab: HTMLButtonElement,
+      direction: "first" | "last" | "next" | "previous",
+    ) => {
+      const tabs = Array.from(statusTabs);
+      const currentIndex = tabs.indexOf(tab);
+      if (currentIndex === -1) return;
+
+      const targetIndex =
+        direction === "first"
+          ? 0
+          : direction === "last"
+            ? tabs.length - 1
+            : direction === "next"
+              ? (currentIndex + 1) % tabs.length
+              : (currentIndex - 1 + tabs.length) % tabs.length;
+
+      const target = tabs[targetIndex];
+      target.focus();
+      activateStatusTab(target);
+    };
+
     for (const tab of statusTabs) {
-      tab.addEventListener("click", () => {
-        const status = tab.dataset.status;
-        for (const t of statusTabs) {
-          t.classList.remove("active");
-          t.setAttribute("aria-selected", "false");
-          t.tabIndex = -1;
-        }
-        for (const p of statusPanels) {
-          p.classList.remove("active");
-          p.hidden = true;
-        }
-        tab.classList.add("active");
-        tab.setAttribute("aria-selected", "true");
-        tab.tabIndex = 0;
-        const target = container.querySelector<HTMLDivElement>(
-          `.api-ref-status-panel[data-status="${status}"]`,
-        );
-        if (target) {
-          target.classList.add("active");
-          target.hidden = false;
+      tab.addEventListener("click", () => activateStatusTab(tab));
+      tab.addEventListener("keydown", (event) => {
+        if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+          event.preventDefault();
+          moveStatusTabFocus(tab, "next");
+        } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+          event.preventDefault();
+          moveStatusTabFocus(tab, "previous");
+        } else if (event.key === "Home") {
+          event.preventDefault();
+          moveStatusTabFocus(tab, "first");
+        } else if (event.key === "End") {
+          event.preventDefault();
+          moveStatusTabFocus(tab, "last");
+        } else if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          activateStatusTab(tab);
         }
       });
     }

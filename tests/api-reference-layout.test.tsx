@@ -86,6 +86,82 @@ describe("ApiReferenceLayout", () => {
     expect(curlTab?.getAttribute("aria-selected")).toBe("true");
     expect(document.activeElement).toBe(curlTab);
   });
+
+  it("updates response status tab ARIA state and panels on click", async () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const root = createRoot(container);
+
+    await act(async () => {
+      root.render(<ApiReferenceLayout html={apiReferenceTabsHtml()} />);
+    });
+
+    const successTab = container.querySelector<HTMLButtonElement>(
+      '[data-status="200"]',
+    );
+    const errorTab = container.querySelector<HTMLButtonElement>(
+      '[data-status="400"]',
+    );
+    const successPanel = container.querySelector<HTMLDivElement>(
+      '[data-status="200"].api-ref-status-panel',
+    );
+    const errorPanel = container.querySelector<HTMLDivElement>(
+      '[data-status="400"].api-ref-status-panel',
+    );
+
+    expect(successTab?.getAttribute("aria-selected")).toBe("true");
+    expect(successTab?.tabIndex).toBe(0);
+    expect(successPanel?.hidden).toBe(false);
+    expect(errorTab?.getAttribute("aria-selected")).toBe("false");
+    expect(errorTab?.tabIndex).toBe(-1);
+    expect(errorPanel?.hidden).toBe(true);
+
+    await act(async () => {
+      errorTab?.click();
+    });
+
+    expect(successTab?.getAttribute("aria-selected")).toBe("false");
+    expect(successTab?.tabIndex).toBe(-1);
+    expect(successPanel?.hidden).toBe(true);
+    expect(errorTab?.getAttribute("aria-selected")).toBe("true");
+    expect(errorTab?.tabIndex).toBe(0);
+    expect(errorPanel?.hidden).toBe(false);
+  });
+
+  it("supports keyboard navigation for response status tabs", async () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const root = createRoot(container);
+
+    await act(async () => {
+      root.render(<ApiReferenceLayout html={apiReferenceTabsHtml()} />);
+    });
+
+    const successTab = container.querySelector<HTMLButtonElement>(
+      '[data-status="200"]',
+    );
+    const errorTab = container.querySelector<HTMLButtonElement>(
+      '[data-status="400"]',
+    );
+
+    await act(async () => {
+      successTab?.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }),
+      );
+    });
+
+    expect(errorTab?.getAttribute("aria-selected")).toBe("true");
+    expect(document.activeElement).toBe(errorTab);
+
+    await act(async () => {
+      errorTab?.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "ArrowLeft", bubbles: true }),
+      );
+    });
+
+    expect(successTab?.getAttribute("aria-selected")).toBe("true");
+    expect(document.activeElement).toBe(successTab);
+  });
 });
 
 function apiReferenceTabsHtml() {
@@ -101,6 +177,16 @@ function apiReferenceTabsHtml() {
       </div>
       <div id="api-ref-code-panel-python" class="api-ref-code-block" data-lang="python" role="tabpanel" aria-labelledby="api-ref-lang-tab-python" hidden>
         <pre><code>import requests</code></pre>
+      </div>
+      <div class="api-ref-status-tabs" role="tablist" aria-label="Response status codes">
+        <button id="api-response-tab-200" class="api-ref-status-tab active" data-status="200" role="tab" aria-selected="true" aria-controls="api-response-panel-200" tabindex="0">200</button>
+        <button id="api-response-tab-400" class="api-ref-status-tab" data-status="400" role="tab" aria-selected="false" aria-controls="api-response-panel-400" tabindex="-1">400</button>
+      </div>
+      <div id="api-response-panel-200" class="api-ref-status-panel active" data-status="200" role="tabpanel" aria-labelledby="api-response-tab-200">
+        <pre><code>{"ok": true}</code></pre>
+      </div>
+      <div id="api-response-panel-400" class="api-ref-status-panel" data-status="400" role="tabpanel" aria-labelledby="api-response-tab-400" hidden>
+        <pre><code>{"error": true}</code></pre>
       </div>
     </div>
   `;
