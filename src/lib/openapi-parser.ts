@@ -373,13 +373,13 @@ export function renderApiPlaygroundHtml(endpoint: OpenApiEndpoint): string {
     <a class="api-response-download" aria-label="Download response file" download="response.txt" href="#" style="display:none">Download</a>
   </div>
   <div class="api-response-tabs" role="tablist" aria-label="Response sections">
-    <button type="button" class="api-resp-tab active" data-resp-tab="body" role="tab" aria-selected="true" aria-label="Show response body">Body</button>
-    <button type="button" class="api-resp-tab" data-resp-tab="headers" role="tab" aria-selected="false" aria-label="Show response headers">Headers</button>
+    <button type="button" id="api-response-body-tab" class="api-resp-tab active" data-resp-tab="body" role="tab" aria-selected="true" aria-controls="api-response-body-panel" tabindex="0" aria-label="Show response body">Body</button>
+    <button type="button" id="api-response-headers-tab" class="api-resp-tab" data-resp-tab="headers" role="tab" aria-selected="false" aria-controls="api-response-headers-panel" tabindex="-1" aria-label="Show response headers">Headers</button>
   </div>
-  <div class="api-response-body" role="tabpanel" aria-label="Response body">
+  <div id="api-response-body-panel" class="api-response-body" role="tabpanel" aria-labelledby="api-response-body-tab" aria-label="Response body">
     <pre><code class="api-response-content"></code></pre>
   </div>
-  <div class="api-response-headers" role="tabpanel" aria-label="Response headers" style="display:none">
+  <div id="api-response-headers-panel" class="api-response-headers" role="tabpanel" aria-labelledby="api-response-headers-tab" aria-label="Response headers" style="display:none">
     <pre><code class="api-response-headers-content"></code></pre>
   </div>
 </div>`;
