@@ -83,14 +83,14 @@ test.describe("Docs site layout — feature-014", () => {
     await expect(mobileSidebar).toBeVisible();
   });
 
-  test("TOC highlights current section on scroll", async ({ page }) => {
+  test("TOC waits for user or scroll selection before highlighting", async ({
+    page,
+  }) => {
     await page.goto("/docs/test-project/quickstart");
     const tocLinks = page.locator(".docs-toc-link");
-    // At least one TOC link should exist if page has headings
     const count = await tocLinks.count();
     if (count > 0) {
-      // First TOC link should be active by default (top of page)
-      await expect(tocLinks.first()).toHaveClass(/active/);
+      await expect(tocLinks.first()).not.toHaveClass(/active/);
     }
   });
 });
