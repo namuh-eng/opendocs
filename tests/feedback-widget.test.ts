@@ -1,7 +1,7 @@
 import { FeedbackWidget } from "@/components/docs/feedback-widget";
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { validateFeedbackPayload } from "../src/lib/feedback";
 
 // React 19 requires this flag for act() in non-testing-library environments.
@@ -286,6 +286,52 @@ describe("Feedback widget visible choices", () => {
 
     expect(document.activeElement).toBe(textarea);
 
+    await act(async () => {
+      root.unmount();
+    });
+    container.remove();
+  });
+
+  it("moves focus to the thank-you message after feedback submission", async () => {
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue({
+      ok: true,
+    } as Response);
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const root = createRoot(container);
+
+    await act(async () => {
+      root.render(
+        createElement(FeedbackWidget, {
+          subdomain: "test-project",
+          pagePath: "introduction",
+        }),
+      );
+    });
+
+    await act(async () => {
+      container
+        .querySelector<HTMLButtonElement>(
+          '[data-testid="feedback-thumbs-down"]',
+        )
+        ?.click();
+    });
+
+    await act(async () => {
+      container
+        .querySelector<HTMLButtonElement>('[data-testid="feedback-skip"]')
+        ?.click();
+      await Promise.resolve();
+    });
+
+    const thanks = container.querySelector<HTMLElement>(
+      '[data-testid="feedback-thanks"]',
+    );
+
+    expect(thanks?.getAttribute("tabindex")).toBe("-1");
+    expect(document.activeElement).toBe(thanks);
+
+    fetchMock.mockRestore();
     await act(async () => {
       root.unmount();
     });
