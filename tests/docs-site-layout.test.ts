@@ -256,6 +256,54 @@ describe("Docs site layout — feature-014", () => {
         root.unmount();
       });
     });
+
+    it("returns focus to the opener when Escape closes search", async () => {
+      const { SearchModal } = await import("@/components/docs/search-modal");
+      const opener = document.createElement("button");
+      const appRoot = document.createElement("div");
+      opener.type = "button";
+      opener.textContent = "Search documentation";
+      container.append(opener, appRoot);
+      opener.focus();
+
+      const root = createRoot(appRoot);
+
+      await act(async () => {
+        root.render(
+          createElement(SearchModal, {
+            subdomain: "test-project",
+            pages: [
+              { path: "introduction", title: "Introduction" },
+              { path: "quickstart", title: "Quickstart" },
+            ],
+          }),
+        );
+      });
+
+      await act(async () => {
+        document.dispatchEvent(new CustomEvent("open-search"));
+      });
+
+      const input = appRoot.querySelector<HTMLInputElement>(
+        '[data-testid="search-input"]',
+      );
+
+      expect(document.activeElement).toBe(input);
+
+      await act(async () => {
+        document.dispatchEvent(
+          new KeyboardEvent("keydown", { key: "Escape", bubbles: true }),
+        );
+        await new Promise((resolve) => setTimeout(resolve, 0));
+      });
+
+      expect(appRoot.querySelector('[data-testid="search-modal"]')).toBeNull();
+      expect(document.activeElement).toBe(opener);
+
+      await act(async () => {
+        root.unmount();
+      });
+    });
   });
 
   describe("MobileNav", () => {

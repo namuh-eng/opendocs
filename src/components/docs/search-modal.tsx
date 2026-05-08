@@ -121,6 +121,7 @@ export function SearchModal({ pages, subdomain }: SearchModalProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const restoreFocusRef = useRef<HTMLElement | null>(null);
   const listboxId = useId();
   const optionIdForIndex = useCallback(
     (index: number) => `${listboxId}-option-${index}`,
@@ -128,6 +129,9 @@ export function SearchModal({ pages, subdomain }: SearchModalProps) {
   );
 
   const open = useCallback(() => {
+    const activeElement = document.activeElement;
+    restoreFocusRef.current =
+      activeElement instanceof HTMLElement ? activeElement : null;
     setIsOpen(true);
     setQuery("");
     setResults([]);
@@ -136,10 +140,18 @@ export function SearchModal({ pages, subdomain }: SearchModalProps) {
   }, []);
 
   const close = useCallback(() => {
+    const restoreFocusTarget = restoreFocusRef.current;
     setIsOpen(false);
     setQuery("");
     setResults([]);
     setSelectedIdx(0);
+    restoreFocusRef.current = null;
+
+    if (restoreFocusTarget?.isConnected) {
+      setTimeout(() => {
+        restoreFocusTarget.focus();
+      }, 0);
+    }
   }, []);
 
   // Fetch results from API with debounce
