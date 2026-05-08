@@ -67,4 +67,45 @@ describe("docs page metadata", () => {
       title: "404: This page could not be found.",
     });
   });
+  it("uses the Mintlify browser title for generated API pages", async () => {
+    dbMocks.limit
+      .mockResolvedValueOnce([
+        {
+          id: "project-1",
+          name: "Test Project",
+          settings: {
+            openApiSpec: {
+              openapi: "3.0.0",
+              info: { title: "Fixture API", version: "1.0.0" },
+              paths: {
+                "/plants": {
+                  get: {
+                    summary: "Get Plants",
+                    description: "Returns a list of plants.",
+                    responses: { "200": { description: "OK" } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      ])
+      .mockResolvedValueOnce([]);
+
+    const { generateMetadata } = await import(
+      "@/app/docs/[subdomain]/[...slug]/page"
+    );
+
+    await expect(
+      generateMetadata({
+        params: Promise.resolve({
+          subdomain: "test-project",
+          slug: ["api-reference", "get-plants"],
+        }),
+      }),
+    ).resolves.toMatchObject({
+      title: "Documentation",
+      description: "Returns a list of plants.",
+    });
+  });
 });
