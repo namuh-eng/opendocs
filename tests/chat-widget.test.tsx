@@ -1,3 +1,4 @@
+import { ApiReferenceLayout } from "@/components/docs/api-reference-layout";
 import { ChatWidget } from "@/components/docs/chat-widget";
 import { AskAiButton } from "@/components/docs/docs-topbar";
 import { MdxContent } from "@/components/docs/mdx-content";
@@ -247,5 +248,42 @@ describe("Docs chat widget code context", () => {
     expect(input?.value).toContain("Explain this ts code:");
     expect(input?.value).toContain("```ts");
     expect(input?.value).toContain("const answer = 42;");
+  });
+
+  it("opens the chat panel with API reference code context when Ask AI is clicked", async () => {
+    const html = `
+      <section class="api-ref-layout">
+        <div class="api-ref-code-block active" data-lang="curl">
+          <pre><code>curl --request GET \\
+  --url https://api.example.com/plants</code></pre>
+        </div>
+        <button type="button" class="api-ref-askai-btn">Ask AI</button>
+      </section>
+    `;
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const root = createRoot(container);
+
+    await act(async () => {
+      root.render(
+        <>
+          <ApiReferenceLayout html={html} />
+          <ChatWidget subdomain="feature004-qa" currentPath="api/plants" />
+        </>,
+      );
+    });
+
+    await act(async () => {
+      container.querySelector<HTMLButtonElement>(".api-ref-askai-btn")?.click();
+    });
+
+    const input = container.querySelector<HTMLTextAreaElement>(
+      '[data-testid="chat-input"]',
+    );
+    expect(input).not.toBeNull();
+    expect(input?.value).toContain("Explain this curl code:");
+    expect(input?.value).toContain("```curl");
+    expect(input?.value).toContain("curl --request GET");
+    expect(input?.value).toContain("https://api.example.com/plants");
   });
 });

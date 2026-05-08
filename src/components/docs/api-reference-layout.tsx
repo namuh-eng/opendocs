@@ -79,7 +79,7 @@ export function ApiReferenceLayout({ html }: ApiReferenceLayoutProps) {
         );
         const code = activeBlock?.querySelector("code")?.textContent || "";
         const lang = activeBlock?.dataset.lang || "curl";
-        window.dispatchEvent(
+        document.dispatchEvent(
           new CustomEvent("ask-ai-code", { detail: { code, language: lang } }),
         );
       });
