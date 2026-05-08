@@ -5,6 +5,21 @@ import { X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { DocsSidebar } from "./docs-sidebar";
 
+const FOCUSABLE_SELECTOR = [
+  "a[href]",
+  "button:not([disabled])",
+  "input:not([disabled])",
+  "select:not([disabled])",
+  "textarea:not([disabled])",
+  '[tabindex]:not([tabindex="-1"])',
+].join(",");
+
+function getFocusableElements(container: HTMLElement): HTMLElement[] {
+  return Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR))
+    .filter((element) => element.tabIndex >= 0)
+    .filter((element) => element.getAttribute("aria-hidden") !== "true");
+}
+
 export function MobileMenuButton() {
   return (
     <button
@@ -91,6 +106,38 @@ export function MobileSidebar({
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         setIsOpen(false);
+      }
+      if (event.key === "Tab" && overlayRef.current) {
+        const focusableElements = getFocusableElements(overlayRef.current);
+        const firstFocusable = focusableElements[0];
+        const lastFocusable = focusableElements[focusableElements.length - 1];
+
+        if (!firstFocusable || !lastFocusable) {
+          event.preventDefault();
+          overlayRef.current.focus();
+          return;
+        }
+
+        const activeElement = document.activeElement;
+        if (
+          !(activeElement instanceof HTMLElement) ||
+          !overlayRef.current.contains(activeElement)
+        ) {
+          event.preventDefault();
+          firstFocusable.focus();
+          return;
+        }
+
+        if (event.shiftKey && activeElement === firstFocusable) {
+          event.preventDefault();
+          lastFocusable.focus();
+          return;
+        }
+
+        if (!event.shiftKey && activeElement === lastFocusable) {
+          event.preventDefault();
+          firstFocusable.focus();
+        }
       }
     }
 

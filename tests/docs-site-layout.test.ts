@@ -434,6 +434,88 @@ describe("Docs site layout — feature-014", () => {
       });
       container.remove();
     });
+
+    it("traps Tab focus inside the open mobile navigation", async () => {
+      const { MobileMenuButton, MobileSidebar } = await import(
+        "@/components/docs/mobile-nav"
+      );
+      const container = document.createElement("div");
+      document.body.appendChild(container);
+      const root = createRoot(container);
+
+      await act(async () => {
+        root.render(
+          createElement(
+            "div",
+            null,
+            createElement(MobileMenuButton),
+            createElement(MobileSidebar, {
+              nav: [
+                {
+                  type: "item",
+                  label: "Introduction",
+                  path: "introduction",
+                  pageId: "intro",
+                },
+                {
+                  type: "item",
+                  label: "Quickstart",
+                  path: "quickstart",
+                  pageId: "quickstart",
+                },
+              ],
+              activePath: "introduction",
+              subdomain: "test-project",
+              projectName: "Test Project",
+            }),
+          ),
+        );
+      });
+
+      await act(async () => {
+        container
+          .querySelector<HTMLButtonElement>('[data-testid="mobile-menu-btn"]')
+          ?.click();
+      });
+
+      const dialog = container.querySelector<HTMLElement>(
+        '[data-testid="mobile-sidebar"]',
+      );
+      const focusable = Array.from(
+        dialog?.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ) ?? [],
+      );
+      const firstFocusable = focusable[0];
+      const lastFocusable = focusable[focusable.length - 1];
+
+      lastFocusable.focus();
+
+      await act(async () => {
+        document.dispatchEvent(
+          new KeyboardEvent("keydown", { key: "Tab", bubbles: true }),
+        );
+      });
+
+      expect(document.activeElement).toBe(firstFocusable);
+
+      await act(async () => {
+        document.dispatchEvent(
+          new KeyboardEvent("keydown", {
+            key: "Tab",
+            shiftKey: true,
+            bubbles: true,
+          }),
+        );
+      });
+
+      expect(document.activeElement).toBe(lastFocusable);
+
+      await act(async () => {
+        root.unmount();
+      });
+      container.remove();
+    });
   });
 
   describe("Layout structure", () => {
