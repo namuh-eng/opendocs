@@ -54,6 +54,9 @@ interface ProjectInfo {
   subdomain: string | null;
   status: string;
   customDomain: string | null;
+  repoUrl: string | null;
+  repoBranch: string | null;
+  repoPath: string | null;
 }
 
 interface ManualHandoffRow {
@@ -132,6 +135,18 @@ const ICON_MAP = {
   settings: Settings,
   "bar-chart": BarChart3,
 } as const;
+
+function parseRepoOwner(repoUrl: string | null) {
+  if (!repoUrl) return null;
+
+  const match = repoUrl.match(/github\.com[:/]([^/]+)\//i);
+  return match?.[1] ?? null;
+}
+
+function formatRepoPath(repoPath: string | null) {
+  if (!repoPath || repoPath === "/") return null;
+  return repoPath.replace(/^\//, "");
+}
 
 function ProjectStatusBadge({ status }: { status: string }) {
   const isLive = status === "active";
@@ -363,6 +378,9 @@ export function DashboardHomeClient({
   const domainDisplay = project
     ? formatDomainDisplay(project.subdomain, project.customDomain)
     : "";
+  const repoOwner = project ? parseRepoOwner(project.repoUrl) : null;
+  const repoPath = project ? formatRepoPath(project.repoPath) : null;
+  const repoBranch = project?.repoBranch ?? null;
 
   const quickActions = project ? buildQuickActionCards(project.id) : [];
   // Fill in the view-site href dynamically
@@ -580,6 +598,26 @@ export function DashboardHomeClient({
                 </a>
               </div>
 
+              {(repoOwner || repoPath || repoBranch) && (
+                <div className="flex items-center gap-2 rounded-lg border border-white/[0.08] bg-[#1a1a1a] px-3 py-2 text-xs text-gray-400">
+                  {repoOwner && (
+                    <span className="text-gray-300">{repoOwner}</span>
+                  )}
+                  {repoPath && (
+                    <>
+                      <span className="text-gray-600">/</span>
+                      <span className="text-gray-300">{repoPath}</span>
+                    </>
+                  )}
+                  {repoBranch && (
+                    <>
+                      <span className="text-gray-600">branch</span>
+                      <span className="text-white">{repoBranch}</span>
+                    </>
+                  )}
+                </div>
+              )}
+
               {/* Domain info */}
               <div className="pt-2 space-y-1">
                 <p className="text-xs font-medium text-gray-500">Domain</p>
@@ -663,210 +701,215 @@ export function DashboardHomeClient({
           </div>
 
           {/* Manual follow-up queue */}
-          <div className="mb-6 rounded-xl border border-amber-400/20 bg-amber-400/[0.06] p-4">
-            <div className="flex items-start justify-between gap-4 mb-3">
-              <div>
-                <h3 className="text-sm font-medium text-white">
-                  Manual follow-up queue
-                </h3>
-                <p className="text-xs text-gray-400 mt-1">
-                  Recent async work that was recorded without a live executor.
-                </p>
+          {(unresolvedCount > 0 || resolvedCount > 0) && (
+            <div className="mb-6 rounded-xl border border-amber-400/20 bg-amber-400/[0.06] p-4">
+              <div className="flex items-start justify-between gap-4 mb-3">
+                <div>
+                  <h3 className="text-sm font-medium text-white">
+                    Manual follow-up queue
+                  </h3>
+                  <p className="text-xs text-gray-400 mt-1">
+                    Recent async work that was recorded without a live executor.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-amber-300">
+                    {displayedManualHandoffs.length} shown
+                  </span>
+                  {sortedManualHandoffs.length > 5 ? (
+                    <button
+                      type="button"
+                      onClick={() => setShowAllHandoffs((current) => !current)}
+                      className="text-xs text-gray-400 hover:text-white transition-colors"
+                    >
+                      {showAllHandoffs ? "Show less" : "View all"}
+                    </button>
+                  ) : null}
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-amber-300">
-                  {displayedManualHandoffs.length} shown
-                </span>
-                {sortedManualHandoffs.length > 5 ? (
+
+              {handoffNotice ? (
+                <div className="mb-3 rounded-md border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-xs text-emerald-200 flex items-center justify-between">
+                  <span>{handoffNotice}</span>
                   <button
                     type="button"
-                    onClick={() => setShowAllHandoffs((current) => !current)}
-                    className="text-xs text-gray-400 hover:text-white transition-colors"
+                    onClick={() => setHandoffNotice(null)}
+                    className="text-emerald-400 hover:text-emerald-300"
                   >
-                    {showAllHandoffs ? "Show less" : "View all"}
+                    <Plus size={14} className="rotate-45" />
                   </button>
-                ) : null}
-              </div>
-            </div>
+                </div>
+              ) : null}
 
-            {handoffNotice ? (
-              <div className="mb-3 rounded-md border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-xs text-emerald-200 flex items-center justify-between">
-                <span>{handoffNotice}</span>
-                <button
-                  type="button"
-                  onClick={() => setHandoffNotice(null)}
-                  className="text-emerald-400 hover:text-emerald-300"
-                >
-                  <Plus size={14} className="rotate-45" />
-                </button>
-              </div>
-            ) : null}
-
-            <div className="mb-3 grid grid-cols-4 gap-2 text-xs">
-              <div className="rounded-md border border-white/[0.06] bg-black/20 px-3 py-2 text-gray-300">
-                <span className="block text-gray-500">Unresolved</span>
-                <span className="text-white">{unresolvedCount}</span>
-              </div>
-              <div className="rounded-md border border-white/[0.06] bg-black/20 px-3 py-2 text-gray-300">
-                <span className="block text-gray-500">Resolved</span>
-                <span className="text-white">{resolvedCount}</span>
-              </div>
-              <div className="rounded-md border border-white/[0.06] bg-black/20 px-3 py-2 text-gray-300">
-                <span className="block text-gray-500">Avg resolve time</span>
-                <span className="text-white">
-                  {averageResolvedDuration ?? "—"}
-                </span>
-              </div>
-              <div className="rounded-md border border-white/[0.06] bg-black/20 px-3 py-2 text-gray-300">
-                <span className="block text-gray-500">Oldest unresolved</span>
-                <span className="text-white">{oldestUnresolvedAge ?? "—"}</span>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between gap-3 mb-3">
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setHandoffView("active")}
-                  className={clsx(
-                    "px-2.5 py-1 rounded-md text-xs transition-colors",
-                    handoffView === "active"
-                      ? "bg-white/[0.12] text-white"
-                      : "text-gray-400 hover:text-white hover:bg-white/[0.06]",
-                  )}
-                >
-                  Active
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setHandoffView("resolved")}
-                  className={clsx(
-                    "px-2.5 py-1 rounded-md text-xs transition-colors",
-                    handoffView === "resolved"
-                      ? "bg-white/[0.12] text-white"
-                      : "text-gray-400 hover:text-white hover:bg-white/[0.06]",
-                  )}
-                >
-                  Resolved
-                </button>
+              <div className="mb-3 grid grid-cols-4 gap-2 text-xs">
+                <div className="rounded-md border border-white/[0.06] bg-black/20 px-3 py-2 text-gray-300">
+                  <span className="block text-gray-500">Unresolved</span>
+                  <span className="text-white">{unresolvedCount}</span>
+                </div>
+                <div className="rounded-md border border-white/[0.06] bg-black/20 px-3 py-2 text-gray-300">
+                  <span className="block text-gray-500">Resolved</span>
+                  <span className="text-white">{resolvedCount}</span>
+                </div>
+                <div className="rounded-md border border-white/[0.06] bg-black/20 px-3 py-2 text-gray-300">
+                  <span className="block text-gray-500">Avg resolve time</span>
+                  <span className="text-white">
+                    {averageResolvedDuration ?? "—"}
+                  </span>
+                </div>
+                <div className="rounded-md border border-white/[0.06] bg-black/20 px-3 py-2 text-gray-300">
+                  <span className="block text-gray-500">Oldest unresolved</span>
+                  <span className="text-white">
+                    {oldestUnresolvedAge ?? "—"}
+                  </span>
+                </div>
               </div>
 
-              <div className="flex items-center gap-2">
-                {HANDOFF_FILTERS.map((filter) => (
+              <div className="flex items-center justify-between gap-3 mb-3">
+                <div className="flex items-center gap-2">
                   <button
-                    key={filter.key}
                     type="button"
-                    onClick={() => setHandoffFilter(filter.key)}
+                    onClick={() => setHandoffView("active")}
                     className={clsx(
                       "px-2.5 py-1 rounded-md text-xs transition-colors",
-                      handoffFilter === filter.key
+                      handoffView === "active"
                         ? "bg-white/[0.12] text-white"
                         : "text-gray-400 hover:text-white hover:bg-white/[0.06]",
                     )}
                   >
-                    {filter.label}
+                    Active
                   </button>
-                ))}
-                <select
-                  value={handoffSort}
-                  onChange={(event) =>
-                    setHandoffSort(
-                      event.target.value as
-                        | "newest"
-                        | "oldest"
-                        | "longest-open",
-                    )
-                  }
-                  className="rounded-md border border-white/[0.08] bg-black/20 px-2 py-1 text-xs text-gray-300 focus:outline-none"
-                >
-                  <option value="newest">Newest</option>
-                  <option value="oldest">Oldest</option>
-                  <option value="longest-open">Longest open</option>
-                </select>
-              </div>
-            </div>
-
-            {filteredManualHandoffs.length === 0 ? (
-              <p className="text-sm text-gray-500">
-                No manual handoffs recorded recently.
-              </p>
-            ) : (
-              <div className="space-y-2">
-                {displayedManualHandoffs.map((handoff) => (
-                  <div
-                    key={handoff.id}
-                    className="flex items-center justify-between gap-3 rounded-lg border border-white/[0.06] bg-black/20 px-3 py-2"
+                  <button
+                    type="button"
+                    onClick={() => setHandoffView("resolved")}
+                    className={clsx(
+                      "px-2.5 py-1 rounded-md text-xs transition-colors",
+                      handoffView === "resolved"
+                        ? "bg-white/[0.12] text-white"
+                        : "text-gray-400 hover:text-white hover:bg-white/[0.06]",
+                    )}
                   >
-                    <div className="min-w-0">
-                      <p className="text-sm text-white truncate">
-                        {handoff.action}
-                      </p>
-                      <p className="text-xs text-gray-500 truncate">
-                        {String(
-                          handoff.details.projectId ??
-                            handoff.details.deploymentId ??
-                            handoff.details.jobId ??
-                            "manual follow-up required",
-                        )}
-                      </p>
-                      {handoffView === "resolved" &&
-                      handoff.details.resolution ? (
-                        <>
-                          <p className="text-xs text-gray-500 truncate mt-1">
-                            Created {timeAgo(handoff.createdAt)}
-                            {handoff.details.resolution.resolvedAt
-                              ? ` • Resolved ${timeAgo(handoff.details.resolution.resolvedAt)}`
-                              : ""}
-                            {handoff.details.resolution.resolvedAt
-                              ? ` • ${formatDuration(handoff.createdAt, handoff.details.resolution.resolvedAt) ?? ""}`
-                              : ""}
-                          </p>
-                          <p className="text-xs text-gray-500 truncate mt-1">
-                            Resolved by{" "}
-                            {handoff.details.resolution.resolvedByName ??
-                              handoff.details.resolution.resolvedByUserId ??
-                              "unknown"}
-                          </p>
-                          {handoff.details.resolution.resolutionNote ? (
-                            <p className="text-xs text-gray-400 mt-1 line-clamp-2">
-                              Note: {handoff.details.resolution.resolutionNote}
-                            </p>
-                          ) : null}
-                        </>
-                      ) : null}
-                    </div>
-                    <div className="flex items-center gap-3 shrink-0">
-                      <span className="text-xs text-gray-400">
-                        {timeAgo(handoff.createdAt)}
-                      </span>
-                      {handoffView === "active" ? (
-                        <div className="flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => deleteHandoff(handoff.id)}
-                            className="p-1.5 rounded-md text-gray-500 hover:text-red-400 hover:bg-red-400/10 transition-colors"
-                            title="Delete record"
-                          >
-                            <Trash2 size={14} />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => resolveHandoff(handoff.id)}
-                            disabled={resolvingHandoffId === handoff.id}
-                            className="px-2 py-1 rounded-md text-xs bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25 disabled:opacity-50 transition-colors"
-                          >
-                            {resolvingHandoffId === handoff.id
-                              ? "Resolving..."
-                              : "Resolve"}
-                          </button>
-                        </div>
-                      ) : null}
-                    </div>
-                  </div>
-                ))}
+                    Resolved
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {HANDOFF_FILTERS.map((filter) => (
+                    <button
+                      key={filter.key}
+                      type="button"
+                      onClick={() => setHandoffFilter(filter.key)}
+                      className={clsx(
+                        "px-2.5 py-1 rounded-md text-xs transition-colors",
+                        handoffFilter === filter.key
+                          ? "bg-white/[0.12] text-white"
+                          : "text-gray-400 hover:text-white hover:bg-white/[0.06]",
+                      )}
+                    >
+                      {filter.label}
+                    </button>
+                  ))}
+                  <select
+                    value={handoffSort}
+                    onChange={(event) =>
+                      setHandoffSort(
+                        event.target.value as
+                          | "newest"
+                          | "oldest"
+                          | "longest-open",
+                      )
+                    }
+                    className="rounded-md border border-white/[0.08] bg-black/20 px-2 py-1 text-xs text-gray-300 focus:outline-none"
+                  >
+                    <option value="newest">Newest</option>
+                    <option value="oldest">Oldest</option>
+                    <option value="longest-open">Longest open</option>
+                  </select>
+                </div>
               </div>
-            )}
-          </div>
+
+              {filteredManualHandoffs.length === 0 ? (
+                <p className="text-sm text-gray-500">
+                  No manual handoffs recorded recently.
+                </p>
+              ) : (
+                <div className="space-y-2">
+                  {displayedManualHandoffs.map((handoff) => (
+                    <div
+                      key={handoff.id}
+                      className="flex items-center justify-between gap-3 rounded-lg border border-white/[0.06] bg-black/20 px-3 py-2"
+                    >
+                      <div className="min-w-0">
+                        <p className="text-sm text-white truncate">
+                          {handoff.action}
+                        </p>
+                        <p className="text-xs text-gray-500 truncate">
+                          {String(
+                            handoff.details.projectId ??
+                              handoff.details.deploymentId ??
+                              handoff.details.jobId ??
+                              "manual follow-up required",
+                          )}
+                        </p>
+                        {handoffView === "resolved" &&
+                        handoff.details.resolution ? (
+                          <>
+                            <p className="text-xs text-gray-500 truncate mt-1">
+                              Created {timeAgo(handoff.createdAt)}
+                              {handoff.details.resolution.resolvedAt
+                                ? ` • Resolved ${timeAgo(handoff.details.resolution.resolvedAt)}`
+                                : ""}
+                              {handoff.details.resolution.resolvedAt
+                                ? ` • ${formatDuration(handoff.createdAt, handoff.details.resolution.resolvedAt) ?? ""}`
+                                : ""}
+                            </p>
+                            <p className="text-xs text-gray-500 truncate mt-1">
+                              Resolved by{" "}
+                              {handoff.details.resolution.resolvedByName ??
+                                handoff.details.resolution.resolvedByUserId ??
+                                "unknown"}
+                            </p>
+                            {handoff.details.resolution.resolutionNote ? (
+                              <p className="text-xs text-gray-400 mt-1 line-clamp-2">
+                                Note:{" "}
+                                {handoff.details.resolution.resolutionNote}
+                              </p>
+                            ) : null}
+                          </>
+                        ) : null}
+                      </div>
+                      <div className="flex items-center gap-3 shrink-0">
+                        <span className="text-xs text-gray-400">
+                          {timeAgo(handoff.createdAt)}
+                        </span>
+                        {handoffView === "active" ? (
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => deleteHandoff(handoff.id)}
+                              className="p-1.5 rounded-md text-gray-500 hover:text-red-400 hover:bg-red-400/10 transition-colors"
+                              title="Delete record"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => resolveHandoff(handoff.id)}
+                              disabled={resolvingHandoffId === handoff.id}
+                              className="px-2 py-1 rounded-md text-xs bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25 disabled:opacity-50 transition-colors"
+                            >
+                              {resolvingHandoffId === handoff.id
+                                ? "Resolving..."
+                                : "Resolve"}
+                            </button>
+                          </div>
+                        ) : null}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Activity section */}
           <div>

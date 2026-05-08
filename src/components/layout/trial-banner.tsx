@@ -48,8 +48,8 @@ export function TrialBanner({
         <strong className={bannerTheme.title}>
           Your team is on a free trial.
         </strong>{" "}
-        Your trial ends on April 19, 2026. You will be switched to the Hobby
-        plan after.
+        Your trial ends on May 18, 2026. You will be switched to the Hobby plan
+        after.
       </p>
       <div className="flex items-center gap-3 shrink-0">
         <Link

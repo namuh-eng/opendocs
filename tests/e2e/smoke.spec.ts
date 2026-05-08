@@ -28,6 +28,16 @@ test.describe("Smoke tests", () => {
     expect(response?.status()).toBe(200);
   });
 
+  test("Mintlify-style workspace home route loads authenticated dashboard", async ({
+    page,
+  }) => {
+    const response = await page.goto("/namuhinc/namuhinc/home");
+    expect(response?.status()).toBe(200);
+    await expect(
+      page.getByText(/Good (morning|afternoon|evening)/),
+    ).toBeVisible();
+  });
+
   test("settings page loads (authenticated)", async ({ page }) => {
     const response = await page.goto("/settings/security/api-keys");
     expect(response?.status()).toBe(200);

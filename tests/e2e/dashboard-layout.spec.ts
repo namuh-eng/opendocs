@@ -18,20 +18,28 @@ test.describe("Dashboard Layout", () => {
     await expect(sidebar.getByText("Settings")).toBeVisible();
   });
 
-  test("sidebar shows Agents group with items", async ({ page }) => {
+  test("sidebar shows Agents group with Mintlify ordering", async ({
+    page,
+  }) => {
     await page.goto("/dashboard");
     const sidebar = page.getByTestId("sidebar");
     await expect(sidebar.getByText("Agents")).toBeVisible();
     await expect(
-      sidebar.getByRole("link", { name: "Agent New" }),
+      sidebar.getByRole("link", { name: "Workflows New" }),
+    ).toBeVisible();
+    await expect(
+      sidebar.getByRole("link", { name: "Agent", exact: true }),
     ).toBeVisible();
     await expect(
       sidebar.getByRole("link", { name: "Assistant" }),
     ).toBeVisible();
-    await expect(
-      sidebar.getByRole("link", { name: "Workflows" }),
-    ).toBeVisible();
     await expect(sidebar.getByRole("link", { name: "MCP" })).toBeVisible();
+
+    await expect(
+      sidebar
+        .locator("nav a")
+        .filter({ hasText: /Workflows|Agent|Assistant|MCP/ }),
+    ).toHaveText([/Workflows/, /Agent/, /Assistant/, /MCP/]);
   });
 
   test("sidebar has org switcher with org name", async ({ page }) => {
@@ -118,6 +126,8 @@ test.describe("Dashboard Layout", () => {
     await page.goto("/dashboard");
     await expect(page.getByTestId("trial-banner")).toBeVisible();
     await expect(page.getByText("free trial")).toBeVisible();
+    await expect(page.getByText("May 18, 2026")).toBeVisible();
+    await expect(page.getByText("April 19, 2026")).toBeHidden();
   });
 
   test("trial banner dismissal persists after reload", async ({ page }) => {

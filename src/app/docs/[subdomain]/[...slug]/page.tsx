@@ -77,6 +77,34 @@ interface DocsPageProps {
 
 const APP_URL = getPublicAppUrl();
 
+function normalizeHeadingText(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/[`*_~]/g, "")
+    .replace(/<[^>]+>/g, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+function stripLeadingDuplicateH1(content: string, title: string): string {
+  const match = content.match(/^\s*#\s+(.+?)\s*(?:\r?\n|$)/);
+  if (!match) return content;
+
+  return normalizeHeadingText(match[1] ?? "") === normalizeHeadingText(title)
+    ? content.slice(match[0].length).replace(/^\s*\r?\n/, "")
+    : content;
+}
+
+function applyProjectBrandCasing(title: string, projectName: string): string {
+  const brandName = projectName.replace(/\s+docs$/i, "").trim();
+  if (!brandName) return title;
+
+  return normalizeHeadingText(title).replace(/\s+/g, "") ===
+    normalizeHeadingText(brandName).replace(/\s+/g, "")
+    ? brandName
+    : title;
+}
+
 export async function generateMetadata({
   params,
 }: DocsPageProps): Promise<Metadata> {
@@ -356,7 +384,7 @@ export default async function DocsPage({
   const navPages = allPages.map((p) => ({
     id: p.id,
     path: p.path,
-    title: p.title,
+    title: applyProjectBrandCasing(p.title, project.name),
     frontmatter: p.frontmatter as Record<string, unknown> | null,
   }));
 
@@ -409,7 +437,7 @@ export default async function DocsPage({
     }
   } else if (currentPage) {
     // Render DB page (existing behavior)
-    pageTitle = currentPage.title;
+    pageTitle = applyProjectBrandCasing(currentPage.title, project.name);
     pageDescription = currentPage.description || "";
     pageContent = currentPage.content || "";
 
@@ -425,7 +453,8 @@ export default async function DocsPage({
       projectVars,
     );
 
-    let contentToRender = pageContent;
+    let contentToRender = stripLeadingDuplicateH1(pageContent, pageTitle);
+    pageContent = contentToRender;
     contentToRender = resolveSnippets(contentToRender, snippetPages);
     contentToRender = resolveVariables(contentToRender, variables);
     renderedHtml = renderMdxContent(contentToRender);
@@ -539,6 +568,8 @@ export default async function DocsPage({
         }
       />
 
+      {/* Capture Cmd/Ctrl+K before React hydration so fast navigations still open search. */}
+      <script src="/docs-search-shortcut.js" />
       <SearchModal pages={searchablePages} subdomain={subdomain} />
       <MobileSidebar
         nav={nav}
