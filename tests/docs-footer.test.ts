@@ -106,12 +106,12 @@ describe("docs-footer utilities", () => {
       expect(getBrandName({ brandName: "Acme Docs" })).toBe("Acme Docs");
     });
 
-    it("falls back to projectName when brandName not set", () => {
-      expect(getBrandName({}, "My Project")).toBe("My Project");
+    it("falls back to OpenDocs when brandName not set", () => {
+      expect(getBrandName({}, "My Project")).toBe("OpenDocs");
     });
 
-    it("falls back to Mintlify when nothing set", () => {
-      expect(getBrandName({})).toBe("Mintlify");
+    it("falls back to OpenDocs when nothing set", () => {
+      expect(getBrandName({})).toBe("OpenDocs");
     });
 
     it("prefers brandName over projectName", () => {
@@ -138,9 +138,9 @@ describe("docs-footer utilities", () => {
       );
     });
 
-    it("generates tooltip with Mintlify default", () => {
-      expect(getPoweredByTooltip("Mintlify")).toBe(
-        "This documentation is built and hosted on Mintlify",
+    it("generates tooltip with OpenDocs default", () => {
+      expect(getPoweredByTooltip("OpenDocs")).toBe(
+        "This documentation is built and hosted on OpenDocs",
       );
     });
   });

@@ -46,12 +46,12 @@ export function getValidSocialLinks(
   );
 }
 
-/** Get the brand name, defaulting to project name or "Mintlify" */
+/** Get the brand name, defaulting to the OpenDocs platform brand */
 export function getBrandName(
   footerSettings: FooterSettings,
-  projectName?: string,
+  _projectName?: string,
 ): string {
-  return footerSettings.brandName || projectName || "Mintlify";
+  return footerSettings.brandName || "OpenDocs";
 }
 
 /** Get the brand URL, defaulting to "/" */
