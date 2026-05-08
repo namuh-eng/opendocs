@@ -197,7 +197,7 @@ export async function generateMetadata({
 
       if (generatedPage) {
         return {
-          title: generatedPage.title,
+          title: "Documentation",
           description: generatedPage.description,
         };
       }
