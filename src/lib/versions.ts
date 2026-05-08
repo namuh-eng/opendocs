@@ -252,8 +252,12 @@ export function getAvailableVersionsForPage(
   allPages: { path: string }[],
   pagePath: string,
   config: VersionsConfig,
+  options?: { includeConfiguredRoutes?: boolean },
 ): string[] {
   if (!config.enabled || config.versions.length === 0) return [];
+  if (options?.includeConfiguredRoutes) {
+    return config.versions.map((v) => v.tag);
+  }
 
   const defaultTag = getDefaultVersion(config)?.tag ?? "";
   const available: string[] = [];

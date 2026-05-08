@@ -521,12 +521,14 @@ export default async function DocsPage({
 
   // Build searchable pages list (DB + virtual)
   const searchablePages = allNavPaths;
+  const hasGeneratedApiRoute = Boolean(virtualPage || asyncPage);
 
   // Compute available locales for the language switcher
   const availableLocales = getAvailableLocalesForPage(
     allPagesRaw,
     pagePath,
     langConfig,
+    { includeConfiguredRoutes: hasGeneratedApiRoute },
   );
 
   // Compute available versions for the version switcher
@@ -534,6 +536,7 @@ export default async function DocsPage({
     allPagesRaw,
     pagePath,
     versionConfig,
+    { includeConfiguredRoutes: hasGeneratedApiRoute },
   );
 
   return (

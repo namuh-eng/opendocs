@@ -391,4 +391,14 @@ describe("getAvailableVersionsForPage", () => {
     );
     expect(result).toEqual([]);
   });
+
+  it("can expose all configured versions for generated routes", () => {
+    const result = getAvailableVersionsForPage(
+      pages,
+      "api-reference/get-plants",
+      threeVersionConfig,
+      { includeConfiguredRoutes: true },
+    );
+    expect(result).toEqual(["v1", "v2", "v3"]);
+  });
 });
