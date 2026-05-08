@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -121,6 +121,11 @@ export function SearchModal({ pages, subdomain }: SearchModalProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const listboxId = useId();
+  const optionIdForIndex = useCallback(
+    (index: number) => `${listboxId}-option-${index}`,
+    [listboxId],
+  );
 
   const open = useCallback(() => {
     setIsOpen(true);
@@ -271,6 +276,19 @@ export function SearchModal({ pages, subdomain }: SearchModalProps) {
   const grouped = groupResults(results);
   const hasQuery = query.trim().length > 0;
   const showRecent = !hasQuery && recentSearches.length > 0;
+  const activeDescendant = allResults[selectedIdx]
+    ? optionIdForIndex(selectedIdx)
+    : undefined;
+  const listboxProps = {
+    role: "listbox",
+    tabIndex: -1,
+    "aria-label": "Search results",
+  } as const;
+  const optionProps = (selected: boolean) =>
+    ({
+      role: "option",
+      "aria-selected": selected,
+    }) as const;
 
   return (
     <div
@@ -306,6 +324,12 @@ export function SearchModal({ pages, subdomain }: SearchModalProps) {
             ref={inputRef}
             data-testid="search-input"
             type="text"
+            role="combobox"
+            aria-label="Search documentation"
+            aria-autocomplete="list"
+            aria-expanded="true"
+            aria-controls={listboxId}
+            aria-activedescendant={activeDescendant}
             className="search-modal-input"
             placeholder="Search documentation..."
             value={query}
@@ -314,7 +338,12 @@ export function SearchModal({ pages, subdomain }: SearchModalProps) {
           <kbd className="search-modal-esc">Esc</kbd>
         </div>
 
-        <div className="search-modal-results" data-testid="search-results">
+        <div
+          id={listboxId}
+          className="search-modal-results"
+          data-testid="search-results"
+          {...listboxProps}
+        >
           {/* Loading indicator */}
           {loading && hasQuery && (
             <div className="search-modal-loading">Searching...</div>
@@ -324,31 +353,35 @@ export function SearchModal({ pages, subdomain }: SearchModalProps) {
           {showRecent && (
             <div data-testid="recent-searches" className="search-modal-section">
               <div className="search-modal-section-title">Recent searches</div>
-              {recentSearches.map((q) => (
-                <button
-                  key={q}
-                  type="button"
-                  className="search-modal-result search-modal-recent"
-                  onClick={() => {
-                    setQuery(q);
-                    fetchResults(q);
-                  }}
-                >
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    aria-hidden="true"
+              {recentSearches.map((q, index) => {
+                return (
+                  <button
+                    key={q}
+                    id={optionIdForIndex(index)}
+                    type="button"
+                    {...optionProps(false)}
+                    className="search-modal-result search-modal-recent"
+                    onClick={() => {
+                      setQuery(q);
+                      fetchResults(q);
+                    }}
                   >
-                    <circle cx="12" cy="12" r="10" />
-                    <polyline points="12 6 12 12 16 14" />
-                  </svg>
-                  <span>{q}</span>
-                </button>
-              ))}
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      aria-hidden="true"
+                    >
+                      <circle cx="12" cy="12" r="10" />
+                      <polyline points="12 6 12 12 16 14" />
+                    </svg>
+                    <span>{q}</span>
+                  </button>
+                );
+              })}
             </div>
           )}
 
@@ -371,7 +404,9 @@ export function SearchModal({ pages, subdomain }: SearchModalProps) {
                   return (
                     <Link
                       key={result.path}
+                      id={optionIdForIndex(flatIdx)}
                       href={`/docs/${subdomain}/${result.path}`}
+                      {...optionProps(flatIdx === selectedIdx)}
                       className={`search-modal-result ${flatIdx === selectedIdx ? "search-modal-result-active" : ""}`}
                       onClick={() => {
                         saveRecentSearch(query);
@@ -414,29 +449,33 @@ export function SearchModal({ pages, subdomain }: SearchModalProps) {
           {/* Default: show all pages when no query */}
           {!hasQuery &&
             !showRecent &&
-            pages.slice(0, 10).map((page) => (
-              <Link
-                key={page.path}
-                href={`/docs/${subdomain}/${page.path}`}
-                className="search-modal-result"
-                onClick={close}
-              >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  aria-hidden="true"
+            pages.slice(0, 10).map((page, index) => {
+              return (
+                <Link
+                  key={page.path}
+                  id={optionIdForIndex(index)}
+                  href={`/docs/${subdomain}/${page.path}`}
+                  {...optionProps(false)}
+                  className="search-modal-result"
+                  onClick={close}
                 >
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                  <polyline points="14 2 14 8 20 8" />
-                </svg>
-                <span>{page.title}</span>
-                <span className="search-modal-result-path">{page.path}</span>
-              </Link>
-            ))}
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    aria-hidden="true"
+                  >
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                  </svg>
+                  <span>{page.title}</span>
+                  <span className="search-modal-result-path">{page.path}</span>
+                </Link>
+              );
+            })}
         </div>
 
         {/* Footer with keyboard hints */}

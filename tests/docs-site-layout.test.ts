@@ -1,9 +1,16 @@
+import { act, createElement } from "react";
+import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock next/navigation
 vi.mock("next/navigation", () => ({
   usePathname: () => "/docs/test-project/quickstart",
 }));
+
+// React 19 requires this flag for act() in non-testing-library environments.
+(
+  globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }
+).IS_REACT_ACT_ENVIRONMENT = true;
 
 describe("Docs site layout — feature-014", () => {
   describe("ThemeProvider", () => {
@@ -108,6 +115,47 @@ describe("Docs site layout — feature-014", () => {
       const pages = [{ path: "quickstart", title: "Quickstart Guide" }];
       expect(filterPages(pages, "QUICK")).toHaveLength(1);
       expect(filterPages(pages, "quick")).toHaveLength(1);
+    });
+
+    it("renders search dialog with combobox and listbox semantics", async () => {
+      const { SearchModal } = await import("@/components/docs/search-modal");
+      const root = createRoot(container);
+
+      await act(async () => {
+        root.render(
+          createElement(SearchModal, {
+            subdomain: "test-project",
+            pages: [
+              { path: "introduction", title: "Introduction" },
+              { path: "quickstart", title: "Quickstart" },
+            ],
+          }),
+        );
+      });
+
+      await act(async () => {
+        document.dispatchEvent(new CustomEvent("open-search"));
+      });
+
+      const input = container.querySelector<HTMLInputElement>(
+        '[data-testid="search-input"]',
+      );
+      const results = container.querySelector<HTMLElement>(
+        '[data-testid="search-results"]',
+      );
+      const firstOption =
+        container.querySelector<HTMLElement>('[role="option"]');
+
+      expect(input?.getAttribute("role")).toBe("combobox");
+      expect(input?.getAttribute("aria-autocomplete")).toBe("list");
+      expect(input?.getAttribute("aria-expanded")).toBe("true");
+      expect(input?.getAttribute("aria-controls")).toBe(results?.id);
+      expect(results?.getAttribute("role")).toBe("listbox");
+      expect(firstOption?.getAttribute("aria-selected")).toBe("false");
+
+      await act(async () => {
+        root.unmount();
+      });
     });
   });
 
