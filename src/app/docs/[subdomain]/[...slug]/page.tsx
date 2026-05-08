@@ -81,6 +81,11 @@ interface DocsPageProps {
 }
 
 const APP_URL = getPublicAppUrl();
+const DOCS_NOT_FOUND_TITLE = "404: This page could not be found.";
+
+function getDocsNotFoundMetadata(): Metadata {
+  return { title: DOCS_NOT_FOUND_TITLE };
+}
 
 function normalizeHeadingText(value: string): string {
   return value
@@ -125,7 +130,7 @@ export async function generateMetadata({
     .where(eq(projects.subdomain, subdomain))
     .limit(1);
 
-  if (projectResult.length === 0) return {};
+  if (projectResult.length === 0) return getDocsNotFoundMetadata();
 
   const project = projectResult[0];
   const docsSettings = (project.settings || {}) as Record<string, unknown>;
@@ -179,7 +184,27 @@ export async function generateMetadata({
     )
     .limit(1);
 
-  if (pageResult.length === 0) return {};
+  if (pageResult.length === 0) {
+    if (findRedirect(docsConfig.advanced.redirects, pagePath)) return {};
+
+    const spec = docsSettings.openApiSpec as
+      | Record<string, unknown>
+      | undefined;
+    if (spec && typeof spec === "object") {
+      const generatedPage = isAsyncApiSpec(spec)
+        ? findVirtualAsyncApiPage(generateAsyncApiPages(spec), pagePath)
+        : findVirtualPage(generateVirtualPages(spec), pagePath);
+
+      if (generatedPage) {
+        return {
+          title: generatedPage.title,
+          description: generatedPage.description,
+        };
+      }
+    }
+
+    return getDocsNotFoundMetadata();
+  }
 
   const page = pageResult[0];
   const meta = buildPageMetadata(
