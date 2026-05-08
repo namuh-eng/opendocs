@@ -30,20 +30,22 @@ An autonomously-built clone of a SaaS product. It has its own backend (AWS servi
 ## Commands
 - `make check` — typecheck + Biome lint/format. Run after every code change.
 - `make test` — run unit tests (Vitest). Must all pass.
-- `make test-e2e` — run Playwright E2E tests. Run FIRST before manual testing.
 - `make all` — check + test
 - `npm run dev` — start dev server (if not already running)
+- Do not run Playwright or `make test-e2e` for OpenDocs browser QA. Use Ever CLI/browser instead.
 
 ## How To Test
 
-### Step 1: Automated regression (fast)
-Run `make test-e2e` first. This catches obvious breakage in seconds.
+### Step 1: Browser verification (Ever CLI)
+Ever CLI/browser is the only approved E2E and parity surface for OpenDocs.
+- Read `/Users/ashleyha/dev/ever-skills/ever-browser/SKILL.md` before browser QA.
+- When Ever behavior is unclear or broken, inspect `/Users/ashleyha/dev/forever-agent/packages/cli` and fix/recover the Ever path instead of switching tools.
+- In the `shadowfax-opendocs` tmux lane, use the Shadowfax-scoped Ever profile (`ever` in-lane or `ever-shadowfax` outside it).
+- Use `ever snapshot` / `ever click` / `ever input` / `ever eval` with snapshot -> act -> snapshot evidence.
+- For Mintlify parity work, compare the reference page against `https://opendocs.namuh.co` through Ever browser evidence before deciding what to build.
 
-### Step 2: Manual verification (Ever CLI)
-- `ever snapshot` — see current page state
-- `ever click <id>` — click elements
-- `ever input <id> <text>` — fill inputs
-- Use the local Ever CLI docs available in your environment for full command reference
+### Step 2: Automated regression
+Run `make check` and `make test` after code changes. Do not use Playwright as a fallback for browser verification.
 
 ### Step 3: Real API testing
 Test the clone's API directly:
@@ -66,7 +68,7 @@ Test the SDK manually: import it, call the API, verify response.
 - `src/components/` — React components
 - `src/lib/` — Backend clients (db.ts, ses.ts, s3.ts, etc.)
 - `tests/` — unit tests (Vitest)
-- `tests/e2e/` — E2E tests (Playwright)
+- `tests/e2e/` — legacy browser tests; do not use for OpenDocs browser QA
 - `packages/sdk/` — TypeScript SDK package
 
 ## Environment
