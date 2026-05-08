@@ -169,6 +169,70 @@ describe("Docs site layout — feature-014", () => {
       const mod = await import("@/components/docs/mobile-nav");
       expect(mod.MobileSidebar).toBeDefined();
     });
+
+    it("opens mobile navigation as a labelled dialog and closes on Escape", async () => {
+      const { MobileMenuButton, MobileSidebar } = await import(
+        "@/components/docs/mobile-nav"
+      );
+      const container = document.createElement("div");
+      document.body.appendChild(container);
+      const root = createRoot(container);
+
+      await act(async () => {
+        root.render(
+          createElement(
+            "div",
+            null,
+            createElement(MobileMenuButton),
+            createElement(MobileSidebar, {
+              nav: [
+                {
+                  type: "item",
+                  label: "Introduction",
+                  path: "introduction",
+                  pageId: "intro",
+                },
+              ],
+              activePath: "introduction",
+              subdomain: "test-project",
+              projectName: "Test Project",
+            }),
+          ),
+        );
+      });
+
+      await act(async () => {
+        container
+          .querySelector<HTMLButtonElement>('[data-testid="mobile-menu-btn"]')
+          ?.click();
+      });
+
+      const dialog = container.querySelector<HTMLElement>(
+        '[data-testid="mobile-sidebar"]',
+      );
+      expect(dialog?.tagName).toBe("DIALOG");
+      expect(dialog?.getAttribute("aria-modal")).toBe("true");
+      expect(dialog?.getAttribute("aria-label")).toBe(
+        "Test Project navigation",
+      );
+      expect(document.body.style.overflow).toBe("hidden");
+
+      await act(async () => {
+        document.dispatchEvent(
+          new KeyboardEvent("keydown", { key: "Escape", bubbles: true }),
+        );
+      });
+
+      expect(
+        container.querySelector('[data-testid="mobile-sidebar"]'),
+      ).toBeNull();
+      expect(document.body.style.overflow).toBe("");
+
+      await act(async () => {
+        root.unmount();
+      });
+      container.remove();
+    });
   });
 
   describe("Layout structure", () => {
