@@ -1,5 +1,13 @@
+import { FeedbackWidget } from "@/components/docs/feedback-widget";
+import { act, createElement } from "react";
+import { createRoot } from "react-dom/client";
 import { describe, expect, it } from "vitest";
 import { validateFeedbackPayload } from "../src/lib/feedback";
+
+// React 19 requires this flag for act() in non-testing-library environments.
+(
+  globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }
+).IS_REACT_ACT_ENVIRONMENT = true;
 
 // ── Feedback API validation logic ────────────────────────────────────────────
 
@@ -171,5 +179,43 @@ describe("Feedback widget state machine", () => {
     state = handleSubmitStart(state);
     state = handleSubmitSuccess(state);
     expect(state.rating).toBe("helpful");
+  });
+});
+
+describe("Feedback widget visible choices", () => {
+  it("renders explicit Yes and No labels while preserving accessible names", async () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const root = createRoot(container);
+
+    await act(async () => {
+      root.render(
+        createElement(FeedbackWidget, {
+          subdomain: "test-project",
+          pagePath: "introduction",
+        }),
+      );
+    });
+
+    const helpful = container.querySelector<HTMLButtonElement>(
+      '[data-testid="feedback-thumbs-up"]',
+    );
+    const notHelpful = container.querySelector<HTMLButtonElement>(
+      '[data-testid="feedback-thumbs-down"]',
+    );
+
+    expect(helpful?.textContent).toContain("Yes");
+    expect(helpful?.getAttribute("aria-label")).toBe(
+      "Yes, this page was helpful",
+    );
+    expect(notHelpful?.textContent).toContain("No");
+    expect(notHelpful?.getAttribute("aria-label")).toBe(
+      "No, this page was not helpful",
+    );
+
+    await act(async () => {
+      root.unmount();
+    });
+    container.remove();
   });
 });
