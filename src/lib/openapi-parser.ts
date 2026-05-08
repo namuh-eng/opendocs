@@ -361,7 +361,7 @@ export function renderApiPlaygroundHtml(endpoint: OpenApiEndpoint): string {
 
   // Send button
   const sendBtn = `<div class="api-send-section">
-  <button class="api-send-btn" data-method="${methodLower}" data-path="${escapeAttribute(endpoint.path)}" data-base-url="${escapeAttribute(endpoint.baseUrl)}">Send</button>
+  <button class="api-send-btn" aria-label="Send" data-method="${methodLower}" data-path="${escapeAttribute(endpoint.path)}" data-base-url="${escapeAttribute(endpoint.baseUrl)}">Send</button>
 </div>`;
 
   // Response area

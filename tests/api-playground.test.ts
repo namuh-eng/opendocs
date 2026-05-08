@@ -301,6 +301,7 @@ describe("API Playground HTML Renderer", () => {
     const endpoints = parseOpenApiSpec(SAMPLE_OPENAPI_SPEC);
     const html = renderApiPlaygroundHtml(endpoints[0]);
     expect(html).toContain('class="api-send-btn"');
+    expect(html).toContain('aria-label="Send"');
     expect(html).toContain("Send");
   });
 
