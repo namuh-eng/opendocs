@@ -255,18 +255,29 @@ export function SearchModal({ pages, subdomain }: SearchModalProps) {
   }, [open]);
 
   // Keyboard navigation within results
-  const allResults = results;
+  const hasQuery = query.trim().length > 0;
+  const showRecent = !hasQuery && recentSearches.length > 0;
+  const defaultPages = !hasQuery && !showRecent ? pages.slice(0, 10) : [];
+  const navigableCount = hasQuery ? results.length : defaultPages.length;
   const handleModalKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "ArrowDown") {
       e.preventDefault();
-      setSelectedIdx((prev) => Math.min(prev + 1, allResults.length - 1));
+      if (navigableCount > 0) {
+        setSelectedIdx((prev) => Math.min(prev + 1, navigableCount - 1));
+      }
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
       setSelectedIdx((prev) => Math.max(prev - 1, 0));
-    } else if (e.key === "Enter" && allResults[selectedIdx]) {
+    } else if (e.key === "Enter") {
+      const resultTarget = hasQuery ? results[selectedIdx] : undefined;
+      const defaultTarget = !hasQuery ? defaultPages[selectedIdx] : undefined;
+      const target = resultTarget || defaultTarget;
+      if (!target) return;
+
       e.preventDefault();
-      saveRecentSearch(query);
-      const target = allResults[selectedIdx];
+      if (hasQuery) {
+        saveRecentSearch(query);
+      }
       window.location.href = `/docs/${subdomain}/${target.path}`;
     }
   };
@@ -274,11 +285,8 @@ export function SearchModal({ pages, subdomain }: SearchModalProps) {
   if (!isOpen) return null;
 
   const grouped = groupResults(results);
-  const hasQuery = query.trim().length > 0;
-  const showRecent = !hasQuery && recentSearches.length > 0;
-  const activeDescendant = allResults[selectedIdx]
-    ? optionIdForIndex(selectedIdx)
-    : undefined;
+  const activeDescendant =
+    navigableCount > 0 ? optionIdForIndex(selectedIdx) : undefined;
   const listboxProps = {
     role: "listbox",
     tabIndex: -1,
@@ -400,7 +408,7 @@ export function SearchModal({ pages, subdomain }: SearchModalProps) {
                   {group.section}
                 </div>
                 {group.results.map((result) => {
-                  const flatIdx = allResults.indexOf(result);
+                  const flatIdx = results.indexOf(result);
                   return (
                     <Link
                       key={result.path}
@@ -449,14 +457,15 @@ export function SearchModal({ pages, subdomain }: SearchModalProps) {
           {/* Default: show all pages when no query */}
           {!hasQuery &&
             !showRecent &&
-            pages.slice(0, 10).map((page, index) => {
+            defaultPages.map((page, index) => {
+              const selected = index === selectedIdx;
               return (
                 <Link
                   key={page.path}
                   id={optionIdForIndex(index)}
                   href={`/docs/${subdomain}/${page.path}`}
-                  {...optionProps(false)}
-                  className="search-modal-result"
+                  {...optionProps(selected)}
+                  className={`search-modal-result ${selected ? "search-modal-result-active" : ""}`}
                   onClick={close}
                 >
                   <svg

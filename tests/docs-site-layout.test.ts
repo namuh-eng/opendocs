@@ -47,6 +47,7 @@ describe("Docs site layout — feature-014", () => {
     beforeEach(() => {
       container = document.createElement("div");
       document.body.appendChild(container);
+      localStorage.removeItem("docs-recent-searches");
     });
 
     afterEach(() => {
@@ -150,8 +151,55 @@ describe("Docs site layout — feature-014", () => {
       expect(input?.getAttribute("aria-autocomplete")).toBe("list");
       expect(input?.getAttribute("aria-expanded")).toBe("true");
       expect(input?.getAttribute("aria-controls")).toBe(results?.id);
+      expect(input?.getAttribute("aria-activedescendant")).toBe(
+        firstOption?.id,
+      );
       expect(results?.getAttribute("role")).toBe("listbox");
-      expect(firstOption?.getAttribute("aria-selected")).toBe("false");
+      expect(firstOption?.getAttribute("aria-selected")).toBe("true");
+
+      await act(async () => {
+        root.unmount();
+      });
+    });
+
+    it("moves active selection through default results with arrow keys", async () => {
+      const { SearchModal } = await import("@/components/docs/search-modal");
+      const root = createRoot(container);
+
+      await act(async () => {
+        root.render(
+          createElement(SearchModal, {
+            subdomain: "test-project",
+            pages: [
+              { path: "introduction", title: "Introduction" },
+              { path: "quickstart", title: "Quickstart" },
+            ],
+          }),
+        );
+      });
+
+      await act(async () => {
+        document.dispatchEvent(new CustomEvent("open-search"));
+      });
+
+      const input = container.querySelector<HTMLInputElement>(
+        '[data-testid="search-input"]',
+      );
+      const options =
+        container.querySelectorAll<HTMLElement>('[role="option"]');
+
+      expect(input?.getAttribute("aria-activedescendant")).toBe(options[0].id);
+      expect(options[0].getAttribute("aria-selected")).toBe("true");
+
+      await act(async () => {
+        input?.dispatchEvent(
+          new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }),
+        );
+      });
+
+      expect(input?.getAttribute("aria-activedescendant")).toBe(options[1].id);
+      expect(options[0].getAttribute("aria-selected")).toBe("false");
+      expect(options[1].getAttribute("aria-selected")).toBe("true");
 
       await act(async () => {
         root.unmount();
