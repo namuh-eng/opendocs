@@ -2865,11 +2865,49 @@ pre.mermaid svg {
 
 .chat-widget-input-area {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-end;
   gap: 8px;
   padding: 8px 12px 12px;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   flex-shrink: 0;
+}
+
+.chat-attachments {
+  display: flex;
+  flex-basis: 100%;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+}
+
+.chat-attachment-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 220px;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  border-radius: 999px;
+  padding: 3px 7px;
+  color: #d1fae5;
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.chat-attachment-chip button {
+  border: 0;
+  padding: 0;
+  color: inherit;
+  background: transparent;
+  cursor: pointer;
+}
+
+.chat-attachment-note {
+  color: #9ca3af;
+}
+
+.chat-attachment-input {
+  display: none;
 }
 
 .chat-widget-textarea {
@@ -2901,6 +2939,7 @@ pre.mermaid svg {
   opacity: 0.5;
 }
 
+.chat-widget-attachment-btn,
 .chat-widget-send-btn {
   display: flex;
   align-items: center;
@@ -2916,10 +2955,22 @@ pre.mermaid svg {
   transition: background 0.15s, opacity 0.15s;
 }
 
+.chat-widget-attachment-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #9ca3af;
+}
+
+.chat-widget-attachment-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  color: #e5e7eb;
+}
+
 .chat-widget-send-btn:hover:not(:disabled) {
   background: #15803d;
 }
 
+.chat-widget-attachment-btn:disabled,
 .chat-widget-send-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
@@ -2983,6 +3034,27 @@ pre.mermaid svg {
   background: #f3f4f6;
   border-color: rgba(0, 0, 0, 0.1);
   color: #111827;
+}
+
+[data-theme="light"] .chat-attachment-chip {
+  color: #047857;
+  border-color: rgba(16, 185, 129, 0.4);
+  background: #ecfdf5;
+}
+
+[data-theme="light"] .chat-attachment-note {
+  color: #6b7280;
+}
+
+[data-theme="light"] .chat-widget-attachment-btn {
+  color: #6b7280;
+  background: #f9fafb;
+  border-color: #e5e7eb;
+}
+
+[data-theme="light"] .chat-widget-attachment-btn:hover:not(:disabled) {
+  color: #111827;
+  background: #f3f4f6;
 }
 
 [data-theme="light"] .chat-widget-disclaimer {

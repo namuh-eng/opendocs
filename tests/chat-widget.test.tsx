@@ -93,6 +93,53 @@ describe("Docs chat widget code context", () => {
     ).toBe("How do I get started?");
   });
 
+  it("shows an attachment picker and selected file feedback", async () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const root = createRoot(container);
+
+    await act(async () => {
+      root.render(
+        <>
+          <AskAiButton />
+          <ChatWidget subdomain="feature004-qa" currentPath="introduction" />
+        </>,
+      );
+    });
+
+    await act(async () => {
+      container
+        .querySelector<HTMLButtonElement>('[data-testid="ask-ai-btn"]')
+        ?.click();
+    });
+
+    expect(
+      container.querySelector<HTMLButtonElement>(
+        '[data-testid="chat-attachment-btn"][aria-label="Add attachment"]',
+      ),
+    ).not.toBeNull();
+
+    const fileInput = container.querySelector<HTMLInputElement>(
+      '[data-testid="chat-attachment-input"]',
+    );
+    const file = new File(["hello"], "notes.md", { type: "text/markdown" });
+    Object.defineProperty(fileInput, "files", {
+      configurable: true,
+      value: [file],
+    });
+
+    await act(async () => {
+      fileInput?.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+
+    expect(
+      container.querySelector('[data-testid="chat-attachments"]')?.textContent,
+    ).toContain("notes.md");
+    expect(
+      container.querySelector('[data-testid="chat-attachments"]')?.textContent,
+    ).toContain("File contents are not uploaded yet.");
+  });
+
   it("opens the chat panel with code context when a code-block Ask AI button is clicked", async () => {
     const html = renderMdxContent("```ts app.ts\nconst answer = 42;\n```");
     const container = document.createElement("div");
