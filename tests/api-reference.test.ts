@@ -300,10 +300,11 @@ describe("renderApiReferencePage", () => {
     expect(html).toContain("/plants");
   });
 
-  it("renders Try it button", () => {
+  it("renders Try it button with Mintlify-parity accessible label", () => {
     const html = renderApiReferencePage(endpoint);
     expect(html).toContain("Try it");
     expect(html).toContain("tryit-btn");
+    expect(html).toContain('aria-label="Try it"');
   });
 
   it("renders code section with language tabs", () => {

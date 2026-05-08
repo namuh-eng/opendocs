@@ -279,7 +279,7 @@ export function renderApiReferencePage(endpoint: OpenApiEndpoint): string {
     <span class="method-badge ${badge.colorClass}">${escapeHtml(badge.label)}</span>
     <span class="api-ref-path">${escapeHtml(endpoint.path)}</span>
   </div>
-  <button class="api-ref-tryit-btn" data-testid="tryit-btn">Try it ▶</button>
+  <button class="api-ref-tryit-btn" data-testid="tryit-btn" aria-label="Try it">Try it ▶</button>
 </div>`;
 
   // Code examples with language selector
