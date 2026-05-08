@@ -2,7 +2,7 @@
 
 import type { DocsNavEntry } from "@/lib/mdx-renderer";
 import { X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { DocsSidebar } from "./docs-sidebar";
 
 export function MobileMenuButton() {
@@ -49,6 +49,7 @@ export function MobileSidebar({
   projectName,
 }: MobileSidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const overlayRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
     function handleToggle() {
@@ -77,17 +78,49 @@ export function MobileSidebar({
     };
   }, [isOpen]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const previouslyFocused =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
+
+    overlayRef.current?.focus();
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsOpen(false);
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      previouslyFocused?.focus();
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return (
-    <div
+    <dialog
+      ref={overlayRef}
       data-testid="mobile-sidebar"
+      open
+      aria-modal="true"
+      aria-label={`${projectName} navigation`}
       className="mobile-sidebar-overlay"
       onClick={(e) => {
         if (e.target === e.currentTarget) setIsOpen(false);
       }}
       onKeyDown={(e) => {
         if (e.key === "Escape") setIsOpen(false);
+      }}
+      onCancel={(e) => {
+        e.preventDefault();
+        setIsOpen(false);
       }}
     >
       <div className="mobile-sidebar-panel">
@@ -99,7 +132,7 @@ export function MobileSidebar({
             onClick={() => setIsOpen(false)}
             aria-label="Close navigation"
           >
-            <X size={20} />
+            <X size={20} aria-hidden="true" />
           </button>
         </div>
         <DocsSidebar
@@ -109,6 +142,6 @@ export function MobileSidebar({
           projectName={projectName}
         />
       </div>
-    </div>
+    </dialog>
   );
 }
