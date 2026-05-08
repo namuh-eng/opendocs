@@ -307,12 +307,16 @@ describe("renderApiReferencePage", () => {
     expect(html).toContain('aria-label="Try it"');
   });
 
-  it("renders code section with language tabs", () => {
+  it("renders code section with language tabs and labeled actions", () => {
     const html = renderApiReferencePage(endpoint);
     expect(html).toContain("api-ref-lang-tab");
     expect(html).toContain("cURL");
     expect(html).toContain("Python");
     expect(html).toContain("JavaScript");
+    expect(html).toContain(
+      'aria-label="Copy the contents from the code block"',
+    );
+    expect(html).toContain('aria-label="Ask AI"');
   });
 
   it("renders response status controls with tab semantics", () => {
