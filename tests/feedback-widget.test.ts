@@ -218,4 +218,43 @@ describe("Feedback widget visible choices", () => {
     });
     container.remove();
   });
+
+  it("labels the optional feedback comment textarea with the visible prompt", async () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const root = createRoot(container);
+
+    await act(async () => {
+      root.render(
+        createElement(FeedbackWidget, {
+          subdomain: "test-project",
+          pagePath: "introduction",
+        }),
+      );
+    });
+
+    await act(async () => {
+      container
+        .querySelector<HTMLButtonElement>(
+          '[data-testid="feedback-thumbs-down"]',
+        )
+        ?.click();
+    });
+
+    const textarea = container.querySelector<HTMLTextAreaElement>(
+      '[data-testid="feedback-textarea"]',
+    );
+    const label = container.querySelector<HTMLElement>(
+      ".docs-feedback-comment-label",
+    );
+
+    expect(label?.textContent).toBe("Sorry to hear that. How can we improve?");
+    expect(label?.id).toBeTruthy();
+    expect(textarea?.getAttribute("aria-labelledby")).toBe(label?.id);
+
+    await act(async () => {
+      root.unmount();
+    });
+    container.remove();
+  });
 });

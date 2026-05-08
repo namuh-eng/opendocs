@@ -1,7 +1,7 @@
 "use client";
 
 import { ThumbsDown, ThumbsUp } from "lucide-react";
-import { useCallback, useState } from "react";
+import { useCallback, useId, useState } from "react";
 
 type WidgetState = "idle" | "rated" | "submitting" | "submitted";
 
@@ -15,6 +15,7 @@ export function FeedbackWidget({ subdomain, pagePath }: FeedbackWidgetProps) {
   const [rating, setRating] = useState<"helpful" | "not_helpful" | null>(null);
   const [comment, setComment] = useState("");
   const [toast, setToast] = useState(false);
+  const commentLabelId = useId();
 
   const submitFeedback = useCallback(
     async (
@@ -109,7 +110,7 @@ export function FeedbackWidget({ subdomain, pagePath }: FeedbackWidgetProps) {
 
       {(state === "rated" || state === "submitting") && (
         <div className="docs-feedback-comment-section">
-          <p className="docs-feedback-comment-label">
+          <p id={commentLabelId} className="docs-feedback-comment-label">
             {rating === "helpful"
               ? "Great! Any additional feedback?"
               : "Sorry to hear that. How can we improve?"}
@@ -117,6 +118,7 @@ export function FeedbackWidget({ subdomain, pagePath }: FeedbackWidgetProps) {
           <textarea
             className="docs-feedback-textarea"
             data-testid="feedback-textarea"
+            aria-labelledby={commentLabelId}
             placeholder="Tell us more (optional)"
             value={comment}
             onChange={(e) => setComment(e.target.value)}
