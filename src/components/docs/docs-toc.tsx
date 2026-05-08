@@ -10,14 +10,22 @@ interface DocsTocProps {
 export function DocsToc({ entries }: DocsTocProps) {
   // Filter to H2 and H3 only for display
   const displayEntries = entries.filter((e) => e.level >= 2 && e.level <= 3);
-  const [activeId, setActiveId] = useState<string>(displayEntries[0]?.id ?? "");
+  const [activeId, setActiveId] = useState<string>("");
   const manuallySelectedIdRef = useRef<string | null>(null);
+  const suppressObserverRef = useRef(false);
+  const entryIdsRef = useRef<Set<string>>(new Set());
   const manualSelectionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
     null,
   );
+  const observerSuppressionTimerRef = useRef<ReturnType<
+    typeof setTimeout
+  > | null>(null);
 
   useEffect(() => {
-    setActiveId((current) => current || displayEntries[0]?.id || "");
+    entryIdsRef.current = new Set(displayEntries.map((entry) => entry.id));
+    setActiveId((current) =>
+      current && entryIdsRef.current.has(current) ? current : "",
+    );
   }, [displayEntries]);
 
   useEffect(() => {
@@ -25,7 +33,8 @@ export function DocsToc({ entries }: DocsTocProps) {
 
     const observer = new IntersectionObserver(
       (observerEntries) => {
-        if (manuallySelectedIdRef.current) return;
+        if (manuallySelectedIdRef.current || suppressObserverRef.current)
+          return;
 
         for (const entry of observerEntries) {
           if (entry.isIntersecting) {
@@ -45,9 +54,51 @@ export function DocsToc({ entries }: DocsTocProps) {
   }, [displayEntries]);
 
   useEffect(() => {
+    const suppressExternalHashNavigation = () => {
+      if (manuallySelectedIdRef.current) return;
+      if (observerSuppressionTimerRef.current) {
+        clearTimeout(observerSuppressionTimerRef.current);
+      }
+      suppressObserverRef.current = true;
+      setActiveId("");
+      observerSuppressionTimerRef.current = setTimeout(() => {
+        suppressObserverRef.current = false;
+        observerSuppressionTimerRef.current = null;
+      }, 1500);
+    };
+
+    const handleDocumentClick = (event: MouseEvent) => {
+      const anchor = (event.target as Element | null)?.closest?.(
+        "a[href]",
+      ) as HTMLAnchorElement | null;
+      if (!anchor || anchor.closest(".docs-toc")) return;
+      const href = anchor.getAttribute("href") || "";
+      const hash = href.startsWith("#")
+        ? href.slice(1)
+        : new URL(anchor.href).hash.slice(1);
+      if (hash && entryIdsRef.current.has(hash)) {
+        suppressExternalHashNavigation();
+      }
+    };
+
+    const handleHashChange = () => {
+      const hash = window.location.hash.slice(1);
+      if (hash && entryIdsRef.current.has(hash)) {
+        suppressExternalHashNavigation();
+      }
+    };
+
+    document.addEventListener("click", handleDocumentClick, true);
+    window.addEventListener("hashchange", handleHashChange);
+
     return () => {
+      document.removeEventListener("click", handleDocumentClick, true);
+      window.removeEventListener("hashchange", handleHashChange);
       if (manualSelectionTimerRef.current) {
         clearTimeout(manualSelectionTimerRef.current);
+      }
+      if (observerSuppressionTimerRef.current) {
+        clearTimeout(observerSuppressionTimerRef.current);
       }
     };
   }, []);
