@@ -1,5 +1,9 @@
 "use client";
 
+import {
+  apiPlaygroundStatusClass,
+  normalizeApiPlaygroundProxyResult,
+} from "@/lib/api-playground-response";
 import { useEffect, useRef } from "react";
 
 interface ApiPlaygroundProps {
@@ -151,12 +155,15 @@ async function handleSend(btn: HTMLButtonElement): Promise<void> {
     });
 
     const elapsed = Math.round(performance.now() - startTime);
-    const result = await proxyRes.json();
+    const result = normalizeApiPlaygroundProxyResult(
+      await proxyRes.json(),
+      proxyRes.status,
+    );
 
     if (responseArea) responseArea.style.display = "block";
     if (statusEl) {
       statusEl.textContent = `${result.status}`;
-      statusEl.className = `api-status-code status-${Math.floor(result.status / 100)}xx`;
+      statusEl.className = apiPlaygroundStatusClass(result.status);
     }
     if (timeEl) timeEl.textContent = `${elapsed}ms`;
 
