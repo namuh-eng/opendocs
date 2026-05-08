@@ -17,10 +17,13 @@ export function FeedbackWidget({ subdomain, pagePath }: FeedbackWidgetProps) {
   const [toast, setToast] = useState(false);
   const commentLabelId = useId();
   const commentRef = useRef<HTMLTextAreaElement>(null);
+  const thanksRef = useRef<HTMLParagraphElement>(null);
 
   useEffect(() => {
     if (state === "rated") {
       commentRef.current?.focus();
+    } else if (state === "submitted") {
+      thanksRef.current?.focus();
     }
   }, [state]);
 
@@ -73,7 +76,12 @@ export function FeedbackWidget({ subdomain, pagePath }: FeedbackWidgetProps) {
   if (state === "submitted") {
     return (
       <div className="docs-feedback-widget" data-testid="feedback-widget">
-        <p className="docs-feedback-thanks" data-testid="feedback-thanks">
+        <p
+          ref={thanksRef}
+          className="docs-feedback-thanks"
+          data-testid="feedback-thanks"
+          tabIndex={-1}
+        >
           Thanks for your feedback!
         </p>
         {toast && (
