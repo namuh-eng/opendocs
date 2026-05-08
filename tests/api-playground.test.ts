@@ -321,6 +321,9 @@ describe("API Playground HTML Renderer", () => {
     expect(html).toContain(
       'class="api-response-headers" role="tabpanel" aria-label="Response headers"',
     );
+    expect(html).toContain('class="api-response-download"');
+    expect(html).toContain('aria-label="Download response file"');
+    expect(html).toContain('download="response.txt"');
   });
 
   it("renders different method badges with correct classes", () => {

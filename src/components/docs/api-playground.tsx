@@ -141,6 +141,9 @@ async function handleSend(btn: HTMLButtonElement): Promise<void> {
   const headersContent = playground.querySelector<HTMLElement>(
     ".api-response-headers-content",
   );
+  const downloadLink = playground.querySelector<HTMLAnchorElement>(
+    ".api-response-download",
+  );
 
   const startTime = performance.now();
 
@@ -171,6 +174,7 @@ async function handleSend(btn: HTMLButtonElement): Promise<void> {
     if (timeEl) timeEl.textContent = `${elapsed}ms`;
 
     // Format response body
+    let responseBodyText = "";
     if (bodyContent) {
       let formatted = result.body || "";
       try {
@@ -178,8 +182,10 @@ async function handleSend(btn: HTMLButtonElement): Promise<void> {
       } catch {
         // not JSON, display raw
       }
+      responseBodyText = formatted;
       bodyContent.textContent = formatted;
     }
+    updateDownloadLink(downloadLink, responseBodyText);
 
     // Format response headers
     if (headersContent) {
@@ -198,8 +204,24 @@ async function handleSend(btn: HTMLButtonElement): Promise<void> {
       bodyContent.textContent =
         err instanceof Error ? err.message : "Request failed";
     }
+    updateDownloadLink(
+      downloadLink,
+      err instanceof Error ? err.message : "Request failed",
+    );
   } finally {
     btn.disabled = false;
     btn.textContent = "Send";
   }
+}
+
+function updateDownloadLink(
+  link: HTMLAnchorElement | null,
+  content: string,
+): void {
+  if (!link) return;
+
+  const text = content || "";
+  link.href = `data:text/plain;charset=utf-8,${encodeURIComponent(text)}`;
+  link.download = "response.txt";
+  link.style.display = "inline-flex";
 }
