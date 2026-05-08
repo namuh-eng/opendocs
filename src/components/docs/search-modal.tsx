@@ -47,6 +47,14 @@ export function filterPages(
 
 const RECENT_KEY = "docs-recent-searches";
 const MAX_RECENT = 5;
+const FOCUSABLE_SELECTOR = [
+  "a[href]",
+  "button:not([disabled])",
+  "input:not([disabled])",
+  "select:not([disabled])",
+  "textarea:not([disabled])",
+  '[tabindex]:not([tabindex="-1"])',
+].join(",");
 
 type DocsSearchWindow = Window & { __docsSearchRequested?: boolean };
 
@@ -84,6 +92,12 @@ function saveRecentSearch(query: string): void {
   }
 }
 
+function getFocusableElements(container: HTMLElement): HTMLElement[] {
+  return Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR))
+    .filter((element) => element.tabIndex >= 0)
+    .filter((element) => element.getAttribute("aria-hidden") !== "true");
+}
+
 // ── Group results by first breadcrumb segment ─────────────────────────────────
 
 function groupResults(results: SearchResultItem[]): SearchResultGroup[] {
@@ -119,6 +133,7 @@ export function SearchModal({ pages, subdomain }: SearchModalProps) {
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [selectedIdx, setSelectedIdx] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const dialogRef = useRef<HTMLDialogElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const restoreFocusRef = useRef<HTMLElement | null>(null);
@@ -151,6 +166,42 @@ export function SearchModal({ pages, subdomain }: SearchModalProps) {
       setTimeout(() => {
         restoreFocusTarget.focus();
       }, 0);
+    }
+  }, []);
+
+  const trapTabFocus = useCallback((event: KeyboardEvent) => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+
+    const focusableElements = getFocusableElements(dialog);
+    const firstFocusable = focusableElements[0];
+    const lastFocusable = focusableElements[focusableElements.length - 1];
+
+    if (!firstFocusable || !lastFocusable) {
+      event.preventDefault();
+      dialog.focus();
+      return;
+    }
+
+    const activeElement = document.activeElement;
+    if (
+      !(activeElement instanceof HTMLElement) ||
+      !dialog.contains(activeElement)
+    ) {
+      event.preventDefault();
+      firstFocusable.focus();
+      return;
+    }
+
+    if (event.shiftKey && activeElement === firstFocusable) {
+      event.preventDefault();
+      lastFocusable.focus();
+      return;
+    }
+
+    if (!event.shiftKey && activeElement === lastFocusable) {
+      event.preventDefault();
+      firstFocusable.focus();
     }
   }, []);
 
@@ -240,10 +291,13 @@ export function SearchModal({ pages, subdomain }: SearchModalProps) {
       if (e.key === "Escape" && isOpen) {
         close();
       }
+      if (e.key === "Tab" && isOpen) {
+        trapTabFocus(e);
+      }
     }
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
-  }, [isOpen, close, open]);
+  }, [isOpen, close, open, trapTabFocus]);
 
   // Auto-focus input
   useEffect(() => {
@@ -336,6 +390,7 @@ export function SearchModal({ pages, subdomain }: SearchModalProps) {
       }}
     >
       <dialog
+        ref={dialogRef}
         className="search-modal"
         open
         aria-label="Search docs"
