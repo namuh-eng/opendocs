@@ -60,7 +60,11 @@ describe("docs selector accessibility", () => {
       trigger?.click();
     });
 
+    const dropdown = container.querySelector<HTMLElement>(
+      '[data-testid="version-switcher-dropdown"]',
+    );
     expect(trigger?.getAttribute("aria-expanded")).toBe("true");
+    expect(trigger?.getAttribute("aria-controls")).toBe(dropdown?.id);
     expect(
       container
         .querySelector('[data-testid="version-option-v1"]')
@@ -71,6 +75,19 @@ describe("docs selector accessibility", () => {
         .querySelector('[data-testid="version-option-v2"]')
         ?.getAttribute("aria-label"),
     ).toBe("Switch to docs version Version 2.0 (default)");
+
+    await act(async () => {
+      window.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Escape", bubbles: true }),
+      );
+    });
+
+    expect(trigger?.getAttribute("aria-expanded")).toBe("false");
+    expect(trigger?.hasAttribute("aria-controls")).toBe(false);
+    expect(
+      container.querySelector('[data-testid="version-switcher-dropdown"]'),
+    ).toBeNull();
+    expect(document.activeElement).toBe(trigger);
   });
 
   it("labels the language selector and language options", async () => {
@@ -103,7 +120,11 @@ describe("docs selector accessibility", () => {
       trigger?.click();
     });
 
+    const dropdown = container.querySelector<HTMLElement>(
+      '[data-testid="language-switcher-dropdown"]',
+    );
     expect(trigger?.getAttribute("aria-expanded")).toBe("true");
+    expect(trigger?.getAttribute("aria-controls")).toBe(dropdown?.id);
     expect(
       container
         .querySelector('[data-testid="lang-option-en"]')
@@ -114,5 +135,18 @@ describe("docs selector accessibility", () => {
         .querySelector('[data-testid="lang-option-ko"]')
         ?.getAttribute("aria-label"),
     ).toBe("Switch to Korean");
+
+    await act(async () => {
+      window.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Escape", bubbles: true }),
+      );
+    });
+
+    expect(trigger?.getAttribute("aria-expanded")).toBe("false");
+    expect(trigger?.hasAttribute("aria-controls")).toBe(false);
+    expect(
+      container.querySelector('[data-testid="language-switcher-dropdown"]'),
+    ).toBeNull();
+    expect(document.activeElement).toBe(trigger);
   });
 });

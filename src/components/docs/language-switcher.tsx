@@ -2,7 +2,7 @@
 
 import { getLanguageInfo } from "@/lib/i18n";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 
 interface LanguageSwitcherProps {
   currentLocale: string;
@@ -21,20 +21,49 @@ export function LanguageSwitcher({
 }: LanguageSwitcherProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const dropdownId = useId();
   const router = useRouter();
 
-  // Close on click outside
+  const closeDropdown = useCallback(
+    ({ restoreFocus }: { restoreFocus: boolean }) => {
+      setOpen(false);
+      if (restoreFocus) {
+        triggerRef.current?.focus();
+      }
+    },
+    [],
+  );
+
+  const toggleDropdown = useCallback(() => {
+    triggerRef.current?.focus();
+    setOpen((value) => !value);
+  }, []);
+
+  // Close on click outside or Escape
   useEffect(() => {
+    if (!open) return;
+
     function handleClick(e: MouseEvent) {
       if (ref.current && !ref.current.contains(e.target as Node)) {
-        setOpen(false);
+        closeDropdown({ restoreFocus: false });
       }
     }
-    if (open) {
-      document.addEventListener("mousedown", handleClick);
-      return () => document.removeEventListener("mousedown", handleClick);
+
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        closeDropdown({ restoreFocus: true });
+      }
     }
-  }, [open]);
+
+    document.addEventListener("mousedown", handleClick);
+    window.addEventListener("keydown", handleKeyDown, true);
+    return () => {
+      document.removeEventListener("mousedown", handleClick);
+      window.removeEventListener("keydown", handleKeyDown, true);
+    };
+  }, [closeDropdown, open]);
 
   if (availableLocales.length <= 1) return null;
 
@@ -57,12 +86,14 @@ export function LanguageSwitcher({
   return (
     <div className="lang-switcher" ref={ref} data-testid="language-switcher">
       <button
+        ref={triggerRef}
         type="button"
         className="lang-switcher-btn"
-        onClick={() => setOpen((v) => !v)}
+        onClick={toggleDropdown}
         aria-label={`Select docs language, current language ${currentInfo?.name ?? currentLocale}`}
         aria-expanded={open}
         aria-haspopup="listbox"
+        aria-controls={open ? dropdownId : undefined}
         data-testid="language-switcher-btn"
       >
         <svg
@@ -99,6 +130,7 @@ export function LanguageSwitcher({
 
       {open && (
         <nav
+          id={dropdownId}
           className="lang-switcher-dropdown"
           aria-label="Language selection"
           data-testid="language-switcher-dropdown"
