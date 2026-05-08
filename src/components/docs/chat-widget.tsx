@@ -138,6 +138,12 @@ interface ChatWidgetProps {
   currentPath?: string;
 }
 
+const STARTER_SUGGESTIONS = [
+  "How do I get started?",
+  "What features does it offer?",
+  "What is this documentation about?",
+];
+
 export function ChatWidget({ subdomain, currentPath }: ChatWidgetProps) {
   const [state, dispatch] = useReducer(chatReducer, {
     messages: [],
@@ -314,6 +320,11 @@ export function ChatWidget({ subdomain, currentPath }: ChatWidgetProps) {
     }
   };
 
+  const applySuggestion = useCallback((suggestion: string) => {
+    setInput(suggestion);
+    setTimeout(() => inputRef.current?.focus(), 0);
+  }, []);
+
   if (!state.isOpen) return null;
 
   return (
@@ -402,6 +413,22 @@ export function ChatWidget({ subdomain, currentPath }: ChatWidgetProps) {
               <path d="M18 14l1 3 3 1-3 1-1 3-1-3-3-1 3-1 1-3z" />
             </svg>
             <p>Ask a question about the documentation</p>
+            <div
+              className="chat-widget-suggestions"
+              data-testid="chat-suggestions"
+            >
+              <span className="chat-widget-suggestions-label">Suggestions</span>
+              {STARTER_SUGGESTIONS.map((suggestion) => (
+                <button
+                  key={suggestion}
+                  type="button"
+                  className="chat-widget-suggestion"
+                  onClick={() => applySuggestion(suggestion)}
+                >
+                  {suggestion}
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
