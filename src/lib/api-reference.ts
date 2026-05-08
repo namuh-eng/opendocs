@@ -324,24 +324,24 @@ export function renderApiReferencePage(endpoint: OpenApiEndpoint): string {
   let responseSection = "";
   if (responseTabs.length > 0) {
     const tabs = responseTabs
-      .map(
-        (tab, i) =>
-          `<button class="api-ref-status-tab${i === 0 ? " active" : ""}" data-status="${escapeHtml(tab.statusCode)}">${escapeHtml(tab.statusCode)}</button>`,
-      )
+      .map((tab, i) => {
+        const status = escapeHtml(tab.statusCode);
+        return `<button id="api-response-tab-${status}" class="api-ref-status-tab${i === 0 ? " active" : ""}" data-status="${status}" role="tab" aria-selected="${i === 0 ? "true" : "false"}" aria-controls="api-response-panel-${status}" tabindex="${i === 0 ? "0" : "-1"}">${status}</button>`;
+      })
       .join("\n    ");
 
     const panels = responseTabs
-      .map(
-        (tab, i) =>
-          `<div class="api-ref-status-panel${i === 0 ? " active" : ""}" data-status="${escapeHtml(tab.statusCode)}">
+      .map((tab, i) => {
+        const status = escapeHtml(tab.statusCode);
+        return `<div id="api-response-panel-${status}" class="api-ref-status-panel${i === 0 ? " active" : ""}" data-status="${status}" role="tabpanel" aria-labelledby="api-response-tab-${status}"${i === 0 ? "" : " hidden"}>
       ${tab.description ? `<p class="api-ref-status-desc">${escapeHtml(tab.description)}</p>` : ""}
       <pre><code class="api-ref-response-example">${escapeHtml(getExampleResponse(tab.statusCode))}</code></pre>
-    </div>`,
-      )
+    </div>`;
+      })
       .join("\n");
 
     responseSection = `<div class="api-ref-responses" data-testid="response-tabs">
-  <div class="api-ref-status-tabs">
+  <div class="api-ref-status-tabs" role="tablist" aria-label="Response status codes">
     ${tabs}
   </div>
   ${panels}

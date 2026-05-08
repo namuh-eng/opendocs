@@ -96,13 +96,25 @@ export function ApiReferenceLayout({ html }: ApiReferenceLayoutProps) {
     for (const tab of statusTabs) {
       tab.addEventListener("click", () => {
         const status = tab.dataset.status;
-        for (const t of statusTabs) t.classList.remove("active");
-        for (const p of statusPanels) p.classList.remove("active");
+        for (const t of statusTabs) {
+          t.classList.remove("active");
+          t.setAttribute("aria-selected", "false");
+          t.tabIndex = -1;
+        }
+        for (const p of statusPanels) {
+          p.classList.remove("active");
+          p.hidden = true;
+        }
         tab.classList.add("active");
+        tab.setAttribute("aria-selected", "true");
+        tab.tabIndex = 0;
         const target = container.querySelector<HTMLDivElement>(
           `.api-ref-status-panel[data-status="${status}"]`,
         );
-        if (target) target.classList.add("active");
+        if (target) {
+          target.classList.add("active");
+          target.hidden = false;
+        }
       });
     }
 

@@ -315,10 +315,16 @@ describe("renderApiReferencePage", () => {
     expect(html).toContain("JavaScript");
   });
 
-  it("renders response status tabs 200 and 400", () => {
+  it("renders response status controls with tab semantics", () => {
     const html = renderApiReferencePage(endpoint);
+    expect(html).toContain('role="tablist"');
+    expect(html).toContain('aria-label="Response status codes"');
     expect(html).toContain('data-status="200"');
+    expect(html).toContain('role="tab"');
+    expect(html).toContain('aria-selected="true"');
+    expect(html).toContain('role="tabpanel"');
     expect(html).toContain('data-status="400"');
+    expect(html).toContain('aria-selected="false"');
   });
 
   it("renders auth section for bearer token", () => {
