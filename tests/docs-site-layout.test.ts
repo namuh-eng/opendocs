@@ -304,6 +304,60 @@ describe("Docs site layout — feature-014", () => {
         root.unmount();
       });
     });
+
+    it("traps Tab focus inside the open search dialog", async () => {
+      const { SearchModal } = await import("@/components/docs/search-modal");
+      const root = createRoot(container);
+
+      await act(async () => {
+        root.render(
+          createElement(SearchModal, {
+            subdomain: "test-project",
+            pages: [
+              { path: "introduction", title: "Introduction" },
+              { path: "quickstart", title: "Quickstart" },
+            ],
+          }),
+        );
+      });
+
+      await act(async () => {
+        document.dispatchEvent(new CustomEvent("open-search"));
+      });
+
+      const input = container.querySelector<HTMLInputElement>(
+        '[data-testid="search-input"]',
+      );
+      const options =
+        container.querySelectorAll<HTMLElement>('[role="option"]');
+      const lastOption = options[options.length - 1];
+
+      lastOption.focus();
+
+      await act(async () => {
+        document.dispatchEvent(
+          new KeyboardEvent("keydown", { key: "Tab", bubbles: true }),
+        );
+      });
+
+      expect(document.activeElement).toBe(input);
+
+      await act(async () => {
+        document.dispatchEvent(
+          new KeyboardEvent("keydown", {
+            key: "Tab",
+            shiftKey: true,
+            bubbles: true,
+          }),
+        );
+      });
+
+      expect(document.activeElement).toBe(lastOption);
+
+      await act(async () => {
+        root.unmount();
+      });
+    });
   });
 
   describe("MobileNav", () => {
