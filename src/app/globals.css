@@ -58,6 +58,29 @@ body {
 }
 
 /* Top bar */
+.docs-skip-link {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 100;
+  transform: translateY(-150%);
+  border-radius: 8px;
+  background: #16a34a;
+  color: #ffffff;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.24);
+  transition: transform 0.15s ease;
+}
+
+.docs-skip-link:focus {
+  transform: translateY(0);
+  outline: 2px solid #bbf7d0;
+  outline-offset: 2px;
+}
+
 .docs-topbar {
   position: sticky;
   top: 0;

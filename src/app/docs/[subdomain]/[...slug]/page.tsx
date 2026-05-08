@@ -589,7 +589,7 @@ export default async function DocsPage({
           projectName={project.name}
         />
 
-        <main className="docs-main">
+        <main id="main-content" className="docs-main" tabIndex={-1}>
           {groupName && (
             <div className="docs-breadcrumb" data-testid="breadcrumb-group">
               {groupName}

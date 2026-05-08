@@ -1,3 +1,4 @@
+import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
 // Mock next/navigation
@@ -7,6 +8,23 @@ vi.mock("next/navigation", () => ({
 
 describe("Docs topbar — feature-014a", () => {
   describe("DocsTopbar component exports", () => {
+    it("renders a skip link before docs navigation", async () => {
+      const { DocsTopbar } = await import("@/components/docs/docs-topbar");
+      const html = renderToStaticMarkup(
+        DocsTopbar({
+          projectName: "Test Project",
+          subdomain: "test-project",
+          settings: {},
+        }),
+      );
+
+      expect(html).toContain('href="#main-content"');
+      expect(html).toContain("Skip to main content");
+      expect(html.indexOf("Skip to main content")).toBeLessThan(
+        html.indexOf("docs-topbar"),
+      );
+    });
+
     it("exports DocsTopbar component", async () => {
       const mod = await import("@/components/docs/docs-topbar");
       expect(mod.DocsTopbar).toBeDefined();
