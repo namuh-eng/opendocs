@@ -263,6 +263,7 @@ describe("API Playground HTML Renderer", () => {
     const html = renderApiPlaygroundHtml(getUser);
     expect(html).toContain('data-param-name="id"');
     expect(html).toContain('data-param-in="path"');
+    expect(html).toContain('aria-label="Enter id path parameter"');
   });
 
   it("renders parameter inputs for query params", () => {
@@ -273,6 +274,7 @@ describe("API Playground HTML Renderer", () => {
     const html = renderApiPlaygroundHtml(listUsers);
     expect(html).toContain('data-param-name="limit"');
     expect(html).toContain('data-param-in="query"');
+    expect(html).toContain('aria-label="Enter limit query parameter"');
   });
 
   it("renders request body editor for POST endpoints", () => {
@@ -282,6 +284,7 @@ describe("API Playground HTML Renderer", () => {
     ) as OpenApiEndpoint;
     const html = renderApiPlaygroundHtml(createUser);
     expect(html).toContain('class="request-body-editor"');
+    expect(html).toContain('aria-label="Enter request body"');
     expect(html).toContain("Body");
   });
 
@@ -290,6 +293,7 @@ describe("API Playground HTML Renderer", () => {
     const html = renderApiPlaygroundHtml(endpoints[0]);
     expect(html).toContain("auth-header-input");
     expect(html).toContain("Authorization");
+    expect(html).toContain('aria-label="Enter Authorization header"');
     expect(html).toContain("Bearer");
   });
 

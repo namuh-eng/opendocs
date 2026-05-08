@@ -246,6 +246,22 @@ function methodClass(method: string): string {
   return HTTP_METHODS.has(normalized) ? normalized : "unknown";
 }
 
+function apiPlaygroundInputLabel(
+  name: string,
+  location: OpenApiParameter["in"],
+): string {
+  switch (location) {
+    case "header":
+      return `Enter ${name} header`;
+    case "path":
+      return `Enter ${name} path parameter`;
+    case "query":
+      return `Enter ${name} query parameter`;
+    case "cookie":
+      return `Enter ${name} cookie parameter`;
+  }
+}
+
 /** Escape for textarea content — only & and < need escaping, not quotes. */
 function escapeTextarea(str: string): string {
   return str.replace(/&/g, "&amp;").replace(/</g, "&lt;");
@@ -280,7 +296,7 @@ export function renderApiPlaygroundHtml(endpoint: OpenApiEndpoint): string {
   <h4 class="api-section-title">Authorization</h4>
   <div class="api-param-row auth-header-input">
     <label class="api-param-label">Authorization</label>
-    <input type="text" class="api-param-input" data-param-name="Authorization" data-param-in="header" placeholder="${escapeAttribute(placeholder)}" value="${endpoint.auth.scheme === "bearer" ? "Bearer " : ""}" />
+    <input type="text" class="api-param-input" data-param-name="Authorization" data-param-in="header" aria-label="${escapeAttribute(apiPlaygroundInputLabel("Authorization", "header"))}" placeholder="${escapeAttribute(placeholder)}" value="${endpoint.auth.scheme === "bearer" ? "Bearer " : ""}" />
   </div>
 </div>`;
   }
@@ -295,7 +311,7 @@ export function renderApiPlaygroundHtml(endpoint: OpenApiEndpoint): string {
           `<div class="api-param-row">
     <label class="api-param-label">${escapeHtml(p.name)} <span class="param-required">required</span></label>
     ${p.description ? `<span class="param-description">${escapeHtml(p.description)}</span>` : ""}
-    <input type="text" class="api-param-input" data-param-name="${escapeAttribute(p.name)}" data-param-in="path" placeholder="${escapeAttribute(p.schema?.type || "string")}" />
+    <input type="text" class="api-param-input" data-param-name="${escapeAttribute(p.name)}" data-param-in="path" aria-label="${escapeAttribute(apiPlaygroundInputLabel(p.name, "path"))}" placeholder="${escapeAttribute(p.schema?.type || "string")}" />
   </div>`,
       )
       .join("\n");
@@ -315,7 +331,7 @@ export function renderApiPlaygroundHtml(endpoint: OpenApiEndpoint): string {
           `<div class="api-param-row">
     <label class="api-param-label">${escapeHtml(p.name)}${p.required ? ' <span class="param-required">required</span>' : ""}</label>
     ${p.description ? `<span class="param-description">${escapeHtml(p.description)}</span>` : ""}
-    <input type="text" class="api-param-input" data-param-name="${escapeAttribute(p.name)}" data-param-in="query" placeholder="${escapeAttribute(`${p.schema?.type || "string"}${p.schema?.default !== undefined ? ` (default: ${p.schema.default})` : ""}`)}" />
+    <input type="text" class="api-param-input" data-param-name="${escapeAttribute(p.name)}" data-param-in="query" aria-label="${escapeAttribute(apiPlaygroundInputLabel(p.name, "query"))}" placeholder="${escapeAttribute(`${p.schema?.type || "string"}${p.schema?.default !== undefined ? ` (default: ${p.schema.default})` : ""}`)}" />
   </div>`,
       )
       .join("\n");
@@ -338,7 +354,7 @@ export function renderApiPlaygroundHtml(endpoint: OpenApiEndpoint): string {
     bodyHtml = `<div class="api-section">
   <h4 class="api-section-title">Body</h4>
   <div class="request-body-editor">
-    <textarea class="api-body-textarea" data-content-type="${escapeAttribute(endpoint.requestBody.contentType)}" rows="8" spellcheck="false">${escapeTextarea(exampleJson)}</textarea>
+    <textarea class="api-body-textarea" data-content-type="${escapeAttribute(endpoint.requestBody.contentType)}" aria-label="Enter request body" rows="8" spellcheck="false">${escapeTextarea(exampleJson)}</textarea>
   </div>
 </div>`;
   }
