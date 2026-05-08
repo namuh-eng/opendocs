@@ -258,7 +258,11 @@ export function SearchModal({ pages, subdomain }: SearchModalProps) {
   const hasQuery = query.trim().length > 0;
   const showRecent = !hasQuery && recentSearches.length > 0;
   const defaultPages = !hasQuery && !showRecent ? pages.slice(0, 10) : [];
-  const navigableCount = hasQuery ? results.length : defaultPages.length;
+  const navigableCount = hasQuery
+    ? results.length
+    : showRecent
+      ? recentSearches.length
+      : defaultPages.length;
   const handleModalKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "ArrowDown") {
       e.preventDefault();
@@ -270,8 +274,18 @@ export function SearchModal({ pages, subdomain }: SearchModalProps) {
       setSelectedIdx((prev) => Math.max(prev - 1, 0));
     } else if (e.key === "Enter") {
       const resultTarget = hasQuery ? results[selectedIdx] : undefined;
-      const defaultTarget = !hasQuery ? defaultPages[selectedIdx] : undefined;
+      const recentTarget = showRecent ? recentSearches[selectedIdx] : undefined;
+      const defaultTarget =
+        !hasQuery && !showRecent ? defaultPages[selectedIdx] : undefined;
       const target = resultTarget || defaultTarget;
+
+      if (recentTarget) {
+        e.preventDefault();
+        setQuery(recentTarget);
+        fetchResults(recentTarget);
+        return;
+      }
+
       if (!target) return;
 
       e.preventDefault();
@@ -362,13 +376,14 @@ export function SearchModal({ pages, subdomain }: SearchModalProps) {
             <div data-testid="recent-searches" className="search-modal-section">
               <div className="search-modal-section-title">Recent searches</div>
               {recentSearches.map((q, index) => {
+                const selected = index === selectedIdx;
                 return (
                   <button
                     key={q}
                     id={optionIdForIndex(index)}
                     type="button"
-                    {...optionProps(false)}
-                    className="search-modal-result search-modal-recent"
+                    {...optionProps(selected)}
+                    className={`search-modal-result search-modal-recent ${selected ? "search-modal-result-active" : ""}`}
                     onClick={() => {
                       setQuery(q);
                       fetchResults(q);
