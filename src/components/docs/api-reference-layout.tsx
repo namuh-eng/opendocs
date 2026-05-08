@@ -26,24 +26,79 @@ export function ApiReferenceLayout({ html }: ApiReferenceLayoutProps) {
       ".api-ref-code-block",
     );
 
-    for (const tab of langTabs) {
-      tab.addEventListener("click", () => {
-        const lang = tab.dataset.lang;
-        // Deactivate all tabs and blocks
-        for (const t of langTabs) t.classList.remove("active");
-        for (const b of codeBlocks) b.classList.remove("active");
-        // Activate selected
-        tab.classList.add("active");
-        const target = container.querySelector<HTMLDivElement>(
-          `.api-ref-code-block[data-lang="${lang}"]`,
-        );
-        if (target) target.classList.add("active");
+    const activateLanguageTab = (tab: HTMLButtonElement) => {
+      const lang = tab.dataset.lang;
+      // Deactivate all tabs and blocks
+      for (const t of langTabs) {
+        t.classList.remove("active");
+        t.setAttribute("aria-selected", "false");
+        t.tabIndex = -1;
+      }
+      for (const b of codeBlocks) {
+        b.classList.remove("active");
+        b.hidden = true;
+      }
+      // Activate selected
+      tab.classList.add("active");
+      tab.setAttribute("aria-selected", "true");
+      tab.tabIndex = 0;
+      const target = container.querySelector<HTMLDivElement>(
+        `.api-ref-code-block[data-lang="${lang}"]`,
+      );
+      if (target) {
+        target.classList.add("active");
+        target.hidden = false;
+      }
 
-        // Update copy button label
-        const copyBtn = container.querySelector<HTMLButtonElement>(
-          ".api-ref-copy-btn span",
-        );
-        if (copyBtn) copyBtn.textContent = tab.textContent || "cURL";
+      // Update copy button label
+      const copyBtn = container.querySelector<HTMLButtonElement>(
+        ".api-ref-copy-btn span",
+      );
+      if (copyBtn) copyBtn.textContent = tab.textContent || "cURL";
+    };
+
+    const moveLanguageTabFocus = (
+      tab: HTMLButtonElement,
+      direction: "first" | "last" | "next" | "previous",
+    ) => {
+      const tabs = Array.from(langTabs);
+      const currentIndex = tabs.indexOf(tab);
+      if (currentIndex === -1) return;
+
+      const targetIndex =
+        direction === "first"
+          ? 0
+          : direction === "last"
+            ? tabs.length - 1
+            : direction === "next"
+              ? (currentIndex + 1) % tabs.length
+              : (currentIndex - 1 + tabs.length) % tabs.length;
+
+      const target = tabs[targetIndex];
+      target.focus();
+      activateLanguageTab(target);
+    };
+
+    for (const tab of langTabs) {
+      tab.addEventListener("click", () => activateLanguageTab(tab));
+      tab.addEventListener("keydown", (event) => {
+        if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+          event.preventDefault();
+          moveLanguageTabFocus(tab, "next");
+        } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+          event.preventDefault();
+          moveLanguageTabFocus(tab, "previous");
+        } else if (event.key === "Home") {
+          event.preventDefault();
+          moveLanguageTabFocus(tab, "first");
+        } else if (event.key === "End") {
+          event.preventDefault();
+          moveLanguageTabFocus(tab, "last");
+        } else if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          tab.classList.add("active");
+          activateLanguageTab(tab);
+        }
       });
     }
 
