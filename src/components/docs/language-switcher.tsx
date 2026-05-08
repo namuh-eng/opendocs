@@ -22,6 +22,7 @@ export function LanguageSwitcher({
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const optionRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const dropdownId = useId();
   const router = useRouter();
 
@@ -54,6 +55,27 @@ export function LanguageSwitcher({
       if (e.key === "Escape") {
         e.preventDefault();
         closeDropdown({ restoreFocus: true });
+        return;
+      }
+
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        const options = optionRefs.current.filter(Boolean);
+        if (options.length === 0) return;
+
+        e.preventDefault();
+        const activeIndex = options.findIndex(
+          (option) => option === document.activeElement,
+        );
+        const nextIndex =
+          e.key === "ArrowDown"
+            ? activeIndex === -1
+              ? 0
+              : (activeIndex + 1) % options.length
+            : activeIndex === -1
+              ? options.length - 1
+              : (activeIndex - 1 + options.length) % options.length;
+
+        options[nextIndex]?.focus();
       }
     }
 
@@ -135,12 +157,15 @@ export function LanguageSwitcher({
           aria-label="Language selection"
           data-testid="language-switcher-dropdown"
         >
-          {availableLocales.map((locale) => {
+          {availableLocales.map((locale, index) => {
             const info = getLanguageInfo(locale);
             const isActive = locale === currentLocale;
             return (
               <button
                 key={locale}
+                ref={(element) => {
+                  optionRefs.current[index] = element;
+                }}
                 type="button"
                 aria-label={`Switch to ${info?.name ?? locale}`}
                 aria-current={isActive ? "true" : undefined}

@@ -31,6 +31,7 @@ export function VersionSwitcher({
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const optionRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const dropdownId = useId();
   const router = useRouter();
 
@@ -63,6 +64,27 @@ export function VersionSwitcher({
       if (e.key === "Escape") {
         e.preventDefault();
         closeDropdown({ restoreFocus: true });
+        return;
+      }
+
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        const options = optionRefs.current.filter(Boolean);
+        if (options.length === 0) return;
+
+        e.preventDefault();
+        const activeIndex = options.findIndex(
+          (option) => option === document.activeElement,
+        );
+        const nextIndex =
+          e.key === "ArrowDown"
+            ? activeIndex === -1
+              ? 0
+              : (activeIndex + 1) % options.length
+            : activeIndex === -1
+              ? options.length - 1
+              : (activeIndex - 1 + options.length) % options.length;
+
+        options[nextIndex]?.focus();
       }
     }
 
@@ -143,13 +165,16 @@ export function VersionSwitcher({
           aria-label="Version selection"
           data-testid="version-switcher-dropdown"
         >
-          {availableVersions.map((tag) => {
+          {availableVersions.map((tag, index) => {
             const info = getVersionByTag(versionsConfig, tag);
             const isActive = tag === currentVersion;
             const isDefault = tag === defaultTag;
             return (
               <button
                 key={tag}
+                ref={(element) => {
+                  optionRefs.current[index] = element;
+                }}
                 type="button"
                 aria-label={`Switch to docs version ${info?.name ?? tag}${isDefault ? " (default)" : ""}`}
                 aria-current={isActive ? "true" : undefined}

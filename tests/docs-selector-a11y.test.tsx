@@ -78,6 +78,26 @@ describe("docs selector accessibility", () => {
 
     await act(async () => {
       window.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }),
+      );
+    });
+
+    expect(document.activeElement).toBe(
+      container.querySelector('[data-testid="version-option-v1"]'),
+    );
+
+    await act(async () => {
+      window.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "ArrowUp", bubbles: true }),
+      );
+    });
+
+    expect(document.activeElement).toBe(
+      container.querySelector('[data-testid="version-option-v2"]'),
+    );
+
+    await act(async () => {
+      window.dispatchEvent(
         new KeyboardEvent("keydown", { key: "Escape", bubbles: true }),
       );
     });
@@ -135,6 +155,26 @@ describe("docs selector accessibility", () => {
         .querySelector('[data-testid="lang-option-ko"]')
         ?.getAttribute("aria-label"),
     ).toBe("Switch to Korean");
+
+    await act(async () => {
+      window.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }),
+      );
+    });
+
+    expect(document.activeElement).toBe(
+      container.querySelector('[data-testid="lang-option-en"]'),
+    );
+
+    await act(async () => {
+      window.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }),
+      );
+    });
+
+    expect(document.activeElement).toBe(
+      container.querySelector('[data-testid="lang-option-ko"]'),
+    );
 
     await act(async () => {
       window.dispatchEvent(
