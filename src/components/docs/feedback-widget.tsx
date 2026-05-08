@@ -1,7 +1,7 @@
 "use client";
 
 import { ThumbsDown, ThumbsUp } from "lucide-react";
-import { useCallback, useId, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 
 type WidgetState = "idle" | "rated" | "submitting" | "submitted";
 
@@ -16,6 +16,13 @@ export function FeedbackWidget({ subdomain, pagePath }: FeedbackWidgetProps) {
   const [comment, setComment] = useState("");
   const [toast, setToast] = useState(false);
   const commentLabelId = useId();
+  const commentRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (state === "rated") {
+      commentRef.current?.focus();
+    }
+  }, [state]);
 
   const submitFeedback = useCallback(
     async (
@@ -116,6 +123,7 @@ export function FeedbackWidget({ subdomain, pagePath }: FeedbackWidgetProps) {
               : "Sorry to hear that. How can we improve?"}
           </p>
           <textarea
+            ref={commentRef}
             className="docs-feedback-textarea"
             data-testid="feedback-textarea"
             aria-labelledby={commentLabelId}

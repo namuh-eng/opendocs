@@ -257,4 +257,38 @@ describe("Feedback widget visible choices", () => {
     });
     container.remove();
   });
+
+  it("moves focus to the optional feedback comment textarea after rating", async () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const root = createRoot(container);
+
+    await act(async () => {
+      root.render(
+        createElement(FeedbackWidget, {
+          subdomain: "test-project",
+          pagePath: "introduction",
+        }),
+      );
+    });
+
+    await act(async () => {
+      container
+        .querySelector<HTMLButtonElement>(
+          '[data-testid="feedback-thumbs-down"]',
+        )
+        ?.click();
+    });
+
+    const textarea = container.querySelector<HTMLTextAreaElement>(
+      '[data-testid="feedback-textarea"]',
+    );
+
+    expect(document.activeElement).toBe(textarea);
+
+    await act(async () => {
+      root.unmount();
+    });
+    container.remove();
+  });
 });
