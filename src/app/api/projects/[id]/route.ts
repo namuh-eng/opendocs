@@ -201,6 +201,10 @@ export async function PUT(
     )?.installationId ??
     null;
 
+  const settingsUpdate = validation.fields.settings as
+    | Record<string, unknown>
+    | undefined;
+
   const mergedSettings = mergeProjectSettingsWithGitHubSource(
     existing[0].settings,
     buildGitHubSourceSelection({
@@ -209,6 +213,7 @@ export async function PUT(
       repoBranch: resolvedRepoBranch,
       repoPath: resolvedRepoPath,
     }),
+    settingsUpdate,
   );
 
   const updateFields = {

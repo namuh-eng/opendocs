@@ -95,8 +95,9 @@ export function resolveGitHubSource(params: {
 export function mergeProjectSettingsWithGitHubSource(
   existing: Record<string, unknown> | null | undefined,
   selection: GitHubSourceSelection | null,
+  updates?: Record<string, unknown> | null,
 ): Record<string, unknown> {
-  const next = { ...(existing ?? {}) };
+  const next = { ...(existing ?? {}), ...(updates ?? {}) };
 
   if (selection) {
     next.githubSource = selection;

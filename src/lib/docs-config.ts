@@ -346,6 +346,15 @@ export function mergeDocsConfig(
   };
 }
 
+export function getDocsThemeCssVars(
+  config: DocsConfig,
+): Record<string, string> {
+  return {
+    "--docs-primary": config.visualBranding.primaryColor,
+    "--docs-primary-soft": `${config.visualBranding.primaryColor}22`,
+  };
+}
+
 // ── Validation ───────────────────────────────────────────────────────────
 
 export type ValidationResult =

@@ -20,7 +20,11 @@ import { renderApiReferencePage } from "@/lib/api-reference";
 import { getPublicAppUrl } from "@/lib/app-url";
 import { db } from "@/lib/db";
 import { pages, projects } from "@/lib/db/schema";
-import { findRedirect, mergeDocsConfig } from "@/lib/docs-config";
+import {
+  findRedirect,
+  getDocsThemeCssVars,
+  mergeDocsConfig,
+} from "@/lib/docs-config";
 import { getFooterSettings } from "@/lib/docs-footer";
 import { extractToc } from "@/lib/editor";
 import {
@@ -69,6 +73,7 @@ import { and, eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { notFound, permanentRedirect } from "next/navigation";
+import type { CSSProperties } from "react";
 
 interface DocsPageProps {
   params: Promise<{ subdomain: string; slug: string[] }>;
@@ -539,8 +544,10 @@ export default async function DocsPage({
     { includeConfiguredRoutes: hasGeneratedApiRoute },
   );
 
+  const docsThemeStyle = getDocsThemeCssVars(docsConfig) as CSSProperties;
+
   return (
-    <div className="docs-layout">
+    <div className="docs-layout" style={docsThemeStyle}>
       <DocsTopbar
         projectName={project.name}
         subdomain={subdomain}
