@@ -1,5 +1,6 @@
 "use client";
 
+import { mergeDocsConfig } from "@/lib/docs-config";
 import type { VersionsConfig } from "@/lib/versions";
 import Link from "next/link";
 import { LanguageSwitcher } from "./language-switcher";
@@ -87,6 +88,35 @@ export function AskAiButton() {
   );
 }
 
+export function getConfiguredDocsLogo(
+  settings: DocsTopbarProps["settings"],
+): { path: string; href: string } | null {
+  const raw = (settings || {}) as Record<string, unknown>;
+  const rawDocsConfig = raw.docsConfig;
+
+  if (!rawDocsConfig || typeof rawDocsConfig !== "object") {
+    const legacyLogo =
+      typeof raw.logoUrl === "string"
+        ? raw.logoUrl
+        : typeof raw.logoDarkUrl === "string"
+          ? raw.logoDarkUrl
+          : "";
+    return legacyLogo ? { path: legacyLogo, href: "" } : null;
+  }
+
+  const docsConfig = mergeDocsConfig(
+    rawDocsConfig as Partial<Record<string, unknown>>,
+  );
+  const path =
+    docsConfig.headerTopbar.logoPath ||
+    docsConfig.visualBranding.logoDarkPath ||
+    docsConfig.visualBranding.logoLightPath;
+
+  if (!path) return null;
+
+  return { path, href: docsConfig.visualBranding.logoLink || "/" };
+}
+
 export function DocsTopbar({
   projectName,
   subdomain,
@@ -98,6 +128,8 @@ export function DocsTopbar({
   const githubProps = getGithubLinkProps(s.githubUrl);
   const supportHref = buildSupportHref(s.supportEmail);
   const dashboardUrl = buildDashboardUrl(subdomain);
+  const configuredLogo = getConfiguredDocsLogo(settings);
+  const logoHref = configuredLogo?.href || `/docs/${subdomain}`;
 
   return (
     <>
@@ -107,37 +139,45 @@ export function DocsTopbar({
       <div className="docs-topbar">
         <div className="docs-topbar-left">
           <MobileMenuButton />
-          <Link href={`/docs/${subdomain}`} className="docs-topbar-logo">
-            <svg
-              width="28"
-              height="28"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              aria-label="Logo"
-              className="docs-topbar-logo-icon"
-            >
-              <title>Logo</title>
-              <path
-                d="M12 2L2 7l10 5 10-5-10-5Z"
-                fill="#16A34A"
-                opacity="0.8"
+          <Link href={logoHref} className="docs-topbar-logo">
+            {configuredLogo ? (
+              <img
+                src={configuredLogo.path}
+                alt="Logo"
+                className="docs-topbar-logo-image"
               />
-              <path
-                d="M2 17l10 5 10-5"
-                stroke="#16A34A"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M2 12l10 5 10-5"
-                stroke="#16A34A"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            ) : (
+              <svg
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-label="Logo"
+                className="docs-topbar-logo-icon"
+              >
+                <title>Logo</title>
+                <path
+                  d="M12 2L2 7l10 5 10-5-10-5Z"
+                  fill="currentColor"
+                  opacity="0.8"
+                />
+                <path
+                  d="M2 17l10 5 10-5"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M2 12l10 5 10-5"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            )}
             <span className="docs-topbar-title">{projectName}</span>
           </Link>
         </div>

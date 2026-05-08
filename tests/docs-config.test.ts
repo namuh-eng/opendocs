@@ -4,6 +4,7 @@ import {
   DEFAULT_DOCS_CONFIG,
   type DocsConfig,
   exportDocsConfigJson,
+  getDocsThemeCssVars,
   importDocsConfigJson,
   mergeDocsConfig,
   sectionIdToConfigKey,
@@ -57,6 +58,16 @@ describe("mergeDocsConfig", () => {
     });
     expect(result.visualBranding.primaryColor).toBe("#FF0000");
     expect(result.visualBranding.theme).toBe("dark"); // default
+  });
+
+  it("exports CSS variables for applying the primary color to docs chrome", () => {
+    const config = mergeDocsConfig({
+      visualBranding: { primaryColor: "#FF0000" },
+    });
+    expect(getDocsThemeCssVars(config)).toEqual({
+      "--docs-primary": "#FF0000",
+      "--docs-primary-soft": "#FF000022",
+    });
   });
 
   it("preserves topbarLinks array when provided", () => {

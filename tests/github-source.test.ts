@@ -61,4 +61,34 @@ describe("github-source helpers", () => {
       },
     });
   });
+
+  it("preserves incoming docs config settings while refreshing github source", () => {
+    expect(
+      mergeProjectSettingsWithGitHubSource(
+        {
+          githubSource: { repoFullName: "old/repo" },
+          docsConfig: {
+            visualBranding: { primaryColor: "#16A34A" },
+          },
+        },
+        buildGitHubSourceSelection({
+          repoUrl: "https://github.com/acme/docs",
+          repoBranch: "main",
+        }),
+        {
+          docsConfig: {
+            visualBranding: { primaryColor: "#FF0000" },
+          },
+        },
+      ),
+    ).toMatchObject({
+      docsConfig: {
+        visualBranding: { primaryColor: "#FF0000" },
+      },
+      githubSource: {
+        repoFullName: "acme/docs",
+        branch: "main",
+      },
+    });
+  });
 });

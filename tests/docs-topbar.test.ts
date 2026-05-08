@@ -106,6 +106,63 @@ describe("Docs topbar — feature-014a", () => {
       const href = buildSupportHref(undefined);
       expect(href).toContain("mailto:");
     });
+
+    it("resolves configured docs logo path and link from docs config", async () => {
+      const { getConfiguredDocsLogo } = await import(
+        "@/components/docs/docs-topbar"
+      );
+      expect(
+        getConfiguredDocsLogo({
+          docsConfig: {
+            visualBranding: {
+              logoLink: "https://example.com",
+              logoDarkPath: "/dark.svg",
+            },
+            headerTopbar: {
+              logoPath: "/topbar.svg",
+            },
+          },
+        }),
+      ).toEqual({ path: "/topbar.svg", href: "https://example.com" });
+    });
+
+    it("renders the configured docs logo image and link", async () => {
+      const { DocsTopbar } = await import("@/components/docs/docs-topbar");
+      const html = renderToStaticMarkup(
+        DocsTopbar({
+          projectName: "Test Project",
+          subdomain: "test-project",
+          settings: {
+            docsConfig: {
+              visualBranding: {
+                logoLink: "https://example.com",
+              },
+              headerTopbar: {
+                logoPath: "/topbar.svg",
+              },
+            },
+          },
+        }),
+      );
+
+      expect(html).toContain('href="https://example.com"');
+      expect(html).toContain('src="/topbar.svg"');
+      expect(html).toContain('class="docs-topbar-logo-image"');
+    });
+
+    it("uses currentColor for the default logo mark", async () => {
+      const { DocsTopbar } = await import("@/components/docs/docs-topbar");
+      const html = renderToStaticMarkup(
+        DocsTopbar({
+          projectName: "Test Project",
+          subdomain: "test-project",
+          settings: {},
+        }),
+      );
+
+      expect(html).toContain('fill="currentColor"');
+      expect(html).toContain('stroke="currentColor"');
+    });
   });
 
   describe("Ask AI toggle", () => {

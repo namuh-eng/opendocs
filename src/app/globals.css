@@ -65,7 +65,7 @@ body {
   z-index: 100;
   transform: translateY(-150%);
   border-radius: 8px;
-  background: #16a34a;
+  background: var(--docs-primary, #16a34a);
   color: #ffffff;
   padding: 8px 12px;
   font-size: 13px;
@@ -172,7 +172,7 @@ body {
   gap: 4px;
   padding: 6px 14px;
   border-radius: 8px;
-  background: #16a34a;
+  background: var(--docs-primary, #16a34a);
   color: #fff;
   font-size: 13px;
   font-weight: 500;
@@ -328,7 +328,7 @@ body {
 
 .docs-breadcrumb {
   font-size: 13px;
-  color: #16a34a;
+  color: var(--docs-primary, #16a34a);
   margin-bottom: 8px;
   font-weight: 500;
 }
@@ -338,7 +338,7 @@ body {
 }
 
 .docs-breadcrumb-active {
-  color: #16a34a;
+  color: var(--docs-primary, #16a34a);
 }
 
 .docs-title-row {
@@ -611,7 +611,7 @@ body {
 }
 
 .docs-content blockquote {
-  border-left: 3px solid #16a34a;
+  border-left: 3px solid var(--docs-primary, #16a34a);
   padding: 8px 16px;
   margin: 16px 0;
   color: #9ca3af;
@@ -707,7 +707,7 @@ body {
 }
 
 .code-ask-ai {
-  color: #16a34a;
+  color: var(--docs-primary, #16a34a);
 }
 
 .code-ask-ai:hover {
@@ -782,7 +782,7 @@ body {
 }
 
 .callout-tip .callout-icon {
-  color: #16a34a;
+  color: var(--docs-primary, #16a34a);
 }
 
 .callout-icon {
@@ -907,7 +907,7 @@ body {
   height: 32px;
   border-radius: 50%;
   background: rgba(22, 163, 74, 0.15);
-  color: #16a34a;
+  color: var(--docs-primary, #16a34a);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -996,8 +996,8 @@ body {
 }
 
 .tab-button.active {
-  color: #16a34a;
-  border-bottom-color: #16a34a;
+  color: var(--docs-primary, #16a34a);
+  border-bottom-color: var(--docs-primary, #16a34a);
 }
 
 .tab-panel {
@@ -1217,7 +1217,7 @@ pre.mermaid svg {
 
 .update-date {
   font-size: 13px;
-  color: #16a34a;
+  color: var(--docs-primary, #16a34a);
   font-weight: 500;
   margin-bottom: 4px;
 }
@@ -1678,6 +1678,16 @@ pre.mermaid svg {
   color: #f9fafb;
 }
 
+.docs-topbar-logo-icon {
+  color: var(--docs-primary, #16a34a);
+}
+
+.docs-topbar-logo-image {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
 /* ── Search Modal ─────────────────────────────────────────────────────────── */
 
 .search-modal-overlay {
@@ -2057,11 +2067,11 @@ pre.mermaid svg {
 }
 
 .lang-switcher-option-active {
-  color: #16a34a;
+  color: var(--docs-primary, #16a34a);
 }
 
 .lang-switcher-option-active:hover {
-  color: #16a34a;
+  color: var(--docs-primary, #16a34a);
 }
 
 .lang-switcher-option-code {
@@ -2154,11 +2164,11 @@ pre.mermaid svg {
 }
 
 .version-switcher-option-active {
-  color: #16a34a;
+  color: var(--docs-primary, #16a34a);
 }
 
 .version-switcher-option-active:hover {
-  color: #16a34a;
+  color: var(--docs-primary, #16a34a);
 }
 
 .version-switcher-option-name {
@@ -2173,7 +2183,7 @@ pre.mermaid svg {
   padding: 2px 6px;
   border-radius: 4px;
   background: rgba(22, 163, 74, 0.15);
-  color: #16a34a;
+  color: var(--docs-primary, #16a34a);
 }
 
 /* ── Light Theme ──────────────────────────────────────────────────────────── */
@@ -2276,7 +2286,7 @@ pre.mermaid svg {
 }
 
 [data-theme="light"] .lang-switcher-option-active {
-  color: #16a34a;
+  color: var(--docs-primary, #16a34a);
 }
 
 [data-theme="light"] .version-switcher-btn {
@@ -2306,7 +2316,7 @@ pre.mermaid svg {
 }
 
 [data-theme="light"] .version-switcher-option-active {
-  color: #16a34a;
+  color: var(--docs-primary, #16a34a);
 }
 
 [data-theme="light"] .version-switcher-default-badge {
@@ -2335,7 +2345,7 @@ pre.mermaid svg {
 }
 
 [data-theme="light"] .docs-nav-item.active {
-  color: #16a34a;
+  color: var(--docs-primary, #16a34a);
   background: rgba(22, 163, 74, 0.06);
 }
 
@@ -2352,7 +2362,7 @@ pre.mermaid svg {
 }
 
 [data-theme="light"] .docs-breadcrumb {
-  color: #16a34a;
+  color: var(--docs-primary, #16a34a);
 }
 
 [data-theme="light"] .page-action-btn {
@@ -2759,7 +2769,7 @@ pre.mermaid svg {
 }
 
 .chat-message-user .chat-message-avatar {
-  background: #16a34a;
+  background: var(--docs-primary, #16a34a);
   color: white;
 }
 
@@ -2786,7 +2796,7 @@ pre.mermaid svg {
 }
 
 .chat-message-user .chat-message-content {
-  background: #16a34a;
+  background: var(--docs-primary, #16a34a);
   color: white;
   border-bottom-right-radius: 4px;
 }
@@ -2936,7 +2946,7 @@ pre.mermaid svg {
 }
 
 .chat-widget-textarea:focus {
-  border-color: #16a34a;
+  border-color: var(--docs-primary, #16a34a);
 }
 
 .chat-widget-textarea::placeholder {
@@ -2955,7 +2965,7 @@ pre.mermaid svg {
   width: 36px;
   height: 36px;
   border-radius: 8px;
-  background: #16a34a;
+  background: var(--docs-primary, #16a34a);
   border: none;
   color: white;
   cursor: pointer;
@@ -3112,8 +3122,8 @@ pre.mermaid svg {
 }
 
 .method-get {
-  background: #16a34a22;
-  color: #16a34a;
+  background: var(--docs-primary-soft, #16a34a22);
+  color: var(--docs-primary, #16a34a);
 }
 .method-post {
   background: #2563eb22;
@@ -3202,7 +3212,7 @@ pre.mermaid svg {
 }
 
 .api-param-input:focus {
-  border-color: #16a34a;
+  border-color: var(--docs-primary, #16a34a);
 }
 
 .api-param-input::placeholder {
@@ -3229,7 +3239,7 @@ pre.mermaid svg {
 }
 
 .api-body-textarea:focus {
-  border-color: #16a34a;
+  border-color: var(--docs-primary, #16a34a);
 }
 
 .api-send-section {
@@ -3237,7 +3247,7 @@ pre.mermaid svg {
 }
 
 .api-send-btn {
-  background: #16a34a;
+  background: var(--docs-primary, #16a34a);
   color: #fff;
   border: none;
   border-radius: 6px;
@@ -3285,8 +3295,8 @@ pre.mermaid svg {
 }
 
 .status-2xx {
-  background: #16a34a22;
-  color: #16a34a;
+  background: var(--docs-primary-soft, #16a34a22);
+  color: var(--docs-primary, #16a34a);
 }
 .status-3xx {
   background: #2563eb22;
@@ -3325,8 +3335,8 @@ pre.mermaid svg {
 }
 
 .api-resp-tab.active {
-  color: #16a34a;
-  border-bottom-color: #16a34a;
+  color: var(--docs-primary, #16a34a);
+  border-bottom-color: var(--docs-primary, #16a34a);
 }
 
 .api-resp-tab:hover {
@@ -3475,7 +3485,7 @@ pre.mermaid svg {
 }
 
 .api-ref-tryit-btn {
-  background: #16a34a;
+  background: var(--docs-primary, #16a34a);
   color: #fff;
   border: none;
   border-radius: 6px;
@@ -3525,7 +3535,7 @@ pre.mermaid svg {
 
 .api-ref-lang-tab.active {
   color: #fff;
-  border-bottom-color: #16a34a;
+  border-bottom-color: var(--docs-primary, #16a34a);
 }
 
 .api-ref-lang-tab:hover {
@@ -3612,8 +3622,8 @@ pre.mermaid svg {
 }
 
 .api-ref-status-tab.active {
-  color: #16a34a;
-  border-bottom-color: #16a34a;
+  color: var(--docs-primary, #16a34a);
+  border-bottom-color: var(--docs-primary, #16a34a);
 }
 
 .api-ref-status-tab:hover {

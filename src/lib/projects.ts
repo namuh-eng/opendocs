@@ -156,14 +156,14 @@ export function validateCreateProjectRequest(body: unknown):
 export function validateUpdateProjectRequest(
   body: unknown,
 ):
-  | { valid: true; fields: Record<string, string> }
+  | { valid: true; fields: Record<string, unknown> }
   | { valid: false; error: string } {
   if (!body || typeof body !== "object") {
     return { valid: false, error: "No fields to update" };
   }
 
   const raw = body as Record<string, unknown>;
-  const fields: Record<string, string> = {};
+  const fields: Record<string, unknown> = {};
 
   if (raw.name !== undefined) {
     if (typeof raw.name !== "string") {
@@ -260,5 +260,5 @@ export function validateUpdateProjectRequest(
     result.settings = settingsUpdate;
   }
 
-  return { valid: true, fields: result as Record<string, string> };
+  return { valid: true, fields: result };
 }

@@ -298,6 +298,10 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
   return <span className="block text-xs text-gray-400 mb-1">{children}</span>;
 }
 
+function FieldHelp({ children }: { children: React.ReactNode }) {
+  return <p className="mt-1 text-[11px] leading-4 text-gray-500">{children}</p>;
+}
+
 function TextInput({
   value,
   onChange,
@@ -537,6 +541,10 @@ function VisualBrandingForm({ config, updateSection }: SectionProps) {
         onChange={(v) => update({ primaryColor: v })}
         testId="config-branding-primary"
       />
+      <FieldHelp>
+        Applies to published docs accents such as active navigation, links,
+        buttons, API tabs, and the default OpenDocs logo color after Save.
+      </FieldHelp>
       <ColorField
         label="Light color"
         value={d.lightColor}
@@ -557,6 +565,10 @@ function VisualBrandingForm({ config, updateSection }: SectionProps) {
           placeholder="/logo-light.svg"
           testId="config-branding-logo-light"
         />
+        <FieldHelp>
+          Optional public asset path for light theme. Header &amp; Topbar logo
+          path below takes precedence when set.
+        </FieldHelp>
       </div>
       <div>
         <FieldLabel>Logo (dark mode path)</FieldLabel>
@@ -566,6 +578,10 @@ function VisualBrandingForm({ config, updateSection }: SectionProps) {
           placeholder="/logo-dark.svg"
           testId="config-branding-logo-dark"
         />
+        <FieldHelp>
+          Optional public asset path for dark theme. Use paths such as
+          /logo-dark.svg or uploaded public asset URLs.
+        </FieldHelp>
       </div>
       <div>
         <FieldLabel>Logo link</FieldLabel>
@@ -575,6 +591,10 @@ function VisualBrandingForm({ config, updateSection }: SectionProps) {
           placeholder="/"
           testId="config-branding-logo-link"
         />
+        <FieldHelp>
+          Destination for the docs logo link, for example /, /docs, or an
+          absolute marketing-site URL.
+        </FieldHelp>
       </div>
     </>
   );
@@ -639,6 +659,10 @@ function HeaderTopbarForm({ config, updateSection }: SectionProps) {
           placeholder="/logo.svg"
           testId="config-topbar-logo"
         />
+        <FieldHelp>
+          Primary logo shown in the docs topbar. Leave blank to use the visual
+          branding light/dark logo paths or the default OpenDocs mark.
+        </FieldHelp>
       </div>
       <div>
         <div className="flex items-center justify-between mb-1">
