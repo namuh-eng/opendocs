@@ -371,14 +371,14 @@ export function renderApiPlaygroundHtml(endpoint: OpenApiEndpoint): string {
     <span class="api-status-code"></span>
     <span class="api-response-time"></span>
   </div>
-  <div class="api-response-tabs">
-    <button class="api-resp-tab active" data-resp-tab="body">Body</button>
-    <button class="api-resp-tab" data-resp-tab="headers">Headers</button>
+  <div class="api-response-tabs" role="tablist" aria-label="Response sections">
+    <button type="button" class="api-resp-tab active" data-resp-tab="body" role="tab" aria-selected="true" aria-label="Show response body">Body</button>
+    <button type="button" class="api-resp-tab" data-resp-tab="headers" role="tab" aria-selected="false" aria-label="Show response headers">Headers</button>
   </div>
-  <div class="api-response-body">
+  <div class="api-response-body" role="tabpanel" aria-label="Response body">
     <pre><code class="api-response-content"></code></pre>
   </div>
-  <div class="api-response-headers" style="display:none">
+  <div class="api-response-headers" role="tabpanel" aria-label="Response headers" style="display:none">
     <pre><code class="api-response-headers-content"></code></pre>
   </div>
 </div>`;

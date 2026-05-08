@@ -41,7 +41,10 @@ export function ApiPlayground({ html }: ApiPlaygroundProps) {
         // Deactivate all tabs
         const allTabs =
           playground.querySelectorAll<HTMLButtonElement>(".api-resp-tab");
-        for (const t of allTabs) t.classList.remove("active");
+        for (const t of allTabs) {
+          t.classList.remove("active");
+          t.setAttribute("aria-selected", String(t === btn));
+        }
         btn.classList.add("active");
 
         // Show/hide panels
