@@ -1,6 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useReducer, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useReducer,
+  useRef,
+  useState,
+} from "react";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -165,6 +172,7 @@ export function ChatWidget({ subdomain, currentPath }: ChatWidgetProps) {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const titleId = useId();
 
   // Listen for toggle-ask-ai custom event from topbar button
   useEffect(() => {
@@ -210,6 +218,20 @@ export function ChatWidget({ subdomain, currentPath }: ChatWidgetProps) {
     if (state.isOpen) {
       setTimeout(() => inputRef.current?.focus(), 100);
     }
+  }, [state.isOpen]);
+
+  // Match docs assistant drawer behavior: Escape dismisses the open panel.
+  useEffect(() => {
+    if (!state.isOpen) return;
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        dispatch({ type: "CLOSE" });
+      }
+    };
+
+    window.addEventListener("keydown", handleEscape, true);
+    return () => window.removeEventListener("keydown", handleEscape, true);
   }, [state.isOpen]);
 
   const sendMessage = useCallback(async () => {
@@ -336,6 +358,12 @@ export function ChatWidget({ subdomain, currentPath }: ChatWidgetProps) {
   ]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Escape") {
+      e.preventDefault();
+      dispatch({ type: "CLOSE" });
+      return;
+    }
+
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
@@ -365,7 +393,13 @@ export function ChatWidget({ subdomain, currentPath }: ChatWidgetProps) {
   if (!state.isOpen) return null;
 
   return (
-    <div className="chat-widget" data-testid="chat-panel">
+    <dialog
+      open
+      className="chat-widget"
+      data-testid="chat-panel"
+      aria-modal="false"
+      aria-labelledby={titleId}
+    >
       {/* Header */}
       <div className="chat-widget-header">
         <div className="chat-widget-header-left">
@@ -383,13 +417,14 @@ export function ChatWidget({ subdomain, currentPath }: ChatWidgetProps) {
             <path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3z" />
             <path d="M18 14l1 3 3 1-3 1-1 3-1-3-3-1 3-1 1-3z" />
           </svg>
-          <span>AI Assistant</span>
+          <span id={titleId}>AI Assistant</span>
         </div>
         <div className="chat-widget-header-actions">
           <button
             type="button"
             data-testid="chat-clear-btn"
             className="chat-widget-icon-btn"
+            aria-label="Clear assistant conversation"
             title="Clear conversation"
             onClick={() => dispatch({ type: "CLEAR" })}
           >
@@ -411,6 +446,7 @@ export function ChatWidget({ subdomain, currentPath }: ChatWidgetProps) {
             type="button"
             data-testid="chat-close-btn"
             className="chat-widget-icon-btn"
+            aria-label="Close assistant panel"
             title="Close"
             onClick={() => dispatch({ type: "CLOSE" })}
           >
@@ -604,6 +640,7 @@ export function ChatWidget({ subdomain, currentPath }: ChatWidgetProps) {
           type="button"
           data-testid="chat-send-btn"
           className="chat-widget-send-btn"
+          aria-label="Send message"
           disabled={
             (!input.trim() && attachments.length === 0) || state.isStreaming
           }
@@ -625,6 +662,6 @@ export function ChatWidget({ subdomain, currentPath }: ChatWidgetProps) {
           </svg>
         </button>
       </div>
-    </div>
+    </dialog>
   );
 }

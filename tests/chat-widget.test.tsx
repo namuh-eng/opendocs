@@ -51,6 +51,87 @@ describe("Docs chat widget code context", () => {
     ).not.toBeNull();
   });
 
+  it("labels assistant panel controls and closes with Escape", async () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const root = createRoot(container);
+
+    await act(async () => {
+      root.render(
+        <>
+          <AskAiButton />
+          <ChatWidget subdomain="feature004-qa" currentPath="introduction" />
+        </>,
+      );
+    });
+
+    await act(async () => {
+      container
+        .querySelector<HTMLButtonElement>('[data-testid="ask-ai-btn"]')
+        ?.click();
+    });
+
+    const panel = container.querySelector('[data-testid="chat-panel"]');
+    expect(panel?.tagName).toBe("DIALOG");
+    expect(panel?.hasAttribute("open")).toBe(true);
+    expect(panel?.getAttribute("aria-modal")).toBe("false");
+    expect(panel?.getAttribute("aria-labelledby")).toBeTruthy();
+    expect(
+      container
+        .querySelector<HTMLButtonElement>('[data-testid="chat-clear-btn"]')
+        ?.getAttribute("aria-label"),
+    ).toBe("Clear assistant conversation");
+    expect(
+      container
+        .querySelector<HTMLButtonElement>('[data-testid="chat-close-btn"]')
+        ?.getAttribute("aria-label"),
+    ).toBe("Close assistant panel");
+    expect(
+      container
+        .querySelector<HTMLButtonElement>('[data-testid="chat-send-btn"]')
+        ?.getAttribute("aria-label"),
+    ).toBe("Send message");
+
+    await act(async () => {
+      window.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Escape", bubbles: true }),
+      );
+    });
+
+    expect(container.querySelector('[data-testid="chat-panel"]')).toBeNull();
+  });
+
+  it("closes the assistant when Escape is pressed in the input", async () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const root = createRoot(container);
+
+    await act(async () => {
+      root.render(
+        <>
+          <AskAiButton />
+          <ChatWidget subdomain="feature004-qa" currentPath="introduction" />
+        </>,
+      );
+    });
+
+    await act(async () => {
+      container
+        .querySelector<HTMLButtonElement>('[data-testid="ask-ai-btn"]')
+        ?.click();
+    });
+
+    await act(async () => {
+      container
+        .querySelector<HTMLTextAreaElement>('[data-testid="chat-input"]')
+        ?.dispatchEvent(
+          new KeyboardEvent("keydown", { key: "Escape", bubbles: true }),
+        );
+    });
+
+    expect(container.querySelector('[data-testid="chat-panel"]')).toBeNull();
+  });
+
   it("shows starter suggestions and applies one to the input", async () => {
     const container = document.createElement("div");
     document.body.appendChild(container);
