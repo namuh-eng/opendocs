@@ -1,7 +1,7 @@
 "use client";
 
 import type { TocEntry } from "@/lib/editor";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface DocsTocProps {
   entries: TocEntry[];
@@ -11,6 +11,10 @@ export function DocsToc({ entries }: DocsTocProps) {
   // Filter to H2 and H3 only for display
   const displayEntries = entries.filter((e) => e.level >= 2 && e.level <= 3);
   const [activeId, setActiveId] = useState<string>(displayEntries[0]?.id ?? "");
+  const manuallySelectedIdRef = useRef<string | null>(null);
+  const manualSelectionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
 
   useEffect(() => {
     setActiveId((current) => current || displayEntries[0]?.id || "");
@@ -21,6 +25,8 @@ export function DocsToc({ entries }: DocsTocProps) {
 
     const observer = new IntersectionObserver(
       (observerEntries) => {
+        if (manuallySelectedIdRef.current) return;
+
         for (const entry of observerEntries) {
           if (entry.isIntersecting) {
             setActiveId(entry.target.id);
@@ -38,15 +44,31 @@ export function DocsToc({ entries }: DocsTocProps) {
     return () => observer.disconnect();
   }, [displayEntries]);
 
+  useEffect(() => {
+    return () => {
+      if (manualSelectionTimerRef.current) {
+        clearTimeout(manualSelectionTimerRef.current);
+      }
+    };
+  }, []);
+
   const handleClick = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
       e.preventDefault();
       const target = document.getElementById(id);
       if (target) {
+        if (manualSelectionTimerRef.current) {
+          clearTimeout(manualSelectionTimerRef.current);
+        }
+        manuallySelectedIdRef.current = id;
         target.scrollIntoView({ behavior: "smooth", block: "start" });
         // Update URL hash without jumping
         window.history.pushState(null, "", `#${id}`);
         setActiveId(id);
+        manualSelectionTimerRef.current = setTimeout(() => {
+          manuallySelectedIdRef.current = null;
+          manualSelectionTimerRef.current = null;
+        }, 1500);
       }
     },
     [],
