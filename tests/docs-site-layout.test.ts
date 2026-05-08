@@ -205,6 +205,57 @@ describe("Docs site layout — feature-014", () => {
         root.unmount();
       });
     });
+
+    it("moves active selection through recent searches with arrow keys", async () => {
+      const { SearchModal } = await import("@/components/docs/search-modal");
+      localStorage.setItem(
+        "docs-recent-searches",
+        JSON.stringify(["plants", "quickstart"]),
+      );
+      const root = createRoot(container);
+
+      await act(async () => {
+        root.render(
+          createElement(SearchModal, {
+            subdomain: "test-project",
+            pages: [
+              { path: "introduction", title: "Introduction" },
+              { path: "quickstart", title: "Quickstart" },
+            ],
+          }),
+        );
+      });
+
+      await act(async () => {
+        document.dispatchEvent(new CustomEvent("open-search"));
+      });
+
+      const input = container.querySelector<HTMLInputElement>(
+        '[data-testid="search-input"]',
+      );
+      const options =
+        container.querySelectorAll<HTMLElement>('[role="option"]');
+
+      expect(
+        container.querySelector('[data-testid="recent-searches"]'),
+      ).not.toBeNull();
+      expect(input?.getAttribute("aria-activedescendant")).toBe(options[0].id);
+      expect(options[0].getAttribute("aria-selected")).toBe("true");
+
+      await act(async () => {
+        input?.dispatchEvent(
+          new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }),
+        );
+      });
+
+      expect(input?.getAttribute("aria-activedescendant")).toBe(options[1].id);
+      expect(options[0].getAttribute("aria-selected")).toBe("false");
+      expect(options[1].getAttribute("aria-selected")).toBe("true");
+
+      await act(async () => {
+        root.unmount();
+      });
+    });
   });
 
   describe("MobileNav", () => {
