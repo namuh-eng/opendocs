@@ -7,7 +7,7 @@ import {
   getVersionByTag,
 } from "@/lib/versions";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 
 interface VersionSwitcherProps {
   currentVersion: string;
@@ -30,20 +30,49 @@ export function VersionSwitcher({
 }: VersionSwitcherProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const dropdownId = useId();
   const router = useRouter();
 
-  // Close on click outside
+  const closeDropdown = useCallback(
+    ({ restoreFocus }: { restoreFocus: boolean }) => {
+      setOpen(false);
+      if (restoreFocus) {
+        triggerRef.current?.focus();
+      }
+    },
+    [],
+  );
+
+  const toggleDropdown = useCallback(() => {
+    triggerRef.current?.focus();
+    setOpen((value) => !value);
+  }, []);
+
+  // Close on click outside or Escape
   useEffect(() => {
+    if (!open) return;
+
     function handleClick(e: MouseEvent) {
       if (ref.current && !ref.current.contains(e.target as Node)) {
-        setOpen(false);
+        closeDropdown({ restoreFocus: false });
       }
     }
-    if (open) {
-      document.addEventListener("mousedown", handleClick);
-      return () => document.removeEventListener("mousedown", handleClick);
+
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        closeDropdown({ restoreFocus: true });
+      }
     }
-  }, [open]);
+
+    document.addEventListener("mousedown", handleClick);
+    window.addEventListener("keydown", handleKeyDown, true);
+    return () => {
+      document.removeEventListener("mousedown", handleClick);
+      window.removeEventListener("keydown", handleKeyDown, true);
+    };
+  }, [closeDropdown, open]);
 
   if (availableVersions.length <= 1) return null;
 
@@ -66,12 +95,14 @@ export function VersionSwitcher({
   return (
     <div className="version-switcher" ref={ref} data-testid="version-switcher">
       <button
+        ref={triggerRef}
         type="button"
         className="version-switcher-btn"
-        onClick={() => setOpen((v) => !v)}
+        onClick={toggleDropdown}
         aria-label={`Select docs version, current version ${currentInfo?.name ?? currentVersion}`}
         aria-expanded={open}
         aria-haspopup="listbox"
+        aria-controls={open ? dropdownId : undefined}
         data-testid="version-switcher-btn"
       >
         <svg
@@ -107,6 +138,7 @@ export function VersionSwitcher({
 
       {open && (
         <nav
+          id={dropdownId}
           className="version-switcher-dropdown"
           aria-label="Version selection"
           data-testid="version-switcher-dropdown"
