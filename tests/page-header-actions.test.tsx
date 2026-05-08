@@ -49,4 +49,43 @@ describe("PageHeaderActions", () => {
     expect(copyButton?.textContent).toContain("Copied");
     expect(copyButton?.getAttribute("aria-label")).toBe("Copied page markdown");
   });
+
+  it("labels the more actions menu trigger and menu items", async () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const root = createRoot(container);
+
+    await act(async () => {
+      root.render(
+        <PageHeaderActions
+          title="Introduction"
+          content="Welcome to the docs."
+          pageUrl="/docs/test-project/introduction.md"
+        />,
+      );
+    });
+
+    const moreButton = container.querySelector<HTMLButtonElement>(
+      '[data-testid="page-actions-btn"]',
+    );
+
+    expect(moreButton?.getAttribute("aria-label")).toBe("More page actions");
+    expect(moreButton?.getAttribute("aria-haspopup")).toBe("menu");
+    expect(moreButton?.getAttribute("aria-expanded")).toBe("false");
+    expect(moreButton?.hasAttribute("aria-controls")).toBe(false);
+
+    await act(async () => {
+      moreButton?.click();
+    });
+
+    const menu = container.querySelector<HTMLElement>(".page-actions-menu");
+    expect(moreButton?.getAttribute("aria-expanded")).toBe("true");
+    expect(moreButton?.getAttribute("aria-controls")).toBe(menu?.id);
+    expect(menu?.getAttribute("role")).toBe("menu");
+    expect(
+      Array.from(
+        container.querySelectorAll<HTMLElement>(".page-actions-menu-item"),
+      ).map((item) => item.getAttribute("role")),
+    ).toEqual(["menuitem", "menuitem"]);
+  });
 });

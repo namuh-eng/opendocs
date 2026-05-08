@@ -3,7 +3,7 @@
 import type { ContextualAiMenuConfig } from "@/lib/contextual-ai-menu";
 import { pageToMarkdown } from "@/lib/page-chrome";
 import { Check, Copy, Link2, MoreVertical } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { ContextualAiMenu } from "./contextual-ai-menu";
 
 interface PageHeaderActionsProps {
@@ -23,6 +23,7 @@ export function PageHeaderActions({
   const [copied, setCopied] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const menuId = useId();
 
   const handleCopy = useCallback(async () => {
     const md = pageToMarkdown(title, content);
@@ -83,16 +84,21 @@ export function PageHeaderActions({
           data-testid="page-actions-btn"
           className="page-action-btn"
           onClick={() => setMenuOpen(!menuOpen)}
+          aria-label="More page actions"
+          aria-haspopup="menu"
+          aria-expanded={menuOpen}
+          aria-controls={menuOpen ? menuId : undefined}
           title="More actions"
         >
           <MoreVertical size={16} />
         </button>
 
         {menuOpen && (
-          <div className="page-actions-menu">
+          <div className="page-actions-menu" id={menuId} role="menu">
             <button
               type="button"
               className="page-actions-menu-item"
+              role="menuitem"
               onClick={handleCopyLink}
             >
               <Link2 size={14} />
@@ -101,6 +107,7 @@ export function PageHeaderActions({
             <button
               type="button"
               className="page-actions-menu-item"
+              role="menuitem"
               onClick={handleViewSource}
             >
               <Copy size={14} />
