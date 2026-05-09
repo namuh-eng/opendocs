@@ -9,6 +9,15 @@ const PROTECTED_PREFIXES = [
   "/analytics",
 ];
 
+const WORKSPACE_HOME_PATTERN = /^\/[^/]+\/[^/]+\/home$/;
+
+function isProtectedDashboardPath(pathname: string) {
+  return (
+    PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix)) ||
+    WORKSPACE_HOME_PATTERN.test(pathname)
+  );
+}
+
 export async function proxy(request: NextRequest) {
   const start = Date.now();
   const sessionCookie = getSessionCookie(request);
@@ -28,8 +37,7 @@ export async function proxy(request: NextRequest) {
   // Unauthenticated users visiting protected routes or onboarding → redirect to login
   if (
     !sessionCookie &&
-    (PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix)) ||
-      pathname === "/onboarding")
+    (isProtectedDashboardPath(pathname) || pathname === "/onboarding")
   ) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("returnTo", `${pathname}${search}`);
@@ -48,6 +56,7 @@ export async function proxy(request: NextRequest) {
 export const config = {
   matcher: [
     "/dashboard/:path*",
+    "/:orgSlug/:projectSlug/home",
     "/settings/:path*",
     "/products/:path*",
     "/analytics/:path*",
