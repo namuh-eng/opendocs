@@ -1,3 +1,5 @@
+import { normalizeMarkdownContent } from "@/lib/markdown-normalization";
+
 /**
  * Page utilities — path normalization, validation, tree building.
  */
@@ -87,7 +89,9 @@ export function validateCreatePageRequest(body: unknown):
   };
 
   if (typeof raw.content === "string") {
-    result.content = raw.content;
+    result.content = normalizeMarkdownContent(raw.content, {
+      title: result.title,
+    });
   }
 
   if (typeof raw.description === "string") {
@@ -133,7 +137,9 @@ export function validateUpdatePageRequest(
     if (typeof raw.content !== "string") {
       return { valid: false, error: "Content must be a string" };
     }
-    fields.content = raw.content;
+    fields.content = normalizeMarkdownContent(raw.content, {
+      title: typeof raw.title === "string" ? raw.title : undefined,
+    });
   }
 
   if (raw.description !== undefined) {

@@ -336,6 +336,38 @@ ${"```"}
     }
   });
 
+  it("normalizes malformed generated headings during import", async () => {
+    const fetchMock = vi.fn(async (url: string) => {
+      if (url.includes("/git/trees/")) {
+        return {
+          ok: true,
+          json: async () => ({ tree: [{ path: "README.md", type: "blob" }] }),
+        };
+      }
+      return {
+        ok: true,
+        text: async () =>
+          "# IntroductionGenerated docs content.## Deploy verificationPublishing works.",
+      };
+    });
+
+    const { importGitHubDocs } = await import("@/lib/github-docs-import");
+    const result = await importGitHubDocs({
+      repoUrl: "https://github.com/acme/docs",
+      fetchImpl: fetchMock as unknown as typeof fetch,
+    });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.pages[0]).toMatchObject({
+        path: "introduction",
+        title: "Introduction",
+        content:
+          "# Introduction\n\nGenerated docs content.\n\n## Deploy verification\n\nPublishing works.",
+      });
+    }
+  });
+
   it("excludes internal agent and repo files", async () => {
     const fetchMock = vi.fn(async (url: string) => {
       if (url.includes("/git/trees/")) {

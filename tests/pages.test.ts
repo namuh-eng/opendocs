@@ -169,6 +169,24 @@ describe("validateCreatePageRequest", () => {
     });
   });
 
+  it("normalizes malformed generated markdown content", async () => {
+    const validate = await getValidate();
+    expect(
+      validate({
+        path: "intro",
+        title: "Introduction",
+        content:
+          "# IntroductionGenerated docs proof.## Deploy verificationPublishing works.",
+      }),
+    ).toEqual({
+      valid: true,
+      path: "intro",
+      title: "Introduction",
+      content:
+        "# Introduction\n\nGenerated docs proof.\n\n## Deploy verification\n\nPublishing works.",
+    });
+  });
+
   it("rejects missing path", async () => {
     const validate = await getValidate();
     expect(validate({ title: "Hello" })).toEqual({
@@ -215,6 +233,24 @@ describe("validateUpdatePageRequest", () => {
     expect(validate({ content: "# Updated content" })).toEqual({
       valid: true,
       fields: { content: "# Updated content" },
+    });
+  });
+
+  it("normalizes content updates when a title is provided", async () => {
+    const validate = await getValidate();
+    expect(
+      validate({
+        title: "Introduction",
+        content:
+          "# IntroductionGenerated docs proof.## Deploy verificationPublishing works.",
+      }),
+    ).toEqual({
+      valid: true,
+      fields: {
+        title: "Introduction",
+        content:
+          "# Introduction\n\nGenerated docs proof.\n\n## Deploy verification\n\nPublishing works.",
+      },
     });
   });
 

@@ -45,6 +45,7 @@ interface EditorToolbarProps {
   onToggleAnalytics?: () => void;
   onPublish?: () => void;
   siteUrl?: string;
+  previewUrl?: string;
   projectId?: string | null;
   currentBranch?: string;
   onBranchChange?: (branch: string) => void;
@@ -80,6 +81,7 @@ export function EditorToolbar({
   onToggleAnalytics,
   onPublish,
   siteUrl,
+  previewUrl,
   projectId,
   currentBranch = "main",
   onBranchChange,
@@ -91,11 +93,11 @@ export function EditorToolbar({
   const [showAddNew, setShowAddNew] = useState(false);
 
   return (
-    <div className="flex items-center justify-between px-3 py-1.5 border-b border-white/[0.08] bg-[#0f0f0f] shrink-0">
+    <div className="editor-toolbar flex items-center justify-between gap-3 overflow-x-auto px-4 py-2 border-b border-white/[0.08] bg-[#101010]/95 backdrop-blur shrink-0">
       {/* Left: Mode toggle + undo/redo */}
-      <div className="flex items-center gap-1">
+      <div className="flex shrink-0 items-center gap-1">
         {/* Mode toggle tabs */}
-        <div className="flex items-center bg-[#1a1a1a] rounded-md p-0.5 mr-2">
+        <div className="flex items-center bg-[#1a1a1a] rounded-lg p-0.5 mr-2 ring-1 ring-white/[0.06]">
           <button
             type="button"
             data-testid="mode-visual"
@@ -167,7 +169,7 @@ export function EditorToolbar({
       </div>
 
       {/* Center: Formatting toolbar (visible in both modes) */}
-      <div className="flex items-center gap-0.5">
+      <div className="order-3 flex shrink-0 items-center gap-0.5 rounded-lg border border-white/[0.06] bg-white/[0.02] px-1 py-0.5">
         <button
           type="button"
           data-testid="toolbar-bold"
@@ -232,7 +234,7 @@ export function EditorToolbar({
             type="button"
             data-testid="add-new-dropdown-btn"
             onClick={() => setShowAddNew(!showAddNew)}
-            className="flex items-center gap-1 px-2 py-1 text-xs text-gray-400 hover:text-white hover:bg-white/[0.06] rounded transition-colors"
+            className="flex items-center gap-1 whitespace-nowrap px-2 py-1 text-xs text-gray-400 hover:text-white hover:bg-white/[0.06] rounded transition-colors"
           >
             <Plus size={12} />
             <span>Add new</span>
@@ -309,7 +311,7 @@ export function EditorToolbar({
       </div>
 
       {/* Right: Search, Settings, Preview, Publish */}
-      <div className="flex items-center gap-1">
+      <div className="order-2 ml-auto flex shrink-0 items-center gap-1.5">
         {/* Auto-save indicator */}
         {isSaving && (
           <span className="text-[10px] text-gray-500 mr-2">Saving...</span>
@@ -345,7 +347,7 @@ export function EditorToolbar({
           type="button"
           onClick={onToggleSuggestions}
           className={clsx(
-            "p-1.5 rounded transition-colors",
+            "hidden xl:flex p-1.5 rounded transition-colors",
             showSuggestions
               ? "bg-emerald-600/20 text-emerald-400"
               : "text-gray-500 hover:text-white hover:bg-white/[0.06]",
@@ -360,7 +362,7 @@ export function EditorToolbar({
           type="button"
           onClick={onToggleAnalytics}
           className={clsx(
-            "p-1.5 rounded transition-colors",
+            "hidden xl:flex p-1.5 rounded transition-colors",
             showAnalytics
               ? "bg-emerald-600/20 text-emerald-400"
               : "text-gray-500 hover:text-white hover:bg-white/[0.06]",
@@ -388,10 +390,17 @@ export function EditorToolbar({
 
         <button
           type="button"
-          className="p-1.5 rounded text-gray-500 hover:text-white hover:bg-white/[0.06] transition-colors"
+          onClick={() => {
+            if (previewUrl) {
+              window.open(previewUrl, "_blank", "noopener,noreferrer");
+            }
+          }}
+          disabled={!previewUrl}
+          className="inline-flex items-center gap-1.5 rounded-md border border-white/[0.08] px-2.5 py-1.5 text-xs font-medium text-gray-300 transition-colors hover:border-white/[0.16] hover:bg-white/[0.06] hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
           aria-label="Preview"
         >
-          <ExternalLink size={14} />
+          <ExternalLink size={13} />
+          <span className="hidden 2xl:inline">Preview</span>
         </button>
 
         {/* Publish button with popover */}
@@ -400,7 +409,7 @@ export function EditorToolbar({
             <button
               type="button"
               data-testid="publish-btn"
-              className="ml-1 px-3 py-1.5 text-xs font-medium rounded-md transition-colors text-white bg-emerald-600 hover:bg-emerald-500"
+              className="ml-0 inline-flex items-center gap-1.5 whitespace-nowrap rounded-md bg-emerald-500 px-3.5 py-1.5 text-xs font-semibold text-black shadow-sm shadow-emerald-500/20 transition-colors hover:bg-emerald-400"
             >
               Publish
             </button>
@@ -415,19 +424,23 @@ export function EditorToolbar({
               <div className="space-y-3">
                 <div className="flex items-center gap-2 text-sm text-gray-300">
                   <ExternalLink size={14} className="text-gray-500" />
-                  <span className="text-gray-500 truncate">
-                    {siteUrl || "your-project.mintlify.app"}
+                  <span className="text-gray-400 truncate">
+                    {siteUrl || previewUrl || "your-project.mintlify.app"}
                   </span>
                 </div>
+                <p className="text-xs leading-5 text-gray-500">
+                  Save the current page, publish the docs site, and open the
+                  deployment on the dashboard.
+                </p>
                 <button
                   type="button"
                   onClick={onPublish}
                   disabled={isSaving}
                   className={clsx(
-                    "w-full px-3 py-2 text-sm font-medium rounded-md transition-colors",
+                    "w-full px-3 py-2 text-sm font-semibold rounded-md transition-colors",
                     isSaving
                       ? "text-gray-400 bg-gray-800 cursor-wait"
-                      : "text-white bg-emerald-600 hover:bg-emerald-500",
+                      : "text-black bg-emerald-500 hover:bg-emerald-400",
                   )}
                 >
                   {isSaving ? "Publishing..." : "Publish"}

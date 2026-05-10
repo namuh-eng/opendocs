@@ -1,5 +1,7 @@
 import { extractFrontmatter } from "@/lib/editor";
 import { parseGitHubUrl } from "@/lib/git-settings";
+import { normalizeMarkdownContent } from "@/lib/markdown-normalization";
+import { titleFromPath } from "@/lib/pages";
 
 export interface ImportedGitHubDocPage {
   path: string;
@@ -124,7 +126,10 @@ function stripHtmlTags(value: string): string {
   return value.replace(/<[^>]+>/g, "").trim();
 }
 
-function normalizeGitHubMarkdownContent(content: string): string {
+function normalizeGitHubMarkdownContent(
+  content: string,
+  title?: string | null,
+): string {
   let normalized = content.replace(/\r\n?/g, "\n");
 
   normalized = normalized.replace(/<br\s*\/?\s*>/gi, "\n");
@@ -157,12 +162,15 @@ function normalizeGitHubMarkdownContent(content: string): string {
   normalized = normalized.replace(/<\/?(?:p|div|span|center)\b[^>]*>/gi, "\n");
   normalized = normalized.replace(/<!--([\s\S]*?)-->/g, "");
 
-  return normalized
-    .split("\n")
-    .map((line) => line.replace(/[ \t]+$/g, ""))
-    .join("\n")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
+  return normalizeMarkdownContent(
+    normalized
+      .split("\n")
+      .map((line) => line.replace(/[ \t]+$/g, ""))
+      .join("\n")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim(),
+    { title },
+  );
 }
 
 const EXCLUDED_PATHS = [
@@ -250,15 +258,19 @@ export async function importGitHubDocs(
           `GitHub content request failed with status ${response.status} for ${filePath}`,
         );
       }
-      const content = normalizeGitHubMarkdownContent(await response.text());
       const pagePath = toPagePath(filePath, basePath);
       if (!pagePath) {
         return null;
       }
+      const content = normalizeGitHubMarkdownContent(
+        await response.text(),
+        titleFromPath(pagePath),
+      );
+      const title = toTitle(content, pagePath);
       return {
         path: pagePath,
-        title: toTitle(content, pagePath),
-        content,
+        title,
+        content: normalizeMarkdownContent(content, { title }),
       } satisfies ImportedGitHubDocPage;
     }),
   );
