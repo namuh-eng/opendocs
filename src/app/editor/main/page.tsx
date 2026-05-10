@@ -63,6 +63,12 @@ interface PageListItem {
   updatedAt: string;
 }
 
+interface ActiveEditorProject {
+  id: string;
+  subdomain?: string | null;
+  customDomain?: string | null;
+}
+
 type ActiveTab = "navigation" | "files" | "configurations";
 
 async function getErrorMessage(
@@ -353,11 +359,12 @@ export default function EditorPage() {
     title: string;
     path: string;
   } | null>(null);
-  const { project, loading } = useActiveProject<{ id: string }>();
+  const { project, loading } = useActiveProject<ActiveEditorProject>();
   const projectId = project?.id ?? null;
   const [pagesLoading, setPagesLoading] = useState(true);
   const [content, setContent] = useState("");
   const [saving, setSaving] = useState(false);
+  const [publishing, setPublishing] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [actionError, setActionError] = useState("");
   const [editorMode, setEditorMode] = useState<EditorMode>("visual");
@@ -370,9 +377,17 @@ export default function EditorPage() {
   const visualEditorRef = useRef<VisualEditorHandle | null>(null);
   const autoSaveRef = useRef<ReturnType<typeof createAutoSave> | null>(null);
 
+  const siteUrl = useMemo(() => {
+    if (!project) return undefined;
+    if (project.customDomain) return `https://${project.customDomain}`;
+    if (project.subdomain)
+      return `https://${project.subdomain}.opendocs.namuh.co`;
+    return undefined;
+  }, [project]);
+
   const doSave = useCallback(
     async (contentToSave: string) => {
-      if (!projectId || !selectedPageId) return;
+      if (!projectId || !selectedPageId) return false;
       setSaving(true);
       try {
         const res = await fetch(
@@ -388,10 +403,12 @@ export default function EditorPage() {
         }
         setHasUnsavedChanges(false);
         setActionError("");
+        return true;
       } catch (error) {
         setActionError(
           error instanceof Error ? error.message : "Failed to save page",
         );
+        return false;
       } finally {
         setSaving(false);
       }
@@ -400,7 +417,9 @@ export default function EditorPage() {
   );
 
   useEffect(() => {
-    autoSaveRef.current = createAutoSave(doSave, 2000);
+    autoSaveRef.current = createAutoSave(async (value) => {
+      await doSave(value);
+    }, 2000);
     return () => {
       autoSaveRef.current?.cancel();
     };
@@ -478,6 +497,44 @@ export default function EditorPage() {
   async function handleSaveContent() {
     autoSaveRef.current?.cancel();
     await doSave(content);
+  }
+
+  async function handlePublish() {
+    if (!projectId || publishing) return;
+    autoSaveRef.current?.cancel();
+    setPublishing(true);
+    setActionError("");
+
+    try {
+      if (hasUnsavedChanges) {
+        const saved = await doSave(content);
+        if (!saved) return;
+      }
+
+      const response = await fetch("/api/deployments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          commitMessage: selectedPage
+            ? `Update ${selectedPage.path}`
+            : "Manual Update",
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          await getErrorMessage(response, "Failed to trigger deployment"),
+        );
+      }
+
+      setHasUnsavedChanges(false);
+    } catch (error) {
+      setActionError(
+        error instanceof Error ? error.message : "Failed to publish changes",
+      );
+    } finally {
+      setPublishing(false);
+    }
   }
 
   async function handleSaveSettings(updates: Record<string, unknown>) {
@@ -760,8 +817,13 @@ export default function EditorPage() {
               onLink={handleLink}
               onImage={handleImage}
               onSave={handleSaveContent}
-              isSaving={saving}
+              isSaving={saving || publishing}
               hasUnsavedChanges={hasUnsavedChanges}
+              siteUrl={siteUrl}
+              projectId={projectId}
+              currentBranch={currentBranch}
+              onBranchChange={setCurrentBranch}
+              onPublish={handlePublish}
               showSettings={showSettings}
               onToggleSettings={() => setShowSettings(!showSettings)}
               showComments={showComments}

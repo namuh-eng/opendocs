@@ -400,12 +400,7 @@ export function EditorToolbar({
             <button
               type="button"
               data-testid="publish-btn"
-              className={clsx(
-                "ml-1 px-3 py-1.5 text-xs font-medium rounded-md transition-colors",
-                hasUnsavedChanges || isSaving
-                  ? "text-white bg-emerald-600 hover:bg-emerald-500"
-                  : "text-gray-300 bg-gray-800 hover:bg-gray-700",
-              )}
+              className="ml-1 px-3 py-1.5 text-xs font-medium rounded-md transition-colors text-white bg-emerald-600 hover:bg-emerald-500"
             >
               Publish
             </button>
@@ -427,15 +422,15 @@ export function EditorToolbar({
                 <button
                   type="button"
                   onClick={onPublish}
-                  disabled={!hasUnsavedChanges}
+                  disabled={isSaving}
                   className={clsx(
                     "w-full px-3 py-2 text-sm font-medium rounded-md transition-colors",
-                    hasUnsavedChanges
-                      ? "text-white bg-emerald-600 hover:bg-emerald-500"
-                      : "text-gray-500 bg-gray-800 cursor-not-allowed",
+                    isSaving
+                      ? "text-gray-400 bg-gray-800 cursor-wait"
+                      : "text-white bg-emerald-600 hover:bg-emerald-500",
                   )}
                 >
-                  Publish
+                  {isSaving ? "Publishing..." : "Publish"}
                 </button>
               </div>
               <Popover.Arrow className="fill-[#1a1a1a]" />
