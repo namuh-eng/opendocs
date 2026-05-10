@@ -26,6 +26,20 @@ describe("Proxy", () => {
     expect(response?.headers.get("location")).toContain("/login");
   });
 
+  it("redirects unauthenticated Mintlify-style workspace home routes with returnTo", async () => {
+    getSessionCookieMock.mockReturnValue(null);
+    const { config, proxy } = await import("@/proxy");
+    const response = await proxy(
+      makeNextRequest("http://localhost/namuhinc/namuhinc/home?tab=activity"),
+    );
+
+    expect(config.matcher).toContain("/:orgSlug/:projectSlug/home");
+    expect(response?.status).toBe(307);
+    expect(response?.headers.get("location")).toBe(
+      "http://localhost/login?returnTo=%2Fnamuhinc%2Fnamuhinc%2Fhome%3Ftab%3Dactivity",
+    );
+  });
+
   it("adds Server-Timing header for performance monitoring", async () => {
     getSessionCookieMock.mockReturnValue({ session: { id: "session-1" } });
     const { proxy } = await import("@/proxy");
