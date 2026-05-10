@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { orgMemberships, pages, projects } from "@/lib/db/schema";
 import { createRequestId, logger } from "@/lib/logger";
+import { normalizeMarkdownContent } from "@/lib/markdown-normalization";
 import { validateUpdatePageRequest } from "@/lib/pages";
 import { and, eq } from "drizzle-orm";
 import { headers } from "next/headers";
@@ -13,7 +14,7 @@ async function resolvePageInProject(
   projectId: string,
   pageId: string,
 ): Promise<
-  | { ok: true; page: { id: string }; role: string }
+  | { ok: true; page: { id: string; title: string }; role: string }
   | { ok: false; response: NextResponse }
 > {
   const membership = await db
@@ -51,7 +52,7 @@ async function resolvePageInProject(
   }
 
   const page = await db
-    .select({ id: pages.id })
+    .select({ id: pages.id, title: pages.title })
     .from(pages)
     .where(and(eq(pages.id, pageId), eq(pages.projectId, projectId)))
     .limit(1);
@@ -105,7 +106,15 @@ export async function GET(
     pageId,
   });
 
-  return NextResponse.json({ page, requestId });
+  return NextResponse.json({
+    page: {
+      ...page,
+      content: normalizeMarkdownContent(page.content ?? "", {
+        title: page.title,
+      }),
+    },
+    requestId,
+  });
 }
 
 /** PUT /api/projects/[id]/pages/[pageId] — update a page */
@@ -162,6 +171,18 @@ export async function PUT(
       error: validation.error,
     });
     return NextResponse.json({ error: validation.error }, { status: 400 });
+  }
+
+  if (typeof validation.fields.content === "string") {
+    validation.fields.content = normalizeMarkdownContent(
+      validation.fields.content,
+      {
+        title:
+          typeof validation.fields.title === "string"
+            ? validation.fields.title
+            : resolved.page.title,
+      },
+    );
   }
 
   // If path is being changed, check uniqueness

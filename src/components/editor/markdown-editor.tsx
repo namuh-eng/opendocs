@@ -73,7 +73,7 @@ export function MarkdownEditor({
 
   return (
     <div
-      className="flex h-full overflow-hidden bg-[#0a0a0a]"
+      className="flex h-full overflow-hidden bg-[#0c0c0c]"
       data-testid="markdown-editor"
     >
       {/* Line numbers gutter */}
@@ -99,7 +99,7 @@ export function MarkdownEditor({
         onKeyUp={handleKeyUp}
         onKeyDown={handleKeyDown}
         onClick={handleClick}
-        className="flex-1 bg-transparent text-emerald-300 text-sm font-mono py-4 px-4 resize-none focus:outline-none leading-[1.625rem] overflow-auto"
+        className="mx-auto max-w-4xl flex-1 resize-none overflow-auto bg-transparent px-6 py-8 font-mono text-sm leading-[1.75rem] text-emerald-200 focus:outline-none"
         spellCheck={false}
         placeholder="Write your MDX content here..."
         data-testid="markdown-textarea"

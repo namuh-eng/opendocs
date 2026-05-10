@@ -39,6 +39,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 interface PageData {
@@ -349,6 +350,7 @@ function DeletePageModal({
 }
 
 export default function EditorPage() {
+  const router = useRouter();
   const [pages, setPages] = useState<PageListItem[]>([]);
   const [selectedPage, setSelectedPage] = useState<PageData | null>(null);
   const [selectedPageId, setSelectedPageId] = useState<string | null>(null);
@@ -384,6 +386,11 @@ export default function EditorPage() {
       return `https://${project.subdomain}.opendocs.namuh.co`;
     return undefined;
   }, [project]);
+
+  const previewUrl = useMemo(() => {
+    if (!project?.subdomain || !selectedPage?.path) return undefined;
+    return `/docs/${project.subdomain}/${selectedPage.path}`;
+  }, [project, selectedPage]);
 
   const doSave = useCallback(
     async (contentToSave: string) => {
@@ -528,6 +535,7 @@ export default function EditorPage() {
       }
 
       setHasUnsavedChanges(false);
+      router.push("/dashboard");
     } catch (error) {
       setActionError(
         error instanceof Error ? error.message : "Failed to publish changes",
@@ -696,7 +704,7 @@ export default function EditorPage() {
 
   return (
     <div className="h-screen flex bg-[#0f0f0f] text-white overflow-hidden">
-      <aside className="w-72 border-r border-white/[0.08] bg-[#111111] flex flex-col">
+      <aside className="w-64 border-r border-white/[0.08] bg-[#111111] flex flex-col">
         <div className="p-4 border-b border-white/[0.08]">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
@@ -820,6 +828,7 @@ export default function EditorPage() {
               isSaving={saving || publishing}
               hasUnsavedChanges={hasUnsavedChanges}
               siteUrl={siteUrl}
+              previewUrl={previewUrl}
               projectId={projectId}
               currentBranch={currentBranch}
               onBranchChange={setCurrentBranch}
@@ -835,7 +844,7 @@ export default function EditorPage() {
             />
 
             <div className="flex-1 flex min-h-0">
-              <div className="flex-1 min-w-0 flex flex-col">
+              <div className="flex-1 min-w-0 flex flex-col bg-[#0c0c0c]">
                 {actionError && (
                   <div className="px-4 py-2 border-b border-red-500/20 bg-red-500/5 text-sm text-red-400">
                     {actionError}

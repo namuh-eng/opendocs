@@ -3972,3 +3972,43 @@ pre.mermaid svg {
     padding: 0 16px;
   }
 }
+
+/* ── Editor authoring surface ─────────────────────────────────────────────── */
+.editor-toolbar {
+  scrollbar-width: none;
+}
+
+.editor-toolbar::-webkit-scrollbar {
+  display: none;
+}
+
+.editor-prose h1 {
+  margin: 0 0 0.75rem;
+  color: #f8fafc;
+  font-size: clamp(2rem, 3.4vw, 3.5rem);
+  line-height: 1.05;
+  letter-spacing: -0.045em;
+  font-weight: 700;
+}
+
+.editor-prose h2 {
+  margin: 3rem 0 0.75rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  color: #f8fafc;
+  font-size: 1.35rem;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  font-weight: 650;
+}
+
+.editor-prose p {
+  margin: 0.75rem 0 0;
+  color: #d1d5db;
+  font-size: 0.98rem;
+  line-height: 1.8;
+}
+
+.editor-prose a {
+  color: #34d399;
+}
