@@ -156,6 +156,18 @@ describe("Stripe billing routes", () => {
     });
   });
 
+  it("keeps provider-neutral checkout and portal aliases available for the UI", async () => {
+    const checkoutRoute = await import("@/app/api/billing/checkout/route");
+    const stripeCheckoutRoute = await import(
+      "@/app/api/billing/stripe/checkout/route"
+    );
+    const portalRoute = await import("@/app/api/billing/portal/route");
+    const stripePortalRoute = await import("@/app/api/billing/stripe/portal/route");
+
+    expect(checkoutRoute.POST).toBe(stripeCheckoutRoute.POST);
+    expect(portalRoute.POST).toBe(stripePortalRoute.POST);
+  });
+
   it("rejects webhooks without a Stripe signature", async () => {
     const { POST } = await import("@/app/api/billing/stripe/webhook/route");
     const response = await POST(

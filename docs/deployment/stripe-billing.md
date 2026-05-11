@@ -11,13 +11,15 @@ STRIPE_PRICE_ID=price_...
 NEXT_PUBLIC_APP_URL=http://localhost:3015
 ```
 
-`STRIPE_PRICE_ID` should point to the recurring subscription Price used by `/api/billing/stripe/checkout`. Production/staging must use the deployed `NEXT_PUBLIC_APP_URL` so Checkout and Portal redirects return to the correct origin.
+`STRIPE_PRICE_ID` should point to the recurring subscription Price used by `/api/billing/checkout`. Production/staging must use the deployed `NEXT_PUBLIC_APP_URL` so Checkout and Portal redirects return to the correct origin.
 
 ## API routes
 
-- `POST /api/billing/stripe/checkout` — authenticated org admin creates a Stripe Checkout Session for the configured subscription price.
-- `POST /api/billing/stripe/portal` — authenticated org admin with an existing Stripe customer ID creates a Customer Portal session.
+- `POST /api/billing/checkout` — authenticated org admin creates a Stripe Checkout Session for the configured subscription price.
+- `POST /api/billing/portal` — authenticated org admin with an existing Stripe customer ID creates a Customer Portal session.
 - `POST /api/billing/stripe/webhook` — Stripe forwards signed events here; the route verifies the raw request body with `STRIPE_WEBHOOK_SECRET` before updating local billing state.
+
+The checkout and portal routes are intentionally provider-neutral so the UI does not need to know Stripe is the current billing provider.
 
 Local billing state is stored under `organizations.settings.billing` and mirrors Stripe identifiers/status without storing secrets.
 
@@ -43,7 +45,7 @@ You can trigger a basic fixture event with:
 stripe trigger checkout.session.completed
 ```
 
-Caveat: the generated fixture will not automatically include OpenDocs metadata like `orgId`, `orgSlug`, `userId`, or the exact Checkout Session/customer created by the app. For end-to-end local mapping, create a Checkout Session through `POST /api/billing/stripe/checkout`, complete it in Stripe Checkout, and let the forwarded webhook carry the app metadata back to OpenDocs.
+Caveat: the generated fixture will not automatically include OpenDocs metadata like `orgId`, `orgSlug`, `userId`, or the exact Checkout Session/customer created by the app. For end-to-end local mapping, create a Checkout Session through `POST /api/billing/checkout`, complete it in Stripe Checkout, and let the forwarded webhook carry the app metadata back to OpenDocs.
 
 ## Live-account validation blocker
 
