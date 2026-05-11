@@ -55,6 +55,7 @@
     "recharts": "^3.8.1",
     "rehype-slug": "^6.0.0",
     "remark-gfm": "^4.0.1",
+    "stripe": "^22.1.1",
     "uuid": "^14.0.0"
   },
   "devDependencies": {
