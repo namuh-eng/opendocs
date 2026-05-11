@@ -42,7 +42,9 @@ describe("getRequestAppUrl", () => {
     );
   });
 
-  it("prefers forwarded proxy origin", () => {
+  it("prefers forwarded proxy origin when it matches the configured app URL", () => {
+    vi.stubEnv("NEXT_PUBLIC_APP_URL", "https://opendocs.namuh.co");
+
     expect(
       getRequestAppUrl(
         new Headers({
@@ -52,6 +54,29 @@ describe("getRequestAppUrl", () => {
         }),
       ),
     ).toBe("https://opendocs.namuh.co");
+  });
+
+  it("falls back to the configured app URL for spoofed forwarded hosts", () => {
+    vi.stubEnv("NEXT_PUBLIC_APP_URL", "https://opendocs.namuh.co");
+
+    expect(
+      getRequestAppUrl(
+        new Headers({
+          host: "opendocs.namuh.co",
+          "x-forwarded-host": "evil.example",
+          "x-forwarded-proto": "https",
+        }),
+      ),
+    ).toBe("https://opendocs.namuh.co");
+  });
+
+  it("does not trust localhost request hosts in production", () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("NEXT_PUBLIC_APP_URL", "https://opendocs.namuh.co");
+
+    expect(getRequestAppUrl(new Headers({ host: "localhost:3016" }))).toBe(
+      "https://opendocs.namuh.co",
+    );
   });
 
   it("falls back to public app URL when request host is unavailable", () => {
