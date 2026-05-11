@@ -61,7 +61,9 @@ export default async function GitHubAppSettingsPage() {
       }
       selectedRepoFullName={selectedSource?.repoFullName ?? null}
       selectedSource={selectedSource}
-      installUrl={resolveGitHubAppInstallUrl()}
+      installUrl={resolveGitHubAppInstallUrl(process.env, {
+        state: `org:${orgId}`,
+      })}
     />
   );
 }

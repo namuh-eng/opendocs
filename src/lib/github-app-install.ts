@@ -7,6 +7,19 @@ export interface GitHubAppInstallEnv {
   NEXT_PUBLIC_GITHUB_APP_SLUG?: string;
 }
 
+interface GitHubAppInstallOptions {
+  state?: string | null;
+}
+
+function withInstallState(url: string, state?: string | null): string {
+  const trimmedState = state?.trim();
+  if (!trimmedState) return url;
+
+  const parsed = new URL(url);
+  parsed.searchParams.set("state", trimmedState);
+  return parsed.toString();
+}
+
 function normalizeExplicitInstallUrl(value: string | undefined): string | null {
   const url = value?.trim();
   if (!url) return null;
@@ -34,14 +47,18 @@ function normalizeAppSlug(value: string | undefined): string | null {
 
 export function resolveGitHubAppInstallUrl(
   env: GitHubAppInstallEnv = process.env,
+  options: GitHubAppInstallOptions = {},
 ): string | null {
   const explicitUrl = normalizeExplicitInstallUrl(env.GITHUB_APP_INSTALL_URL);
-  if (explicitUrl) return explicitUrl;
+  if (explicitUrl) return withInstallState(explicitUrl, options.state);
 
   const slug =
     normalizeAppSlug(env.GITHUB_APP_SLUG) ??
     normalizeAppSlug(env.NEXT_PUBLIC_GITHUB_APP_SLUG);
   if (!slug) return null;
 
-  return `https://github.com/apps/${slug}/installations/new`;
+  return withInstallState(
+    `https://github.com/apps/${slug}/installations/new`,
+    options.state,
+  );
 }
