@@ -120,7 +120,7 @@ describe("Dashboard Layout — User Menu Items", () => {
   const menuItems = [
     { label: "Your profile", href: "/settings/workspace/profile" },
     { label: "Invite members", href: "/settings/workspace/members" },
-    { label: "Billing", href: "/settings" },
+    { label: "Billing", href: "/settings/organization/billing" },
     { label: "Documentation", href: "/docs", external: true },
     { label: "Contact support", href: "mailto:support@example.com" },
     { label: "Log Out", action: "logout" },
