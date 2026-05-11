@@ -158,6 +158,16 @@ GITHUB_APP_PRIVATE_KEY=your-github-app-private-key
 GITHUB_APP_SLUG=your-github-app-slug
 # Optional override if the default slug URL is not correct:
 GITHUB_APP_INSTALL_URL=https://github.com/apps/your-github-app-slug/installations/new
+STRIPE_SECRET_KEY=sk_test_your-stripe-secret-key
+STRIPE_WEBHOOK_SECRET=whsec_your-stripe-webhook-secret
+STRIPE_PRICE_ID=price_your-recurring-price-id
+```
+
+Stripe billing API routes are documented in `docs/deployment/stripe-billing.md`, including local Stripe CLI webhook forwarding with:
+
+```bash
+stripe login
+stripe listen --forward-to localhost:3015/api/billing/stripe/webhook
 ```
 
 ### Billing (optional, commercial hosted plans)
@@ -191,6 +201,20 @@ For staging, use the staging origin with the same path.
 AWS_REGION=us-east-1
 AWS_BEDROCK_REGION=us-east-1
 S3_BUCKET=your-doc-assets-bucket
+```
+
+### Billing
+
+Stripe billing is optional for local open-source development. Without Stripe
+configuration, the app keeps running with free/dev billing state; production
+paid-feature gates should be wired to fail closed until a valid subscription is
+synced.
+
+```bash
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+STRIPE_PRO_PRICE_ID=
+STRIPE_ENTERPRISE_PRICE_ID=
 ```
 
 ### Docs proxy allowlist
