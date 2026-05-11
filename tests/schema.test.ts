@@ -6,6 +6,7 @@ import {
   auditLogs,
   deployments,
   orgMemberships,
+  organizationBilling,
   organizations,
   pages,
   projects,
@@ -54,6 +55,38 @@ describe("Database schema", () => {
       const cols = getTableColumns(orgMemberships);
       expect(cols.orgId.notNull).toBe(true);
       expect(cols.userId.notNull).toBe(true);
+    });
+  });
+
+  describe("organizationBilling table", () => {
+    it("has the correct table name", () => {
+      expect(getTableName(organizationBilling)).toBe("organization_billing");
+    });
+
+    it("has all required Stripe subscription columns", () => {
+      const cols = getTableColumns(organizationBilling);
+      expect(cols.id).toBeDefined();
+      expect(cols.orgId).toBeDefined();
+      expect(cols.ownerUserId).toBeDefined();
+      expect(cols.stripeCustomerId).toBeDefined();
+      expect(cols.stripeSubscriptionId).toBeDefined();
+      expect(cols.stripePriceId).toBeDefined();
+      expect(cols.plan).toBeDefined();
+      expect(cols.status).toBeDefined();
+      expect(cols.currentPeriodEnd).toBeDefined();
+      expect(cols.cancelAtPeriodEnd).toBeDefined();
+      expect(cols.canceledAt).toBeDefined();
+      expect(cols.trialEndsAt).toBeDefined();
+      expect(cols.createdAt).toBeDefined();
+      expect(cols.updatedAt).toBeDefined();
+    });
+
+    it("requires org linkage, plan, status, and cancel-at-period-end", () => {
+      const cols = getTableColumns(organizationBilling);
+      expect(cols.orgId.notNull).toBe(true);
+      expect(cols.plan.notNull).toBe(true);
+      expect(cols.status.notNull).toBe(true);
+      expect(cols.cancelAtPeriodEnd.notNull).toBe(true);
     });
   });
 
