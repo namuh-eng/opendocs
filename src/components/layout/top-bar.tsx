@@ -157,11 +157,6 @@ export function TopBar({
         >
           <Star size={14} />
           <span className="font-medium">Star</span>
-          <span
-            className={`rounded-full px-1.5 text-xs ${shellTheme.keyboard}`}
-          >
-            128
-          </span>
         </a>
 
         <button
