@@ -7,7 +7,7 @@ import {
   createBillingRedirect,
   formatBillingLimit,
   getBillingPlanDetails,
-} from "@/lib/billing";
+} from "@/lib/billing-client";
 import { clsx } from "clsx";
 import { ArrowUpRight, CreditCard, Loader2, ShieldCheck } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
