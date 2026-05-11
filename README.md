@@ -153,6 +153,11 @@ BETTER_AUTH_URL=https://opendocs.namuh.co
 AUTH_GOOGLE_ID=your-google-oauth-client-id
 AUTH_GOOGLE_SECRET=your-google-oauth-client-secret
 GITHUB_WEBHOOK_SECRET=your-github-webhook-secret
+GITHUB_APP_ID=your-github-app-id
+GITHUB_APP_PRIVATE_KEY=your-github-app-private-key
+GITHUB_APP_SLUG=your-github-app-slug
+# Optional override if the default slug URL is not correct:
+GITHUB_APP_INSTALL_URL=https://github.com/apps/your-github-app-slug/installations/new
 ```
 
 Google OAuth must include this production redirect URI:
@@ -160,6 +165,14 @@ Google OAuth must include this production redirect URI:
 ```text
 https://opendocs.namuh.co/api/auth/callback/google
 ```
+
+The GitHub App must set its **Setup URL** to the deployed callback route so GitHub returns `installation_id` and `setup_action` after install/update:
+
+```text
+https://opendocs.namuh.co/api/github-connections/callback
+```
+
+For staging, use the staging origin with the same path.
 
 ### AWS and storage
 

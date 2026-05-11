@@ -156,7 +156,7 @@ export function GitHubAppSettingsClient({
     setError(null);
     if (!installUrl) {
       setError(
-        "GitHub App installation is not configured. Set GITHUB_APP_SLUG or GITHUB_APP_INSTALL_URL before connecting GitHub.",
+        "GitHub App installation is not configured. Set GITHUB_APP_SLUG or GITHUB_APP_INSTALL_URL, then configure the app setup URL to /api/github-connections/callback.",
       );
       return;
     }
