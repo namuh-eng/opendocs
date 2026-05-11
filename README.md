@@ -192,6 +192,20 @@ AWS_BEDROCK_REGION=us-east-1
 S3_BUCKET=your-doc-assets-bucket
 ```
 
+### Billing
+
+Stripe billing is optional for local open-source development. Without Stripe
+configuration, the app keeps running with free/dev billing state; production
+paid-feature gates should be wired to fail closed until a valid subscription is
+synced.
+
+```bash
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+STRIPE_PRO_PRICE_ID=
+STRIPE_ENTERPRISE_PRICE_ID=
+```
+
 ### Docs proxy allowlist
 
 Production docs/API playground proxying fails closed unless `DOCS_PROXY_ALLOWED_HOSTS` is configured.

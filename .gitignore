@@ -10,7 +10,6 @@ dist/
 coverage/
 test-results/
 playwright-report/
-drizzle/
 packages/sdk/dist/
 # Internal clone-engine, hardening-loop, and after-service artifacts
 target-docs/
