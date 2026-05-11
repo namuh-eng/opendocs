@@ -4,17 +4,27 @@ import { describe, expect, it } from "vitest";
 describe("resolveGitHubAppInstallUrl", () => {
   it("uses an explicit GitHub app install URL", () => {
     expect(
-      resolveGitHubAppInstallUrl({
-        GITHUB_APP_INSTALL_URL:
-          "https://github.com/apps/opendocs/installations/new?state=settings",
-        GITHUB_APP_SLUG: "ignored",
-      }),
-    ).toBe("https://github.com/apps/opendocs/installations/new?state=settings");
+      resolveGitHubAppInstallUrl(
+        {
+          GITHUB_APP_INSTALL_URL:
+            "https://github.com/apps/opendocs/installations/new?state=settings",
+          GITHUB_APP_SLUG: "ignored",
+        },
+        { state: "org:org-1" },
+      ),
+    ).toBe(
+      "https://github.com/apps/opendocs/installations/new?state=org%3Aorg-1",
+    );
   });
 
   it("builds the GitHub installation URL from the app slug", () => {
-    expect(resolveGitHubAppInstallUrl({ GITHUB_APP_SLUG: "open-docs" })).toBe(
-      "https://github.com/apps/open-docs/installations/new",
+    expect(
+      resolveGitHubAppInstallUrl(
+        { GITHUB_APP_SLUG: "open-docs" },
+        { state: "org:org-1" },
+      ),
+    ).toBe(
+      "https://github.com/apps/open-docs/installations/new?state=org%3Aorg-1",
     );
   });
 

@@ -1,32 +1,70 @@
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import {
-  githubConnections,
-  orgMemberships,
-  organizations,
-} from "@/lib/db/schema";
+import { githubConnections, orgMemberships } from "@/lib/db/schema";
 import { hydrateGitHubInstallationRepos } from "@/lib/github-app-setup";
 import type { GitHubRepo } from "@/lib/github-webhook";
 import { createRequestId, logger } from "@/lib/logger";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 
 const SETTINGS_PATH = "/settings/deployment/github";
+const ORG_STATE_PREFIX = "org:";
 
-async function resolveUserOrg(userId: string) {
+type ResolvedUserOrg =
+  | {
+      org: { orgId: string; role: string };
+      error: null;
+    }
+  | {
+      org: null;
+      error: "no_org" | "org_required";
+    };
+
+function parseOrgIdFromState(value: string | null): string | null {
+  const state = value?.trim();
+  if (!state?.startsWith(ORG_STATE_PREFIX)) return null;
+
+  return state.slice(ORG_STATE_PREFIX.length).trim() || null;
+}
+
+async function resolveUserOrg(
+  userId: string,
+  requestedOrgId: string | null,
+): Promise<ResolvedUserOrg> {
+  if (requestedOrgId) {
+    const rows = await db
+      .select({
+        orgId: orgMemberships.orgId,
+        role: orgMemberships.role,
+      })
+      .from(orgMemberships)
+      .where(
+        and(
+          eq(orgMemberships.userId, userId),
+          eq(orgMemberships.orgId, requestedOrgId),
+        ),
+      )
+      .limit(1);
+
+    return rows[0]
+      ? { org: rows[0], error: null }
+      : { org: null, error: "no_org" };
+  }
+
   const rows = await db
     .select({
       orgId: orgMemberships.orgId,
       role: orgMemberships.role,
-      orgName: organizations.name,
     })
     .from(orgMemberships)
-    .innerJoin(organizations, eq(orgMemberships.orgId, organizations.id))
     .where(eq(orgMemberships.userId, userId))
-    .limit(1);
+    .limit(2);
 
-  return rows[0] ?? null;
+  if (rows.length === 0) return { org: null, error: "no_org" };
+  if (rows.length > 1) return { org: null, error: "org_required" };
+
+  return { org: rows[0], error: null };
 }
 
 function redirectWithStatus(request: Request, params: Record<string, string>) {
@@ -73,6 +111,7 @@ export async function GET(request: Request) {
     url.searchParams.get("installation_id"),
   );
   const setupAction = url.searchParams.get("setup_action") ?? "";
+  const requestedOrgId = parseOrgIdFromState(url.searchParams.get("state"));
 
   if (
     !installationId ||
@@ -93,17 +132,20 @@ export async function GET(request: Request) {
     });
   }
 
-  const org = await resolveUserOrg(session.user.id);
+  const resolvedOrg = await resolveUserOrg(session.user.id, requestedOrgId);
+  const org = resolvedOrg.org;
   if (!org) {
     logger.warn("github_app_setup_callback_no_org", {
       requestId,
       route: "/api/github-connections/callback",
       method: "GET",
       userId: session.user.id,
+      requestedOrgId,
+      error: resolvedOrg.error,
     });
     return redirectWithStatus(request, {
       github_app: "error",
-      error: "no_org",
+      error: resolvedOrg.error ?? "no_org",
       requestId,
     });
   }

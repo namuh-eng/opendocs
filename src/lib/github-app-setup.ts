@@ -24,6 +24,15 @@ interface InstallationRepositoriesResponse {
   repositories?: GitHubRepositoryResponse[];
 }
 
+function hasNextPage(response: Response): boolean {
+  const linkHeader = response.headers
+    ?.get("link")
+    ?.split(",")
+    .some((link) => link.includes('rel="next"'));
+
+  return linkHeader ?? false;
+}
+
 export async function hydrateGitHubInstallationRepos(
   installationId: string,
   options?: {
@@ -34,26 +43,35 @@ export async function hydrateGitHubInstallationRepos(
   const getToken = options?.getToken ?? getGitHubInstallationAccessToken;
   const fetchImpl = options?.fetchImpl ?? fetch;
   const { token } = await getToken({ installationId });
+  const repositories: GitHubRepositoryResponse[] = [];
+  let page = 1;
 
-  const response = await fetchImpl(
-    "https://api.github.com/installation/repositories?per_page=100",
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "application/vnd.github+json",
-        "X-GitHub-Api-Version": "2022-11-28",
+  while (true) {
+    const response = await fetchImpl(
+      `https://api.github.com/installation/repositories?per_page=100&page=${page}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/vnd.github+json",
+          "X-GitHub-Api-Version": "2022-11-28",
+        },
       },
-    },
-  );
-
-  if (!response.ok) {
-    throw new Error(
-      `Failed to hydrate GitHub installation repositories (status ${response.status})`,
     );
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to hydrate GitHub installation repositories (status ${response.status})`,
+      );
+    }
+
+    const data = (await response.json()) as InstallationRepositoriesResponse;
+    repositories.push(...(data.repositories ?? []));
+
+    if (!hasNextPage(response)) break;
+    page += 1;
   }
 
-  const data = (await response.json()) as InstallationRepositoriesResponse;
-  return (data.repositories ?? [])
+  return repositories
     .filter((repo): repo is GitHubRepositoryResponse & { full_name: string } =>
       Boolean(repo.full_name),
     )

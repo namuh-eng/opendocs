@@ -44,11 +44,16 @@ vi.mock("next/headers", () => ({
 function mockOrg(role = "admin") {
   selectMock.mockReturnValueOnce({
     from: vi.fn().mockReturnThis(),
-    innerJoin: vi.fn().mockReturnThis(),
     where: vi.fn().mockReturnThis(),
-    limit: vi
-      .fn()
-      .mockResolvedValue([{ orgId: "org-1", role, orgName: "Org" }]),
+    limit: vi.fn().mockResolvedValue([{ orgId: "org-1", role }]),
+  });
+}
+
+function mockOrgRows(rows: Array<{ orgId: string; role: string }>) {
+  selectMock.mockReturnValueOnce({
+    from: vi.fn().mockReturnThis(),
+    where: vi.fn().mockReturnThis(),
+    limit: vi.fn().mockResolvedValue(rows),
   });
 }
 
@@ -149,7 +154,7 @@ describe("/api/github-connections/callback", () => {
     const { GET } = await import("@/app/api/github-connections/callback/route");
     const response = await GET(
       makeRequest(
-        "http://localhost:3000/api/github-connections/callback?installation_id=123&setup_action=install",
+        "http://localhost:3000/api/github-connections/callback?installation_id=123&setup_action=install&state=org%3Aorg-1",
       ),
     );
 
@@ -162,6 +167,70 @@ describe("/api/github-connections/callback", () => {
     });
     expect(response.status).toBe(303);
     expect(response.headers.get("location")).toContain("github_app=connected");
+  });
+
+  it("uses the state org instead of the first membership when creating a connection", async () => {
+    getSessionMock.mockResolvedValue({ user: { id: "user-1" } });
+    const repos = [
+      {
+        fullName: "namuh-eng/opendocs",
+        branch: "staging",
+        permissions: "admin",
+      },
+    ];
+    mockOrgRows([{ orgId: "org-2", role: "admin" }]);
+    hydrateReposMock.mockResolvedValue(repos);
+    mockExistingConnection([]);
+    const valuesMock = vi.fn().mockReturnThis();
+    const returningMock = vi.fn().mockResolvedValue([
+      {
+        id: "conn-1",
+        orgId: "org-2",
+        installationId: "123",
+        repos,
+        autoUpdateEnabled: true,
+      },
+    ]);
+    insertMock.mockReturnValue({
+      values: valuesMock,
+      returning: returningMock,
+    });
+
+    const { GET } = await import("@/app/api/github-connections/callback/route");
+    const response = await GET(
+      makeRequest(
+        "http://localhost:3000/api/github-connections/callback?installation_id=123&setup_action=install&state=org%3Aorg-2",
+      ),
+    );
+
+    expect(valuesMock).toHaveBeenCalledWith({
+      orgId: "org-2",
+      installationId: "123",
+      repos,
+      autoUpdateEnabled: true,
+    });
+    expect(response.status).toBe(303);
+    expect(response.headers.get("location")).toContain("github_app=connected");
+  });
+
+  it("rejects stateless callbacks when the user has multiple org memberships", async () => {
+    getSessionMock.mockResolvedValue({ user: { id: "user-1" } });
+    mockOrgRows([
+      { orgId: "org-1", role: "admin" },
+      { orgId: "org-2", role: "admin" },
+    ]);
+
+    const { GET } = await import("@/app/api/github-connections/callback/route");
+    const response = await GET(
+      makeRequest(
+        "http://localhost:3000/api/github-connections/callback?installation_id=123&setup_action=install",
+      ),
+    );
+
+    expect(response.status).toBe(303);
+    expect(response.headers.get("location")).toContain("error=org_required");
+    expect(hydrateReposMock).not.toHaveBeenCalled();
+    expect(insertMock).not.toHaveBeenCalled();
   });
 
   it("updates an existing same-org connection", async () => {
