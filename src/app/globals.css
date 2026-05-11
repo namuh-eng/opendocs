@@ -212,17 +212,21 @@ body {
 }
 
 .od-app-shell .text-white,
-.od-app-shell .text-white\/80 {
+.od-app-shell .text-white\/80,
+.od-app-shell .text-zinc-200,
+.od-app-shell .text-zinc-300 {
   color: var(--od-text);
 }
 
 .od-app-shell .text-gray-300,
-.od-app-shell .text-gray-400 {
+.od-app-shell .text-gray-400,
+.od-app-shell .text-zinc-400 {
   color: var(--od-text-muted);
 }
 
 .od-app-shell .text-gray-500,
-.od-app-shell .text-gray-600 {
+.od-app-shell .text-gray-600,
+.od-app-shell .text-zinc-500 {
   color: var(--od-text-subtle);
 }
 
@@ -231,17 +235,30 @@ body {
 .od-app-shell .border-white\/\[0\.04\],
 .od-app-shell .border-white\/10,
 .od-app-shell .border-gray-700,
-.od-app-shell .border-gray-800 {
+.od-app-shell .border-gray-800,
+.od-app-shell .border-zinc-700 {
   border-color: var(--od-border);
 }
 
 .od-app-shell .divide-white\/\[0\.04\] > :not([hidden]) ~ :not([hidden]),
-.od-app-shell .divide-white\/\[0\.06\] > :not([hidden]) ~ :not([hidden]) {
+.od-app-shell .divide-white\/\[0\.06\] > :not([hidden]) ~ :not([hidden]),
+.od-app-shell .divide-zinc-700\/50 > :not([hidden]) ~ :not([hidden]) {
   border-color: var(--od-border-light);
 }
 
 .od-app-shell .bg-\[\#1a1a1a\],
 .od-app-shell .bg-\[\#111111\],
+.od-app-shell .bg-\[\#101010\],
+.od-app-shell .bg-\[\#0c0c0c\],
+.od-app-shell .bg-\[\#161616\],
+.od-app-shell .bg-\[\#1e1e1e\],
+.od-app-shell .bg-\[\#2a2a2a\],
+.od-app-shell .bg-zinc-800,
+.od-app-shell .bg-zinc-800\/10,
+.od-app-shell .bg-zinc-800\/20,
+.od-app-shell .bg-zinc-800\/40,
+.od-app-shell .bg-zinc-800\/60,
+.od-app-shell .bg-gray-900\/50,
 .od-app-shell .bg-white\/\[0\.03\],
 .od-app-shell .bg-white\/\[0\.04\],
 .od-app-shell .bg-white\/5 {
@@ -249,6 +266,9 @@ body {
 }
 
 .od-app-shell .bg-\[\#0f0f0f\],
+.od-app-shell .bg-\[\#0a0a0a\],
+.od-app-shell .bg-\[\#141414\],
+.od-app-shell .bg-gray-800,
 .od-app-shell .bg-white\/\[0\.02\],
 .od-app-shell .bg-white\/\[0\.06\],
 .od-app-shell .bg-white\/\[0\.08\],
@@ -261,10 +281,12 @@ body {
 .od-app-shell .hover\:bg-white\/\[0\.04\]:hover,
 .od-app-shell .hover\:bg-white\/\[0\.06\]:hover,
 .od-app-shell .hover\:bg-white\/\[0\.08\]:hover,
-.od-app-shell .hover\:bg-white\/10:hover {
+.od-app-shell .hover\:bg-white\/10:hover,
+.od-app-shell .hover\:bg-zinc-700\/50:hover {
   background-color: var(--od-panel-muted);
 }
 
+.od-app-shell .text-emerald-200,
 .od-app-shell .text-emerald-300,
 .od-app-shell .text-emerald-400,
 .od-app-shell .text-emerald-500 {
