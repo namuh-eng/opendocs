@@ -54,9 +54,12 @@ describe("settings-nav", () => {
       expect(group?.items).toHaveLength(1);
     });
 
-    it("Workspace has 2 items", () => {
+    it("Workspace has 3 items including billing", () => {
       const group = SETTINGS_NAV.find((g) => g.heading === "Workspace");
-      expect(group?.items).toHaveLength(2);
+      expect(group?.items).toHaveLength(3);
+      expect(group?.items.map((item) => item.href)).toContain(
+        "/settings/organization/billing",
+      );
     });
 
     it("Advanced has 2 items", () => {

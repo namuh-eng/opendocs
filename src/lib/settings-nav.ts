@@ -1,6 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import {
   AlertTriangle,
+  CreditCard,
   FileDown,
   GitBranch,
   GitFork,
@@ -65,6 +66,11 @@ export const SETTINGS_NAV: SettingsNavGroup[] = [
     heading: "Workspace",
     items: [
       { label: "Members", href: "/settings/workspace/members", icon: Users },
+      {
+        label: "Billing",
+        href: "/settings/organization/billing",
+        icon: CreditCard,
+      },
       {
         label: "My profile",
         href: "/settings/workspace/profile",

@@ -221,7 +221,7 @@ export function TopBar({
               </DropdownMenu.Item>
               <DropdownMenu.Item asChild>
                 <Link
-                  href="/settings"
+                  href="/settings/organization/billing"
                   className={`flex cursor-pointer items-center gap-2.5 px-3 py-2 text-sm outline-none ${shellTheme.menuText}`}
                 >
                   <CreditCard size={14} />

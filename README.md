@@ -160,6 +160,17 @@ GITHUB_APP_SLUG=your-github-app-slug
 GITHUB_APP_INSTALL_URL=https://github.com/apps/your-github-app-slug/installations/new
 ```
 
+### Billing (optional, commercial hosted plans)
+
+The billing settings page calls the application billing API for Stripe Checkout and Customer Portal redirects. Configure these in the billing API lane when paid plans are enabled; local UI tests do not require live Stripe credentials.
+
+```bash
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+STRIPE_PRICE_ID_PRO=
+STRIPE_CUSTOMER_PORTAL_RETURN_URL=
+```
+
 Google OAuth must include this production redirect URI:
 
 ```text
