@@ -34,7 +34,9 @@
       "drizzle",
       "*.d.ts",
       "public",
-      "private"
+      "private",
+      "ralph-hardening",
+      "target-docs"
     ]
   }
 }

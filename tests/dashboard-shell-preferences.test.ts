@@ -31,8 +31,8 @@ describe("dashboard shell preferences", () => {
     });
   });
 
-  it("defaults dashboard theme to system", () => {
-    expect(getStoredDashboardTheme()).toBe("system");
+  it("defaults dashboard theme to light", () => {
+    expect(getStoredDashboardTheme()).toBe("light");
   });
 
   it("persists dashboard theme selection", () => {

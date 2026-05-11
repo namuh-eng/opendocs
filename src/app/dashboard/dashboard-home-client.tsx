@@ -155,18 +155,18 @@ function ProjectStatusBadge({ status }: { status: string }) {
     <span
       data-testid="project-status-badge"
       className={clsx(
-        "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium",
-        isLive && "bg-emerald-400/10 text-emerald-400",
-        isDeploying && "bg-amber-400/10 text-amber-400",
-        !isLive && !isDeploying && "bg-red-400/10 text-red-400",
+        "inline-flex w-20 items-center justify-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium",
+        isLive && "bg-emerald-500/10 text-[var(--od-success)]",
+        isDeploying && "bg-amber-400/10 text-amber-500",
+        !isLive && !isDeploying && "bg-red-400/10 text-[var(--od-danger)]",
       )}
     >
       <span
         className={clsx(
-          "w-1.5 h-1.5 rounded-full",
-          isLive && "bg-emerald-400",
+          "h-1.5 w-1.5 rounded-full",
+          isLive && "bg-[var(--od-success)]",
           isDeploying && "bg-amber-400 animate-pulse",
-          !isLive && !isDeploying && "bg-red-400",
+          !isLive && !isDeploying && "bg-[var(--od-danger)]",
         )}
       />
       {isLive ? "Live" : isDeploying ? "Updating" : "Error"}
@@ -179,7 +179,7 @@ function DeploymentStatusBadge({ status }: { status: string }) {
   return (
     <span
       className={clsx(
-        "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium",
+        "inline-flex items-center justify-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium",
         statusColor(s),
       )}
     >
@@ -195,7 +195,7 @@ function DeploymentExpandedRow({ deployment }: { deployment: DeploymentRow }) {
     deployment.status === "succeeded" || deployment.status === "failed";
 
   return (
-    <div className="px-6 py-4 bg-[#0f0f0f] border-t border-white/[0.04]">
+    <div className="border-t border-[var(--od-border-light)] bg-[var(--od-panel-muted)] px-5 py-4">
       <div className="grid grid-cols-2 gap-8">
         {/* Left: commit details + files */}
         <div className="space-y-4">
@@ -203,11 +203,13 @@ function DeploymentExpandedRow({ deployment }: { deployment: DeploymentRow }) {
             <div className="flex items-start gap-2 text-sm">
               <CheckCircle
                 size={16}
-                className="text-emerald-400 mt-0.5 shrink-0"
+                className="mt-0.5 shrink-0 text-[var(--od-success)]"
               />
               <div>
-                <p className="text-white font-medium">Update successful</p>
-                <p className="text-gray-500 text-xs">
+                <p className="font-medium text-[var(--od-text)]">
+                  Update successful
+                </p>
+                <p className="text-xs text-[var(--od-text-subtle)]">
                   Your changes are now live
                 </p>
               </div>
@@ -216,15 +218,15 @@ function DeploymentExpandedRow({ deployment }: { deployment: DeploymentRow }) {
 
           {deployment.commitSha && (
             <div className="space-y-1">
-              <p className="text-xs font-medium text-gray-400">
+              <p className="text-xs font-medium text-[var(--od-text-muted)]">
                 Commit details
               </p>
-              <div className="text-sm text-gray-300 flex items-center gap-2">
-                <span className="text-gray-500">source</span>
+              <div className="flex items-center gap-2 text-sm text-[var(--od-text-muted)]">
+                <span className="text-[var(--od-text-subtle)]">source</span>
                 <span>refs/heads/main</span>
               </div>
-              <div className="text-sm text-gray-300 flex items-center gap-2">
-                <span className="text-gray-500">commit</span>
+              <div className="flex items-center gap-2 text-sm text-[var(--od-text-muted)]">
+                <span className="text-[var(--od-text-subtle)]">commit</span>
                 <span className="font-mono">
                   {shortSha(deployment.commitSha)}
                 </span>
@@ -235,7 +237,9 @@ function DeploymentExpandedRow({ deployment }: { deployment: DeploymentRow }) {
 
         {/* Right: deployment log */}
         <div className="space-y-2">
-          <p className="text-xs font-medium text-gray-400">Deployment log</p>
+          <p className="text-xs font-medium text-[var(--od-text-muted)]">
+            Deployment log
+          </p>
           <div className="space-y-1.5">
             {logSteps.map((step, i) => {
               const showCheck = isComplete || i < logSteps.length - 1;
@@ -244,15 +248,15 @@ function DeploymentExpandedRow({ deployment }: { deployment: DeploymentRow }) {
                   {showCheck ? (
                     <CheckCircle
                       size={14}
-                      className="text-emerald-400 shrink-0"
+                      className="shrink-0 text-[var(--od-success)]"
                     />
                   ) : (
                     <Loader2
                       size={14}
-                      className="text-amber-400 animate-spin shrink-0"
+                      className="shrink-0 animate-spin text-amber-400"
                     />
                   )}
-                  <span className="text-gray-300">{step}</span>
+                  <span className="text-[var(--od-text-muted)]">{step}</span>
                 </div>
               );
             })}
@@ -513,15 +517,15 @@ export function DashboardHomeClient({
   }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <div className="od-page">
       {/* Greeting */}
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-normal text-white">
+      <div className="mb-[var(--od-section-gap)] flex items-center justify-between">
+        <h1 className="text-[length:var(--od-fs-xl)] font-bold text-[var(--od-text)]">
           {greeting}, {firstName}
         </h1>
         <button
           type="button"
-          className="text-sm text-gray-400 hover:text-white flex items-center gap-1.5 px-3 py-1.5 rounded-md hover:bg-white/[0.06] transition-colors"
+          className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-[var(--od-text-muted)] transition-colors hover:bg-[var(--od-panel-muted)] hover:text-[var(--od-text)]"
         >
           Things to do
           <ChevronDown size={14} />
@@ -531,26 +535,33 @@ export function DashboardHomeClient({
       {project ? (
         <>
           {/* Project overview section */}
-          <div className="flex gap-6 mb-6">
+          <div className="mb-[var(--od-section-gap)] flex gap-6 max-lg:flex-col">
             {/* Preview thumbnail placeholder */}
-            <div className="w-[320px] h-[180px] rounded-xl bg-[#1a1a1a] border border-white/[0.08] flex items-center justify-center text-gray-600 shrink-0 overflow-hidden">
+            <div className="od-card flex h-[170px] w-[300px] shrink-0 items-center justify-center overflow-hidden max-lg:w-full">
               <div className="text-center">
-                <Globe size={32} className="mx-auto mb-2 text-gray-600" />
-                <p className="text-xs text-gray-500">Site preview</p>
+                <Globe
+                  size={28}
+                  className="mx-auto mb-2 text-[var(--od-text-subtle)]"
+                />
+                <p className="text-xs text-[var(--od-text-subtle)]">
+                  Site preview
+                </p>
               </div>
             </div>
 
             {/* Project info */}
             <div className="flex-1 space-y-3">
               <div className="flex items-center gap-3">
-                <h2 className="text-lg font-medium text-white">
+                <h2 className="text-[length:var(--od-fs-lg)] font-semibold text-[var(--od-text)]">
                   {project.name}
                 </h2>
                 <ProjectStatusBadge status={project.status} />
               </div>
 
               {lastDeployedLabel && (
-                <p className="text-sm text-gray-400">{lastDeployedLabel}</p>
+                <p className="text-sm text-[var(--od-text-muted)]">
+                  {lastDeployedLabel}
+                </p>
               )}
 
               {/* Action buttons */}
@@ -559,7 +570,7 @@ export function DashboardHomeClient({
                   type="button"
                   onClick={triggerDeploy}
                   disabled={triggering}
-                  className="p-2 rounded-md bg-[#1a1a1a] border border-white/[0.08] text-gray-400 hover:text-white hover:bg-white/[0.06] transition-colors disabled:opacity-50"
+                  className="od-button od-icon-button disabled:opacity-50"
                   title="Trigger deployment"
                 >
                   {triggering ? (
@@ -572,7 +583,7 @@ export function DashboardHomeClient({
                   type="button"
                   onClick={triggerSync}
                   disabled={syncing}
-                  className="p-2 rounded-md bg-[#1a1a1a] border border-white/[0.08] text-gray-400 hover:text-white hover:bg-white/[0.06] transition-colors disabled:opacity-50"
+                  className="od-button od-icon-button disabled:opacity-50"
                   title="Sync from GitHub"
                 >
                   {syncing ? (
@@ -587,10 +598,10 @@ export function DashboardHomeClient({
                   rel="noopener noreferrer"
                   aria-disabled={!projectIsLive}
                   className={clsx(
-                    "flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#1a1a1a] border border-white/[0.08] text-sm transition-colors",
+                    "od-button px-3 py-1.5",
                     projectIsLive
-                      ? "text-gray-400 hover:text-white hover:bg-white/[0.06]"
-                      : "pointer-events-none cursor-not-allowed text-gray-600 opacity-60",
+                      ? ""
+                      : "pointer-events-none cursor-not-allowed opacity-60",
                   )}
                 >
                   <ExternalLink size={14} />
@@ -599,28 +610,34 @@ export function DashboardHomeClient({
               </div>
 
               {(repoOwner || repoPath || repoBranch) && (
-                <div className="flex items-center gap-2 rounded-lg border border-white/[0.08] bg-[#1a1a1a] px-3 py-2 text-xs text-gray-400">
+                <div className="flex items-center gap-2 rounded-lg border border-[var(--od-border)] bg-[var(--od-panel)] px-3 py-2 text-xs text-[var(--od-text-muted)]">
                   {repoOwner && (
-                    <span className="text-gray-300">{repoOwner}</span>
+                    <span className="text-[var(--od-text)]">{repoOwner}</span>
                   )}
                   {repoPath && (
                     <>
-                      <span className="text-gray-600">/</span>
-                      <span className="text-gray-300">{repoPath}</span>
+                      <span className="text-[var(--od-text-subtle)]">/</span>
+                      <span className="text-[var(--od-text)]">{repoPath}</span>
                     </>
                   )}
                   {repoBranch && (
                     <>
-                      <span className="text-gray-600">branch</span>
-                      <span className="text-white">{repoBranch}</span>
+                      <span className="text-[var(--od-text-subtle)]">
+                        branch
+                      </span>
+                      <span className="text-[var(--od-text)]">
+                        {repoBranch}
+                      </span>
                     </>
                   )}
                 </div>
               )}
 
               {/* Domain info */}
-              <div className="pt-2 space-y-1">
-                <p className="text-xs font-medium text-gray-500">Domain</p>
+              <div className="space-y-1 pt-2">
+                <p className="text-xs font-medium text-[var(--od-text-subtle)]">
+                  Domain
+                </p>
                 <a
                   href={siteUrl}
                   target="_blank"
@@ -630,17 +647,20 @@ export function DashboardHomeClient({
                   className={clsx(
                     "text-sm inline-flex items-center gap-1",
                     projectIsLive
-                      ? "text-emerald-400 hover:underline"
-                      : "pointer-events-none cursor-not-allowed text-gray-500",
+                      ? "text-[var(--od-accent)] hover:underline"
+                      : "pointer-events-none cursor-not-allowed text-[var(--od-text-subtle)]",
                   )}
                 >
                   {domainDisplay}
-                  <ExternalLink size={12} className="text-gray-500" />
+                  <ExternalLink
+                    size={12}
+                    className="text-[var(--od-text-subtle)]"
+                  />
                 </a>
                 {!project.customDomain && (
                   <button
                     type="button"
-                    className="text-xs text-gray-500 hover:text-gray-300 flex items-center gap-1"
+                    className="flex items-center gap-1 text-xs text-[var(--od-text-subtle)] hover:text-[var(--od-text-muted)]"
                   >
                     <Plus size={12} />
                     Add custom domain
@@ -651,7 +671,7 @@ export function DashboardHomeClient({
           </div>
 
           {/* Quick action cards */}
-          <div className="grid grid-cols-4 gap-3 mb-8">
+          <div className="mb-[var(--od-section-gap)] grid grid-cols-4 gap-[var(--od-card-gap)] max-md:grid-cols-2 max-sm:grid-cols-1">
             {quickActions.map((card) => {
               const IconComponent = ICON_MAP[card.icon];
               const isExternal = card.id === "view-site";
@@ -669,10 +689,10 @@ export function DashboardHomeClient({
                   href={card.href}
                   data-testid={`quick-action-card-${card.id}`}
                   className={clsx(
-                    "group rounded-xl border border-white/[0.08] bg-[#1a1a1a] p-4 transition-all",
+                    "od-card od-card-hover group p-[var(--od-card-pad)]",
                     isExternal && !projectIsLive
                       ? "pointer-events-none cursor-not-allowed opacity-60"
-                      : "cursor-pointer hover:bg-white/[0.06] hover:border-white/[0.12]",
+                      : "cursor-pointer",
                   )}
                   {...extraProps}
                 >
@@ -680,17 +700,17 @@ export function DashboardHomeClient({
                     data-testid="quick-action-card"
                     className="flex items-start gap-3"
                   >
-                    <div className="w-9 h-9 rounded-lg bg-[#0f0f0f] border border-white/[0.08] flex items-center justify-center shrink-0 group-hover:border-emerald-400/30 transition-colors">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-[var(--od-panel-muted)] transition-colors group-hover:bg-[var(--od-accent-soft)]">
                       <IconComponent
                         size={16}
-                        className="text-gray-400 group-hover:text-emerald-400 transition-colors"
+                        className="text-[var(--od-text-muted)] transition-colors group-hover:text-[var(--od-accent)]"
                       />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-white">
+                      <p className="text-sm font-medium text-[var(--od-text)]">
                         {card.title}
                       </p>
-                      <p className="text-xs text-gray-500 mt-0.5">
+                      <p className="mt-0.5 text-xs text-[var(--od-text-subtle)]">
                         {card.description}
                       </p>
                     </div>
@@ -702,13 +722,13 @@ export function DashboardHomeClient({
 
           {/* Manual follow-up queue */}
           {(unresolvedCount > 0 || resolvedCount > 0) && (
-            <div className="mb-6 rounded-xl border border-amber-400/20 bg-amber-400/[0.06] p-4">
-              <div className="flex items-start justify-between gap-4 mb-3">
+            <div className="mb-[var(--od-section-gap)] rounded-[var(--od-card-radius)] border border-amber-400/30 bg-[var(--od-panel)] p-[var(--od-card-pad)] shadow-[var(--od-shadow)]">
+              <div className="mb-3 flex items-start justify-between gap-4">
                 <div>
-                  <h3 className="text-sm font-medium text-white">
+                  <h3 className="text-sm font-semibold text-[var(--od-text)]">
                     Manual follow-up queue
                   </h3>
-                  <p className="text-xs text-gray-400 mt-1">
+                  <p className="mt-1 text-xs text-[var(--od-text-subtle)]">
                     Recent async work that was recorded without a live executor.
                   </p>
                 </div>
@@ -720,7 +740,7 @@ export function DashboardHomeClient({
                     <button
                       type="button"
                       onClick={() => setShowAllHandoffs((current) => !current)}
-                      className="text-xs text-gray-400 hover:text-white transition-colors"
+                      className="text-xs text-[var(--od-text-muted)] transition-colors hover:text-[var(--od-text)]"
                     >
                       {showAllHandoffs ? "Show less" : "View all"}
                     </button>
@@ -729,51 +749,63 @@ export function DashboardHomeClient({
               </div>
 
               {handoffNotice ? (
-                <div className="mb-3 rounded-md border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-xs text-emerald-200 flex items-center justify-between">
+                <div className="mb-3 flex items-center justify-between rounded-md border border-[var(--od-accent-border)] bg-[var(--od-accent-soft)] px-3 py-2 text-xs text-[var(--od-accent-text)]">
                   <span>{handoffNotice}</span>
                   <button
                     type="button"
                     onClick={() => setHandoffNotice(null)}
-                    className="text-emerald-400 hover:text-emerald-300"
+                    className="text-[var(--od-accent)] hover:text-[var(--od-accent-strong)]"
                   >
                     <Plus size={14} className="rotate-45" />
                   </button>
                 </div>
               ) : null}
 
-              <div className="mb-3 grid grid-cols-4 gap-2 text-xs">
-                <div className="rounded-md border border-white/[0.06] bg-black/20 px-3 py-2 text-gray-300">
-                  <span className="block text-gray-500">Unresolved</span>
-                  <span className="text-white">{unresolvedCount}</span>
+              <div className="mb-3 grid grid-cols-4 gap-2 text-xs max-md:grid-cols-2">
+                <div className="rounded-lg border border-[var(--od-border-light)] bg-[var(--od-panel-muted)] px-3 py-2 text-[var(--od-text-muted)]">
+                  <span className="block text-[var(--od-text-subtle)]">
+                    Unresolved
+                  </span>
+                  <span className="font-semibold text-[var(--od-text)]">
+                    {unresolvedCount}
+                  </span>
                 </div>
-                <div className="rounded-md border border-white/[0.06] bg-black/20 px-3 py-2 text-gray-300">
-                  <span className="block text-gray-500">Resolved</span>
-                  <span className="text-white">{resolvedCount}</span>
+                <div className="rounded-lg border border-[var(--od-border-light)] bg-[var(--od-panel-muted)] px-3 py-2 text-[var(--od-text-muted)]">
+                  <span className="block text-[var(--od-text-subtle)]">
+                    Resolved
+                  </span>
+                  <span className="font-semibold text-[var(--od-text)]">
+                    {resolvedCount}
+                  </span>
                 </div>
-                <div className="rounded-md border border-white/[0.06] bg-black/20 px-3 py-2 text-gray-300">
-                  <span className="block text-gray-500">Avg resolve time</span>
-                  <span className="text-white">
+                <div className="rounded-lg border border-[var(--od-border-light)] bg-[var(--od-panel-muted)] px-3 py-2 text-[var(--od-text-muted)]">
+                  <span className="block text-[var(--od-text-subtle)]">
+                    Avg resolve time
+                  </span>
+                  <span className="font-semibold text-[var(--od-text)]">
                     {averageResolvedDuration ?? "—"}
                   </span>
                 </div>
-                <div className="rounded-md border border-white/[0.06] bg-black/20 px-3 py-2 text-gray-300">
-                  <span className="block text-gray-500">Oldest unresolved</span>
-                  <span className="text-white">
+                <div className="rounded-lg border border-[var(--od-border-light)] bg-[var(--od-panel-muted)] px-3 py-2 text-[var(--od-text-muted)]">
+                  <span className="block text-[var(--od-text-subtle)]">
+                    Oldest unresolved
+                  </span>
+                  <span className="font-semibold text-[var(--od-text)]">
                     {oldestUnresolvedAge ?? "—"}
                   </span>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between gap-3 mb-3">
+              <div className="mb-3 flex items-center justify-between gap-3 max-lg:flex-col max-lg:items-start">
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
                     onClick={() => setHandoffView("active")}
                     className={clsx(
-                      "px-2.5 py-1 rounded-md text-xs transition-colors",
+                      "rounded-md px-2.5 py-1 text-xs transition-colors",
                       handoffView === "active"
-                        ? "bg-white/[0.12] text-white"
-                        : "text-gray-400 hover:text-white hover:bg-white/[0.06]",
+                        ? "bg-[var(--od-accent-soft)] text-[var(--od-accent-text)]"
+                        : "text-[var(--od-text-muted)] hover:bg-[var(--od-panel-muted)] hover:text-[var(--od-text)]",
                     )}
                   >
                     Active
@@ -782,10 +814,10 @@ export function DashboardHomeClient({
                     type="button"
                     onClick={() => setHandoffView("resolved")}
                     className={clsx(
-                      "px-2.5 py-1 rounded-md text-xs transition-colors",
+                      "rounded-md px-2.5 py-1 text-xs transition-colors",
                       handoffView === "resolved"
-                        ? "bg-white/[0.12] text-white"
-                        : "text-gray-400 hover:text-white hover:bg-white/[0.06]",
+                        ? "bg-[var(--od-accent-soft)] text-[var(--od-accent-text)]"
+                        : "text-[var(--od-text-muted)] hover:bg-[var(--od-panel-muted)] hover:text-[var(--od-text)]",
                     )}
                   >
                     Resolved
@@ -799,10 +831,10 @@ export function DashboardHomeClient({
                       type="button"
                       onClick={() => setHandoffFilter(filter.key)}
                       className={clsx(
-                        "px-2.5 py-1 rounded-md text-xs transition-colors",
+                        "rounded-md px-2.5 py-1 text-xs transition-colors",
                         handoffFilter === filter.key
-                          ? "bg-white/[0.12] text-white"
-                          : "text-gray-400 hover:text-white hover:bg-white/[0.06]",
+                          ? "bg-[var(--od-panel-muted)] text-[var(--od-text)]"
+                          : "text-[var(--od-text-muted)] hover:bg-[var(--od-panel-muted)] hover:text-[var(--od-text)]",
                       )}
                     >
                       {filter.label}
@@ -818,7 +850,7 @@ export function DashboardHomeClient({
                           | "longest-open",
                       )
                     }
-                    className="rounded-md border border-white/[0.08] bg-black/20 px-2 py-1 text-xs text-gray-300 focus:outline-none"
+                    className="rounded-md border border-[var(--od-border)] bg-[var(--od-panel-muted)] px-2 py-1 text-xs text-[var(--od-text-muted)] focus:outline-none"
                   >
                     <option value="newest">Newest</option>
                     <option value="oldest">Oldest</option>
@@ -828,7 +860,7 @@ export function DashboardHomeClient({
               </div>
 
               {filteredManualHandoffs.length === 0 ? (
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-[var(--od-text-subtle)]">
                   No manual handoffs recorded recently.
                 </p>
               ) : (
@@ -836,13 +868,13 @@ export function DashboardHomeClient({
                   {displayedManualHandoffs.map((handoff) => (
                     <div
                       key={handoff.id}
-                      className="flex items-center justify-between gap-3 rounded-lg border border-white/[0.06] bg-black/20 px-3 py-2"
+                      className="flex items-center justify-between gap-3 rounded-lg border border-[var(--od-border-light)] bg-[var(--od-panel-muted)] px-3 py-2"
                     >
                       <div className="min-w-0">
-                        <p className="text-sm text-white truncate">
+                        <p className="truncate text-sm font-medium text-[var(--od-text)]">
                           {handoff.action}
                         </p>
-                        <p className="text-xs text-gray-500 truncate">
+                        <p className="truncate font-mono text-xs text-[var(--od-text-subtle)]">
                           {String(
                             handoff.details.projectId ??
                               handoff.details.deploymentId ??
@@ -853,7 +885,7 @@ export function DashboardHomeClient({
                         {handoffView === "resolved" &&
                         handoff.details.resolution ? (
                           <>
-                            <p className="text-xs text-gray-500 truncate mt-1">
+                            <p className="mt-1 truncate text-xs text-[var(--od-text-subtle)]">
                               Created {timeAgo(handoff.createdAt)}
                               {handoff.details.resolution.resolvedAt
                                 ? ` • Resolved ${timeAgo(handoff.details.resolution.resolvedAt)}`
@@ -862,14 +894,14 @@ export function DashboardHomeClient({
                                 ? ` • ${formatDuration(handoff.createdAt, handoff.details.resolution.resolvedAt) ?? ""}`
                                 : ""}
                             </p>
-                            <p className="text-xs text-gray-500 truncate mt-1">
+                            <p className="mt-1 truncate text-xs text-[var(--od-text-subtle)]">
                               Resolved by{" "}
                               {handoff.details.resolution.resolvedByName ??
                                 handoff.details.resolution.resolvedByUserId ??
                                 "unknown"}
                             </p>
                             {handoff.details.resolution.resolutionNote ? (
-                              <p className="text-xs text-gray-400 mt-1 line-clamp-2">
+                              <p className="mt-1 line-clamp-2 text-xs text-[var(--od-text-muted)]">
                                 Note:{" "}
                                 {handoff.details.resolution.resolutionNote}
                               </p>
@@ -878,7 +910,7 @@ export function DashboardHomeClient({
                         ) : null}
                       </div>
                       <div className="flex items-center gap-3 shrink-0">
-                        <span className="text-xs text-gray-400">
+                        <span className="text-xs text-[var(--od-text-subtle)]">
                           {timeAgo(handoff.createdAt)}
                         </span>
                         {handoffView === "active" ? (
@@ -886,7 +918,7 @@ export function DashboardHomeClient({
                             <button
                               type="button"
                               onClick={() => deleteHandoff(handoff.id)}
-                              className="p-1.5 rounded-md text-gray-500 hover:text-red-400 hover:bg-red-400/10 transition-colors"
+                              className="rounded-md p-1.5 text-[var(--od-text-subtle)] transition-colors hover:bg-[var(--od-danger-soft)] hover:text-[var(--od-danger)]"
                               title="Delete record"
                             >
                               <Trash2 size={14} />
@@ -895,7 +927,7 @@ export function DashboardHomeClient({
                               type="button"
                               onClick={() => resolveHandoff(handoff.id)}
                               disabled={resolvingHandoffId === handoff.id}
-                              className="px-2 py-1 rounded-md text-xs bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25 disabled:opacity-50 transition-colors"
+                              className="rounded-md bg-[var(--od-success)]/15 px-2 py-1 text-xs font-medium text-[var(--od-success)] transition-colors hover:bg-[var(--od-success)]/25 disabled:opacity-50"
                             >
                               {resolvingHandoffId === handoff.id
                                 ? "Resolving..."
@@ -913,18 +945,20 @@ export function DashboardHomeClient({
 
           {/* Activity section */}
           <div>
-            <h3 className="text-base font-medium text-white mb-3">Activity</h3>
+            <h3 className="mb-3 text-[length:var(--od-fs-lg)] font-semibold text-[var(--od-text)]">
+              Activity
+            </h3>
 
             {/* Tabs */}
-            <div className="flex items-center gap-1 mb-4">
+            <div className="mb-4 flex items-center gap-1">
               <button
                 type="button"
                 onClick={() => setActiveTab("live")}
                 className={clsx(
-                  "px-3 py-1.5 rounded-md text-sm transition-colors",
+                  "rounded-md px-3 py-1.5 text-sm transition-colors",
                   activeTab === "live"
-                    ? "bg-white/[0.08] text-white font-medium"
-                    : "text-gray-500 hover:text-gray-300",
+                    ? "bg-[var(--od-panel-muted)] font-medium text-[var(--od-text)]"
+                    : "text-[var(--od-text-subtle)] hover:text-[var(--od-text-muted)]",
                 )}
               >
                 Live
@@ -933,10 +967,10 @@ export function DashboardHomeClient({
                 type="button"
                 onClick={() => setActiveTab("previews")}
                 className={clsx(
-                  "px-3 py-1.5 rounded-md text-sm transition-colors",
+                  "rounded-md px-3 py-1.5 text-sm transition-colors",
                   activeTab === "previews"
-                    ? "bg-white/[0.08] text-white font-medium"
-                    : "text-gray-500 hover:text-gray-300",
+                    ? "bg-[var(--od-panel-muted)] font-medium text-[var(--od-text)]"
+                    : "text-[var(--od-text-subtle)] hover:text-[var(--od-text-muted)]",
                 )}
               >
                 Previews
@@ -945,9 +979,9 @@ export function DashboardHomeClient({
 
             {/* Deployment table */}
             {activeTab === "live" && (
-              <div className="rounded-xl border border-white/[0.08] overflow-hidden">
+              <div className="overflow-hidden rounded-[var(--od-card-radius)] border border-[var(--od-border)] bg-[var(--od-panel)] shadow-[var(--od-shadow)]">
                 {/* Table header */}
-                <div className="grid grid-cols-[1fr_120px_1fr_32px] gap-4 px-6 py-3 bg-[#0f0f0f] text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <div className="od-table-head grid grid-cols-[1fr_120px_1fr_32px] gap-4 border-b border-[var(--od-border)] px-5 py-3 max-md:hidden">
                   <span>Update</span>
                   <span>Status</span>
                   <span>Changes</span>
@@ -955,7 +989,7 @@ export function DashboardHomeClient({
                 </div>
 
                 {deployments.length === 0 ? (
-                  <div className="px-6 py-8 text-center text-gray-500 text-sm">
+                  <div className="px-5 py-8 text-center text-sm text-[var(--od-text-subtle)]">
                     No deployments yet. Trigger your first deployment to get
                     started.
                   </div>
@@ -963,24 +997,30 @@ export function DashboardHomeClient({
                   deployments.map((d) => {
                     const isExpanded = expandedId === d.id;
                     return (
-                      <div key={d.id} className="border-t border-white/[0.04]">
+                      <div
+                        key={d.id}
+                        className="border-t border-[var(--od-border-light)] first:border-t-0"
+                      >
                         <button
                           type="button"
                           onClick={() =>
                             setExpandedId(isExpanded ? null : d.id)
                           }
-                          className="w-full grid grid-cols-[1fr_120px_1fr_32px] gap-4 px-6 py-3 text-left hover:bg-white/[0.02] transition-colors items-center"
+                          className="grid w-full grid-cols-[1fr_120px_1fr_32px] items-center gap-4 px-5 py-3 text-left transition-colors hover:bg-[var(--od-panel-muted)] max-md:grid-cols-[1fr_auto] max-md:gap-3"
                         >
                           {/* Update */}
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-[#1a1a1a] border border-white/[0.08] flex items-center justify-center shrink-0">
-                              <Rocket size={14} className="text-gray-400" />
+                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[var(--od-border)] bg-[var(--od-panel-muted)]">
+                              <Rocket
+                                size={14}
+                                className="text-[var(--od-text-muted)]"
+                              />
                             </div>
                             <div>
-                              <p className="text-sm text-white font-medium">
+                              <p className="text-sm font-medium text-[var(--od-text)]">
                                 {d.commitMessage ?? "Initializing Project"}
                               </p>
-                              <p className="text-xs text-gray-500">
+                              <p className="text-xs text-[var(--od-text-subtle)]">
                                 {timeAgo(d.createdAt)}
                               </p>
                             </div>
@@ -990,17 +1030,17 @@ export function DashboardHomeClient({
                           <DeploymentStatusBadge status={d.status} />
 
                           {/* Changes */}
-                          <div className="text-sm text-gray-400">
+                          <div className="text-sm text-[var(--od-text-muted)] max-md:col-span-2">
                             {d.commitMessage ?? "Initial commit"}
                             {d.commitSha && (
-                              <span className="text-gray-600 text-xs ml-2 font-mono">
+                              <span className="ml-2 font-mono text-xs text-[var(--od-text-subtle)]">
                                 {shortSha(d.commitSha)}
                               </span>
                             )}
                           </div>
 
                           {/* Expand */}
-                          <div className="text-gray-500">
+                          <div className="text-[var(--od-text-subtle)] max-md:hidden">
                             {isExpanded ? (
                               <ChevronUp size={16} />
                             ) : (
@@ -1025,7 +1065,7 @@ export function DashboardHomeClient({
                     type="button"
                     onClick={() => setShowPreviewModal(true)}
                     data-testid="create-preview-btn"
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium transition-colors"
+                    className="od-button od-button-primary px-3 py-1.5"
                   >
                     <Plus size={14} />
                     Create custom preview
@@ -1037,22 +1077,22 @@ export function DashboardHomeClient({
                   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
                     <div
                       data-testid="preview-modal"
-                      className="bg-[#1a1a1a] border border-white/[0.08] rounded-xl p-6 w-[420px] shadow-2xl"
+                      className="w-[420px] rounded-[var(--od-card-radius)] border border-[var(--od-border)] bg-[var(--od-panel)] p-6 shadow-2xl"
                     >
-                      <h3 className="text-lg font-medium text-white mb-4">
+                      <h3 className="mb-4 text-lg font-medium text-[var(--od-text)]">
                         Create custom preview
                       </h3>
                       <label
                         htmlFor="preview-branch"
-                        className="block text-sm text-gray-400 mb-1.5"
+                        className="mb-1.5 block text-sm text-[var(--od-text-muted)]"
                       >
                         Branch name
                       </label>
                       <div className="flex items-center gap-2 mb-4">
-                        <div className="flex-1 flex items-center gap-2 px-3 py-2 rounded-md bg-[#0f0f0f] border border-white/[0.08]">
+                        <div className="flex flex-1 items-center gap-2 rounded-md border border-[var(--od-border)] bg-[var(--od-panel-muted)] px-3 py-2">
                           <GitBranch
                             size={14}
-                            className="text-gray-500 shrink-0"
+                            className="shrink-0 text-[var(--od-text-subtle)]"
                           />
                           <input
                             id="preview-branch"
@@ -1061,7 +1101,7 @@ export function DashboardHomeClient({
                             onChange={(e) => setPreviewBranch(e.target.value)}
                             placeholder="feature/my-branch"
                             data-testid="preview-branch-input"
-                            className="flex-1 bg-transparent text-white text-sm outline-none placeholder:text-gray-600"
+                            className="flex-1 bg-transparent text-sm text-[var(--od-text)] outline-none placeholder:text-[var(--od-text-subtle)]"
                           />
                         </div>
                       </div>
@@ -1072,7 +1112,7 @@ export function DashboardHomeClient({
                             setShowPreviewModal(false);
                             setPreviewBranch("");
                           }}
-                          className="px-3 py-1.5 rounded-md text-sm text-gray-400 hover:text-white hover:bg-white/[0.06] transition-colors"
+                          className="rounded-md px-3 py-1.5 text-sm text-[var(--od-text-muted)] transition-colors hover:bg-[var(--od-panel-muted)] hover:text-[var(--od-text)]"
                         >
                           Cancel
                         </button>
@@ -1081,7 +1121,7 @@ export function DashboardHomeClient({
                           onClick={createPreview}
                           disabled={creatingPreview || !previewBranch.trim()}
                           data-testid="confirm-create-preview"
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-sm font-medium transition-colors"
+                          className="od-button od-button-primary px-3 py-1.5 disabled:opacity-50"
                         >
                           {creatingPreview ? (
                             <Loader2 size={14} className="animate-spin" />
@@ -1096,9 +1136,9 @@ export function DashboardHomeClient({
                 )}
 
                 {/* Preview deployments table */}
-                <div className="rounded-xl border border-white/[0.08] overflow-hidden">
+                <div className="overflow-hidden rounded-[var(--od-card-radius)] border border-[var(--od-border)] bg-[var(--od-panel)] shadow-[var(--od-shadow)]">
                   {/* Table header */}
-                  <div className="grid grid-cols-[1fr_140px_120px_100px_1fr] gap-4 px-6 py-3 bg-[#0f0f0f] text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <div className="od-table-head grid grid-cols-[1fr_140px_120px_100px_1fr] gap-4 border-b border-[var(--od-border)] px-5 py-3 max-md:hidden">
                     <span>Branch</span>
                     <span>Preview URL</span>
                     <span>Status</span>
@@ -1107,7 +1147,7 @@ export function DashboardHomeClient({
                   </div>
 
                   {previews.length === 0 ? (
-                    <div className="px-6 py-8 text-center text-gray-500 text-sm">
+                    <div className="px-5 py-8 text-center text-sm text-[var(--od-text-subtle)]">
                       No preview deployments yet. Push to a branch or click
                       &ldquo;Create custom preview&rdquo; to get started.
                     </div>
@@ -1116,15 +1156,15 @@ export function DashboardHomeClient({
                       <div
                         key={p.id}
                         data-testid="preview-row"
-                        className="grid grid-cols-[1fr_140px_120px_100px_1fr] gap-4 px-6 py-3 border-t border-white/[0.04] items-center hover:bg-white/[0.02] transition-colors"
+                        className="grid grid-cols-[1fr_140px_120px_100px_1fr] items-center gap-4 border-t border-[var(--od-border-light)] px-5 py-3 transition-colors hover:bg-[var(--od-panel-muted)] max-md:grid-cols-2"
                       >
                         {/* Branch */}
                         <div className="flex items-center gap-2">
                           <GitBranch
                             size={14}
-                            className="text-gray-500 shrink-0"
+                            className="shrink-0 text-[var(--od-text-subtle)]"
                           />
-                          <span className="text-sm text-white font-medium truncate">
+                          <span className="truncate text-sm font-medium text-[var(--od-text)]">
                             {p.branch ?? "unknown"}
                           </span>
                         </div>
@@ -1136,13 +1176,15 @@ export function DashboardHomeClient({
                               href={p.previewUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-xs text-emerald-400 hover:underline inline-flex items-center gap-1"
+                              className="inline-flex items-center gap-1 text-xs text-[var(--od-accent)] hover:underline"
                             >
                               <ExternalLink size={10} className="shrink-0" />
                               <span className="truncate">Preview</span>
                             </a>
                           ) : (
-                            <span className="text-xs text-gray-600">—</span>
+                            <span className="text-xs text-[var(--od-text-subtle)]">
+                              —
+                            </span>
                           )}
                         </div>
 
@@ -1150,12 +1192,12 @@ export function DashboardHomeClient({
                         <DeploymentStatusBadge status={p.status} />
 
                         {/* Commit */}
-                        <div className="text-xs text-gray-400 font-mono">
+                        <div className="font-mono text-xs text-[var(--od-text-muted)]">
                           {p.commitSha ? shortSha(p.commitSha) : "—"}
                         </div>
 
                         {/* Timestamp */}
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs text-[var(--od-text-subtle)]">
                           {timeAgo(p.createdAt)}
                         </div>
                       </div>
@@ -1166,30 +1208,30 @@ export function DashboardHomeClient({
                 {/* Pages List */}
                 {publishedPages.length > 0 && (
                   <div className="mt-8">
-                    <h3 className="text-sm font-medium text-white mb-4">
+                    <h3 className="mb-4 text-sm font-medium text-[var(--od-text)]">
                       Pages
                     </h3>
-                    <div className="rounded-xl border border-white/[0.08] overflow-hidden">
-                      <div className="grid grid-cols-[1fr_120px_100px] gap-4 px-6 py-3 bg-[#0f0f0f] text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <div className="overflow-hidden rounded-[var(--od-card-radius)] border border-[var(--od-border)] bg-[var(--od-panel)] shadow-[var(--od-shadow)]">
+                      <div className="od-table-head grid grid-cols-[1fr_120px_100px] gap-4 border-b border-[var(--od-border)] px-5 py-3">
                         <span>Title</span>
                         <span>Views</span>
                         <span className="text-right">Actions</span>
                       </div>
-                      <div className="divide-y divide-white/[0.04]">
+                      <div className="divide-y divide-[var(--od-border-light)]">
                         {publishedPages.map((page) => (
                           <div
                             key={page.id}
-                            className="grid grid-cols-[1fr_120px_100px] gap-4 px-6 py-3 items-center hover:bg-white/[0.02] transition-colors"
+                            className="grid grid-cols-[1fr_120px_100px] items-center gap-4 px-5 py-3 transition-colors hover:bg-[var(--od-panel-muted)]"
                           >
                             <div className="min-w-0">
-                              <div className="text-sm text-white font-medium truncate">
+                              <div className="truncate text-sm font-medium text-[var(--od-text)]">
                                 {page.title}
                               </div>
-                              <div className="text-xs text-gray-500 truncate">
+                              <div className="truncate text-xs text-[var(--od-text-subtle)]">
                                 {page.path}
                               </div>
                             </div>
-                            <div className="text-sm text-gray-400 tabular-nums">
+                            <div className="text-sm tabular-nums text-[var(--od-text-muted)]">
                               {(
                                 pageViews[
                                   page.path === "introduction"
@@ -1201,7 +1243,7 @@ export function DashboardHomeClient({
                             <div className="flex justify-end gap-2">
                               <Link
                                 href={`/editor/main?pageId=${page.id}`}
-                                className="p-1 text-gray-500 hover:text-white transition-colors"
+                                className="p-1 text-[var(--od-text-subtle)] transition-colors hover:text-[var(--od-text)]"
                                 title="Edit page"
                               >
                                 <Edit3 size={14} />
@@ -1218,7 +1260,7 @@ export function DashboardHomeClient({
                                 }
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="p-1 text-gray-500 hover:text-emerald-400 transition-colors"
+                                className="p-1 text-[var(--od-text-subtle)] transition-colors hover:text-[var(--od-accent)]"
                                 title="View live"
                               >
                                 <ExternalLink size={14} />
@@ -1235,7 +1277,7 @@ export function DashboardHomeClient({
           </div>
         </>
       ) : (
-        <div className="rounded-xl border border-white/[0.08] bg-[#1a1a1a] p-8 text-center text-gray-500">
+        <div className="od-panel p-8 text-center text-[var(--od-text-subtle)]">
           <p>
             No project yet. Create your first documentation project to get
             started.

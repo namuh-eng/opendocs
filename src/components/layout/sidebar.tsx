@@ -56,20 +56,20 @@ const mainNavItems: NavItem[] = [
 
 const agentNavItems: NavItem[] = [
   {
-    label: "Workflows",
-    href: "/products/workflows",
-    icon: <GitBranch size={18} />,
-    badge: "New",
-  },
-  {
     label: "Agent",
     href: "/products/agent",
     icon: <Bot size={18} />,
+    badge: "New",
   },
   {
     label: "Assistant",
     href: "/products/assistant",
     icon: <MessageCircle size={18} />,
+  },
+  {
+    label: "Workflows",
+    href: "/products/workflows",
+    icon: <GitBranch size={18} />,
   },
   { label: "MCP", href: "/products/mcp", icon: <Server size={18} /> },
 ];
@@ -104,37 +104,38 @@ export function Sidebar({
   const shellTheme =
     theme === "light"
       ? {
-          aside: "bg-white border-slate-200",
-          collapsed: "bg-white border-slate-200",
-          primaryText: "text-slate-950",
-          secondaryText: "text-slate-500",
-          hoverText: "hover:text-slate-950",
-          hoverBg: "hover:bg-slate-100",
-          active: "bg-slate-900 text-white",
-          divider: "border-slate-200",
-          dropdown: "bg-white border-slate-200 shadow-xl shadow-slate-900/10",
-          badge: "bg-emerald-500/15 text-emerald-700",
-          chip: "bg-emerald-600 text-white",
+          aside: "bg-[var(--od-sidebar)] border-[var(--od-border)]",
+          collapsed: "bg-[var(--od-sidebar)] border-[var(--od-border)]",
+          primaryText: "text-[var(--od-text)]",
+          secondaryText: "text-[var(--od-text-muted)]",
+          hoverText: "hover:text-[var(--od-text)]",
+          hoverBg: "hover:bg-[var(--od-panel-muted)]",
+          active: "bg-[var(--od-sidebar-active-bg)] text-[var(--od-text)]",
+          divider: "border-[var(--od-border)]",
+          dropdown:
+            "bg-[var(--od-panel)] border-[var(--od-border)] shadow-xl shadow-slate-900/10",
+          badge: "bg-[var(--od-accent-soft)] text-[var(--od-accent-strong)]",
+          chip: "bg-[var(--od-accent-strong)] text-white",
         }
       : {
-          aside: "bg-[#0f0f0f] border-white/[0.08]",
-          collapsed: "bg-[#0f0f0f] border-white/[0.08]",
-          primaryText: "text-white",
-          secondaryText: "text-gray-400",
-          hoverText: "hover:text-gray-200",
-          hoverBg: "hover:bg-white/[0.06]",
-          active: "bg-white/[0.08] text-white",
-          divider: "border-white/[0.08]",
-          dropdown: "bg-[#1a1a1a] border-white/[0.08] shadow-lg",
-          badge: "bg-emerald-600/20 text-emerald-400",
-          chip: "bg-emerald-600 text-white",
+          aside: "bg-[var(--od-sidebar)] border-[var(--od-border)]",
+          collapsed: "bg-[var(--od-sidebar)] border-[var(--od-border)]",
+          primaryText: "text-[var(--od-text)]",
+          secondaryText: "text-[var(--od-text-muted)]",
+          hoverText: "hover:text-[var(--od-text)]",
+          hoverBg: "hover:bg-[var(--od-panel-muted)]",
+          active: "bg-[var(--od-sidebar-active-bg)] text-[var(--od-text)]",
+          divider: "border-[var(--od-border)]",
+          dropdown: "bg-[var(--od-panel)] border-[var(--od-border)] shadow-lg",
+          badge: "bg-[var(--od-accent-soft)] text-[var(--od-accent)]",
+          chip: "bg-[var(--od-accent-strong)] text-white",
         };
 
   if (!isMobile && collapsed) {
     return (
       <aside
         className={clsx(
-          "flex min-h-screen w-16 flex-col items-center gap-2 border-r py-3",
+          "flex min-h-screen w-[var(--od-sidebar-collapsed-w)] flex-col items-center gap-2 border-r py-3",
           shellTheme.collapsed,
         )}
         data-testid="sidebar"
@@ -211,17 +212,17 @@ export function Sidebar({
           shellTheme.aside,
           isMobile
             ? [
-                "fixed inset-y-0 left-0 z-40 w-60 min-h-screen shadow-xl lg:hidden",
+                "fixed inset-y-0 left-0 z-40 min-h-screen w-[var(--od-sidebar-w)] shadow-xl lg:hidden",
                 mobileOpen ? "translate-x-0" : "-translate-x-full",
               ]
-            : "min-h-screen w-60",
+            : "min-h-screen w-[var(--od-sidebar-w)]",
         )}
         data-testid="sidebar"
         data-collapsed="false"
         data-mobile-open={isMobile ? String(mobileOpen) : undefined}
       >
         <div className="px-3 py-3">
-          <div className="mb-1 px-2 text-[11px] font-medium uppercase tracking-[0.18em] text-emerald-500">
+          <div className="mb-1 px-2 text-[11px] font-medium uppercase text-[var(--od-accent)]">
             Organization
           </div>
           <button
@@ -284,14 +285,14 @@ export function Sidebar({
                   {orgName.charAt(0).toUpperCase()}
                 </div>
                 <span className="truncate">{orgName}</span>
-                <span className="ml-auto text-emerald-500">✓</span>
+                <span className="ml-auto text-[var(--od-accent)]">✓</span>
               </div>
               {projects.length > 0 && (
                 <>
                   <div className={clsx("my-1 border-t", shellTheme.divider)} />
                   <div
                     className={clsx(
-                      "px-3 py-1 text-[11px] font-medium uppercase tracking-[0.16em]",
+                      "px-3 py-1 text-[11px] font-medium uppercase",
                       shellTheme.secondaryText,
                     )}
                   >
@@ -326,7 +327,9 @@ export function Sidebar({
                       </div>
                       <span className="truncate">{project.name}</span>
                       {project.slug === activeProject?.slug && (
-                        <span className="ml-auto text-emerald-500">✓</span>
+                        <span className="ml-auto text-[var(--od-accent)]">
+                          ✓
+                        </span>
                       )}
                     </Link>
                   ))}
@@ -378,7 +381,7 @@ export function Sidebar({
           <div className="pt-4">
             <p
               className={clsx(
-                "px-2 pb-1.5 text-[11px] font-medium uppercase tracking-wider",
+                "px-2 pb-1.5 text-[11px] font-medium uppercase",
                 shellTheme.secondaryText,
               )}
             >
@@ -421,12 +424,7 @@ export function Sidebar({
           <Link
             href="/products/workflows"
             onClick={() => onCloseMobile?.()}
-            className={clsx(
-              "block rounded-xl border p-3 transition-colors",
-              theme === "light"
-                ? "border-slate-200 bg-slate-50 hover:bg-slate-100"
-                : "border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.06]",
-            )}
+            className="block rounded-lg border border-[var(--od-border)] bg-[var(--od-panel-muted)] p-3 transition-colors hover:bg-[var(--od-panel-raised)]"
           >
             <div
               className={clsx("text-xs font-medium", shellTheme.primaryText)}
@@ -436,7 +434,7 @@ export function Sidebar({
             <div className={clsx("mt-1 text-xs", shellTheme.secondaryText)}>
               Control when the agent takes autonomous actions
             </div>
-            <div className="mt-2 text-xs font-medium text-emerald-400">
+            <div className="mt-2 text-xs font-medium text-[var(--od-accent)]">
               Check it out
             </div>
           </Link>

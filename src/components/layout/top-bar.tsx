@@ -9,10 +9,10 @@ import {
   HelpCircle,
   LogOut,
   Menu,
-  MessageSquare,
   Monitor,
   Moon,
   Search,
+  Star,
   Sun,
   User,
   UserPlus,
@@ -65,36 +65,45 @@ export function TopBar({
   const shellTheme =
     resolvedTheme === "light"
       ? {
-          header: "border-slate-200 bg-white/90",
-          button: "text-slate-500 hover:bg-slate-100 hover:text-slate-950",
+          header:
+            "border-[var(--od-border)] bg-[var(--od-topbar)] text-[var(--od-text)]",
+          button:
+            "text-[var(--od-text-muted)] hover:bg-[var(--od-panel-muted)] hover:text-[var(--od-text)]",
           borderedButton:
-            "border-slate-200 text-slate-500 hover:bg-slate-100 hover:text-slate-950",
-          keyboard: "bg-slate-100 text-slate-500",
-          avatar: "bg-emerald-600 text-white hover:ring-slate-300",
-          menu: "bg-white border-slate-200 shadow-xl shadow-slate-900/10",
-          menuText: "text-slate-700 hover:bg-slate-100 hover:text-slate-950",
-          menuMuted: "text-slate-500",
-          divider: "border-slate-200",
-          themeActive: "bg-slate-900 text-white",
+            "border-[var(--od-border)] text-[var(--od-text-muted)] hover:bg-[var(--od-panel-muted)] hover:text-[var(--od-text)]",
+          keyboard: "bg-[var(--od-panel-muted)] text-[var(--od-text-subtle)]",
+          avatar:
+            "bg-[var(--od-accent-strong)] text-white hover:ring-[var(--od-accent-border)]",
+          menu: "bg-[var(--od-panel)] border-[var(--od-border)] shadow-xl shadow-slate-900/10",
+          menuText:
+            "text-[var(--od-text-muted)] hover:bg-[var(--od-panel-muted)] hover:text-[var(--od-text)]",
+          menuMuted: "text-[var(--od-text-subtle)]",
+          divider: "border-[var(--od-border)]",
+          themeActive: "bg-[var(--od-text)] text-[var(--od-bg)]",
           themeInactive:
-            "text-slate-500 hover:bg-slate-100 hover:text-slate-950",
-          surface: "bg-slate-100",
+            "text-[var(--od-text-muted)] hover:bg-[var(--od-panel-muted)] hover:text-[var(--od-text)]",
+          surface: "bg-[var(--od-panel-muted)]",
           logout: "text-red-600 hover:bg-red-50 hover:text-red-700",
         }
       : {
-          header: "border-white/[0.08] bg-[#0f0f0f]/80",
-          button: "text-gray-400 hover:bg-white/[0.06] hover:text-gray-200",
+          header:
+            "border-[var(--od-border)] bg-[var(--od-topbar)] text-[var(--od-text)]",
+          button:
+            "text-[var(--od-text-muted)] hover:bg-[var(--od-panel-muted)] hover:text-[var(--od-text)]",
           borderedButton:
-            "border-white/[0.08] text-gray-500 hover:bg-white/[0.06] hover:text-gray-300",
-          keyboard: "bg-white/[0.06] text-gray-500",
-          avatar: "bg-emerald-600 text-white hover:ring-white/20",
-          menu: "bg-[#1a1a1a] border-white/[0.08] shadow-xl",
-          menuText: "text-gray-300 hover:bg-white/[0.06] hover:text-white",
-          menuMuted: "text-gray-500",
-          divider: "border-white/[0.08]",
-          themeActive: "bg-white/[0.08] text-white",
-          themeInactive: "text-gray-400 hover:bg-white/[0.08] hover:text-white",
-          surface: "bg-white/[0.04]",
+            "border-[var(--od-border)] text-[var(--od-text-muted)] hover:bg-[var(--od-panel-muted)] hover:text-[var(--od-text)]",
+          keyboard: "bg-[var(--od-panel-muted)] text-[var(--od-text-subtle)]",
+          avatar:
+            "bg-[var(--od-accent-strong)] text-white hover:ring-[var(--od-accent-border)]",
+          menu: "bg-[var(--od-panel)] border-[var(--od-border)] shadow-xl",
+          menuText:
+            "text-[var(--od-text-muted)] hover:bg-[var(--od-panel-muted)] hover:text-[var(--od-text)]",
+          menuMuted: "text-[var(--od-text-subtle)]",
+          divider: "border-[var(--od-border)]",
+          themeActive: "bg-[var(--od-panel-raised)] text-[var(--od-text)]",
+          themeInactive:
+            "text-[var(--od-text-muted)] hover:bg-[var(--od-panel-muted)] hover:text-[var(--od-text)]",
+          surface: "bg-[var(--od-panel-muted)]",
           logout: "text-red-400 hover:bg-white/[0.06] hover:text-red-300",
         };
 
@@ -105,7 +114,7 @@ export function TopBar({
 
   return (
     <header
-      className={`flex h-12 items-center justify-between border-b px-4 backdrop-blur-sm ${shellTheme.header}`}
+      className={`flex h-[52px] items-center justify-between border-b px-5 backdrop-blur-sm ${shellTheme.header}`}
       data-testid="top-bar"
     >
       <div className="flex flex-1 items-center gap-2">
@@ -139,20 +148,28 @@ export function TopBar({
           </kbd>
         </button>
 
+        <a
+          href="https://github.com/namuh-eng/opendocs"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`hidden items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm transition-colors sm:flex ${shellTheme.borderedButton}`}
+          aria-label="Star OpenDocs on GitHub"
+        >
+          <Star size={14} />
+          <span className="font-medium">Star</span>
+          <span
+            className={`rounded-full px-1.5 text-xs ${shellTheme.keyboard}`}
+          >
+            128
+          </span>
+        </a>
+
         <button
           type="button"
           className={`relative rounded-md p-2 transition-colors ${shellTheme.button}`}
           aria-label="Notifications"
         >
           <Bell size={18} />
-        </button>
-
-        <button
-          type="button"
-          className={`rounded-md p-2 transition-colors ${shellTheme.button}`}
-          aria-label="Chat"
-        >
-          <MessageSquare size={18} />
         </button>
 
         <DropdownMenu.Root>

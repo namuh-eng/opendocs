@@ -78,17 +78,6 @@ export function DashboardLayoutClient({
     return () => mediaQuery.removeEventListener("change", handleThemeChange);
   }, [theme]);
 
-  const layoutTheme =
-    resolvedTheme === "light"
-      ? {
-          shell: "bg-slate-100 text-slate-950",
-          content: "bg-slate-50",
-        }
-      : {
-          shell: "bg-black text-gray-100",
-          content: "bg-black",
-        };
-
   const handleToggleDesktopSidebar = () => {
     const nextCollapsed = !sidebarCollapsed;
     setSidebarCollapsed(nextCollapsed);
@@ -98,7 +87,7 @@ export function DashboardLayoutClient({
   };
 
   return (
-    <div className={`flex min-h-screen ${layoutTheme.shell}`}>
+    <div className="od-app-shell flex min-h-screen">
       <Sidebar
         orgName={orgName}
         orgSlug={orgSlug}
@@ -111,7 +100,7 @@ export function DashboardLayoutClient({
         projects={projects}
         activeProjectId={activeProjectId}
       />
-      <div className={`flex min-w-0 flex-1 flex-col ${layoutTheme.content}`}>
+      <div className="flex min-w-0 flex-1 flex-col">
         <TrialBanner theme={resolvedTheme} />
         <TopBar
           theme={theme}

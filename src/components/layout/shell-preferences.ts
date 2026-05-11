@@ -44,7 +44,7 @@ export function getStoredDashboardTheme(): DashboardTheme {
     return stored;
   }
 
-  return "system";
+  return "light";
 }
 
 export function setStoredDashboardTheme(theme: DashboardTheme): void {
