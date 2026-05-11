@@ -162,7 +162,9 @@ describe("Stripe billing routes", () => {
       "@/app/api/billing/stripe/checkout/route"
     );
     const portalRoute = await import("@/app/api/billing/portal/route");
-    const stripePortalRoute = await import("@/app/api/billing/stripe/portal/route");
+    const stripePortalRoute = await import(
+      "@/app/api/billing/stripe/portal/route"
+    );
 
     expect(checkoutRoute.POST).toBe(stripeCheckoutRoute.POST);
     expect(portalRoute.POST).toBe(stripePortalRoute.POST);
