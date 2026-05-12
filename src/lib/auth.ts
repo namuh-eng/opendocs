@@ -1,6 +1,10 @@
 import { db } from "@/lib/db";
-import { betterAuth } from "better-auth";
+import { type BetterAuthOptions, betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+
+type BetterAuthBaseUrlConfig = NonNullable<BetterAuthOptions["baseURL"]>;
+
+const LOCAL_AUTH_HOSTS = ["localhost:3015", "127.0.0.1:3015", "[::1]:3015"];
 
 export function getBetterAuthUrl() {
   const url = process.env.BETTER_AUTH_URL?.trim();
@@ -11,7 +15,35 @@ export function getBetterAuthUrl() {
   return "http://localhost:3015";
 }
 
+function getHostFromUrl(url: string) {
+  try {
+    return new URL(url).host;
+  } catch {
+    return null;
+  }
+}
+
+export function getBetterAuthBaseUrlConfig(): BetterAuthBaseUrlConfig {
+  const configuredUrl = getBetterAuthUrl();
+
+  if (process.env.NODE_ENV === "production") {
+    return configuredUrl;
+  }
+
+  const configuredHost = getHostFromUrl(configuredUrl);
+  const allowedHosts = Array.from(
+    new Set([...LOCAL_AUTH_HOSTS, ...(configuredHost ? [configuredHost] : [])]),
+  );
+
+  return {
+    allowedHosts,
+    fallback: configuredUrl,
+    protocol: "auto",
+  };
+}
+
 export const auth = betterAuth({
+  baseURL: getBetterAuthBaseUrlConfig(),
   database: drizzleAdapter(db, {
     provider: "pg",
   }),
@@ -31,5 +63,4 @@ export const auth = betterAuth({
       maxAge: 5 * 60, // 5 minutes
     },
   },
-  trustedOrigins: [getBetterAuthUrl()],
 });
