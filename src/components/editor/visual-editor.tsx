@@ -457,11 +457,7 @@ export const VisualEditor = forwardRef<VisualEditorHandle, VisualEditorProps>(
       editorProps: {
         attributes: {
           class:
-            "prose prose-invert max-w-none px-6 py-4 focus:outline-none min-h-full " +
-            "prose-headings:text-white prose-p:text-gray-300 prose-a:text-emerald-400 " +
-            "prose-strong:text-white prose-code:text-emerald-300 prose-code:bg-[#1a1a1a] " +
-            "prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm " +
-            "prose-hr:border-white/[0.08] prose-blockquote:border-emerald-500 prose-blockquote:text-gray-400",
+            "editor-prose mx-auto min-h-full w-full max-w-3xl px-8 py-10 focus:outline-none lg:px-12",
         },
       },
       onUpdate: ({
@@ -560,7 +556,7 @@ export const VisualEditor = forwardRef<VisualEditorHandle, VisualEditorProps>(
 
     return (
       <div
-        className="h-full overflow-auto bg-[#0f0f0f]"
+        className="h-full overflow-auto bg-[#0c0c0c]"
         data-testid="visual-editor"
       >
         <EditorContent editor={editor} className="h-full" />

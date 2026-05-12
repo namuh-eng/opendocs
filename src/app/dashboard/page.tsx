@@ -1,5 +1,5 @@
 import { ACTIVE_PROJECT_COOKIE, findActiveProject } from "@/lib/active-project";
-import { getBetterAuthUrl } from "@/lib/auth";
+import { getRequestAppUrl } from "@/lib/app-url";
 import {
   effectiveDeploymentStatus,
   projectDisplayStatus,
@@ -14,7 +14,7 @@ import {
 } from "@/lib/db/schema";
 import { getServerSession } from "@/lib/session";
 import { and, desc, eq } from "drizzle-orm";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { DashboardHomeClient } from "./dashboard-home-client";
 
@@ -152,7 +152,7 @@ export default async function DashboardPage({
       .limit(20);
 
     const cookieHeader = (await cookies()).toString();
-    const authBaseUrl = getBetterAuthUrl();
+    const authBaseUrl = getRequestAppUrl(await headers());
     const [manualHandoffResponse, resolvedManualHandoffResponse] =
       await Promise.all([
         fetch(`${authBaseUrl}/api/analytics/manual-handoffs?limit=20`, {

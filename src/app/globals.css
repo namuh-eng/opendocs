@@ -3,7 +3,47 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
+  --od-font: "Plus Jakarta Sans", "DM Sans", Inter, ui-sans-serif, system-ui,
+    -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --od-bg: #f8f9fc;
+  --od-sidebar: #eeeff6;
+  --od-topbar: rgba(255, 255, 255, 0.93);
+  --od-panel: #ffffff;
+  --od-panel-raised: #f3f4f9;
+  --od-panel-muted: #f3f4f9;
+  --od-border: #e0e2ed;
+  --od-border-light: #eceef5;
+  --od-border-strong: rgba(107, 127, 215, 0.4);
+  --od-text: #1a1b2e;
+  --od-text-muted: #5c5e78;
+  --od-text-subtle: #9496ad;
+  --od-accent: #6b7fd7;
+  --od-accent-strong: #5b6fc7;
+  --od-accent-soft: #edeffa;
+  --od-accent-text: #4b5fb7;
+  --od-accent-border: rgba(107, 127, 215, 0.4);
+  --od-success: #10b981;
+  --od-warning: #f59e0b;
+  --od-warning-soft: rgba(245, 158, 11, 0.12);
+  --od-danger: #ef4444;
+  --od-danger-soft: rgba(239, 68, 68, 0.1);
+  --od-sidebar-text: #5c5e78;
+  --od-sidebar-active-bg: #dde0f4;
+  --od-sidebar-border: #dddeed;
+  --od-content-max: 1060px;
+  --od-content-pad: 28px;
+  --od-sidebar-w: 256px;
+  --od-sidebar-collapsed-w: 68px;
+  --od-card-radius: 18px;
+  --od-card-pad: 22px;
+  --od-section-gap: 24px;
+  --od-card-gap: 14px;
+  --od-fs-sm: 12px;
+  --od-fs-base: 14px;
+  --od-fs-lg: 17px;
+  --od-fs-xl: 22px;
+  --od-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 html,
@@ -12,18 +52,257 @@ body {
 }
 
 body {
-  background: #09090b;
-  color: #e5e7eb;
+  background: var(--od-bg);
+  color: var(--od-text);
+  font-family: var(--od-font);
+  font-size: var(--od-fs-base);
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-[data-theme="light"] {
-  color-scheme: light;
+[data-theme="dark"] {
+  color-scheme: dark;
+  --od-bg: #0e0f18;
+  --od-sidebar: #131420;
+  --od-topbar: rgba(19, 20, 32, 0.93);
+  --od-panel: #171823;
+  --od-panel-raised: #1f2030;
+  --od-panel-muted: #1f2030;
+  --od-border: rgba(255, 255, 255, 0.07);
+  --od-border-light: rgba(255, 255, 255, 0.03);
+  --od-border-strong: rgba(123, 143, 222, 0.42);
+  --od-text: #eeeef5;
+  --od-text-muted: #9496ad;
+  --od-text-subtle: #5c5e78;
+  --od-accent: #7b8fde;
+  --od-accent-strong: #8b9fee;
+  --od-accent-soft: #1c1e30;
+  --od-accent-text: #9baaf0;
+  --od-accent-border: rgba(123, 143, 222, 0.42);
+  --od-success: #34d399;
+  --od-warning: #fbbf24;
+  --od-warning-soft: rgba(251, 191, 36, 0.12);
+  --od-danger: #f87171;
+  --od-danger-soft: rgba(248, 113, 113, 0.1);
+  --od-sidebar-text: #7476a0;
+  --od-sidebar-active-bg: rgba(123, 143, 222, 0.14);
+  --od-sidebar-border: rgba(255, 255, 255, 0.06);
 }
 
 [data-theme="light"] body {
-  background: #f8fafc;
-  color: #0f172a;
+  background: var(--od-bg);
+  color: var(--od-text);
+}
+
+/* OpenDocs app design system */
+.od-app-shell {
+  min-height: 100vh;
+  background: var(--od-bg);
+  color: var(--od-text);
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+.od-page {
+  width: 100%;
+  max-width: var(--od-content-max);
+  margin: 0 auto;
+  padding: var(--od-section-gap) var(--od-content-pad);
+}
+
+.od-panel {
+  border: 1px solid var(--od-border);
+  border-radius: var(--od-card-radius);
+  background: var(--od-panel);
+  box-shadow: var(--od-shadow);
+}
+
+.od-panel-flat {
+  border: 1px solid var(--od-border);
+  border-radius: var(--od-card-radius);
+  background: var(--od-panel);
+}
+
+.od-card {
+  border: 1px solid var(--od-border);
+  border-radius: var(--od-card-radius);
+  background: var(--od-panel);
+  box-shadow: var(--od-shadow);
+}
+
+.od-card-hover {
+  transition: border-color 0.16s ease, background-color 0.16s ease, transform
+    0.16s ease;
+}
+
+.od-card-hover:hover {
+  border-color: var(--od-accent-border);
+  background: var(--od-panel);
+  transform: translateY(-1px);
+}
+
+.od-muted {
+  color: var(--od-text-muted);
+}
+
+.od-subtle {
+  color: var(--od-text-subtle);
+}
+
+.od-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 34px;
+  border: 1px solid var(--od-border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--od-text-muted);
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s
+    ease;
+}
+
+.od-button:hover {
+  border-color: var(--od-accent-border);
+  background: var(--od-panel-muted);
+  color: var(--od-text);
+}
+
+.od-button-primary {
+  border-color: transparent;
+  background: var(--od-accent);
+  color: #ffffff;
+}
+
+.od-button-primary:hover {
+  background: var(--od-accent-strong);
+  color: #ffffff;
+}
+
+.od-icon-button {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+}
+
+.od-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: var(--od-accent-soft);
+  padding: 0.15rem 0.6rem;
+  color: var(--od-accent-text);
+  font-size: var(--od-fs-sm);
+  font-weight: 500;
+}
+
+.od-table-head {
+  background: var(--od-panel-muted);
+  color: var(--od-text-subtle);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.od-row-divider {
+  border-color: var(--od-border);
+}
+
+/* Temporary bridge for legacy dark utility classes inside the app shell.
+   Keep this list shrinking: migrate touched surfaces to od-* tokens instead of
+   adding new Tailwind dark selectors here. */
+.od-app-shell .text-white,
+.od-app-shell .text-white\/80 {
+  color: var(--od-text);
+}
+
+.od-app-shell .text-gray-300,
+.od-app-shell .text-gray-400 {
+  color: var(--od-text-muted);
+}
+
+.od-app-shell .text-gray-500,
+.od-app-shell .text-gray-600 {
+  color: var(--od-text-subtle);
+}
+
+.od-app-shell .border-white\/\[0\.08\],
+.od-app-shell .border-white\/\[0\.06\],
+.od-app-shell .border-white\/\[0\.04\],
+.od-app-shell .border-white\/10,
+.od-app-shell .border-gray-700,
+.od-app-shell .border-gray-800 {
+  border-color: var(--od-border);
+}
+
+.od-app-shell .divide-white\/\[0\.04\] > :not([hidden]) ~ :not([hidden]),
+.od-app-shell .divide-white\/\[0\.06\] > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--od-border-light);
+}
+
+.od-app-shell .bg-\[\#1a1a1a\],
+.od-app-shell .bg-\[\#111111\],
+.od-app-shell .bg-\[\#101010\],
+.od-app-shell .bg-\[\#0c0c0c\],
+.od-app-shell .bg-\[\#161616\],
+.od-app-shell .bg-\[\#1e1e1e\],
+.od-app-shell .bg-\[\#2a2a2a\],
+.od-app-shell .bg-gray-900\/50,
+.od-app-shell .bg-white\/\[0\.03\],
+.od-app-shell .bg-white\/\[0\.04\],
+.od-app-shell .bg-white\/5 {
+  background-color: var(--od-panel);
+}
+
+.od-app-shell .bg-\[\#0f0f0f\],
+.od-app-shell .bg-\[\#0a0a0a\],
+.od-app-shell .bg-\[\#141414\],
+.od-app-shell .bg-gray-800,
+.od-app-shell .bg-white\/\[0\.02\],
+.od-app-shell .bg-white\/\[0\.06\],
+.od-app-shell .bg-white\/\[0\.08\],
+.od-app-shell .bg-white\/\[0\.1\],
+.od-app-shell .bg-white\/\[0\.12\] {
+  background-color: var(--od-panel-muted);
+}
+
+.od-app-shell .hover\:bg-white\/\[0\.02\]:hover,
+.od-app-shell .hover\:bg-white\/\[0\.04\]:hover,
+.od-app-shell .hover\:bg-white\/\[0\.06\]:hover,
+.od-app-shell .hover\:bg-white\/\[0\.08\]:hover,
+.od-app-shell .hover\:bg-white\/10:hover {
+  background-color: var(--od-panel-muted);
+}
+
+.od-app-shell .text-emerald-200,
+.od-app-shell .text-emerald-300,
+.od-app-shell .text-emerald-400,
+.od-app-shell .text-emerald-500 {
+  color: var(--od-accent);
+}
+
+.od-app-shell .bg-emerald-500,
+.od-app-shell .bg-emerald-600 {
+  background-color: var(--od-accent);
+}
+
+.od-app-shell .bg-emerald-500.text-white,
+.od-app-shell .bg-emerald-600.text-white {
+  color: #ffffff;
+}
+
+.od-app-shell .hover\:bg-emerald-400:hover,
+.od-app-shell .hover\:bg-emerald-500:hover {
+  background-color: var(--od-accent-strong);
+}
+
+@media (max-width: 768px) {
+  .od-page {
+    padding: 18px;
+  }
 }
 
 /* ── Docs Site Layout ──────────────────────────────────────────────────────── */
@@ -3971,4 +4250,44 @@ pre.mermaid svg {
     display: block;
     padding: 0 16px;
   }
+}
+
+/* ── Editor authoring surface ─────────────────────────────────────────────── */
+.editor-toolbar {
+  scrollbar-width: none;
+}
+
+.editor-toolbar::-webkit-scrollbar {
+  display: none;
+}
+
+.editor-prose h1 {
+  margin: 0 0 0.75rem;
+  color: #f8fafc;
+  font-size: clamp(2rem, 3.4vw, 3.5rem);
+  line-height: 1.05;
+  letter-spacing: -0.045em;
+  font-weight: 700;
+}
+
+.editor-prose h2 {
+  margin: 3rem 0 0.75rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  color: #f8fafc;
+  font-size: 1.35rem;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  font-weight: 650;
+}
+
+.editor-prose p {
+  margin: 0.75rem 0 0;
+  color: #d1d5db;
+  font-size: 0.98rem;
+  line-height: 1.8;
+}
+
+.editor-prose a {
+  color: #34d399;
 }

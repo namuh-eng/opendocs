@@ -40,6 +40,7 @@ interface GitHubAppSettingsClientProps {
   isAdmin: boolean;
   selectedRepoFullName?: string | null;
   selectedSource?: SelectedGitHubSource | null;
+  installUrl?: string | null;
 }
 
 function GitHubIcon({
@@ -65,6 +66,7 @@ export function GitHubAppSettingsClient({
   isAdmin,
   selectedRepoFullName,
   selectedSource,
+  installUrl,
 }: GitHubAppSettingsClientProps) {
   const [connections, setConnections] =
     useState<ConnectionData[]>(initialConnections);
@@ -151,45 +153,17 @@ export function GitHubAppSettingsClient({
   }, []);
 
   const handleInstall = useCallback(() => {
-    // In a real implementation, this would redirect to GitHub App install URL
-    // For now, simulate adding a connection
-    setLoading(true);
     setError(null);
-    setTimeout(async () => {
-      try {
-        const res = await fetch("/api/github-connections", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            installationId: `inst_${Date.now()}`,
-            repos: [],
-            autoUpdateEnabled: true,
-          }),
-        });
-        if (!res.ok) {
-          const data = await res.json();
-          throw new Error(data.error ?? "Failed to install");
-        }
-        const data = await res.json();
-        setConnections((prev) => [
-          ...prev,
-          {
-            id: data.connection.id,
-            installationId: data.connection.installationId,
-            repos: data.connection.repos ?? [],
-            autoUpdateEnabled: data.connection.autoUpdateEnabled,
-            createdAt: data.connection.createdAt,
-          },
-        ]);
-        setSuccess("GitHub App installed successfully");
-        setTimeout(() => setSuccess(null), 3000);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to install");
-      } finally {
-        setLoading(false);
-      }
-    }, 500);
-  }, []);
+    if (!installUrl) {
+      setError(
+        "GitHub App installation is not configured. Set GITHUB_APP_SLUG or GITHUB_APP_INSTALL_URL, then configure the app setup URL to /api/github-connections/callback.",
+      );
+      return;
+    }
+
+    setLoading(true);
+    window.location.assign(installUrl);
+  }, [installUrl]);
 
   return (
     <div

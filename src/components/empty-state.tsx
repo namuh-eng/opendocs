@@ -22,16 +22,20 @@ export function EmptyState({
       className="flex flex-col items-center justify-center py-20 text-center"
       data-testid="empty-state"
     >
-      <div className="w-16 h-16 rounded-2xl bg-emerald-600/10 flex items-center justify-center mb-4">
+      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-[var(--od-card-radius)] bg-[var(--od-accent-soft)]">
         {icon}
       </div>
-      <h3 className="text-lg font-semibold text-white mb-1">{title}</h3>
-      <p className="text-sm text-gray-400 max-w-sm mb-4">{description}</p>
+      <h3 className="mb-1 text-lg font-semibold text-[var(--od-text)]">
+        {title}
+      </h3>
+      <p className="mb-4 max-w-sm text-sm text-[var(--od-text-muted)]">
+        {description}
+      </p>
       {action &&
         (action.href ? (
           <a
             href={action.href}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium transition-colors"
+            className="od-button od-button-primary px-4 py-2"
             data-testid="empty-state-cta"
           >
             {action.label}
@@ -40,7 +44,7 @@ export function EmptyState({
           <button
             type="button"
             onClick={action.onClick}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium transition-colors"
+            className="od-button od-button-primary px-4 py-2"
             data-testid="empty-state-cta"
           >
             {action.label}

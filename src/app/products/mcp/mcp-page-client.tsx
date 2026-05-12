@@ -40,20 +40,22 @@ export function McpPageClient({ projectSlug }: { projectSlug: string }) {
   return (
     <div className="mx-auto max-w-3xl space-y-8 p-6">
       {/* Breadcrumb + Beta badge */}
-      <div className="flex items-center gap-2 text-sm text-zinc-400">
+      <div className="flex items-center gap-2 text-sm text-[var(--od-text-muted)]">
         <span>Agents</span>
         <span>/</span>
-        <span className="text-white font-medium">MCP</span>
-        <span className="ml-1 rounded bg-emerald-600/20 px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-emerald-400">
+        <span className="font-medium text-[var(--od-text)]">MCP</span>
+        <span className="ml-1 rounded bg-[var(--od-accent-soft)] px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--od-accent-text)]">
           Beta
         </span>
       </div>
 
       {/* Hosted MCP server */}
       <section className="space-y-3">
-        <h2 className="text-xl font-semibold text-white">Hosted MCP server</h2>
+        <h2 className="text-xl font-semibold text-[var(--od-text)]">
+          Hosted MCP server
+        </h2>
         <div className="flex items-center gap-3">
-          <p className="text-sm text-zinc-400">
+          <p className="text-sm text-[var(--od-text-muted)]">
             Access your MCP server and preview available tools
           </p>
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 text-[10px] font-medium border border-emerald-500/20">
@@ -65,26 +67,26 @@ export function McpPageClient({ projectSlug }: { projectSlug: string }) {
           href="https://mintlify.com/docs/mcp"
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 text-sm text-emerald-400 hover:text-emerald-300"
+          className="inline-flex items-center gap-1 text-sm text-[var(--od-accent)] hover:text-[var(--od-accent-strong)]"
         >
           Learn more
           <ExternalLink size={14} />
         </a>
 
         {/* URL bar */}
-        <div className="flex items-center gap-0 overflow-hidden rounded-lg border border-zinc-700 bg-zinc-800/60">
-          <span className="shrink-0 border-r border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-zinc-400">
+        <div className="flex items-center gap-0 overflow-hidden rounded-lg border border-[var(--od-border)] bg-[var(--od-panel)] shadow-[var(--od-shadow)]">
+          <span className="shrink-0 border-r border-[var(--od-border)] bg-[var(--od-panel-muted)] px-3 py-2 text-sm text-[var(--od-text-muted)]">
             https://
           </span>
           <input
             readOnly
             value={`${projectSlug}.mintlify.app/mcp`}
-            className="min-w-0 flex-1 bg-transparent px-3 py-2 text-sm text-zinc-200 outline-none"
+            className="min-w-0 flex-1 bg-transparent px-3 py-2 text-sm text-[var(--od-text)] outline-none"
           />
           <button
             type="button"
             onClick={handleCopy}
-            className="shrink-0 border-l border-zinc-700 px-4 py-2 text-sm font-medium text-zinc-300 hover:bg-zinc-700/50 hover:text-white transition-colors flex items-center gap-1.5"
+            className="shrink-0 border-l border-[var(--od-border)] px-4 py-2 text-sm font-medium text-[var(--od-text-muted)] transition-colors hover:bg-[var(--od-panel-muted)] hover:text-[var(--od-text)] flex items-center gap-1.5"
           >
             {copied ? (
               <>
@@ -99,7 +101,7 @@ export function McpPageClient({ projectSlug }: { projectSlug: string }) {
             )}
           </button>
         </div>
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-[var(--od-text-subtle)]">
           Use the above URL to connect AI applications to your content
         </p>
       </section>
@@ -107,8 +109,10 @@ export function McpPageClient({ projectSlug }: { projectSlug: string }) {
       {/* Available tools */}
       <section className="space-y-4">
         <div>
-          <h2 className="text-xl font-semibold text-white">Available tools</h2>
-          <p className="mt-1 text-sm text-zinc-400">
+          <h2 className="text-xl font-semibold text-[var(--od-text)]">
+            Available tools
+          </h2>
+          <p className="mt-1 text-sm text-[var(--od-text-muted)]">
             Tools exposed to connected AI clients
           </p>
         </div>
@@ -117,15 +121,15 @@ export function McpPageClient({ projectSlug }: { projectSlug: string }) {
           {tools.map((tool) => (
             <div
               key={tool.name}
-              className="rounded-lg border border-zinc-700 bg-zinc-800/40 p-4"
+              className="rounded-lg border border-[var(--od-border)] bg-[var(--od-panel)] shadow-[var(--od-shadow)] p-4"
             >
               <div className="mb-2 flex items-center gap-2">
-                <Sparkles size={16} className="text-zinc-400" />
-                <span className="font-mono text-sm font-semibold text-white">
+                <Sparkles size={16} className="text-[var(--od-text-muted)]" />
+                <span className="font-mono text-sm font-semibold text-[var(--od-text)]">
                   {tool.name}
                 </span>
               </div>
-              <p className="text-sm leading-relaxed text-zinc-400">
+              <p className="text-sm leading-relaxed text-[var(--od-text-muted)]">
                 {tool.description}
               </p>
             </div>
@@ -136,26 +140,28 @@ export function McpPageClient({ projectSlug }: { projectSlug: string }) {
       {/* Analytics integrated into MCP dashboard */}
       <section className="space-y-4">
         <div>
-          <h2 className="text-xl font-semibold text-white">Recent activity</h2>
-          <p className="mt-1 text-sm text-zinc-400">
+          <h2 className="text-xl font-semibold text-[var(--od-text)]">
+            Recent activity
+          </h2>
+          <p className="mt-1 text-sm text-[var(--od-text-muted)]">
             Monitor search requests processed via MCP
           </p>
         </div>
 
         {loadingAnalytics ? (
-          <div className="h-24 rounded-lg border border-dashed border-zinc-700 animate-pulse bg-zinc-800/20" />
+          <div className="h-24 rounded-lg border border-dashed border-[var(--od-border)] animate-pulse bg-[var(--od-panel-muted)]" />
         ) : searches.length > 0 ? (
-          <div className="rounded-lg border border-zinc-700 bg-zinc-800/20 overflow-hidden">
-            <div className="divide-y divide-zinc-700/50">
+          <div className="rounded-lg border border-[var(--od-border)] bg-[var(--od-panel)] shadow-[var(--od-shadow)] overflow-hidden">
+            <div className="divide-y divide-[var(--od-border-light)]">
               {searches.map((s) => (
                 <div
                   key={`${s.createdAt}:${s.query}`}
                   className="px-4 py-3 text-sm flex items-center justify-between"
                 >
-                  <span className="text-zinc-300 truncate max-w-[400px] font-mono text-xs">
+                  <span className="truncate max-w-[400px] font-mono text-xs text-[var(--od-text-muted)]">
                     {s.query}
                   </span>
-                  <span className="text-zinc-500 text-[11px]">
+                  <span className="text-[11px] text-[var(--od-text-subtle)]">
                     {new Date(s.createdAt).toLocaleTimeString()}
                   </span>
                 </div>
@@ -163,8 +169,8 @@ export function McpPageClient({ projectSlug }: { projectSlug: string }) {
             </div>
           </div>
         ) : (
-          <div className="rounded-lg border border-dashed border-zinc-700 p-8 text-center bg-zinc-800/10">
-            <p className="text-sm text-zinc-500">
+          <div className="rounded-lg border border-dashed border-[var(--od-border)] p-8 text-center bg-[var(--od-panel-muted)]">
+            <p className="text-sm text-[var(--od-text-subtle)]">
               No recent MCP activity recorded
             </p>
           </div>

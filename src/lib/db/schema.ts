@@ -5,6 +5,22 @@ import * as t from "drizzle-orm/pg-core";
 
 export const orgPlanEnum = pgEnum("org_plan", ["free", "pro", "enterprise"]);
 export const orgRoleEnum = pgEnum("org_role", ["admin", "editor", "viewer"]);
+export const billingPlanEnum = pgEnum("billing_plan", [
+  "free",
+  "pro",
+  "enterprise",
+]);
+export const billingStatusEnum = pgEnum("billing_status", [
+  "free",
+  "trialing",
+  "active",
+  "past_due",
+  "canceled",
+  "incomplete",
+  "incomplete_expired",
+  "unpaid",
+  "paused",
+]);
 export const projectStatusEnum = pgEnum("project_status", [
   "active",
   "deploying",
@@ -76,6 +92,55 @@ export const orgMemberships = pgTable(
     t.index("membership_org_idx").on(table.orgId),
     t.index("membership_user_idx").on(table.userId),
     t.uniqueIndex("membership_org_user_idx").on(table.orgId, table.userId),
+  ],
+);
+
+// ── Organization Billing ──────────────────────────────────────────────────────
+
+export const organizationBilling = pgTable(
+  "organization_billing",
+  {
+    id: t.uuid().defaultRandom().primaryKey(),
+    orgId: t
+      .uuid("org_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    ownerUserId: t.text("owner_user_id"),
+    stripeCustomerId: t.varchar("stripe_customer_id", { length: 255 }),
+    stripeSubscriptionId: t.varchar("stripe_subscription_id", {
+      length: 255,
+    }),
+    stripePriceId: t.varchar("stripe_price_id", { length: 255 }),
+    plan: billingPlanEnum().default("free").notNull(),
+    status: billingStatusEnum().default("free").notNull(),
+    currentPeriodEnd: t.timestamp("current_period_end", {
+      withTimezone: true,
+    }),
+    cancelAtPeriodEnd: t
+      .boolean("cancel_at_period_end")
+      .default(false)
+      .notNull(),
+    canceledAt: t.timestamp("canceled_at", { withTimezone: true }),
+    trialEndsAt: t.timestamp("trial_ends_at", { withTimezone: true }),
+    createdAt: t
+      .timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: t
+      .timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    t.uniqueIndex("organization_billing_org_idx").on(table.orgId),
+    t
+      .uniqueIndex("organization_billing_customer_idx")
+      .on(table.stripeCustomerId),
+    t
+      .uniqueIndex("organization_billing_subscription_idx")
+      .on(table.stripeSubscriptionId),
+    t.index("organization_billing_owner_idx").on(table.ownerUserId),
+    t.index("organization_billing_status_idx").on(table.status),
   ],
 );
 

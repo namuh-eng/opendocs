@@ -87,7 +87,7 @@ aws ecr get-login-password --region us-east-1 \
       --password-stdin 699486076867.dkr.ecr.us-east-1.amazonaws.com
 ```
 
-- This repo does not currently have generated Drizzle migration files in `./drizzle`; `npm run db:migrate` failed without useful detail. For the initial production database, `npm run db:push -- --force` applied the schema successfully. Future work should add proper migration artifacts before relying on `db:migrate` in production.
+- The repo now tracks generated Drizzle migration artifacts in `./drizzle`. The existing production database was originally initialized with `npm run db:push -- --force`; before switching that environment to `npm run db:migrate`, validate the baseline migration history against the live database so existing tables are not recreated.
 - The app can boot without Google OAuth credentials, but Google login will not work unless `AUTH_GOOGLE_ID` and `AUTH_GOOGLE_SECRET` are present in the ECS task definition.
 - This deployment intentionally uses ECS Fargate + ALB. Do not deploy OpenDocs with AWS App Runner.
 - Production Docker builds should use `NEXT_PUBLIC_APP_URL=https://opendocs.namuh.co`; `scripts/deploy.sh` defaults to that production URL instead of local `.env`.

@@ -6,18 +6,20 @@ const links = [
   {
     href: "/login",
     label: "Log in",
-    style: "border border-white/10 bg-white/5 text-white hover:bg-white/10",
+    style:
+      "border border-[var(--od-border)] bg-[var(--od-panel)] text-[var(--od-text)] hover:bg-[var(--od-panel-muted)]",
   },
   {
     href: "/onboarding",
     label: "Start onboarding",
-    style: "bg-emerald-500 text-black hover:bg-emerald-400",
+    style:
+      "bg-[var(--od-accent)] text-[#fff] hover:bg-[var(--od-accent-strong)]",
   },
   {
     href: "/dashboard",
     label: "Open dashboard",
     style:
-      "border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/15",
+      "border border-[var(--od-accent-border)] bg-[var(--od-accent-soft)] text-[var(--od-accent-text)] hover:bg-[var(--od-panel-muted)]",
   },
 ];
 
@@ -29,18 +31,16 @@ export default async function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-[#0b0b0d] text-white">
+    <main className="od-app-shell min-h-screen">
       <div className="mx-auto flex min-h-screen max-w-6xl flex-col justify-center px-6 py-20">
         <div className="max-w-3xl">
-          <div className="mb-6 inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-xs text-white/70">
-            OpenDocs
-          </div>
+          <div className="od-chip mb-6">OpenDocs</div>
 
-          <h1 className="text-4xl font-semibold tracking-tight sm:text-6xl">
+          <h1 className="text-4xl font-semibold text-[var(--od-text)] sm:text-6xl">
             Documentation that ships with your product
           </h1>
 
-          <p className="mt-6 max-w-2xl text-base leading-7 text-white/70 sm:text-lg">
+          <p className="mt-6 max-w-2xl text-base leading-7 text-[var(--od-text-muted)] sm:text-lg">
             Build docs, publish API references, deploy preview environments, and
             give your team an AI-native workflow for maintaining knowledge at
             production speed.
@@ -60,31 +60,31 @@ export default async function Home() {
         </div>
 
         <div className="mt-16 grid gap-4 md:grid-cols-3">
-          <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-            <h2 className="text-sm font-medium text-white">
+          <section className="od-card p-5">
+            <h2 className="text-sm font-medium text-[var(--od-text)]">
               Docs and API publishing
             </h2>
-            <p className="mt-2 text-sm leading-6 text-white/65">
+            <p className="mt-2 text-sm leading-6 text-[var(--od-text-muted)]">
               Author MDX docs, generate API references, and publish a docs site
               with navigation, search, and structured content blocks.
             </p>
           </section>
 
-          <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-            <h2 className="text-sm font-medium text-white">
+          <section className="od-card p-5">
+            <h2 className="text-sm font-medium text-[var(--od-text)]">
               Deployment workflow
             </h2>
-            <p className="mt-2 text-sm leading-6 text-white/65">
+            <p className="mt-2 text-sm leading-6 text-[var(--od-text-muted)]">
               Track production and preview deployments, inspect branches, and
               manage documentation changes from a single dashboard.
             </p>
           </section>
 
-          <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-            <h2 className="text-sm font-medium text-white">
+          <section className="od-card p-5">
+            <h2 className="text-sm font-medium text-[var(--od-text)]">
               AI-native team ops
             </h2>
-            <p className="mt-2 text-sm leading-6 text-white/65">
+            <p className="mt-2 text-sm leading-6 text-[var(--od-text-muted)]">
               Layer in assistant experiences, analytics, collaboration, and
               operational settings without leaving the product surface.
             </p>

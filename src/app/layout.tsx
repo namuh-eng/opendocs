@@ -13,7 +13,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" data-theme="dark" className="dark">
+    <html lang="en" data-theme="light" className="light">
       <body className="min-h-screen antialiased">{children}</body>
     </html>
   );

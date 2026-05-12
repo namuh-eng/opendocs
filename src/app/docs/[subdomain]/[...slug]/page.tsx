@@ -35,6 +35,7 @@ import {
   parseLocaleFromSlug,
 } from "@/lib/i18n";
 import { KATEX_CSS_URL, renderLatex } from "@/lib/latex";
+import { normalizeMarkdownContent } from "@/lib/markdown-normalization";
 import { buildDocsNav, renderMdxContent } from "@/lib/mdx-renderer";
 import {
   type VirtualApiPage,
@@ -469,7 +470,9 @@ export default async function DocsPage({
     // Render DB page (existing behavior)
     pageTitle = applyProjectBrandCasing(currentPage.title, project.name);
     pageDescription = currentPage.description || "";
-    pageContent = currentPage.content || "";
+    pageContent = normalizeMarkdownContent(currentPage.content || "", {
+      title: pageTitle,
+    });
 
     // Resolve snippets and variables before rendering
     const snippetPages = allPages

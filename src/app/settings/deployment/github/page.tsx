@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { githubConnections, orgMemberships, projects } from "@/lib/db/schema";
+import { resolveGitHubAppInstallUrl } from "@/lib/github-app-install";
 import { attachResolvedGitHubSource } from "@/lib/project-response";
 import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
@@ -60,6 +61,9 @@ export default async function GitHubAppSettingsPage() {
       }
       selectedRepoFullName={selectedSource?.repoFullName ?? null}
       selectedSource={selectedSource}
+      installUrl={resolveGitHubAppInstallUrl(process.env, {
+        state: `org:${orgId}`,
+      })}
     />
   );
 }

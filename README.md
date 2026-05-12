@@ -153,6 +153,32 @@ BETTER_AUTH_URL=https://opendocs.namuh.co
 AUTH_GOOGLE_ID=your-google-oauth-client-id
 AUTH_GOOGLE_SECRET=your-google-oauth-client-secret
 GITHUB_WEBHOOK_SECRET=your-github-webhook-secret
+GITHUB_APP_ID=your-github-app-id
+GITHUB_APP_PRIVATE_KEY=your-github-app-private-key
+GITHUB_APP_SLUG=your-github-app-slug
+# Optional override if the default slug URL is not correct:
+GITHUB_APP_INSTALL_URL=https://github.com/apps/your-github-app-slug/installations/new
+STRIPE_SECRET_KEY=sk_test_your-stripe-secret-key
+STRIPE_WEBHOOK_SECRET=whsec_your-stripe-webhook-secret
+STRIPE_PRICE_ID=price_your-recurring-price-id
+```
+
+Stripe billing API routes are documented in `docs/deployment/stripe-billing.md`, including local Stripe CLI webhook forwarding with:
+
+```bash
+stripe login
+stripe listen --forward-to localhost:3015/api/billing/stripe/webhook
+```
+
+### Billing (optional, commercial hosted plans)
+
+The billing settings page calls the application billing API for Stripe Checkout and Customer Portal redirects. Configure these in the billing API lane when paid plans are enabled; local UI tests do not require live Stripe credentials.
+
+```bash
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+STRIPE_PRICE_ID_PRO=
+STRIPE_CUSTOMER_PORTAL_RETURN_URL=
 ```
 
 Google OAuth must include this production redirect URI:
@@ -161,12 +187,34 @@ Google OAuth must include this production redirect URI:
 https://opendocs.namuh.co/api/auth/callback/google
 ```
 
+The GitHub App must set its **Setup URL** to the deployed callback route so GitHub returns `installation_id` and `setup_action` after install/update:
+
+```text
+https://opendocs.namuh.co/api/github-connections/callback
+```
+
+For staging, use the staging origin with the same path.
+
 ### AWS and storage
 
 ```bash
 AWS_REGION=us-east-1
 AWS_BEDROCK_REGION=us-east-1
 S3_BUCKET=your-doc-assets-bucket
+```
+
+### Billing
+
+Stripe billing is optional for local open-source development. Without Stripe
+configuration, the app keeps running with free/dev billing state; production
+paid-feature gates should be wired to fail closed until a valid subscription is
+synced.
+
+```bash
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+STRIPE_PRO_PRICE_ID=
+STRIPE_ENTERPRISE_PRICE_ID=
 ```
 
 ### Docs proxy allowlist

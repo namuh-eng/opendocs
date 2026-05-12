@@ -9,8 +9,8 @@ import { type NextRequest, NextResponse } from "next/server";
 /**
  * POST /api/admin/canary
  *
- * Mock canary/rollback control endpoint. Admins only.
- * In a real environment, this would interface with ECS/CloudWatch.
+ * Admin-only canary/rollback control placeholder.
+ * Fails explicitly until a real deployment controller is wired in.
  */
 export async function POST(request: NextRequest) {
   const requestId = createRequestId();
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid action" }, { status: 400 });
   }
 
-  logger.info("admin_canary_action_triggered", {
+  logger.warn("admin_canary_control_not_configured", {
     requestId,
     orgId: membership.orgId,
     userId: session.user.id,
@@ -54,10 +54,13 @@ export async function POST(request: NextRequest) {
     version: body.version ?? "latest",
   });
 
-  return NextResponse.json({
-    ok: true,
-    action: body.action,
-    status: "in_progress",
-    requestId,
-  });
+  return NextResponse.json(
+    {
+      error: "Canary control is not configured",
+      action: body.action,
+      status: "unavailable",
+      requestId,
+    },
+    { status: 501 },
+  );
 }

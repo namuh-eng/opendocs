@@ -56,17 +56,26 @@ export default async function DocsLandingPage() {
   const publishedProjects = await getPublishedDocsProjects();
 
   return (
-    <main className="min-h-screen bg-[#0b0b0d] text-white">
+    <main className="od-app-shell min-h-screen">
       <div className="mx-auto flex min-h-screen max-w-6xl flex-col px-6 py-10">
         <header className="flex items-center justify-between gap-4">
-          <Link href="/" className="text-sm font-semibold tracking-tight">
+          <Link
+            href="/"
+            className="text-sm font-semibold text-[var(--od-text)]"
+          >
             OpenDocs
           </Link>
-          <nav className="flex items-center gap-3 text-sm text-white/70">
-            <Link className="transition hover:text-white" href="/onboarding">
+          <nav className="flex items-center gap-3 text-sm text-[var(--od-text-muted)]">
+            <Link
+              className="transition hover:text-[var(--od-text)]"
+              href="/onboarding"
+            >
               Start onboarding
             </Link>
-            <Link className="transition hover:text-white" href="/dashboard">
+            <Link
+              className="transition hover:text-[var(--od-text)]"
+              href="/dashboard"
+            >
               Dashboard
             </Link>
           </nav>
@@ -74,13 +83,11 @@ export default async function DocsLandingPage() {
 
         <section className="grid flex-1 items-center gap-12 py-20 lg:grid-cols-[1fr_0.85fr]">
           <div>
-            <div className="mb-6 inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-xs text-white/70">
-              Documentation
-            </div>
-            <h1 className="text-4xl font-semibold tracking-tight sm:text-6xl">
+            <div className="od-chip mb-6">Documentation</div>
+            <h1 className="text-4xl font-semibold text-[var(--od-text)] sm:text-6xl">
               Browse published docs and API references
             </h1>
-            <p className="mt-6 max-w-2xl text-base leading-7 text-white/70 sm:text-lg">
+            <p className="mt-6 max-w-2xl text-base leading-7 text-[var(--od-text-muted)] sm:text-lg">
               OpenDocs gives every project a Mintlify-style public docs surface
               with structured navigation, search, API playgrounds, and AI-ready
               content.
@@ -88,21 +95,21 @@ export default async function DocsLandingPage() {
             <div className="mt-10 flex flex-wrap gap-3">
               <Link
                 href={publishedProjects[0]?.href ?? "/onboarding"}
-                className="rounded-lg bg-emerald-500 px-4 py-2.5 text-sm font-medium text-black transition hover:bg-emerald-400"
+                className="rounded-lg bg-[var(--od-accent)] px-4 py-2.5 text-sm font-medium text-[#fff] transition hover:bg-[var(--od-accent-strong)]"
               >
                 Explore docs
               </Link>
               <Link
                 href="/dashboard"
-                className="rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-white/10"
+                className="rounded-lg border border-[var(--od-border)] bg-[var(--od-panel)] px-4 py-2.5 text-sm font-medium text-[var(--od-text)] transition hover:bg-[var(--od-panel-muted)]"
               >
                 Open dashboard
               </Link>
             </div>
           </div>
 
-          <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-5 shadow-2xl shadow-black/30">
-            <h2 className="text-sm font-medium text-white/80">
+          <div className="od-card p-5">
+            <h2 className="text-sm font-medium text-[var(--od-text-muted)]">
               Published documentation
             </h2>
             <div className="mt-4 space-y-3">
@@ -111,26 +118,26 @@ export default async function DocsLandingPage() {
                   <Link
                     key={project.id}
                     href={project.href}
-                    className="block rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:border-emerald-400/50 hover:bg-emerald-500/10"
+                    className="block rounded-[var(--od-card-radius)] border border-[var(--od-border)] bg-[var(--od-panel-muted)] p-4 transition hover:border-[var(--od-accent-border)] hover:bg-[var(--od-accent-soft)]"
                   >
-                    <div className="text-sm font-semibold text-white">
+                    <div className="text-sm font-semibold text-[var(--od-text)]">
                       {project.name}
                     </div>
-                    <div className="mt-1 text-xs text-emerald-300">
+                    <div className="mt-1 text-xs text-[var(--od-accent)]">
                       /docs/{project.subdomain}
                     </div>
-                    <p className="mt-3 text-sm leading-6 text-white/65">
+                    <p className="mt-3 text-sm leading-6 text-[var(--od-text-muted)]">
                       {project.pageDescription ??
                         `Start with ${project.pageTitle}.`}
                     </p>
                   </Link>
                 ))
               ) : (
-                <div className="rounded-2xl border border-dashed border-white/15 bg-black/20 p-4">
-                  <div className="text-sm font-semibold text-white">
+                <div className="rounded-[var(--od-card-radius)] border border-dashed border-[var(--od-border)] bg-[var(--od-panel-muted)] p-4">
+                  <div className="text-sm font-semibold text-[var(--od-text)]">
                     No published docs yet
                   </div>
-                  <p className="mt-2 text-sm leading-6 text-white/65">
+                  <p className="mt-2 text-sm leading-6 text-[var(--od-text-muted)]">
                     Create a project or publish a page to make it available from
                     this docs entry point.
                   </p>
@@ -142,12 +149,11 @@ export default async function DocsLandingPage() {
 
         <section className="grid gap-4 pb-16 md:grid-cols-3">
           {featureCards.map((card) => (
-            <div
-              key={card.title}
-              className="rounded-2xl border border-white/10 bg-white/[0.03] p-5"
-            >
-              <h2 className="text-sm font-medium text-white">{card.title}</h2>
-              <p className="mt-2 text-sm leading-6 text-white/65">
+            <div key={card.title} className="od-card p-5">
+              <h2 className="text-sm font-medium text-[var(--od-text)]">
+                {card.title}
+              </h2>
+              <p className="mt-2 text-sm leading-6 text-[var(--od-text-muted)]">
                 {card.description}
               </p>
             </div>

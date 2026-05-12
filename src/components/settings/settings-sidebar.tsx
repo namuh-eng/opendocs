@@ -11,11 +11,11 @@ export function SettingsSidebar() {
   return (
     <nav
       data-testid="settings-sidebar"
-      className="flex w-56 shrink-0 flex-col gap-6 border-r border-white/[0.08] py-6 pr-4"
+      className="flex w-56 shrink-0 flex-col gap-6 border-r border-[var(--od-border)] py-6 pr-4"
     >
       {SETTINGS_NAV.map((group) => (
         <div key={group.heading}>
-          <h3 className="mb-1.5 px-3 text-xs font-medium uppercase tracking-wider text-gray-500">
+          <h3 className="mb-1.5 px-3 text-xs font-medium uppercase text-[var(--od-text-subtle)]">
             {group.heading}
           </h3>
           <ul className="space-y-0.5">
@@ -31,8 +31,8 @@ export function SettingsSidebar() {
                     className={clsx(
                       "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                       active
-                        ? "bg-white/[0.08] text-white"
-                        : "text-gray-400 hover:bg-white/[0.04] hover:text-white",
+                        ? "bg-[var(--od-sidebar-active-bg)] text-[var(--od-text)]"
+                        : "text-[var(--od-text-muted)] hover:bg-[var(--od-panel-muted)] hover:text-[var(--od-text)]",
                     )}
                   >
                     <Icon size={16} className="shrink-0" />

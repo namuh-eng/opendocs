@@ -68,7 +68,7 @@ describe("POST /api/admin/canary", () => {
     expect(response.status).toBe(403);
   });
 
-  it("returns 200 for valid promote action by admin", async () => {
+  it("returns 501 instead of pretending to start canary actions", async () => {
     getSessionMock.mockResolvedValue({ user: { id: "user-1" } });
     selectMock.mockReturnValue({
       from: vi.fn().mockReturnThis(),
@@ -84,10 +84,12 @@ describe("POST /api/admin/canary", () => {
       }),
     );
 
-    expect(response.status).toBe(200);
+    expect(response.status).toBe(501);
     const data = await response.json();
+    expect(data.error).toBe("Canary control is not configured");
     expect(data.action).toBe("promote");
-    expect(data.status).toBe("in_progress");
+    expect(data.status).toBe("unavailable");
+    expect(data.requestId).toEqual(expect.any(String));
   });
 
   it("returns 400 for invalid action", async () => {
