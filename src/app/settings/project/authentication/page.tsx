@@ -4,11 +4,11 @@ import { useActiveProject } from "@/hooks/use-active-project";
 import { useProjectUpdater } from "@/hooks/use-project-updater";
 import {
   type ProjectAuthenticationMode,
-  hashDocsPassword,
+  hashDocsPasswordForBrowser,
   mergeProjectAuthenticationSettings,
   readProjectAuthenticationSettings,
   validateProjectAuthenticationSettings,
-} from "@/lib/project-authentication-settings";
+} from "@/lib/project-authentication-browser";
 import { LockKeyhole, ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -52,7 +52,9 @@ export default function AuthenticationSettingsPage() {
       mode,
       password: trimmedPassword,
       passwordHash:
-        mode === "password" ? await hashDocsPassword(trimmedPassword) : "",
+        mode === "password"
+          ? await hashDocsPasswordForBrowser(trimmedPassword)
+          : "",
     };
     const validationError =
       validateProjectAuthenticationSettings(authentication);
