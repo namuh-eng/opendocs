@@ -2,7 +2,6 @@
 
 import { BranchSelector } from "@/components/editor/branch-selector";
 import type { EditorMode, MdxSnippetKey } from "@/lib/editor";
-import { mdxSnippets } from "@/lib/editor";
 import * as Popover from "@radix-ui/react-popover";
 import { clsx } from "clsx";
 import {
@@ -59,6 +58,17 @@ interface EditorToolbarProps {
   hasUnsavedChanges?: boolean;
 }
 
+const iconButtonClasses =
+  "p-1.5 rounded text-[var(--od-toolbar-icon)] hover:text-[var(--od-text)] hover:bg-[var(--od-panel-muted)] transition-colors";
+
+const toggleClasses = (active: boolean | undefined) =>
+  clsx(
+    "p-1.5 rounded transition-colors",
+    active
+      ? "bg-[var(--od-accent-soft)] text-[var(--od-accent-text)]"
+      : "text-[var(--od-toolbar-icon)] hover:text-[var(--od-text)] hover:bg-[var(--od-panel-muted)]",
+  );
+
 export function EditorToolbar({
   mode,
   onModeChange,
@@ -93,11 +103,11 @@ export function EditorToolbar({
   const [showAddNew, setShowAddNew] = useState(false);
 
   return (
-    <div className="editor-toolbar flex items-center justify-between gap-3 overflow-x-auto px-4 py-2 border-b border-white/[0.08] bg-[#101010]/95 backdrop-blur shrink-0">
+    <div className="editor-toolbar flex items-center justify-between gap-3 overflow-x-auto px-4 py-2 border-b border-[var(--od-toolbar-border)] bg-[var(--od-toolbar-bg)] backdrop-blur shrink-0">
       {/* Left: Mode toggle + undo/redo */}
       <div className="flex shrink-0 items-center gap-1">
         {/* Mode toggle tabs */}
-        <div className="flex items-center bg-[#1a1a1a] rounded-lg p-0.5 mr-2 ring-1 ring-white/[0.06]">
+        <div className="flex items-center bg-[var(--od-toolbar-mode-bg)] rounded-lg p-0.5 mr-2 ring-1 ring-[var(--od-toolbar-mode-border)]">
           <button
             type="button"
             data-testid="mode-visual"
@@ -106,8 +116,8 @@ export function EditorToolbar({
             className={clsx(
               "px-2.5 py-1 text-xs font-medium rounded transition-colors",
               mode === "visual"
-                ? "bg-[#2a2a2a] text-white shadow-sm"
-                : "text-gray-500 hover:text-gray-300",
+                ? "bg-[var(--od-toolbar-mode-active-bg)] text-[var(--od-toolbar-mode-active-text)] shadow-sm"
+                : "text-[var(--od-toolbar-icon)] hover:text-[var(--od-text)]",
             )}
           >
             <span className="flex items-center gap-1.5">
@@ -123,8 +133,8 @@ export function EditorToolbar({
             className={clsx(
               "px-2.5 py-1 text-xs font-medium rounded transition-colors",
               mode === "markdown"
-                ? "bg-[#2a2a2a] text-white shadow-sm"
-                : "text-gray-500 hover:text-gray-300",
+                ? "bg-[var(--od-toolbar-mode-active-bg)] text-[var(--od-toolbar-mode-active-text)] shadow-sm"
+                : "text-[var(--od-toolbar-icon)] hover:text-[var(--od-text)]",
             )}
           >
             <span className="flex items-center gap-1.5">
@@ -135,14 +145,14 @@ export function EditorToolbar({
         </div>
 
         {/* Divider */}
-        <div className="w-px h-5 bg-white/[0.08] mx-1" />
+        <div className="w-px h-5 bg-[var(--od-toolbar-separator)] mx-1" />
 
         {/* Undo / Redo */}
         <button
           type="button"
           onClick={onUndo}
           disabled={!canUndo}
-          className="p-1.5 rounded text-gray-500 hover:text-white hover:bg-white/[0.06] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          className="p-1.5 rounded text-[var(--od-toolbar-icon)] hover:text-[var(--od-text)] hover:bg-[var(--od-panel-muted)] disabled:text-[var(--od-toolbar-icon-disabled)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           aria-label="Undo"
         >
           <Undo2 size={14} />
@@ -151,14 +161,14 @@ export function EditorToolbar({
           type="button"
           onClick={onRedo}
           disabled={!canRedo}
-          className="p-1.5 rounded text-gray-500 hover:text-white hover:bg-white/[0.06] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          className="p-1.5 rounded text-[var(--od-toolbar-icon)] hover:text-[var(--od-text)] hover:bg-[var(--od-panel-muted)] disabled:text-[var(--od-toolbar-icon-disabled)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           aria-label="Redo"
         >
           <Redo2 size={14} />
         </button>
 
         {/* Divider */}
-        <div className="w-px h-5 bg-white/[0.08] mx-1" />
+        <div className="w-px h-5 bg-[var(--od-toolbar-separator)] mx-1" />
 
         {/* Branch selector */}
         <BranchSelector
@@ -169,12 +179,12 @@ export function EditorToolbar({
       </div>
 
       {/* Center: Formatting toolbar (visible in both modes) */}
-      <div className="order-3 flex shrink-0 items-center gap-0.5 rounded-lg border border-white/[0.06] bg-white/[0.02] px-1 py-0.5">
+      <div className="order-3 flex shrink-0 items-center gap-0.5 rounded-lg border border-[var(--od-toolbar-format-border)] bg-[var(--od-toolbar-format-bg)] px-1 py-0.5">
         <button
           type="button"
           data-testid="toolbar-bold"
           onClick={onBold}
-          className="p-1.5 rounded text-gray-500 hover:text-white hover:bg-white/[0.06] transition-colors"
+          className={iconButtonClasses}
           aria-label="Bold"
         >
           <Bold size={14} />
@@ -183,7 +193,7 @@ export function EditorToolbar({
           type="button"
           data-testid="toolbar-italic"
           onClick={onItalic}
-          className="p-1.5 rounded text-gray-500 hover:text-white hover:bg-white/[0.06] transition-colors"
+          className={iconButtonClasses}
           aria-label="Italic"
         >
           <Italic size={14} />
@@ -192,7 +202,7 @@ export function EditorToolbar({
           type="button"
           data-testid="toolbar-heading"
           onClick={onHeading}
-          className="p-1.5 rounded text-gray-500 hover:text-white hover:bg-white/[0.06] transition-colors"
+          className={iconButtonClasses}
           aria-label="Heading"
         >
           <Heading2 size={14} />
@@ -201,7 +211,7 @@ export function EditorToolbar({
           type="button"
           data-testid="toolbar-link"
           onClick={onLink}
-          className="p-1.5 rounded text-gray-500 hover:text-white hover:bg-white/[0.06] transition-colors"
+          className={iconButtonClasses}
           aria-label="Link"
         >
           <Link size={14} />
@@ -210,7 +220,7 @@ export function EditorToolbar({
           type="button"
           data-testid="toolbar-image"
           onClick={onImage}
-          className="p-1.5 rounded text-gray-500 hover:text-white hover:bg-white/[0.06] transition-colors"
+          className={iconButtonClasses}
           aria-label="Image"
         >
           <Image size={14} />
@@ -219,14 +229,14 @@ export function EditorToolbar({
           type="button"
           data-testid="toolbar-code"
           onClick={onCodeBlock}
-          className="p-1.5 rounded text-gray-500 hover:text-white hover:bg-white/[0.06] transition-colors"
+          className={iconButtonClasses}
           aria-label="Code block"
         >
           <Code2 size={14} />
         </button>
 
         {/* Divider */}
-        <div className="w-px h-5 bg-white/[0.08] mx-1" />
+        <div className="w-px h-5 bg-[var(--od-toolbar-separator)] mx-1" />
 
         {/* Add new dropdown */}
         <div className="relative">
@@ -234,7 +244,7 @@ export function EditorToolbar({
             type="button"
             data-testid="add-new-dropdown-btn"
             onClick={() => setShowAddNew(!showAddNew)}
-            className="flex items-center gap-1 whitespace-nowrap px-2 py-1 text-xs text-gray-400 hover:text-white hover:bg-white/[0.06] rounded transition-colors"
+            className="flex items-center gap-1 whitespace-nowrap px-2 py-1 text-xs text-[var(--od-toolbar-icon)] hover:text-[var(--od-text)] hover:bg-[var(--od-panel-muted)] rounded transition-colors"
           >
             <Plus size={12} />
             <span>Add new</span>
@@ -242,8 +252,8 @@ export function EditorToolbar({
           </button>
 
           {showAddNew && (
-            <div className="absolute top-full left-0 mt-1 w-48 bg-[#1a1a1a] border border-white/[0.08] rounded-lg shadow-2xl z-50 py-1">
-              <div className="px-3 py-1.5 text-[10px] font-medium text-gray-600 uppercase tracking-wider">
+            <div className="absolute top-full left-0 mt-1 w-48 bg-[var(--od-panel)] border border-[var(--od-border)] rounded-lg shadow-2xl z-50 py-1">
+              <div className="px-3 py-1.5 text-[10px] font-medium text-[var(--od-text-subtle)] uppercase tracking-wider">
                 Add
               </div>
               <DropdownItem
@@ -253,7 +263,7 @@ export function EditorToolbar({
                   setShowAddNew(false);
                 }}
               />
-              <div className="px-3 py-1.5 text-[10px] font-medium text-gray-600 uppercase tracking-wider mt-1">
+              <div className="px-3 py-1.5 text-[10px] font-medium text-[var(--od-text-subtle)] uppercase tracking-wider mt-1">
                 Wrap with
               </div>
               <DropdownItem
@@ -314,29 +324,24 @@ export function EditorToolbar({
       <div className="order-2 ml-auto flex shrink-0 items-center gap-1.5">
         {/* Auto-save indicator */}
         {isSaving && (
-          <span className="text-[10px] text-gray-500 mr-2">Saving...</span>
+          <span className="text-[10px] text-[var(--od-text-subtle)] mr-2">
+            Saving...
+          </span>
         )}
         {hasUnsavedChanges && !isSaving && (
-          <span className="text-[10px] text-amber-500 mr-2">Unsaved</span>
+          <span className="text-[10px] text-[var(--od-warning)] mr-2">
+            Unsaved
+          </span>
         )}
 
-        <button
-          type="button"
-          className="p-1.5 rounded text-gray-500 hover:text-white hover:bg-white/[0.06] transition-colors"
-          aria-label="Search"
-        >
+        <button type="button" className={iconButtonClasses} aria-label="Search">
           <Search size={14} />
         </button>
 
         <button
           type="button"
           onClick={onToggleComments}
-          className={clsx(
-            "p-1.5 rounded transition-colors",
-            showComments
-              ? "bg-emerald-600/20 text-emerald-400"
-              : "text-gray-500 hover:text-white hover:bg-white/[0.06]",
-          )}
+          className={toggleClasses(showComments)}
           aria-label="Comments"
           data-testid="comments-btn"
         >
@@ -346,12 +351,7 @@ export function EditorToolbar({
         <button
           type="button"
           onClick={onToggleSuggestions}
-          className={clsx(
-            "hidden xl:flex p-1.5 rounded transition-colors",
-            showSuggestions
-              ? "bg-emerald-600/20 text-emerald-400"
-              : "text-gray-500 hover:text-white hover:bg-white/[0.06]",
-          )}
+          className={clsx("hidden xl:flex", toggleClasses(showSuggestions))}
           aria-label="Suggestions"
           data-testid="suggestions-btn"
         >
@@ -361,12 +361,7 @@ export function EditorToolbar({
         <button
           type="button"
           onClick={onToggleAnalytics}
-          className={clsx(
-            "hidden xl:flex p-1.5 rounded transition-colors",
-            showAnalytics
-              ? "bg-emerald-600/20 text-emerald-400"
-              : "text-gray-500 hover:text-white hover:bg-white/[0.06]",
-          )}
+          className={clsx("hidden xl:flex", toggleClasses(showAnalytics))}
           aria-label="Page analytics"
           data-testid="analytics-btn"
         >
@@ -376,12 +371,7 @@ export function EditorToolbar({
         <button
           type="button"
           onClick={onToggleSettings}
-          className={clsx(
-            "p-1.5 rounded transition-colors",
-            showSettings
-              ? "bg-emerald-600/20 text-emerald-400"
-              : "text-gray-500 hover:text-white hover:bg-white/[0.06]",
-          )}
+          className={toggleClasses(showSettings)}
           aria-label="Page settings"
           data-testid="page-settings-btn"
         >
@@ -396,7 +386,7 @@ export function EditorToolbar({
             }
           }}
           disabled={!previewUrl}
-          className="inline-flex items-center gap-1.5 rounded-md border border-white/[0.08] px-2.5 py-1.5 text-xs font-medium text-gray-300 transition-colors hover:border-white/[0.16] hover:bg-white/[0.06] hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+          className="inline-flex items-center gap-1.5 rounded-md border border-[var(--od-preview-border)] px-2.5 py-1.5 text-xs font-medium text-[var(--od-preview-color)] transition-colors hover:border-[var(--od-accent-border)] hover:bg-[var(--od-panel-muted)] hover:text-[var(--od-text)] disabled:cursor-not-allowed disabled:opacity-40"
           aria-label="Preview"
         >
           <ExternalLink size={13} />
@@ -409,7 +399,12 @@ export function EditorToolbar({
             <button
               type="button"
               data-testid="publish-btn"
-              className="ml-0 inline-flex items-center gap-1.5 whitespace-nowrap rounded-md bg-emerald-500 px-3.5 py-1.5 text-xs font-semibold text-black shadow-sm shadow-emerald-500/20 transition-colors hover:bg-emerald-400"
+              className="ml-0 inline-flex items-center gap-1.5 whitespace-nowrap rounded-md px-3.5 py-1.5 text-xs font-semibold transition-[filter,background-color] hover:brightness-110"
+              style={{
+                backgroundColor: "var(--od-publish-bg)",
+                color: "var(--od-publish-color)",
+                boxShadow: "var(--od-publish-shadow)",
+              }}
             >
               Publish
             </button>
@@ -418,17 +413,20 @@ export function EditorToolbar({
             <Popover.Content
               align="end"
               sideOffset={8}
-              className="bg-[#1a1a1a] border border-white/[0.08] rounded-lg shadow-2xl p-4 w-72 z-50"
+              className="bg-[var(--od-panel)] border border-[var(--od-border)] rounded-lg shadow-2xl p-4 w-72 z-50"
               data-testid="publish-popover"
             >
               <div className="space-y-3">
-                <div className="flex items-center gap-2 text-sm text-gray-300">
-                  <ExternalLink size={14} className="text-gray-500" />
-                  <span className="text-gray-400 truncate">
+                <div className="flex items-center gap-2 text-sm text-[var(--od-text-muted)]">
+                  <ExternalLink
+                    size={14}
+                    className="text-[var(--od-text-subtle)]"
+                  />
+                  <span className="text-[var(--od-text-muted)] truncate">
                     {siteUrl || previewUrl || "your-project.mintlify.app"}
                   </span>
                 </div>
-                <p className="text-xs leading-5 text-gray-500">
+                <p className="text-xs leading-5 text-[var(--od-text-subtle)]">
                   Save the current page, publish the docs site, and open the
                   deployment on the dashboard.
                 </p>
@@ -437,16 +435,24 @@ export function EditorToolbar({
                   onClick={onPublish}
                   disabled={isSaving}
                   className={clsx(
-                    "w-full px-3 py-2 text-sm font-semibold rounded-md transition-colors",
+                    "w-full px-3 py-2 text-sm font-semibold rounded-md transition-[filter,background-color]",
                     isSaving
-                      ? "text-gray-400 bg-gray-800 cursor-wait"
-                      : "text-black bg-emerald-500 hover:bg-emerald-400",
+                      ? "text-[var(--od-text-muted)] bg-[var(--od-panel-muted)] cursor-wait"
+                      : "hover:brightness-110",
                   )}
+                  style={
+                    isSaving
+                      ? undefined
+                      : {
+                          backgroundColor: "var(--od-publish-bg)",
+                          color: "var(--od-publish-color)",
+                        }
+                  }
                 >
                   {isSaving ? "Publishing..." : "Publish"}
                 </button>
               </div>
-              <Popover.Arrow className="fill-[#1a1a1a]" />
+              <Popover.Arrow className="fill-[var(--od-panel)]" />
             </Popover.Content>
           </Popover.Portal>
         </Popover.Root>
@@ -466,7 +472,7 @@ function DropdownItem({
     <button
       type="button"
       onClick={onClick}
-      className="flex items-center w-full px-3 py-1.5 text-sm text-gray-300 hover:bg-white/[0.06] hover:text-white transition-colors"
+      className="flex items-center w-full px-3 py-1.5 text-sm text-[var(--od-text-muted)] hover:bg-[var(--od-panel-muted)] hover:text-[var(--od-text)] transition-colors"
     >
       {label}
     </button>

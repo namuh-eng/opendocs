@@ -73,13 +73,13 @@ export function MarkdownEditor({
 
   return (
     <div
-      className="flex h-full overflow-hidden bg-[#0c0c0c]"
+      className="flex h-full overflow-hidden bg-[var(--od-editor-bg)]"
       data-testid="markdown-editor"
     >
       {/* Line numbers gutter */}
       <div
         ref={lineNumbersRef}
-        className="flex flex-col items-end py-4 px-3 text-xs font-mono text-gray-600 select-none overflow-hidden border-r border-white/[0.06] bg-[#0a0a0a] shrink-0"
+        className="flex flex-col items-end py-4 px-3 text-xs font-mono text-[var(--od-code-comment)] select-none overflow-hidden border-r border-[var(--od-code-border)] bg-[var(--od-code-bg)] shrink-0"
         data-testid="line-numbers"
         aria-hidden="true"
       >
@@ -99,7 +99,7 @@ export function MarkdownEditor({
         onKeyUp={handleKeyUp}
         onKeyDown={handleKeyDown}
         onClick={handleClick}
-        className="mx-auto max-w-4xl flex-1 resize-none overflow-auto bg-transparent px-6 py-8 font-mono text-sm leading-[1.75rem] text-emerald-200 focus:outline-none"
+        className="mx-auto max-w-4xl flex-1 resize-none overflow-auto bg-transparent px-6 py-8 font-mono text-sm leading-[1.75rem] text-[var(--od-editor-text)] focus:outline-none"
         spellCheck={false}
         placeholder="Write your MDX content here..."
         data-testid="markdown-textarea"

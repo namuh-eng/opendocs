@@ -83,18 +83,18 @@ const MdxPreviewNode = Node.create({
     return ({ node }: { node: { attrs: Record<string, string> } }) => {
       const dom = document.createElement("div");
       dom.className =
-        "not-prose my-4 rounded-xl border border-white/[0.08] bg-[#161616] p-4";
+        "not-prose my-4 rounded-xl border border-[var(--od-code-border)] bg-[var(--od-code-bg)] p-4";
       dom.contentEditable = "false";
       dom.dataset.kind = node.attrs.kind;
       dom.dataset.source = node.attrs.source;
 
       const header = document.createElement("div");
       header.className =
-        "mb-2 inline-flex items-center rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-emerald-300";
+        "mb-2 inline-flex items-center rounded-full border border-[var(--od-accent-border)] bg-[var(--od-accent-soft)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--od-accent-text)]";
       header.textContent = node.attrs.label;
 
       const summary = document.createElement("p");
-      summary.className = "m-0 text-sm text-gray-300";
+      summary.className = "m-0 text-sm text-[var(--od-editor-text)]";
       summary.textContent = node.attrs.summary || `${node.attrs.label} preview`;
 
       dom.append(header, summary);
@@ -592,18 +592,20 @@ export const VisualEditor = forwardRef<VisualEditorHandle, VisualEditorProps>(
         CodeBlock.configure({
           HTMLAttributes: {
             class:
-              "bg-[#1a1a1a] rounded-lg p-4 font-mono text-sm text-emerald-300 my-4",
+              "bg-[var(--od-code-bg)] border border-[var(--od-code-border)] rounded-lg p-4 font-mono text-sm text-[var(--od-code-text)] my-4",
           },
         }),
         Image.configure({
           HTMLAttributes: {
-            class: "my-4 rounded-lg border border-white/[0.08] max-w-full",
+            class:
+              "my-4 rounded-lg border border-[var(--od-code-border)] max-w-full",
           },
         }),
         Link.configure({
           openOnClick: false,
           HTMLAttributes: {
-            class: "text-emerald-400 underline hover:text-emerald-300",
+            class:
+              "text-[var(--od-accent)] underline hover:text-[var(--od-accent-strong)]",
           },
         }),
         Underline,
@@ -716,7 +718,7 @@ export const VisualEditor = forwardRef<VisualEditorHandle, VisualEditorProps>(
 
     return (
       <div
-        className="h-full overflow-auto bg-[#0c0c0c]"
+        className="h-full overflow-auto bg-[var(--od-editor-bg)]"
         data-testid="visual-editor"
       >
         <EditorContent editor={editor} className="h-full" />
