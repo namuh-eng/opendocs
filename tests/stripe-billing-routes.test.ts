@@ -108,6 +108,7 @@ describe("Stripe billing routes", () => {
       expect.objectContaining({
         mode: "subscription",
         customer: "cus_1",
+        allow_promotion_codes: true,
         line_items: [{ price: "price_1", quantity: 1 }],
         client_reference_id: "org-1",
         success_url:
