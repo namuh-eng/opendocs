@@ -16,6 +16,7 @@ import {
   buildSearchQuery,
   validateCreateMessageRequest,
 } from "@/lib/assistant";
+import { getAssistantBedrockModelId } from "@/lib/assistant-model";
 import { db } from "@/lib/db";
 import { assistantConversations, pages, projects } from "@/lib/db/schema";
 import {
@@ -26,7 +27,7 @@ import { and, eq, ilike, inArray, or } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 
 const bedrock = new BedrockRuntimeClient({ region: "us-east-1" });
-const MODEL_ID = "us.anthropic.claude-sonnet-4-20250514";
+const MODEL_ID = getAssistantBedrockModelId();
 
 export async function POST(request: NextRequest) {
   // ── Auth ────────────────────────────────────────────────────────────────────
