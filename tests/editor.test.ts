@@ -297,6 +297,52 @@ Paragraph text.
     const markdown = "![Diagram](https://placehold.co/600x400/png)";
     expect(htmlToMarkdown(markdownToHtml(markdown))).toBe(markdown);
   });
+
+  it("renders GitHub README tables, blockquotes, linked images, and fenced code without leaking markdown syntax", () => {
+    const markdown = `[![License](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+
+![Architecture](./docs/architecture.png)
+
+> **Note for AI agents:** Start at [Setup](./docs/setup.md).
+
+| Metric | Result |
+|--------|--------|
+| Features built | **52** |
+| API endpoints | 16+ |
+
+Verify:
+
+\`\`\`bash
+git clone https://github.com/YOUR_USERNAME/ralph-to-ralph.git
+cd ralph-to-ralph
+\`\`\`
+
+### Optional: track upstream for future pipeline improvements`;
+
+    const html = markdownToHtml(markdown);
+
+    expect(html).toContain(
+      '<a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License" /></a>',
+    );
+    expect(html).toContain(
+      '<img src="./docs/architecture.png" alt="Architecture" />',
+    );
+    expect(html).toContain("<blockquote>");
+    expect(html).toContain(
+      '<strong>Note for AI agents:</strong> Start at <a href="./docs/setup.md">Setup</a>.',
+    );
+    expect(html).toContain("markdown-table-preview");
+    expect(html).toContain("<pre><code>");
+    expect(html).toContain(
+      "git clone https://github.com/YOUR_USERNAME/ralph-to-ralph.git",
+    );
+    expect(html).toContain(
+      "<h3>Optional: track upstream for future pipeline improvements</h3>",
+    );
+    expect(html).not.toContain("!Architecture");
+    expect(html).not.toContain("| Metric | Result |");
+    expect(html).not.toContain("<code>bash");
+  });
 });
 
 describe("insertSnippetAtCursor", () => {
