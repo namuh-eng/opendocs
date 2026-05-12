@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  BILLING_API_CONTRACTS,
   type BillingUsageSummary,
   calculateBillingUsagePercent,
   createBillingRedirect,
@@ -177,13 +176,14 @@ export function BillingSettingsClient({
                 {planDetails.summary}
               </p>
             </div>
-            <div className="rounded-lg border border-white/[0.08] bg-white/[0.04] px-4 py-3 text-right">
+            <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/[0.06] px-4 py-3 text-right shadow-[0_0_30px_rgba(16,185,129,0.08)]">
               <p className="text-xs uppercase tracking-wide text-gray-500">
-                Price
+                Monthly
               </p>
-              <p className="text-sm font-medium text-white">
+              <p className="mt-1 text-lg font-semibold tracking-tight text-white">
                 {planDetails.monthlyPriceLabel}
               </p>
+              <p className="mt-0.5 text-xs text-gray-500">per workspace</p>
             </div>
           </div>
 
@@ -273,18 +273,6 @@ export function BillingSettingsClient({
             noun="messages"
           />
         </div>
-      </section>
-
-      <section className="mt-6 rounded-xl border border-white/[0.08] bg-[#141414] p-5">
-        <h2 className="text-sm font-semibold text-white">API assumptions</h2>
-        <p className="mt-2 text-sm text-gray-400">
-          Checkout and customer portal redirects intentionally come from the
-          application API, not hardcoded Stripe URLs.
-        </p>
-        <ul className="mt-3 space-y-1 font-mono text-xs text-gray-500">
-          <li>{BILLING_API_CONTRACTS.checkout}</li>
-          <li>{BILLING_API_CONTRACTS.portal}</li>
-        </ul>
       </section>
     </div>
   );
