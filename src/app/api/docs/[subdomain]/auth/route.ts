@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { projects } from "@/lib/db/schema";
+import { readProjectAuthenticationSettings } from "@/lib/project-authentication-settings";
 import {
   createDocsAccessToken,
   getDocsAccessCookieName,
@@ -13,6 +14,14 @@ export function normalizeDocsReturnTo(returnTo: string, subdomain: string) {
   if (!returnTo.startsWith(fallback)) return fallback;
   if (returnTo.startsWith("//") || returnTo.includes("://")) return fallback;
   return returnTo;
+}
+
+export function getDocsAccessCredential(
+  settings: Record<string, unknown> | null | undefined,
+  fallbackPassword: string,
+) {
+  const auth = readProjectAuthenticationSettings(settings);
+  return auth.passwordHash || auth.password || fallbackPassword;
 }
 
 export async function POST(
@@ -47,11 +56,7 @@ export async function POST(
   try {
     accessToken = createDocsAccessToken(
       subdomain,
-      (
-        project.settings as {
-          authentication?: { passwordHash?: string; password?: string };
-        }
-      )?.authentication?.passwordHash || password,
+      getDocsAccessCredential(project.settings, password),
     );
   } catch {
     return NextResponse.json(
