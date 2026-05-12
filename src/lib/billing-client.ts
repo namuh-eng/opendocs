@@ -43,16 +43,16 @@ export const BILLING_PLAN_DETAILS: Record<BillingPlan, BillingPlanDetails> = {
   },
   pro: {
     plan: "pro",
-    label: "Pro",
+    label: "Hosted Pro",
     statusLabel: "Active",
-    monthlyPriceLabel: "Managed in Stripe",
+    monthlyPriceLabel: "$49/mo",
     summary:
-      "Commercial plan for teams that want Namuh-hosted billing, support, and higher limits.",
+      "Managed OpenDocs hosting for teams that want higher limits, support, and less infrastructure work.",
     projectLimit: 5,
     assistantMessageLimit: 5000,
     features: [
-      "More docs projects",
-      "Higher assistant usage",
+      "5 docs projects included",
+      "5,000 assistant messages included",
       "Priority support",
     ],
   },

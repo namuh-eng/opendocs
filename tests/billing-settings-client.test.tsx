@@ -64,7 +64,8 @@ describe("BillingSettingsClient", () => {
     const { container, root } = await renderBilling(fetchMock);
 
     expect(container.textContent).toContain("Billing");
-    expect(container.textContent).toContain("Pro");
+    expect(container.textContent).toContain("Hosted Pro");
+    expect(container.textContent).toContain("$49/mo");
     expect(container.textContent).toContain("Active");
     expect(container.textContent).toContain("2");
     expect(container.textContent).toContain("125");
