@@ -77,7 +77,7 @@ export function GoogleAuthCard({ callbackURL, mode }: GoogleAuthCardProps) {
   };
 
   return (
-    <div className="w-full max-w-sm space-y-6 rounded-xl border border-gray-800 bg-gray-950 p-8">
+    <div className="w-full max-w-sm space-y-6 rounded-xl border border-[var(--od-border)] bg-[var(--od-panel)] p-8 shadow-[var(--od-shadow)]">
       <div className="space-y-2 text-center">
         <div className="mb-4 flex justify-center">
           <svg
@@ -85,7 +85,7 @@ export function GoogleAuthCard({ callbackURL, mode }: GoogleAuthCardProps) {
             height="32"
             viewBox="0 0 32 32"
             fill="none"
-            className="text-green-500"
+            style={{ color: "var(--od-accent)" }}
           >
             <title>Logo</title>
             <rect width="32" height="32" rx="8" fill="currentColor" />
@@ -98,10 +98,10 @@ export function GoogleAuthCard({ callbackURL, mode }: GoogleAuthCardProps) {
             />
           </svg>
         </div>
-        <h1 className="text-2xl font-semibold text-white">
+        <h1 className="text-2xl font-semibold text-[var(--od-text)]">
           {isSignup ? "Create an account" : "Sign in"}
         </h1>
-        <p className="text-sm text-gray-400">
+        <p className="text-sm text-[var(--od-text-muted)]">
           {isSignup
             ? "Get started with your documentation platform"
             : "Sign in to your documentation dashboard"}
@@ -110,7 +110,7 @@ export function GoogleAuthCard({ callbackURL, mode }: GoogleAuthCardProps) {
 
       <form className="space-y-3" onSubmit={handleEmailAuth}>
         {isSignup && (
-          <label className="block space-y-1 text-sm font-medium text-gray-200">
+          <label className="block space-y-1 text-sm font-medium text-[var(--od-text)]">
             <span>Name</span>
             <input
               type="text"
@@ -118,12 +118,12 @@ export function GoogleAuthCard({ callbackURL, mode }: GoogleAuthCardProps) {
               value={name}
               onChange={(event) => setName(event.target.value)}
               placeholder="Enter your name"
-              className="w-full rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+              className="w-full rounded-lg border border-[var(--od-border)] bg-[var(--od-panel-muted)] px-3 py-2 text-[var(--od-text)] placeholder:text-[var(--od-text-subtle)] focus:border-[var(--od-accent)] focus:outline-none focus:ring-1 focus:ring-[var(--od-accent)]"
             />
           </label>
         )}
 
-        <label className="block space-y-1 text-sm font-medium text-gray-200">
+        <label className="block space-y-1 text-sm font-medium text-[var(--od-text)]">
           <span>Email</span>
           <input
             type="email"
@@ -132,11 +132,11 @@ export function GoogleAuthCard({ callbackURL, mode }: GoogleAuthCardProps) {
             onChange={(event) => setEmail(event.target.value)}
             placeholder="Enter your email"
             required
-            className="w-full rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+            className="w-full rounded-lg border border-[var(--od-border)] bg-[var(--od-panel-muted)] px-3 py-2 text-[var(--od-text)] placeholder:text-[var(--od-text-subtle)] focus:border-[var(--od-accent)] focus:outline-none focus:ring-1 focus:ring-[var(--od-accent)]"
           />
         </label>
 
-        <label className="block space-y-1 text-sm font-medium text-gray-200">
+        <label className="block space-y-1 text-sm font-medium text-[var(--od-text)]">
           <span>Password</span>
           <input
             type="password"
@@ -146,12 +146,12 @@ export function GoogleAuthCard({ callbackURL, mode }: GoogleAuthCardProps) {
             placeholder="Enter your password"
             minLength={8}
             required
-            className="w-full rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+            className="w-full rounded-lg border border-[var(--od-border)] bg-[var(--od-panel-muted)] px-3 py-2 text-[var(--od-text)] placeholder:text-[var(--od-text-subtle)] focus:border-[var(--od-accent)] focus:outline-none focus:ring-1 focus:ring-[var(--od-accent)]"
           />
         </label>
 
         {error && (
-          <p className="rounded-md border border-red-900/60 bg-red-950/50 px-3 py-2 text-sm text-red-200">
+          <p className="rounded-md border border-[var(--od-danger)]/40 bg-[var(--od-danger-soft)] px-3 py-2 text-sm text-[var(--od-danger)]">
             {error}
           </p>
         )}
@@ -159,7 +159,12 @@ export function GoogleAuthCard({ callbackURL, mode }: GoogleAuthCardProps) {
         <button
           type="submit"
           disabled={loading !== null}
-          className="flex w-full items-center justify-center rounded-lg bg-green-500 px-4 py-3 text-sm font-medium text-gray-950 transition-colors hover:bg-green-400 disabled:opacity-50"
+          className="flex w-full items-center justify-center rounded-lg px-4 py-3 text-sm font-medium transition-[filter,background-color] hover:brightness-110 disabled:opacity-50"
+          style={{
+            backgroundColor: "var(--od-accent)",
+            color: "#ffffff",
+            boxShadow: "var(--od-publish-shadow)",
+          }}
         >
           {loading === "email"
             ? "Continuing..."
@@ -169,17 +174,17 @@ export function GoogleAuthCard({ callbackURL, mode }: GoogleAuthCardProps) {
         </button>
       </form>
 
-      <div className="flex items-center gap-3 text-xs text-gray-500">
-        <div className="h-px flex-1 bg-gray-800" />
+      <div className="flex items-center gap-3 text-xs text-[var(--od-text-subtle)]">
+        <div className="h-px flex-1 bg-[var(--od-border)]" />
         <span>or</span>
-        <div className="h-px flex-1 bg-gray-800" />
+        <div className="h-px flex-1 bg-[var(--od-border)]" />
       </div>
 
       <button
         type="button"
         onClick={handleGoogleAuth}
         disabled={loading !== null}
-        className="flex w-full items-center justify-center gap-3 rounded-lg border border-gray-700 bg-gray-900 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-gray-800 disabled:opacity-50"
+        className="flex w-full items-center justify-center gap-3 rounded-lg border border-[var(--od-border)] bg-[var(--od-panel-muted)] px-4 py-3 text-sm font-medium text-[var(--od-text)] transition-colors hover:bg-[var(--od-panel-raised)] disabled:opacity-50"
       >
         <svg width="18" height="18" viewBox="0 0 18 18">
           <title>Google</title>
@@ -203,11 +208,11 @@ export function GoogleAuthCard({ callbackURL, mode }: GoogleAuthCardProps) {
         {loading === "google" ? "Redirecting..." : "Continue with Google"}
       </button>
 
-      <p className="text-center text-xs text-gray-500">
+      <p className="text-center text-xs text-[var(--od-text-subtle)]">
         {isSignup ? "Already have an account? " : "Don't have an account? "}
         <a
           href={isSignup ? "/login" : "/signup"}
-          className="text-green-500 hover:text-green-400"
+          className="text-[var(--od-accent)] hover:text-[var(--od-accent-strong)]"
         >
           {isSignup ? "Sign in" : "Sign up"}
         </a>

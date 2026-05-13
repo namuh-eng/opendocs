@@ -25,6 +25,7 @@ export interface VisualEditorHandle {
 }
 
 const MDX_PREVIEW_TAG = "mdx-preview";
+const MARKDOWN_TABLE_TAG = "markdown-table-preview";
 
 const MdxPreviewNode = Node.create({
   name: "mdxPreview",
@@ -82,21 +83,69 @@ const MdxPreviewNode = Node.create({
     return ({ node }: { node: { attrs: Record<string, string> } }) => {
       const dom = document.createElement("div");
       dom.className =
-        "not-prose my-4 rounded-xl border border-white/[0.08] bg-[#161616] p-4";
+        "not-prose my-4 rounded-xl border border-[var(--od-code-border)] bg-[var(--od-code-bg)] p-4";
       dom.contentEditable = "false";
       dom.dataset.kind = node.attrs.kind;
       dom.dataset.source = node.attrs.source;
 
       const header = document.createElement("div");
       header.className =
-        "mb-2 inline-flex items-center rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-emerald-300";
+        "mb-2 inline-flex items-center rounded-full border border-[var(--od-accent-border)] bg-[var(--od-accent-soft)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--od-accent-text)]";
       header.textContent = node.attrs.label;
 
       const summary = document.createElement("p");
-      summary.className = "m-0 text-sm text-gray-300";
+      summary.className = "m-0 text-sm text-[var(--od-editor-text)]";
       summary.textContent = node.attrs.summary || `${node.attrs.label} preview`;
 
       dom.append(header, summary);
+      return { dom };
+    };
+  },
+});
+
+const MarkdownTablePreviewNode = Node.create({
+  name: "markdownTablePreview",
+  group: "block",
+  atom: true,
+  selectable: true,
+
+  addAttributes() {
+    return {
+      source: {
+        default: "",
+        parseHTML: (element: HTMLElement) =>
+          element.getAttribute("data-source") ?? "",
+        renderHTML: (attributes: Record<string, unknown>) => ({
+          "data-source": attributes.source,
+        }),
+      },
+      html: {
+        default: "",
+        parseHTML: (element: HTMLElement) =>
+          element.getAttribute("data-html") ?? "",
+        renderHTML: (attributes: Record<string, unknown>) => ({
+          "data-html": attributes.html,
+        }),
+      },
+    };
+  },
+
+  parseHTML() {
+    return [{ tag: MARKDOWN_TABLE_TAG }];
+  },
+
+  renderHTML({ HTMLAttributes }: { HTMLAttributes: Record<string, unknown> }) {
+    return [MARKDOWN_TABLE_TAG, mergeAttributes(HTMLAttributes)];
+  },
+
+  addNodeView() {
+    return ({ node }: { node: { attrs: Record<string, string> } }) => {
+      const dom = document.createElement("div");
+      dom.className = "editor-markdown-table-preview";
+      dom.contentEditable = "false";
+      dom.dataset.source = node.attrs.source;
+      dom.dataset.html = node.attrs.html;
+      dom.innerHTML = decodeSource(node.attrs.html);
       return { dom };
     };
   },
@@ -225,75 +274,168 @@ function replaceMdxBlocks(md: string): string {
   );
 }
 
-/** Convert simple markdown to HTML for Tiptap. */
-function markdownToHtml(md: string): string {
-  let html = replaceMdxBlocks(md);
+function createMarkdownTablePreviewTag(source: string): string {
+  const rows = source
+    .trim()
+    .split("\n")
+    .map((line) =>
+      line
+        .trim()
+        .replace(/^\|/, "")
+        .replace(/\|$/, "")
+        .split("|")
+        .map((cell) => cell.trim()),
+    );
+  const [header = [], _separator = [], ...body] = rows;
+  const tableHtml = `<table><thead><tr>${header
+    .map((cell) => `<th>${processInlineMarkdown(cell)}</th>`)
+    .join("")}</tr></thead><tbody>${body
+    .map(
+      (row) =>
+        `<tr>${row
+          .map((cell) => `<td>${processInlineMarkdown(cell)}</td>`)
+          .join("")}</tr>`,
+    )
+    .join("")}</tbody></table>`;
 
-  html = html.replace(/^######\s+(.+)$/gm, "<h6>$1</h6>");
-  html = html.replace(/^#####\s+(.+)$/gm, "<h5>$1</h5>");
-  html = html.replace(/^####\s+(.+)$/gm, "<h4>$1</h4>");
-  html = html.replace(/^###\s+(.+)$/gm, "<h3>$1</h3>");
-  html = html.replace(/^##\s+(.+)$/gm, "<h2>$1</h2>");
-  html = html.replace(/^#\s+(.+)$/gm, "<h1>$1</h1>");
+  return `<${MARKDOWN_TABLE_TAG} data-source="${escapeHtml(
+    encodeSource(source),
+  )}" data-html="${escapeHtml(encodeSource(tableHtml))}"></${MARKDOWN_TABLE_TAG}>`;
+}
 
+function tokenizeBlocks(
+  value: string,
+  pattern: RegExp,
+  replacer: (match: string, ...groups: string[]) => string,
+): { text: string; restore: (text: string) => string } {
+  const blocks: string[] = [];
+  const text = value.replace(pattern, (match, ...groups: string[]) => {
+    const token = `\u0000BLOCK_${blocks.length}\u0000`;
+    blocks.push(replacer(match, ...groups));
+    return token;
+  });
+  return {
+    text,
+    restore: (current) =>
+      blocks.reduce(
+        (result, block, index) =>
+          result.replace(`\u0000BLOCK_${index}\u0000`, block),
+        current,
+      ),
+  };
+}
+
+function isMarkdownTableStart(lines: string[], index: number): boolean {
+  const header = lines[index]?.trim() ?? "";
+  const separator = lines[index + 1]?.trim() ?? "";
+  return (
+    header.startsWith("|") &&
+    header.endsWith("|") &&
+    /^\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?$/.test(separator)
+  );
+}
+
+function replaceMarkdownTables(value: string): string {
+  const lines = value.split("\n");
+  const output: string[] = [];
+
+  for (let index = 0; index < lines.length; index++) {
+    if (!isMarkdownTableStart(lines, index)) {
+      output.push(lines[index]);
+      continue;
+    }
+
+    const tableLines = [lines[index], lines[index + 1]];
+    index += 2;
+    while (index < lines.length && /^\s*\|.*\|\s*$/.test(lines[index] ?? "")) {
+      tableLines.push(lines[index]);
+      index += 1;
+    }
+    index -= 1;
+    output.push(createMarkdownTablePreviewTag(tableLines.join("\n")));
+  }
+
+  return output.join("\n");
+}
+
+function processInlineMarkdown(value: string): string {
+  let html = escapeHtml(value);
   html = html.replace(/\*\*\*(.+?)\*\*\*/g, "<strong><em>$1</em></strong>");
   html = html.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
   html = html.replace(/\*(.+?)\*/g, "<em>$1</em>");
-
   html = html.replace(/`([^`]+)`/g, "<code>$1</code>");
-  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
-  html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" />');
-
-  html = html.replace(/^---$/gm, "<hr>");
   html = html.replace(
+    /\[!\[([^\]]*)\]\(([^)]+)\)\]\(([^)]+)\)/g,
+    '<a href="$3"><img src="$2" alt="$1" /></a>',
+  );
+  html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" />');
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+  return html;
+}
+
+/** Convert simple markdown to HTML for Tiptap. */
+function markdownToHtml(md: string): string {
+  const fencedBlocks = tokenizeBlocks(
+    replaceMdxBlocks(md),
     /```(\w*)\n([\s\S]*?)```/g,
-    (_match, _lang, code) => `<pre><code>${code.trim()}</code></pre>`,
+    (_match, _lang, code) =>
+      `<pre><code>${escapeHtml(code.trim())}</code></pre>`,
   );
 
-  const lines = html.split("\n");
-  const result: string[] = [];
-  let inBlock = false;
+  let html = replaceMarkdownTables(fencedBlocks.text);
+  html = html.replace(
+    /^######\s+(.+)$/gm,
+    (_match, text) => `<h6>${processInlineMarkdown(text)}</h6>`,
+  );
+  html = html.replace(
+    /^#####\s+(.+)$/gm,
+    (_match, text) => `<h5>${processInlineMarkdown(text)}</h5>`,
+  );
+  html = html.replace(
+    /^####\s+(.+)$/gm,
+    (_match, text) => `<h4>${processInlineMarkdown(text)}</h4>`,
+  );
+  html = html.replace(
+    /^###\s+(.+)$/gm,
+    (_match, text) => `<h3>${processInlineMarkdown(text)}</h3>`,
+  );
+  html = html.replace(
+    /^##\s+(.+)$/gm,
+    (_match, text) => `<h2>${processInlineMarkdown(text)}</h2>`,
+  );
+  html = html.replace(
+    /^#\s+(.+)$/gm,
+    (_match, text) => `<h1>${processInlineMarkdown(text)}</h1>`,
+  );
+  html = html.replace(/^---$/gm, "<hr>");
+  html = html.replace(
+    /^>\s?(.+(?:\n>\s?.+)*)$/gm,
+    (match) =>
+      `<blockquote>${match
+        .split("\n")
+        .map((line) => processInlineMarkdown(line.replace(/^>\s?/, "")))
+        .join("<br>")}</blockquote>`,
+  );
 
-  for (const line of lines) {
-    if (
-      line.startsWith("<h") ||
-      line.startsWith("<hr") ||
-      line.startsWith("<pre") ||
-      line.startsWith(`<${MDX_PREVIEW_TAG}`) ||
-      line.startsWith("<img") ||
-      line.startsWith("<ul") ||
-      line.startsWith("<ol")
-    ) {
-      inBlock = true;
-      result.push(line);
-      if (
-        line.includes("</pre>") ||
-        line.includes(`</${MDX_PREVIEW_TAG}>`) ||
-        line.includes("</ul>") ||
-        line.includes("</ol>")
-      ) {
-        inBlock = false;
+  html = html
+    .split("\n")
+    .map((line) => {
+      if (!line.trim()) return "";
+      if (/^<\/?(h[1-6]|hr|pre|blockquote|img|ul|ol|li|a)/.test(line)) {
+        return line;
       }
-    } else if (inBlock) {
-      result.push(line);
       if (
-        line.includes("</pre>") ||
-        line.includes(`</${MDX_PREVIEW_TAG}>`) ||
-        line.includes("</ul>") ||
-        line.includes("</ol>")
+        line.startsWith(`<${MDX_PREVIEW_TAG}`) ||
+        line.startsWith(`<${MARKDOWN_TABLE_TAG}`) ||
+        line.startsWith("\u0000BLOCK_")
       ) {
-        inBlock = false;
+        return line;
       }
-    } else if (line.trim() === "") {
-      result.push("");
-    } else if (!line.startsWith("<")) {
-      result.push(`<p>${line}</p>`);
-    } else {
-      result.push(line);
-    }
-  }
+      return `<p>${processInlineMarkdown(line)}</p>`;
+    })
+    .join("\n");
 
-  return result.join("\n");
+  return fencedBlocks.restore(html);
 }
 
 /** Convert Tiptap HTML back to markdown. */
@@ -305,6 +447,19 @@ function htmlToMarkdown(html: string): string {
   md = md.replace(
     new RegExp(
       `<${MDX_PREVIEW_TAG}[^>]*data-source="([^"]+)"[^>]*><\\/${MDX_PREVIEW_TAG}>`,
+      "gi",
+    ),
+    (_match, source) => {
+      const token = `__MDX_PREVIEW_${previewIndex}__`;
+      previewSources.set(token, decodeSource(source));
+      previewIndex += 1;
+      return `\n\n${token}\n\n`;
+    },
+  );
+
+  md = md.replace(
+    new RegExp(
+      `<${MARKDOWN_TABLE_TAG}[^>]*data-source="([^"]+)"[^>]*><\\/${MARKDOWN_TABLE_TAG}>`,
       "gi",
     ),
     (_match, source) => {
@@ -332,6 +487,10 @@ function htmlToMarkdown(html: string): string {
     "```\n$1\n```\n\n",
   );
 
+  md = md.replace(
+    /<a[^>]*href="([^"]*)"[^>]*>\s*<img[^>]*src="([^"]+)"[^>]*alt="([^"]*)"[^>]*\/?>(?:<\/img>)?\s*<\/a>/gi,
+    "[![$3]($2)]($1)",
+  );
   md = md.replace(/<a[^>]*href="([^"]*)"[^>]*>(.*?)<\/a>/gi, "[$2]($1)");
   md = md.replace(
     /<img[^>]*src="([^"]+)"[^>]*alt="([^"]*)"[^>]*\/?>/gi,
@@ -433,22 +592,25 @@ export const VisualEditor = forwardRef<VisualEditorHandle, VisualEditorProps>(
         CodeBlock.configure({
           HTMLAttributes: {
             class:
-              "bg-[#1a1a1a] rounded-lg p-4 font-mono text-sm text-emerald-300 my-4",
+              "bg-[var(--od-code-bg)] border border-[var(--od-code-border)] rounded-lg p-4 font-mono text-sm text-[var(--od-code-text)] my-4",
           },
         }),
         Image.configure({
           HTMLAttributes: {
-            class: "my-4 rounded-lg border border-white/[0.08] max-w-full",
+            class:
+              "my-4 rounded-lg border border-[var(--od-code-border)] max-w-full",
           },
         }),
         Link.configure({
           openOnClick: false,
           HTMLAttributes: {
-            class: "text-emerald-400 underline hover:text-emerald-300",
+            class:
+              "text-[var(--od-accent)] underline hover:text-[var(--od-accent-strong)]",
           },
         }),
         Underline,
         MdxPreviewNode,
+        MarkdownTablePreviewNode,
         Placeholder.configure({
           placeholder: "Start writing your documentation...",
         }),
@@ -556,7 +718,7 @@ export const VisualEditor = forwardRef<VisualEditorHandle, VisualEditorProps>(
 
     return (
       <div
-        className="h-full overflow-auto bg-[#0c0c0c]"
+        className="h-full overflow-auto bg-[var(--od-editor-bg)]"
         data-testid="visual-editor"
       >
         <EditorContent editor={editor} className="h-full" />

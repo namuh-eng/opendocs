@@ -732,14 +732,14 @@ export default function EditorPage() {
                 type="button"
                 onClick={() => setActiveTab(key as ActiveTab)}
                 className={clsx(
-                  "flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md text-xs font-medium transition-colors",
+                  "flex-1 min-w-0 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md text-xs font-medium transition-colors",
                   activeTab === key
                     ? "bg-white/[0.08] text-white"
                     : "text-gray-500 hover:text-gray-300",
                 )}
               >
-                <Icon size={12} />
-                <span>{label}</span>
+                <Icon size={12} className="shrink-0" />
+                <span className="truncate">{label}</span>
               </button>
             ))}
           </div>
@@ -844,7 +844,7 @@ export default function EditorPage() {
             />
 
             <div className="flex-1 flex min-h-0">
-              <div className="flex-1 min-w-0 flex flex-col bg-[#0c0c0c]">
+              <div className="flex-1 min-w-0 flex flex-col bg-[var(--od-editor-bg)]">
                 {actionError && (
                   <div className="px-4 py-2 border-b border-red-500/20 bg-red-500/5 text-sm text-red-400">
                     {actionError}

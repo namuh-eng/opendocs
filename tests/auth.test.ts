@@ -142,4 +142,29 @@ describe("auth production origin configuration", () => {
       vi.resetModules();
     }
   });
+
+  it("allows localhost callbacks in development when env points at production", async () => {
+    vi.resetModules();
+    vi.stubEnv("NODE_ENV", "development");
+    vi.stubEnv("BETTER_AUTH_URL", "https://opendocs.namuh.co");
+
+    try {
+      const { getBetterAuthBaseUrlConfig } = await import("@/lib/auth");
+      const config = getBetterAuthBaseUrlConfig();
+
+      expect(config).toEqual({
+        allowedHosts: [
+          "localhost:3015",
+          "127.0.0.1:3015",
+          "[::1]:3015",
+          "opendocs.namuh.co",
+        ],
+        fallback: "https://opendocs.namuh.co",
+        protocol: "auto",
+      });
+    } finally {
+      vi.unstubAllEnvs();
+      vi.resetModules();
+    }
+  });
 });
