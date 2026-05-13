@@ -103,7 +103,16 @@ export function ConnectedRepoSelect({
           </div>
         </div>
       ) : (
-        <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
+        <div
+          className="rounded-lg border px-4 py-3 text-sm font-medium"
+          data-testid="empty-connected-repos-notice"
+          style={{
+            background: "var(--od-warning-soft)",
+            borderColor:
+              "color-mix(in srgb, var(--od-warning) 35%, transparent)",
+            color: "var(--od-text)",
+          }}
+        >
           No connected GitHub repositories yet. Connect GitHub first to import a
           private repository.
         </div>
