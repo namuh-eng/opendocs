@@ -126,7 +126,10 @@ export function MdxContent({ html }: MdxContentProps) {
           startOnLoad: false,
           theme: "dark",
           themeVariables: {
-            primaryColor: "#16a34a",
+            primaryColor:
+              getComputedStyle(container)
+                .getPropertyValue("--docs-primary")
+                .trim() || "#7b8fde",
             primaryTextColor: "#e5e7eb",
             lineColor: "#6b7280",
           },

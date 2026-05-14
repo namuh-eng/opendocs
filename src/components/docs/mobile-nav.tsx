@@ -55,6 +55,7 @@ interface MobileSidebarProps {
   activePath: string;
   subdomain: string;
   projectName: string;
+  settings?: Record<string, unknown>;
 }
 
 export function MobileSidebar({
@@ -62,6 +63,7 @@ export function MobileSidebar({
   activePath,
   subdomain,
   projectName,
+  settings,
 }: MobileSidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const overlayRef = useRef<HTMLDialogElement>(null);
@@ -187,6 +189,7 @@ export function MobileSidebar({
           activePath={activePath}
           subdomain={subdomain}
           projectName={projectName}
+          settings={settings}
         />
       </div>
     </dialog>
