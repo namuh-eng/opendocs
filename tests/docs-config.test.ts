@@ -66,7 +66,13 @@ describe("mergeDocsConfig", () => {
     });
     expect(getDocsThemeCssVars(config)).toEqual({
       "--docs-primary": "#FF0000",
+      "--docs-logo-color": "#FF0000",
       "--docs-primary-soft": "#FF000022",
+      "--docs-light-bg": "#F8F9FC",
+      "--docs-dark-bg": "#0E0F18",
+      "--docs-bg": "#0E0F18",
+      "--docs-bg-deep": "#0E0F18",
+      "--docs-card": "color-mix(in srgb, #0E0F18 86%, white)",
     });
   });
 
