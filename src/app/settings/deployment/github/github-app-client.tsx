@@ -2,6 +2,7 @@
 
 import { clsx } from "clsx";
 import {
+  AlertTriangle,
   CheckCircle2,
   ExternalLink,
   GitBranch,
@@ -165,70 +166,205 @@ export function GitHubAppSettingsClient({
     window.location.assign(installUrl);
   }, [installUrl]);
 
+  const installActionLabel =
+    hasConnections || (normalizedSelectedRepo && !selectedRepoConnected)
+      ? "Update GitHub app access"
+      : installUrl
+        ? "Install GitHub app"
+        : "GitHub app setup required";
+
+  const callbackNotice = useMemo(() => {
+    if (typeof window === "undefined") return null;
+    const params = new URLSearchParams(window.location.search);
+    const status = params.get("github_app");
+    if (status === "connected") {
+      return {
+        tone: "success" as const,
+        message:
+          "GitHub is connected. OpenDocs can now sync the repositories selected in the app installation.",
+      };
+    }
+    if (status === "error") {
+      const errorCode = params.get("error") ?? "unknown_error";
+      const copy: Record<string, string> = {
+        forbidden:
+          "Only organization admins and editors can connect the GitHub app.",
+        installation_already_connected:
+          "That GitHub installation is already connected to another OpenDocs organization.",
+        installation_auth_failed:
+          "OpenDocs could not verify that GitHub installation. Check the app credentials and selected repositories, then try again.",
+        invalid_callback:
+          "GitHub returned an incomplete install callback. Start the install from this page instead of GitHub Marketplace.",
+        no_org: "Your account is not attached to an OpenDocs organization yet.",
+        org_required:
+          "Choose an OpenDocs organization before connecting GitHub.",
+        unauthorized:
+          "Sign in to OpenDocs, then start the GitHub app installation again.",
+      };
+      return {
+        tone: "error" as const,
+        message:
+          copy[errorCode] ??
+          "OpenDocs could not complete the GitHub app installation. Start the install from this page and try again.",
+      };
+    }
+    return null;
+  }, []);
+
+  const renderInstallAction = (testId: string) => (
+    <button
+      type="button"
+      onClick={handleInstall}
+      disabled={loading || !isAdmin}
+      data-testid={testId}
+      className={clsx(
+        "inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2",
+        isAdmin
+          ? installUrl
+            ? "bg-gray-950 text-white hover:bg-gray-800"
+            : "bg-amber-100 text-amber-950 hover:bg-amber-200"
+          : "cursor-not-allowed bg-gray-200 text-gray-500",
+      )}
+    >
+      {loading ? (
+        <Loader2 size={16} className="animate-spin" />
+      ) : (
+        <GitHubIcon size={16} />
+      )}
+      {installActionLabel}
+      {installUrl && <ExternalLink size={14} className="opacity-70" />}
+    </button>
+  );
+
   return (
     <div
-      className="mx-auto max-w-2xl px-8 py-8"
+      className="mx-auto max-w-3xl px-8 py-8 text-gray-950"
       data-testid="github-app-settings"
     >
-      <div className="mb-1 text-sm text-gray-500">Settings / GitHub app</div>
+      <div className="mb-2 text-sm font-medium text-gray-500">
+        Settings / GitHub app
+      </div>
 
-      <h1 className="mb-2 text-xl font-semibold text-white">
-        Enable auto updates
+      <h1 className="mb-2 text-2xl font-semibold tracking-[-0.02em] text-gray-950">
+        Connect GitHub to enable auto updates
       </h1>
-      <p className="mb-8 text-sm text-gray-400">
-        Your active GitHub app connections
+      <p className="mb-8 max-w-2xl text-sm leading-6 text-gray-600">
+        Install the OpenDocs GitHub App and grant access to the repository that
+        powers this project. Once connected, OpenDocs can pull changes from the
+        selected branch and keep your docs in sync.
       </p>
+
+      {!installUrl && (
+        <div className="mb-5 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-950 shadow-sm">
+          <div className="flex items-start gap-3">
+            <AlertTriangle
+              size={18}
+              className="mt-0.5 shrink-0 text-amber-700"
+            />
+            <div>
+              <p className="font-semibold text-gray-950">
+                GitHub App setup is incomplete
+              </p>
+              <p className="mt-1 leading-6 text-amber-900">
+                OpenDocs needs a configured GitHub App slug or install URL
+                before users can connect repositories. The install action will
+                not send users to GitHub Marketplace; it stays here and shows
+                this setup error until the production app is configured.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {callbackNotice && (
+        <div
+          className={clsx(
+            "mb-5 rounded-2xl border p-5 text-sm shadow-sm",
+            callbackNotice.tone === "success"
+              ? "border-emerald-200 bg-emerald-50 text-emerald-900"
+              : "border-red-200 bg-red-50 text-red-800",
+          )}
+        >
+          {callbackNotice.message}
+        </div>
+      )}
 
       {selectedRepoFullName && (
         <div
           data-testid="github-selected-repo-status"
           className={clsx(
-            "mb-4 rounded-lg border px-4 py-3 text-sm",
+            "mb-5 rounded-2xl border p-5 text-sm shadow-sm",
             selectedRepoConnected
-              ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
-              : "border-amber-500/30 bg-amber-500/10 text-amber-200",
+              ? "border-emerald-200 bg-emerald-50 text-emerald-950"
+              : "border-amber-200 bg-amber-50 text-amber-950",
           )}
         >
-          <div className="flex items-start gap-2">
-            <CheckCircle2
-              size={16}
-              className={clsx(
-                "mt-0.5 shrink-0",
-                selectedRepoConnected ? "text-emerald-300" : "text-amber-300",
-              )}
-            />
-            <div className="w-full">
-              <p className="font-medium text-white">Selected repository</p>
-              <p>{selectedRepoFullName}</p>
-              <p className="mt-1 text-xs text-gray-300">
-                {selectedRepoConnected
-                  ? "This repository is available through the current GitHub connection."
-                  : "This repository is not available in the current GitHub connection yet. Connect GitHub and select the repo before import."}
-              </p>
+          <div className="flex items-start gap-3">
+            {selectedRepoConnected ? (
+              <CheckCircle2
+                size={18}
+                className="mt-0.5 shrink-0 text-emerald-700"
+              />
+            ) : (
+              <AlertTriangle
+                size={18}
+                className="mt-0.5 shrink-0 text-amber-700"
+              />
+            )}
+            <div className="w-full space-y-4">
+              <div>
+                <p className="font-semibold text-gray-950">
+                  {selectedRepoConnected
+                    ? "Repository connected"
+                    : "Repository access required"}
+                </p>
+                <p className="mt-1 font-mono text-xs font-medium text-gray-800">
+                  {selectedRepoFullName}
+                </p>
+                <p className="mt-2 text-sm leading-6 text-gray-700">
+                  {selectedRepoConnected
+                    ? "This repository is included in the current GitHub app installation. Auto updates can run when changes land on the selected branch."
+                    : "Auto updates are disabled because this repository is not included in the current GitHub app installation. Update the app installation, grant access to this repository, then select it for this project."}
+                </p>
+              </div>
 
               {selectedSource && (
-                <div className="mt-3 rounded-md border border-white/10 bg-black/10 px-3 py-2 text-xs text-gray-300">
+                <dl className="grid gap-2 rounded-xl border border-black/5 bg-white/70 p-3 text-xs sm:grid-cols-3">
                   <div>
-                    <span className="text-gray-500">Source type:</span>{" "}
-                    {selectedSource.sourceType === "connected_repo"
-                      ? "Connected GitHub repo"
-                      : "Public GitHub repo"}
+                    <dt className="font-medium text-gray-500">Source type</dt>
+                    <dd className="mt-0.5 font-medium text-gray-900">
+                      {selectedSource.sourceType === "connected_repo"
+                        ? "Connected GitHub repo"
+                        : "Public GitHub repo"}
+                    </dd>
                   </div>
                   <div>
-                    <span className="text-gray-500">Branch:</span>{" "}
-                    {selectedSource.branch ?? "main"}
+                    <dt className="font-medium text-gray-500">Branch</dt>
+                    <dd className="mt-0.5 font-mono font-medium text-gray-900">
+                      {selectedSource.branch ?? "main"}
+                    </dd>
                   </div>
                   <div>
-                    <span className="text-gray-500">Path:</span>{" "}
-                    {selectedSource.path ?? "/"}
+                    <dt className="font-medium text-gray-500">Path</dt>
+                    <dd className="mt-0.5 font-mono font-medium text-gray-900">
+                      {selectedSource.path ?? "/"}
+                    </dd>
                   </div>
                   {selectedSource.installationId && (
-                    <div>
-                      <span className="text-gray-500">Installation:</span>{" "}
-                      {selectedSource.installationId}
+                    <div className="sm:col-span-3">
+                      <dt className="font-medium text-gray-500">
+                        Installation
+                      </dt>
+                      <dd className="mt-0.5 font-mono font-medium text-gray-900">
+                        {selectedSource.installationId}
+                      </dd>
                     </div>
                   )}
-                </div>
+                </dl>
+              )}
+
+              {!selectedRepoConnected && isAdmin && (
+                <div>{renderInstallAction("update-github-app-access-btn")}</div>
               )}
             </div>
           </div>
@@ -236,74 +372,98 @@ export function GitHubAppSettingsClient({
       )}
 
       {error && (
-        <div className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+        <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
           {error}
         </div>
       )}
 
       {success && (
-        <div className="mb-4 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-400">
+        <div className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
           {success}
         </div>
       )}
 
       {/* Configure GitHub app section */}
-      <div className="mb-8 rounded-xl border border-white/[0.08] bg-white/[0.02] p-6">
-        <h2 className="mb-2 text-base font-medium text-white">
-          Configure GitHub app
-        </h2>
-        <p className="mb-4 text-sm text-gray-400">
-          Install the GitHub App to enable automatic updates and private
-          repository access.
-        </p>
+      <div className="mb-8 rounded-2xl border border-black/[0.05] bg-white p-6 shadow-[0_2px_4px_rgba(0,0,0,0.03)]">
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h2 className="mb-2 text-base font-semibold text-gray-950">
+              Configure the GitHub app
+            </h2>
+            <p className="max-w-xl text-sm leading-6 text-gray-600">
+              Use this page to connect the repo OpenDocs should watch for
+              documentation updates. This is the same production pattern used by
+              hosted docs platforms: install the GitHub App, authorize the right
+              organization or repository, then keep imports up to date from the
+              selected branch and path.
+            </p>
+          </div>
+          {!hasConnections && renderInstallAction("install-github-app-btn")}
+        </div>
 
-        {!hasConnections && (
-          <button
-            type="button"
-            onClick={handleInstall}
-            disabled={loading || !isAdmin}
-            data-testid="install-github-app-btn"
-            className={clsx(
-              "inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition-colors",
-              isAdmin
-                ? "border-white/[0.15] bg-white/[0.06] text-white hover:bg-white/[0.1]"
-                : "cursor-not-allowed border-white/[0.06] text-gray-500",
-            )}
-          >
-            {loading ? (
-              <Loader2 size={16} className="animate-spin" />
-            ) : (
-              <GitHubIcon size={16} />
-            )}
-            Install the GitHub app
-            <ExternalLink size={14} className="text-gray-500" />
-          </button>
-        )}
+        <div className="mt-6 grid gap-3 sm:grid-cols-3">
+          {[
+            [
+              "1",
+              "Install",
+              "Open GitHub and install the OpenDocs app on the organization that owns your docs repository.",
+            ],
+            [
+              "2",
+              "Grant access",
+              "Choose all repositories or only the specific repository you want OpenDocs to sync.",
+            ],
+            [
+              "3",
+              "Sync updates",
+              "Select the branch and docs path so published docs stay current when repository changes land.",
+            ],
+          ].map(([step, title, description]) => (
+            <div
+              key={step}
+              className="rounded-xl border border-black/[0.05] bg-gray-50 p-4"
+            >
+              <div className="mb-3 flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100 text-xs font-semibold text-emerald-800">
+                {step}
+              </div>
+              <h3 className="text-sm font-semibold text-gray-950">{title}</h3>
+              <p className="mt-1 text-xs leading-5 text-gray-600">
+                {description}
+              </p>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Active connections */}
       {hasConnections && (
         <div className="space-y-4">
-          <h2 className="text-base font-medium text-white">
-            Active connections
-          </h2>
+          <div>
+            <h2 className="text-base font-semibold text-gray-950">
+              Active GitHub app connections
+            </h2>
+            <p className="mt-1 text-sm text-gray-600">
+              These installations can provide repository access and automatic
+              updates for this project.
+            </p>
+          </div>
 
           {connections.map((conn) => (
             <div
               key={conn.id}
               data-testid={`github-connection-${conn.id}`}
-              className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-5"
+              className="rounded-2xl border border-black/[0.05] bg-white p-5 shadow-[0_2px_4px_rgba(0,0,0,0.03)]"
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/[0.06]">
-                    <GitHubIcon size={20} className="text-white" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-100">
+                    <GitHubIcon size={20} className="text-gray-950" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-white">
+                    <p className="text-sm font-semibold text-gray-950">
                       Installation {conn.installationId.slice(0, 12)}
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-600">
                       {conn.repos.length} repo
                       {conn.repos.length !== 1 ? "s" : ""} connected
                     </p>
@@ -317,11 +477,14 @@ export function GitHubAppSettingsClient({
                     onClick={() => handleToggleAutoUpdate(conn)}
                     disabled={toggling === conn.id || !isAdmin}
                     data-testid={`toggle-auto-update-${conn.id}`}
-                    className={clsx(
-                      "relative inline-flex h-6 w-11 items-center rounded-full transition-colors",
+                    aria-label={
                       conn.autoUpdateEnabled
-                        ? "bg-emerald-500"
-                        : "bg-white/[0.15]",
+                        ? "Disable auto updates"
+                        : "Enable auto updates"
+                    }
+                    className={clsx(
+                      "relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2",
+                      conn.autoUpdateEnabled ? "bg-emerald-500" : "bg-gray-300",
                       !isAdmin && "cursor-not-allowed opacity-50",
                     )}
                   >
@@ -341,7 +504,8 @@ export function GitHubAppSettingsClient({
                       onClick={() => handleRemove(conn.id)}
                       disabled={removing === conn.id}
                       data-testid={`remove-connection-${conn.id}`}
-                      className="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-red-500/10 hover:text-red-400"
+                      className="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-red-50 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                      aria-label="Remove GitHub connection"
                     >
                       {removing === conn.id ? (
                         <Loader2 size={16} className="animate-spin" />
@@ -359,24 +523,24 @@ export function GitHubAppSettingsClient({
                   {conn.repos.map((repo) => (
                     <div
                       key={repo.fullName}
-                      className="flex items-center justify-between rounded-lg border border-white/[0.06] bg-white/[0.02] px-4 py-2.5"
+                      className="flex flex-col gap-2 rounded-xl border border-black/[0.05] bg-gray-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
                     >
-                      <div className="flex items-center gap-3">
+                      <div className="flex flex-wrap items-center gap-3">
                         <GitBranch size={14} className="text-gray-500" />
-                        <span className="text-sm text-white">
+                        <span className="text-sm font-medium text-gray-950">
                           {repo.fullName}
                         </span>
                         {normalizedSelectedRepo ===
                           repo.fullName.toLowerCase() && (
-                          <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-medium text-emerald-300">
-                            selected for import
+                          <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-800">
+                            selected project repo
                           </span>
                         )}
-                        <span className="rounded bg-white/[0.06] px-1.5 py-0.5 text-xs text-gray-400">
+                        <span className="rounded-full bg-white px-2 py-0.5 font-mono text-xs font-medium text-gray-700 ring-1 ring-black/[0.05]">
                           {repo.branch}
                         </span>
                       </div>
-                      <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                      <div className="flex items-center gap-1.5 text-xs font-medium text-gray-600">
                         <Shield size={12} />
                         {repo.permissions}
                       </div>
@@ -388,17 +552,7 @@ export function GitHubAppSettingsClient({
           ))}
 
           {/* Add another connection */}
-          {isAdmin && (
-            <button
-              type="button"
-              onClick={handleInstall}
-              disabled={loading}
-              className="inline-flex items-center gap-2 text-sm text-emerald-400 hover:text-emerald-300"
-            >
-              <GitHubIcon size={14} />
-              Install another GitHub App
-            </button>
-          )}
+          {isAdmin && renderInstallAction("add-github-app-access-btn")}
         </div>
       )}
     </div>
