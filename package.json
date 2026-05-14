@@ -82,6 +82,10 @@
   "overrides": {
     "mermaid": {
       "uuid": "14.0.0"
-    }
+    },
+    "@esbuild-kit/core-utils": {
+      "esbuild": "0.25.0"
+    },
+    "postcss": "$postcss"
   }
 }
