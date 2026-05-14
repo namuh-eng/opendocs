@@ -1,5 +1,4 @@
 import { ACTIVE_PROJECT_COOKIE, findActiveProject } from "@/lib/active-project";
-import { getRequestAppUrl } from "@/lib/app-url";
 import {
   effectiveDeploymentStatus,
   projectDisplayStatus,
@@ -76,26 +75,6 @@ export default async function DashboardPage({
 
   let projectDeployments: DeploymentRow[] = [];
   let previewDeployments: DeploymentRow[] = [];
-  let manualHandoffs: Array<{
-    id: string;
-    action: string;
-    createdAt: string;
-    details: Record<string, unknown>;
-  }> = [];
-  let resolvedManualHandoffs: Array<{
-    id: string;
-    action: string;
-    createdAt: string;
-    details: Record<string, unknown>;
-  }> = [];
-  let manualHandoffStats: {
-    oldestUnresolvedMs?: number | null;
-    averageResolutionMs?: number | null;
-  } = {};
-  let resolvedManualHandoffStats: {
-    oldestUnresolvedMs?: number | null;
-    averageResolutionMs?: number | null;
-  } = {};
   let publishedPages: Array<{ id: string; path: string; title: string }> = [];
   let publishedPageCount = 0;
 
@@ -150,88 +129,7 @@ export default async function DashboardPage({
       )
       .orderBy(desc(deployments.createdAt))
       .limit(20);
-
-    const cookieHeader = (await cookies()).toString();
-    const authBaseUrl = getRequestAppUrl(await headers());
-    const [manualHandoffResponse, resolvedManualHandoffResponse] =
-      await Promise.all([
-        fetch(`${authBaseUrl}/api/analytics/manual-handoffs?limit=20`, {
-          headers: {
-            Cookie: cookieHeader,
-          },
-          cache: "no-store",
-        }),
-        fetch(
-          `${authBaseUrl}/api/analytics/manual-handoffs?limit=20&includeResolved=true`,
-          {
-            headers: {
-              Cookie: cookieHeader,
-            },
-            cache: "no-store",
-          },
-        ),
-      ]);
-
-    if (manualHandoffResponse.ok) {
-      const data = (await manualHandoffResponse.json()) as {
-        handoffs?: Array<{
-          id: string;
-          action: string;
-          createdAt: string;
-          details?: Record<string, unknown> | null;
-        }>;
-        stats?: {
-          oldestUnresolvedMs?: number | null;
-          averageResolutionMs?: number | null;
-        };
-      };
-
-      manualHandoffStats = data.stats ?? {};
-      manualHandoffs = (data.handoffs ?? []).map((row) => ({
-        ...row,
-        details: row.details ?? {},
-      }));
-    }
-
-    if (resolvedManualHandoffResponse.ok) {
-      const data = (await resolvedManualHandoffResponse.json()) as {
-        handoffs?: Array<{
-          id: string;
-          action: string;
-          createdAt: string;
-          details?: Record<string, unknown> | null;
-        }>;
-        stats?: {
-          oldestUnresolvedMs?: number | null;
-          averageResolutionMs?: number | null;
-        };
-      };
-
-      resolvedManualHandoffStats = data.stats ?? {};
-      resolvedManualHandoffs = (data.handoffs ?? []).map((row) => ({
-        ...row,
-        details: row.details ?? {},
-      }));
-    }
   }
-
-  const isPublishedProjectLive = project?.status === "active";
-  const visibleManualHandoffs = manualHandoffs.filter((handoff) => {
-    const detailsProjectId = handoff.details.projectId;
-    if (
-      isPublishedProjectLive &&
-      detailsProjectId === project?.id &&
-      (handoff.action === "deployment_manual_handoff_required" ||
-        handoff.action === "project_initial_deployment_manual_handoff_required")
-    ) {
-      return false;
-    }
-    return true;
-  });
-  const visibleManualHandoffStats =
-    visibleManualHandoffs.length === 0
-      ? { ...manualHandoffStats, oldestUnresolvedMs: null }
-      : manualHandoffStats;
 
   return (
     <DashboardHomeClient
@@ -274,10 +172,6 @@ export default async function DashboardPage({
         endedAt: d.endedAt?.toISOString() ?? null,
         createdAt: d.createdAt.toISOString(),
       }))}
-      manualHandoffs={visibleManualHandoffs}
-      resolvedManualHandoffs={resolvedManualHandoffs}
-      manualHandoffStats={visibleManualHandoffStats}
-      resolvedManualHandoffStats={resolvedManualHandoffStats}
       publishedPages={publishedPages}
     />
   );

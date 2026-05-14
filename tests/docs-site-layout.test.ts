@@ -118,6 +118,36 @@ describe("Docs site layout — feature-014", () => {
       expect(filterPages(pages, "quick")).toHaveLength(1);
     });
 
+    it("uses a configurable placeholder without pre-filling the query", async () => {
+      const { SearchModal } = await import("@/components/docs/search-modal");
+      const root = createRoot(container);
+
+      await act(async () => {
+        root.render(
+          createElement(SearchModal, {
+            subdomain: "test-project",
+            searchPrompt: "Ask anything...",
+            pages: [{ path: "quickstart", title: "Quickstart" }],
+          }),
+        );
+      });
+
+      await act(async () => {
+        document.dispatchEvent(new CustomEvent("open-search"));
+      });
+
+      const input = container.querySelector<HTMLInputElement>(
+        '[data-testid="search-input"]',
+      );
+
+      expect(input?.value).toBe("");
+      expect(input?.placeholder).toBe("Ask anything...");
+
+      await act(async () => {
+        root.unmount();
+      });
+    });
+
     it("renders search dialog with combobox and listbox semantics", async () => {
       const { SearchModal } = await import("@/components/docs/search-modal");
       const root = createRoot(container);

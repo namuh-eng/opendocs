@@ -9,12 +9,14 @@ import type { DocsNavEntry } from "@/lib/mdx-renderer";
 import { ChevronDown, FileText } from "lucide-react";
 import Link from "next/link";
 import { useId, useState } from "react";
+import { DocsLogoMark, getConfiguredDocsLogo } from "./docs-logo";
 
 interface DocsSidebarProps {
   nav: DocsNavEntry[];
   activePath: string;
   subdomain: string;
   projectName: string;
+  settings?: Record<string, unknown>;
 }
 
 export function DocsSidebar({
@@ -22,36 +24,24 @@ export function DocsSidebar({
   activePath,
   subdomain,
   projectName,
+  settings,
 }: DocsSidebarProps) {
+  const configuredLogo = getConfiguredDocsLogo(settings);
+  const logoHref = configuredLogo?.href || `/docs/${subdomain}`;
+
   return (
     <aside className="docs-sidebar">
       <div className="docs-sidebar-header">
-        <Link href={`/docs/${subdomain}`} className="docs-logo">
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            aria-label="Logo"
-          >
-            <title>Logo</title>
-            <path d="M12 2L2 7l10 5 10-5-10-5Z" fill="#16A34A" opacity="0.8" />
-            <path
-              d="M2 17l10 5 10-5"
-              stroke="#16A34A"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+        <Link href={logoHref} className="docs-logo">
+          {configuredLogo ? (
+            <img
+              src={configuredLogo.path}
+              alt="Logo"
+              className="docs-sidebar-logo-image"
             />
-            <path
-              d="M2 12l10 5 10-5"
-              stroke="#16A34A"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          ) : (
+            <DocsLogoMark />
+          )}
           <span className="docs-logo-text">{projectName}</span>
         </Link>
       </div>

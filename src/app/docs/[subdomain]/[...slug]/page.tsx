@@ -573,9 +573,18 @@ export default async function DocsPage({
   );
 
   const docsThemeStyle = getDocsThemeCssVars(docsConfig) as CSSProperties;
+  const forcedTheme =
+    docsConfig.visualBranding.theme === "light" ||
+    docsConfig.visualBranding.theme === "dark"
+      ? docsConfig.visualBranding.theme
+      : undefined;
 
   return (
-    <div className="docs-layout" style={docsThemeStyle}>
+    <div
+      className="docs-layout"
+      style={docsThemeStyle}
+      data-theme={forcedTheme}
+    >
       <DocsTopbar
         projectName={project.name}
         subdomain={subdomain}
@@ -608,12 +617,17 @@ export default async function DocsPage({
 
       {/* Capture Cmd/Ctrl+K before React hydration so fast navigations still open search. */}
       <script src="/docs-search-shortcut.js" />
-      <SearchModal pages={searchablePages} subdomain={subdomain} />
+      <SearchModal
+        pages={searchablePages}
+        subdomain={subdomain}
+        searchPrompt={docsConfig.assistantSearch.searchPrompt}
+      />
       <MobileSidebar
         nav={nav}
         activePath={pagePath}
         subdomain={subdomain}
         projectName={project.name}
+        settings={project.settings as Record<string, unknown>}
       />
 
       <div className="docs-body">
@@ -622,6 +636,7 @@ export default async function DocsPage({
           activePath={pagePath}
           subdomain={subdomain}
           projectName={project.name}
+          settings={project.settings as Record<string, unknown>}
         />
 
         <main id="main-content" className="docs-main" tabIndex={-1}>

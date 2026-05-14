@@ -60,3 +60,42 @@ describe("DocsSidebar", () => {
     expect(toggle?.getAttribute("aria-expanded")).toBe("false");
   });
 });
+
+it("uses themeable currentColor for the default logo mark", async () => {
+  const { renderToStaticMarkup } = await import("react-dom/server");
+  const html = renderToStaticMarkup(
+    <DocsSidebar
+      nav={nav}
+      activePath="introduction"
+      subdomain="test-project"
+      projectName="Test Project"
+    />,
+  );
+
+  expect(html).toContain('class="docs-logo-mark"');
+  expect(html).toContain('fill="currentColor"');
+  expect(html).toContain('stroke="currentColor"');
+  expect(html).not.toContain("#16A34A");
+});
+
+it("uses configured docs logo image and link when provided", async () => {
+  const { renderToStaticMarkup } = await import("react-dom/server");
+  const html = renderToStaticMarkup(
+    <DocsSidebar
+      nav={nav}
+      activePath="introduction"
+      subdomain="test-project"
+      projectName="Test Project"
+      settings={{
+        docsConfig: {
+          visualBranding: { logoLink: "https://example.com" },
+          headerTopbar: { logoPath: "/brand.svg" },
+        },
+      }}
+    />,
+  );
+
+  expect(html).toContain('href="https://example.com"');
+  expect(html).toContain('src="/brand.svg"');
+  expect(html).toContain('class="docs-sidebar-logo-image"');
+});
