@@ -16,7 +16,6 @@ import {
 } from "@/lib/deployments";
 import { clsx } from "clsx";
 import {
-  AlertCircle,
   BarChart3,
   CheckCircle,
   ChevronDown,
@@ -30,11 +29,10 @@ import {
   RefreshCw,
   Rocket,
   Settings,
-  Trash2,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 interface DeploymentRow {
   id: string;
@@ -59,73 +57,12 @@ interface ProjectInfo {
   repoPath: string | null;
 }
 
-interface ManualHandoffRow {
-  id: string;
-  action: string;
-  createdAt: string;
-  details: Record<string, unknown> & {
-    resolution?: {
-      resolvedByUserId?: string;
-      resolvedByName?: string | null;
-      resolvedAt?: string;
-      resolutionNote?: string | null;
-    };
-  };
-}
-
-const HANDOFF_FILTERS = [
-  { key: "all", label: "All" },
-  { key: "deployment", label: "Deployments" },
-  { key: "agent", label: "Agent jobs" },
-] as const;
-
-function classifyHandoffAction(action: string) {
-  if (action.includes("agent")) return "agent" as const;
-  if (action.includes("deployment")) return "deployment" as const;
-  return "all" as const;
-}
-
-function formatDuration(from: string, to: string, suffix = "open") {
-  const start = new Date(from).getTime();
-  const end = new Date(to).getTime();
-  const diffMs = end - start;
-
-  if (!Number.isFinite(diffMs) || diffMs <= 0) return null;
-
-  const totalMinutes = Math.floor(diffMs / 60000);
-  if (totalMinutes < 60) return `${totalMinutes}m ${suffix}`;
-
-  const hours = Math.floor(totalMinutes / 60);
-  const minutes = totalMinutes % 60;
-  if (hours < 24) {
-    return minutes > 0
-      ? `${hours}h ${minutes}m ${suffix}`
-      : `${hours}h ${suffix}`;
-  }
-
-  const days = Math.floor(hours / 24);
-  const remHours = hours % 24;
-  return remHours > 0
-    ? `${days}d ${remHours}h ${suffix}`
-    : `${days}d ${suffix}`;
-}
-
 interface Props {
   greeting: string;
   firstName: string;
   project: ProjectInfo | null;
   deployments: DeploymentRow[];
   previews: DeploymentRow[];
-  manualHandoffs: ManualHandoffRow[];
-  resolvedManualHandoffs: ManualHandoffRow[];
-  manualHandoffStats: {
-    oldestUnresolvedMs?: number | null;
-    averageResolutionMs?: number | null;
-  };
-  resolvedManualHandoffStats: {
-    oldestUnresolvedMs?: number | null;
-    averageResolutionMs?: number | null;
-  };
   publishedPages: Array<{ id: string; path: string; title: string }>;
 }
 
@@ -273,10 +210,6 @@ export function DashboardHomeClient({
   project,
   deployments,
   previews,
-  manualHandoffs,
-  resolvedManualHandoffs,
-  manualHandoffStats,
-  resolvedManualHandoffStats,
   publishedPages,
 }: Props) {
   const router = useRouter();
@@ -287,26 +220,6 @@ export function DashboardHomeClient({
   const [creatingPreview, setCreatingPreview] = useState(false);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [previewBranch, setPreviewBranch] = useState("");
-  const [handoffFilter, setHandoffFilter] =
-    useState<(typeof HANDOFF_FILTERS)[number]["key"]>("all");
-  const [resolvingHandoffId, setResolvingHandoffId] = useState<string | null>(
-    null,
-  );
-  const [dismissedHandoffIds, setDismissedHandoffIds] = useState<string[]>([]);
-  const [handoffNotice, setHandoffNotice] = useState<string | null>(null);
-  const [handoffResolutionNotes, setHandoffResolutionNotes] = useState<
-    Record<string, string>
-  >({});
-  const [expandedNoteHandoffId, setExpandedNoteHandoffId] = useState<
-    string | null
-  >(null);
-  const [handoffSort, setHandoffSort] = useState<
-    "newest" | "oldest" | "longest-open"
-  >("newest");
-  const [showAllHandoffs, setShowAllHandoffs] = useState(false);
-  const [handoffView, setHandoffView] = useState<"active" | "resolved">(
-    "active",
-  );
   const [pageViews, setPageViews] = useState<Record<string, number>>({});
 
   const latestDeployment = deployments[0] ?? null;
@@ -319,66 +232,6 @@ export function DashboardHomeClient({
     project && projectIsLive
       ? buildSiteUrl(project.subdomain, project.customDomain)
       : "#";
-  const visibleManualHandoffs = useMemo(
-    () =>
-      manualHandoffs.filter(
-        (handoff) => !dismissedHandoffIds.includes(handoff.id),
-      ),
-    [dismissedHandoffIds, manualHandoffs],
-  );
-
-  const handoffRows =
-    handoffView === "active" ? visibleManualHandoffs : resolvedManualHandoffs;
-
-  const filteredManualHandoffs = handoffRows.filter((handoff) => {
-    if (handoffFilter === "all") return true;
-    return classifyHandoffAction(handoff.action) === handoffFilter;
-  });
-
-  const sortedManualHandoffs = [...filteredManualHandoffs].sort((a, b) => {
-    if (handoffSort === "oldest") {
-      return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-    }
-
-    if (handoffSort === "longest-open") {
-      const aResolvedAt =
-        a.details.resolution?.resolvedAt ?? new Date().toISOString();
-      const bResolvedAt =
-        b.details.resolution?.resolvedAt ?? new Date().toISOString();
-      return (
-        new Date(bResolvedAt).getTime() -
-        new Date(b.createdAt).getTime() -
-        (new Date(aResolvedAt).getTime() - new Date(a.createdAt).getTime())
-      );
-    }
-
-    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-  });
-
-  const unresolvedCount = visibleManualHandoffs.length;
-  const resolvedCount = resolvedManualHandoffs.length;
-  const displayedManualHandoffs = showAllHandoffs
-    ? sortedManualHandoffs
-    : sortedManualHandoffs.slice(0, 5);
-  const oldestUnresolvedAge =
-    typeof manualHandoffStats.oldestUnresolvedMs === "number" &&
-    manualHandoffStats.oldestUnresolvedMs > 0
-      ? formatDuration(
-          new Date(0).toISOString(),
-          new Date(manualHandoffStats.oldestUnresolvedMs).toISOString(),
-        )
-      : null;
-  const averageResolvedDuration =
-    typeof resolvedManualHandoffStats.averageResolutionMs === "number" &&
-    resolvedManualHandoffStats.averageResolutionMs > 0
-      ? formatDuration(
-          new Date(0).toISOString(),
-          new Date(
-            resolvedManualHandoffStats.averageResolutionMs,
-          ).toISOString(),
-          "avg",
-        )
-      : null;
   const domainDisplay = project
     ? formatDomainDisplay(project.subdomain, project.customDomain)
     : "";
@@ -454,65 +307,6 @@ export function DashboardHomeClient({
       router.refresh();
     } finally {
       setCreatingPreview(false);
-    }
-  }
-
-  async function deleteHandoff(handoffId: string) {
-    if (!confirm("Are you sure you want to delete this handoff record?"))
-      return;
-    try {
-      const response = await fetch(
-        `/api/analytics/manual-handoffs/${handoffId}`,
-        {
-          method: "DELETE",
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to delete handoff");
-      }
-
-      setDismissedHandoffIds((current) => [...current, handoffId]);
-      setHandoffNotice("Manual follow-up record deleted.");
-      router.refresh();
-    } catch {
-      setHandoffNotice("Could not delete handoff. Try again.");
-    }
-  }
-
-  async function resolveHandoff(handoffId: string) {
-    setResolvingHandoffId(handoffId);
-    try {
-      const response = await fetch(
-        `/api/analytics/manual-handoffs/${handoffId}/resolve`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            note: handoffResolutionNotes[handoffId]?.trim() || undefined,
-          }),
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to resolve handoff");
-      }
-
-      setDismissedHandoffIds((current) => [...current, handoffId]);
-      setHandoffResolutionNotes((current) => {
-        const next = { ...current };
-        delete next[handoffId];
-        return next;
-      });
-      setExpandedNoteHandoffId((current) =>
-        current === handoffId ? null : current,
-      );
-      setHandoffNotice("Manual follow-up resolved.");
-      router.refresh();
-    } catch {
-      setHandoffNotice("Could not resolve handoff. Try again.");
-    } finally {
-      setResolvingHandoffId(null);
     }
   }
 
@@ -719,229 +513,6 @@ export function DashboardHomeClient({
               );
             })}
           </div>
-
-          {/* Manual follow-up queue */}
-          {(unresolvedCount > 0 || resolvedCount > 0) && (
-            <div className="mb-[var(--od-section-gap)] rounded-[var(--od-card-radius)] border border-amber-400/30 bg-[var(--od-panel)] p-[var(--od-card-pad)] shadow-[var(--od-shadow)]">
-              <div className="mb-3 flex items-start justify-between gap-4">
-                <div>
-                  <h3 className="text-sm font-semibold text-[var(--od-text)]">
-                    Manual follow-up queue
-                  </h3>
-                  <p className="mt-1 text-xs text-[var(--od-text-subtle)]">
-                    Recent async work that was recorded without a live executor.
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-amber-300">
-                    {displayedManualHandoffs.length} shown
-                  </span>
-                  {sortedManualHandoffs.length > 5 ? (
-                    <button
-                      type="button"
-                      onClick={() => setShowAllHandoffs((current) => !current)}
-                      className="text-xs text-[var(--od-text-muted)] transition-colors hover:text-[var(--od-text)]"
-                    >
-                      {showAllHandoffs ? "Show less" : "View all"}
-                    </button>
-                  ) : null}
-                </div>
-              </div>
-
-              {handoffNotice ? (
-                <div className="mb-3 flex items-center justify-between rounded-md border border-[var(--od-accent-border)] bg-[var(--od-accent-soft)] px-3 py-2 text-xs text-[var(--od-accent-text)]">
-                  <span>{handoffNotice}</span>
-                  <button
-                    type="button"
-                    onClick={() => setHandoffNotice(null)}
-                    className="text-[var(--od-accent)] hover:text-[var(--od-accent-strong)]"
-                  >
-                    <Plus size={14} className="rotate-45" />
-                  </button>
-                </div>
-              ) : null}
-
-              <div className="mb-3 grid grid-cols-4 gap-2 text-xs max-md:grid-cols-2">
-                <div className="rounded-lg border border-[var(--od-border-light)] bg-[var(--od-panel-muted)] px-3 py-2 text-[var(--od-text-muted)]">
-                  <span className="block text-[var(--od-text-subtle)]">
-                    Unresolved
-                  </span>
-                  <span className="font-semibold text-[var(--od-text)]">
-                    {unresolvedCount}
-                  </span>
-                </div>
-                <div className="rounded-lg border border-[var(--od-border-light)] bg-[var(--od-panel-muted)] px-3 py-2 text-[var(--od-text-muted)]">
-                  <span className="block text-[var(--od-text-subtle)]">
-                    Resolved
-                  </span>
-                  <span className="font-semibold text-[var(--od-text)]">
-                    {resolvedCount}
-                  </span>
-                </div>
-                <div className="rounded-lg border border-[var(--od-border-light)] bg-[var(--od-panel-muted)] px-3 py-2 text-[var(--od-text-muted)]">
-                  <span className="block text-[var(--od-text-subtle)]">
-                    Avg resolve time
-                  </span>
-                  <span className="font-semibold text-[var(--od-text)]">
-                    {averageResolvedDuration ?? "—"}
-                  </span>
-                </div>
-                <div className="rounded-lg border border-[var(--od-border-light)] bg-[var(--od-panel-muted)] px-3 py-2 text-[var(--od-text-muted)]">
-                  <span className="block text-[var(--od-text-subtle)]">
-                    Oldest unresolved
-                  </span>
-                  <span className="font-semibold text-[var(--od-text)]">
-                    {oldestUnresolvedAge ?? "—"}
-                  </span>
-                </div>
-              </div>
-
-              <div className="mb-3 flex items-center justify-between gap-3 max-lg:flex-col max-lg:items-start">
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setHandoffView("active")}
-                    className={clsx(
-                      "rounded-md px-2.5 py-1 text-xs transition-colors",
-                      handoffView === "active"
-                        ? "bg-[var(--od-accent-soft)] text-[var(--od-accent-text)]"
-                        : "text-[var(--od-text-muted)] hover:bg-[var(--od-panel-muted)] hover:text-[var(--od-text)]",
-                    )}
-                  >
-                    Active
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setHandoffView("resolved")}
-                    className={clsx(
-                      "rounded-md px-2.5 py-1 text-xs transition-colors",
-                      handoffView === "resolved"
-                        ? "bg-[var(--od-accent-soft)] text-[var(--od-accent-text)]"
-                        : "text-[var(--od-text-muted)] hover:bg-[var(--od-panel-muted)] hover:text-[var(--od-text)]",
-                    )}
-                  >
-                    Resolved
-                  </button>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  {HANDOFF_FILTERS.map((filter) => (
-                    <button
-                      key={filter.key}
-                      type="button"
-                      onClick={() => setHandoffFilter(filter.key)}
-                      className={clsx(
-                        "rounded-md px-2.5 py-1 text-xs transition-colors",
-                        handoffFilter === filter.key
-                          ? "bg-[var(--od-panel-muted)] text-[var(--od-text)]"
-                          : "text-[var(--od-text-muted)] hover:bg-[var(--od-panel-muted)] hover:text-[var(--od-text)]",
-                      )}
-                    >
-                      {filter.label}
-                    </button>
-                  ))}
-                  <select
-                    value={handoffSort}
-                    onChange={(event) =>
-                      setHandoffSort(
-                        event.target.value as
-                          | "newest"
-                          | "oldest"
-                          | "longest-open",
-                      )
-                    }
-                    className="rounded-md border border-[var(--od-border)] bg-[var(--od-panel-muted)] px-2 py-1 text-xs text-[var(--od-text-muted)] focus:outline-none"
-                  >
-                    <option value="newest">Newest</option>
-                    <option value="oldest">Oldest</option>
-                    <option value="longest-open">Longest open</option>
-                  </select>
-                </div>
-              </div>
-
-              {filteredManualHandoffs.length === 0 ? (
-                <p className="text-sm text-[var(--od-text-subtle)]">
-                  No manual handoffs recorded recently.
-                </p>
-              ) : (
-                <div className="space-y-2">
-                  {displayedManualHandoffs.map((handoff) => (
-                    <div
-                      key={handoff.id}
-                      className="flex items-center justify-between gap-3 rounded-lg border border-[var(--od-border-light)] bg-[var(--od-panel-muted)] px-3 py-2"
-                    >
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-medium text-[var(--od-text)]">
-                          {handoff.action}
-                        </p>
-                        <p className="truncate font-mono text-xs text-[var(--od-text-subtle)]">
-                          {String(
-                            handoff.details.projectId ??
-                              handoff.details.deploymentId ??
-                              handoff.details.jobId ??
-                              "manual follow-up required",
-                          )}
-                        </p>
-                        {handoffView === "resolved" &&
-                        handoff.details.resolution ? (
-                          <>
-                            <p className="mt-1 truncate text-xs text-[var(--od-text-subtle)]">
-                              Created {timeAgo(handoff.createdAt)}
-                              {handoff.details.resolution.resolvedAt
-                                ? ` • Resolved ${timeAgo(handoff.details.resolution.resolvedAt)}`
-                                : ""}
-                              {handoff.details.resolution.resolvedAt
-                                ? ` • ${formatDuration(handoff.createdAt, handoff.details.resolution.resolvedAt) ?? ""}`
-                                : ""}
-                            </p>
-                            <p className="mt-1 truncate text-xs text-[var(--od-text-subtle)]">
-                              Resolved by{" "}
-                              {handoff.details.resolution.resolvedByName ??
-                                handoff.details.resolution.resolvedByUserId ??
-                                "unknown"}
-                            </p>
-                            {handoff.details.resolution.resolutionNote ? (
-                              <p className="mt-1 line-clamp-2 text-xs text-[var(--od-text-muted)]">
-                                Note:{" "}
-                                {handoff.details.resolution.resolutionNote}
-                              </p>
-                            ) : null}
-                          </>
-                        ) : null}
-                      </div>
-                      <div className="flex items-center gap-3 shrink-0">
-                        <span className="text-xs text-[var(--od-text-subtle)]">
-                          {timeAgo(handoff.createdAt)}
-                        </span>
-                        {handoffView === "active" ? (
-                          <div className="flex items-center gap-2">
-                            <button
-                              type="button"
-                              onClick={() => deleteHandoff(handoff.id)}
-                              className="rounded-md p-1.5 text-[var(--od-text-subtle)] transition-colors hover:bg-[var(--od-danger-soft)] hover:text-[var(--od-danger)]"
-                              title="Delete record"
-                            >
-                              <Trash2 size={14} />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => resolveHandoff(handoff.id)}
-                              disabled={resolvingHandoffId === handoff.id}
-                              className="rounded-md bg-[var(--od-success)]/15 px-2 py-1 text-xs font-medium text-[var(--od-success)] transition-colors hover:bg-[var(--od-success)]/25 disabled:opacity-50"
-                            >
-                              {resolvingHandoffId === handoff.id
-                                ? "Resolving..."
-                                : "Resolve"}
-                            </button>
-                          </div>
-                        ) : null}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
 
           {/* Activity section */}
           <div>
