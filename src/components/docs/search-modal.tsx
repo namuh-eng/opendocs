@@ -123,9 +123,14 @@ function groupResults(results: SearchResultItem[]): SearchResultGroup[] {
 interface SearchModalProps {
   pages: SearchablePage[];
   subdomain: string;
+  searchPrompt?: string;
 }
 
-export function SearchModal({ pages, subdomain }: SearchModalProps) {
+export function SearchModal({
+  pages,
+  subdomain,
+  searchPrompt = "Search documentation...",
+}: SearchModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResultItem[]>([]);
@@ -420,7 +425,7 @@ export function SearchModal({ pages, subdomain }: SearchModalProps) {
             aria-controls={listboxId}
             aria-activedescendant={activeDescendant}
             className="search-modal-input"
-            placeholder="Search documentation..."
+            placeholder={searchPrompt}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />

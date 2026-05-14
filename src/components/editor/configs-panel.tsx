@@ -8,6 +8,7 @@ import {
   CONFIG_SECTIONS,
   type ConfigSectionId,
   type ContentFeaturesConfig,
+  DEFAULT_ASSISTANT_SEARCH,
   type DocsConfig,
   type FooterSocialLink,
   ICON_LIBRARY_OPTIONS,
@@ -379,8 +380,8 @@ function ToggleSwitch({
       >
         <span
           className={clsx(
-            "absolute top-0.5 w-3.5 h-3.5 rounded-full bg-white transition-transform",
-            checked ? "translate-x-[14px]" : "translate-x-0.5",
+            "absolute top-0.5 left-0.5 w-3.5 h-3.5 rounded-full bg-white transition-transform",
+            checked ? "translate-x-[14px]" : "translate-x-0",
           )}
         />
       </button>
@@ -863,6 +864,10 @@ function AssistantSearchForm({ config, updateSection }: SectionProps) {
   const d = config.assistantSearch;
   const update = (patch: Partial<AssistantSearchConfig>) =>
     updateSection("assistantSearch", { ...d, ...patch });
+  const searchPromptValue =
+    d.searchPrompt === DEFAULT_ASSISTANT_SEARCH.searchPrompt
+      ? ""
+      : d.searchPrompt;
 
   return (
     <>
@@ -881,9 +886,9 @@ function AssistantSearchForm({ config, updateSection }: SectionProps) {
       <div>
         <FieldLabel>Search prompt</FieldLabel>
         <TextInput
-          value={d.searchPrompt}
+          value={searchPromptValue}
           onChange={(v) => update({ searchPrompt: v })}
-          placeholder="Ask anything..."
+          placeholder={DEFAULT_ASSISTANT_SEARCH.searchPrompt}
           testId="config-search-prompt"
         />
       </div>

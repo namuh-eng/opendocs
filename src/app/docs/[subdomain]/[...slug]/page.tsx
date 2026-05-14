@@ -617,7 +617,11 @@ export default async function DocsPage({
 
       {/* Capture Cmd/Ctrl+K before React hydration so fast navigations still open search. */}
       <script src="/docs-search-shortcut.js" />
-      <SearchModal pages={searchablePages} subdomain={subdomain} />
+      <SearchModal
+        pages={searchablePages}
+        subdomain={subdomain}
+        searchPrompt={docsConfig.assistantSearch.searchPrompt}
+      />
       <MobileSidebar
         nav={nav}
         activePath={pagePath}
