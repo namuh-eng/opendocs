@@ -16,15 +16,34 @@ test.describe("Analytics layout shell", () => {
     await expect(page.getByRole("button", { name: "Agents" })).toBeVisible();
   });
 
+  test("analytics content stays readable in light dashboard theme", async ({
+    page,
+  }) => {
+    await page.evaluate(() => {
+      document.documentElement.setAttribute("data-theme", "light");
+      localStorage.setItem("opendocs-dashboard-theme", "light");
+    });
+    await page.reload();
+
+    const shell = page.getByTestId("analytics-shell");
+    await expect(shell).toBeVisible();
+    await expect(shell).toHaveCSS("background-color", "rgb(14, 15, 24)");
+    await expect(shell.getByRole("heading", { name: "Analytics" })).toHaveCSS(
+      "color",
+      "rgb(255, 255, 255)",
+    );
+  });
+
   test("Humans mode is active by default with 5 sub-tabs", async ({ page }) => {
-    const humansBtn = page.getByRole("button", { name: "Humans" });
+    const shell = page.getByTestId("analytics-shell");
+    const humansBtn = shell.getByRole("button", { name: "Humans" });
     await expect(humansBtn).toHaveAttribute("data-active", "true");
 
-    await expect(page.getByRole("link", { name: /Visitors/ })).toBeVisible();
-    await expect(page.getByRole("link", { name: /Views/ })).toBeVisible();
-    await expect(page.getByRole("link", { name: /Assistant/ })).toBeVisible();
-    await expect(page.getByRole("link", { name: /Searches/ })).toBeVisible();
-    await expect(page.getByRole("link", { name: /Feedback/ })).toBeVisible();
+    await expect(shell.getByRole("link", { name: /Visitors/ })).toBeVisible();
+    await expect(shell.getByRole("link", { name: /Views/ })).toBeVisible();
+    await expect(shell.getByRole("link", { name: /Assistant/ })).toBeVisible();
+    await expect(shell.getByRole("link", { name: /Searches/ })).toBeVisible();
+    await expect(shell.getByRole("link", { name: /Feedback/ })).toBeVisible();
   });
 
   test("switching to Agents mode shows 2 sub-tabs", async ({ page }) => {
