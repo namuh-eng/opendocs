@@ -281,11 +281,17 @@ function FeedbackContent() {
   const searchParams = useSearchParams();
   const trafficSource = parseTrafficSource(searchParams.get("trafficSource"));
 
-  const defaultPreset = getDatePresets()[2]; // Last 7 days
-  const defaultRange = defaultPreset.getRange();
-  const dateFrom =
-    parseDateParam(searchParams.get("from")) ?? defaultRange.from;
-  const dateTo = parseDateParam(searchParams.get("to")) ?? defaultRange.to;
+  const fromParam = searchParams.get("from");
+  const toParam = searchParams.get("to");
+  const defaultRange = useMemo(() => getDatePresets()[2].getRange(), []); // Last 7 days
+  const dateFrom = useMemo(
+    () => parseDateParam(fromParam) ?? defaultRange.from,
+    [fromParam, defaultRange.from],
+  );
+  const dateTo = useMemo(
+    () => parseDateParam(toParam) ?? defaultRange.to,
+    [toParam, defaultRange.to],
+  );
 
   const { project, loading: projectLoading } = useActiveProject<{
     id: string;
@@ -335,6 +341,12 @@ function FeedbackContent() {
     setSelectedIds(new Set());
   }
 
+  // Filtered entries
+  const filteredEntries = useMemo(() => {
+    const byTab = filterBySubTab(entries, activeSubTab);
+    return filterByStatus(byTab, activeStatuses, showAbusive);
+  }, [entries, activeSubTab, activeStatuses, showAbusive]);
+
   if (projectLoading) {
     return (
       <div className="flex items-center justify-center py-20 text-sm text-gray-500">
@@ -342,12 +354,6 @@ function FeedbackContent() {
       </div>
     );
   }
-
-  // Filtered entries
-  const filteredEntries = useMemo(() => {
-    const byTab = filterBySubTab(entries, activeSubTab);
-    return filterByStatus(byTab, activeStatuses, showAbusive);
-  }, [entries, activeSubTab, activeStatuses, showAbusive]);
 
   // Toggle status filter
   function handleToggleStatus(status: FeedbackStatus) {
