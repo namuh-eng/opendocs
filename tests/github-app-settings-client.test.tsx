@@ -34,20 +34,18 @@ function renderClient(
 }
 
 describe("GitHubAppSettingsClient", () => {
-  it("does not create a fake connection when the GitHub App install URL is missing", () => {
+  it("does not expose a clickable install action when the GitHub App install URL is missing", () => {
     const { container, root } = renderClient(null);
     const installButton = container.querySelector(
       '[data-testid="install-github-app-btn"]',
-    );
+    ) as HTMLButtonElement | null;
     expect(installButton).toBeTruthy();
-
-    act(() => {
-      installButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-    });
-
-    expect(container.textContent).toContain(
-      "GitHub App installation is not configured",
+    expect(installButton?.disabled).toBe(true);
+    expect(installButton?.getAttribute("aria-disabled")).toBe("true");
+    expect(installButton?.getAttribute("title")).toContain(
+      "Set GITHUB_APP_SLUG or GITHUB_APP_INSTALL_URL",
     );
+
     expect(container.textContent).toContain("GitHub app setup required");
     expect(container.textContent).toContain(
       "will not send users to GitHub Marketplace",
@@ -114,6 +112,34 @@ describe("GitHubAppSettingsClient", () => {
     expect(container.textContent).toContain("Public GitHub repo");
     expect(container.textContent).not.toContain("Selected repository");
     expect(container.textContent).not.toContain("before import");
+
+    act(() => root.unmount());
+    container.remove();
+  });
+
+  it("shows setup-required copy instead of update-access when repository access is blocked and the app is unconfigured", () => {
+    const { container, root } = renderClient(null, {
+      selectedRepoFullName: "namuh-eng/opensend",
+      selectedSource: {
+        repoFullName: "namuh-eng/opensend",
+        owner: "namuh-eng",
+        repo: "opensend",
+        branch: "main",
+        path: "/",
+        sourceType: "public_repo",
+      },
+    });
+
+    const updateButton = container.querySelector(
+      '[data-testid="update-github-app-access-btn"]',
+    ) as HTMLButtonElement | null;
+    expect(updateButton).toBeTruthy();
+    expect(updateButton?.disabled).toBe(true);
+    expect(container.textContent).toContain("GitHub app setup required");
+    expect(container.textContent).toContain(
+      "the production GitHub App install URL is not configured yet",
+    );
+    expect(container.textContent).not.toContain("Update GitHub app access");
 
     act(() => root.unmount());
     container.remove();

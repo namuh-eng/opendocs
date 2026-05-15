@@ -155,23 +155,17 @@ export function GitHubAppSettingsClient({
 
   const handleInstall = useCallback(() => {
     setError(null);
-    if (!installUrl) {
-      setError(
-        "GitHub App installation is not configured. Set GITHUB_APP_SLUG or GITHUB_APP_INSTALL_URL, then configure the app setup URL to /api/github-connections/callback.",
-      );
-      return;
-    }
+    if (!installUrl) return;
 
     setLoading(true);
     window.location.assign(installUrl);
   }, [installUrl]);
 
-  const installActionLabel =
-    hasConnections || (normalizedSelectedRepo && !selectedRepoConnected)
+  const installActionLabel = !installUrl
+    ? "GitHub app setup required"
+    : hasConnections || (normalizedSelectedRepo && !selectedRepoConnected)
       ? "Update GitHub app access"
-      : installUrl
-        ? "Install GitHub app"
-        : "GitHub app setup required";
+      : "Install GitHub app";
 
   const callbackNotice = useMemo(() => {
     if (typeof window === "undefined") return null;
@@ -211,30 +205,40 @@ export function GitHubAppSettingsClient({
     return null;
   }, []);
 
-  const renderInstallAction = (testId: string) => (
-    <button
-      type="button"
-      onClick={handleInstall}
-      disabled={loading || !isAdmin}
-      data-testid={testId}
-      className={clsx(
-        "inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2",
-        isAdmin
-          ? installUrl
+  const renderInstallAction = (testId: string) => {
+    const isActionable = Boolean(installUrl && isAdmin);
+
+    return (
+      <button
+        type="button"
+        onClick={handleInstall}
+        disabled={loading || !isActionable}
+        data-testid={testId}
+        aria-disabled={!isActionable}
+        title={
+          installUrl
+            ? undefined
+            : "Set GITHUB_APP_SLUG or GITHUB_APP_INSTALL_URL in the production environment first."
+        }
+        className={clsx(
+          "inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2",
+          isActionable
             ? "bg-gray-950 text-white hover:bg-gray-800"
-            : "bg-amber-100 text-amber-950 hover:bg-amber-200"
-          : "cursor-not-allowed bg-gray-200 text-gray-500",
-      )}
-    >
-      {loading ? (
-        <Loader2 size={16} className="animate-spin" />
-      ) : (
-        <GitHubIcon size={16} />
-      )}
-      {installActionLabel}
-      {installUrl && <ExternalLink size={14} className="opacity-70" />}
-    </button>
-  );
+            : installUrl
+              ? "cursor-not-allowed bg-gray-200 text-gray-500"
+              : "cursor-not-allowed bg-amber-100 text-amber-950 opacity-80",
+        )}
+      >
+        {loading ? (
+          <Loader2 size={16} className="animate-spin" />
+        ) : (
+          <GitHubIcon size={16} />
+        )}
+        {installActionLabel}
+        {installUrl && <ExternalLink size={14} className="opacity-70" />}
+      </button>
+    );
+  };
 
   return (
     <div
@@ -324,7 +328,9 @@ export function GitHubAppSettingsClient({
                 <p className="mt-2 text-sm leading-6 text-gray-700">
                   {selectedRepoConnected
                     ? "This repository is included in the current GitHub app installation. Auto updates can run when changes land on the selected branch."
-                    : "Auto updates are disabled because this repository is not included in the current GitHub app installation. Update the app installation, grant access to this repository, then select it for this project."}
+                    : installUrl
+                      ? "Auto updates are disabled because this repository is not included in the current GitHub app installation. Update the app installation, grant access to this repository, then select it for this project."
+                      : "Auto updates are disabled because the production GitHub App install URL is not configured yet. Configure the app first, then grant repository access."}
                 </p>
               </div>
 
