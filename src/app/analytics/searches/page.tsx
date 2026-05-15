@@ -186,11 +186,17 @@ function SearchesContent() {
   const searchParams = useSearchParams();
   const trafficSource = parseTrafficSource(searchParams.get("trafficSource"));
 
-  const defaultPreset = getDatePresets()[2]; // Last 7 days
-  const defaultRange = defaultPreset.getRange();
-  const dateFrom =
-    parseDateParam(searchParams.get("from")) ?? defaultRange.from;
-  const dateTo = parseDateParam(searchParams.get("to")) ?? defaultRange.to;
+  const fromParam = searchParams.get("from");
+  const toParam = searchParams.get("to");
+  const defaultRange = useMemo(() => getDatePresets()[2].getRange(), []); // Last 7 days
+  const dateFrom = useMemo(
+    () => parseDateParam(fromParam) ?? defaultRange.from,
+    [fromParam, defaultRange.from],
+  );
+  const dateTo = useMemo(
+    () => parseDateParam(toParam) ?? defaultRange.to,
+    [toParam, defaultRange.to],
+  );
 
   const { project, loading: projectLoading } = useActiveProject<{
     id: string;

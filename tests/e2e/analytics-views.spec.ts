@@ -17,10 +17,12 @@ test.describe("Analytics Views tab", () => {
     page,
   }) => {
     await page.goto("/analytics/views");
-    const chartOrEmpty = page.locator(
-      'text="Page Views Over Time", text="No page view data for this date range."',
-    );
-    await expect(chartOrEmpty.first()).toBeVisible({ timeout: 10000 });
+    await expect(
+      page
+        .getByText("Page Views Over Time")
+        .or(page.getByText("No page view data for this date range."))
+        .first(),
+    ).toBeVisible({ timeout: 10000 });
   });
 
   test("shows Top pages table section (no Referrals table)", async ({
@@ -28,10 +30,12 @@ test.describe("Analytics Views tab", () => {
   }) => {
     await page.goto("/analytics/views");
     // Wait for loading to complete — either table heading or empty state
-    const topPages = page.locator(
-      'text="Top pages", text="No page data available."',
-    );
-    await expect(topPages.first()).toBeVisible({ timeout: 10000 });
+    await expect(
+      page
+        .getByText("Top pages")
+        .or(page.getByText("No page data available."))
+        .first(),
+    ).toBeVisible({ timeout: 10000 });
     // Referrals table should NOT be present on the Views tab
     await expect(page.locator('h3:has-text("Referrals")')).not.toBeVisible();
   });
@@ -41,7 +45,7 @@ test.describe("Analytics Views tab", () => {
   }) => {
     await page.goto("/analytics/views");
     await page.click('button:has-text("Agents")');
-    await expect(page.locator('text="No page view activity"')).toBeVisible({
+    await expect(page.getByText("No visitor activity")).toBeVisible({
       timeout: 10000,
     });
   });

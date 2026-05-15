@@ -3,7 +3,9 @@ import { expect, test } from "@playwright/test";
 test.describe("Analytics Assistant Tab", () => {
   test("loads assistant analytics page", async ({ page }) => {
     await page.goto("/analytics/assistant");
-    await expect(page.locator("text=Analytics")).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Analytics" }),
+    ).toBeVisible();
   });
 
   test("shows sub-tabs for Categories and Chat history", async ({ page }) => {
@@ -50,7 +52,9 @@ test.describe("Analytics Assistant Tab", () => {
     page,
   }) => {
     await page.goto("/analytics/assistant?from=2025-01-01&to=2025-01-31");
-    await expect(page.locator("text=Analytics")).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Analytics" }),
+    ).toBeVisible();
     // URL should still have date params
     expect(page.url()).toContain("from=2025-01-01");
     expect(page.url()).toContain("to=2025-01-31");
