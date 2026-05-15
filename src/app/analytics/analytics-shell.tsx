@@ -326,7 +326,10 @@ export function AnalyticsShell({
   }
 
   return (
-    <div className="px-8 py-6">
+    <div
+      className="od-analytics-shell min-h-full bg-[#0e0f18] px-8 py-6 text-white"
+      data-testid="analytics-shell"
+    >
       {/* Header */}
       <h1 className="text-xl font-semibold text-white mb-5">Analytics</h1>
 
