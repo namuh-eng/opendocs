@@ -15,19 +15,23 @@ test.describe("Analytics Searches tab", () => {
 
   test("shows Search Volume heading or empty state", async ({ page }) => {
     await page.goto("/analytics/searches");
-    const chartOrEmpty = page.locator(
-      'text="Search Volume Over Time", text="No search activity"',
-    );
-    await expect(chartOrEmpty.first()).toBeVisible({ timeout: 10000 });
+    await expect(
+      page
+        .getByText("Search Volume Over Time")
+        .or(page.getByText("No search activity"))
+        .first(),
+    ).toBeVisible({ timeout: 10000 });
   });
 
   test("shows Top searches table or empty state", async ({ page }) => {
     await page.goto("/analytics/searches");
     // Wait for loading to complete — either table heading or empty state
-    const topSearches = page.locator(
-      'text="Top searches", text="No search activity"',
-    );
-    await expect(topSearches.first()).toBeVisible({ timeout: 10000 });
+    await expect(
+      page
+        .getByText("Top searches")
+        .or(page.getByText("No search activity"))
+        .first(),
+    ).toBeVisible({ timeout: 10000 });
   });
 
   test("switching to Agents mode shows agent empty state on Searches tab", async ({
@@ -35,7 +39,7 @@ test.describe("Analytics Searches tab", () => {
   }) => {
     await page.goto("/analytics/searches");
     await page.click('button:has-text("Agents")');
-    await expect(page.locator('text="No search activity"')).toBeVisible({
+    await expect(page.getByText("No visitor activity")).toBeVisible({
       timeout: 10000,
     });
   });

@@ -14,15 +14,13 @@ test.describe("Analytics Feedback Tab", () => {
 
   test("shows empty state when no feedback", async ({ page }) => {
     await page.goto("/analytics/feedback");
-    const emptyState = page.locator('[data-testid="feedback-empty-state"]');
-    // May or may not appear depending on data — check it doesn't error
-    await page.waitForTimeout(2000);
-    const hasEmpty = await emptyState.isVisible().catch(() => false);
-    const hasTable = await page
-      .locator('[data-testid="ratings-table"]')
-      .isVisible()
-      .catch(() => false);
-    expect(hasEmpty || hasTable).toBe(true);
+    // May or may not appear depending on data — check it doesn't error.
+    await expect(
+      page
+        .getByTestId("feedback-empty-state")
+        .or(page.getByTestId("ratings-table"))
+        .first(),
+    ).toBeVisible({ timeout: 10000 });
   });
 
   test("filters button opens filter dialog", async ({ page }) => {

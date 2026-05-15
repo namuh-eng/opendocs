@@ -12,28 +12,42 @@ test.describe("Analytics Visitors tab", () => {
 
   test("shows chart or empty state for visitors", async ({ page }) => {
     await page.goto("/analytics");
-    // Should show either the chart container or "Visitors Over Time" heading or empty state
-    const chartOrEmpty = page.locator(
-      'text="Visitors Over Time", text="No visitor data for this date range."',
-    );
-    await expect(chartOrEmpty.first()).toBeVisible({ timeout: 10000 });
+    // Should show either the populated chart heading or the page-level empty state.
+    await expect(
+      page
+        .getByText("Visitors Over Time")
+        .or(page.getByTestId("analytics-empty-state"))
+        .first(),
+    ).toBeVisible({ timeout: 10000 });
   });
 
-  test("shows Top pages table section", async ({ page }) => {
+  test("shows empty state CTA when visitors have no data", async ({ page }) => {
     await page.goto("/analytics");
-    // Wait for loading to complete — either table heading or empty state
-    const topPages = page.locator(
-      'text="Top pages", text="No page data available."',
-    );
-    await expect(topPages.first()).toBeVisible({ timeout: 10000 });
+    await expect(page.getByTestId("analytics-empty-state")).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(
+      page.getByRole("link", { name: "Share your docs URL" }),
+    ).toBeVisible();
   });
 
-  test("shows Referrals table section", async ({ page }) => {
+  test("does not refetch visitors analytics in a render loop", async ({
+    page,
+  }) => {
+    let visitorsRequests = 0;
+    page.on("response", (response) => {
+      if (response.url().includes("/api/analytics/visitors")) {
+        visitorsRequests += 1;
+      }
+    });
+
     await page.goto("/analytics");
-    const referrals = page.locator(
-      'text="Referrals", text="No referral data available."',
-    );
-    await expect(referrals.first()).toBeVisible({ timeout: 10000 });
+    await expect(page.getByTestId("analytics-empty-state")).toBeVisible({
+      timeout: 10000,
+    });
+    await page.waitForTimeout(1000);
+
+    expect(visitorsRequests).toBeLessThanOrEqual(2);
   });
 
   test("switching to Agents mode shows empty state", async ({ page }) => {
