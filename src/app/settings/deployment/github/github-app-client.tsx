@@ -162,7 +162,7 @@ export function GitHubAppSettingsClient({
   }, [installUrl]);
 
   const installActionLabel = !installUrl
-    ? "GitHub app setup required"
+    ? "GitHub sync unavailable"
     : hasConnections || (normalizedSelectedRepo && !selectedRepoConnected)
       ? "Update GitHub app access"
       : "Install GitHub app";
@@ -218,7 +218,7 @@ export function GitHubAppSettingsClient({
         title={
           installUrl
             ? undefined
-            : "Set GITHUB_APP_SLUG or GITHUB_APP_INSTALL_URL in the production environment first."
+            : "GitHub sync is not available yet. You can still publish and update docs manually."
         }
         className={clsx(
           "inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2",
@@ -267,13 +267,13 @@ export function GitHubAppSettingsClient({
             />
             <div>
               <p className="font-semibold text-gray-950">
-                GitHub App setup is incomplete
+                GitHub sync is temporarily unavailable
               </p>
               <p className="mt-1 leading-6 text-amber-900">
-                OpenDocs needs a configured GitHub App slug or install URL
-                before users can connect repositories. The install action will
-                not send users to GitHub Marketplace; it stays here and shows
-                this setup error until the production app is configured.
+                OpenDocs can still import and publish your docs, but automatic
+                GitHub updates are not ready in this workspace yet. You can keep
+                working with manual imports while we finish enabling GitHub
+                sync.
               </p>
             </div>
           </div>
@@ -330,7 +330,7 @@ export function GitHubAppSettingsClient({
                     ? "This repository is included in the current GitHub app installation. Auto updates can run when changes land on the selected branch."
                     : installUrl
                       ? "Auto updates are disabled because this repository is not included in the current GitHub app installation. Update the app installation, grant access to this repository, then select it for this project."
-                      : "Auto updates are disabled because the production GitHub App install URL is not configured yet. Configure the app first, then grant repository access."}
+                      : "Auto updates are not available for this workspace yet. You can continue publishing with manual imports while GitHub sync is enabled."}
                 </p>
               </div>
 
@@ -394,14 +394,14 @@ export function GitHubAppSettingsClient({
         <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h2 className="mb-2 text-base font-semibold text-gray-950">
-              Configure the GitHub app
+              Connect GitHub sync
             </h2>
             <p className="max-w-xl text-sm leading-6 text-gray-600">
               Use this page to connect the repo OpenDocs should watch for
-              documentation updates. This is the same production pattern used by
-              hosted docs platforms: install the GitHub App, authorize the right
-              organization or repository, then keep imports up to date from the
-              selected branch and path.
+              documentation updates. Once GitHub sync is available, install the
+              OpenDocs GitHub App, authorize the right organization or
+              repository, then keep imports up to date from the selected branch
+              and path.
             </p>
           </div>
           {!hasConnections && renderInstallAction("install-github-app-btn")}

@@ -43,13 +43,18 @@ describe("GitHubAppSettingsClient", () => {
     expect(installButton?.disabled).toBe(true);
     expect(installButton?.getAttribute("aria-disabled")).toBe("true");
     expect(installButton?.getAttribute("title")).toContain(
-      "Set GITHUB_APP_SLUG or GITHUB_APP_INSTALL_URL",
+      "GitHub sync is not available yet",
     );
 
-    expect(container.textContent).toContain("GitHub app setup required");
+    expect(container.textContent).toContain("GitHub sync unavailable");
     expect(container.textContent).toContain(
-      "will not send users to GitHub Marketplace",
+      "GitHub sync is temporarily unavailable",
     );
+    expect(container.textContent).toContain(
+      "manual imports while we finish enabling GitHub sync",
+    );
+    expect(container.textContent).not.toContain("GITHUB_APP_SLUG");
+    expect(container.textContent).not.toContain("production environment");
     expect(container.textContent).not.toContain(
       "GitHub App installed successfully",
     );
@@ -117,7 +122,7 @@ describe("GitHubAppSettingsClient", () => {
     container.remove();
   });
 
-  it("shows setup-required copy instead of update-access when repository access is blocked and the app is unconfigured", () => {
+  it("shows customer-safe unavailable copy instead of update-access when repository access is blocked and the app is unconfigured", () => {
     const { container, root } = renderClient(null, {
       selectedRepoFullName: "namuh-eng/opensend",
       selectedSource: {
@@ -135,10 +140,12 @@ describe("GitHubAppSettingsClient", () => {
     ) as HTMLButtonElement | null;
     expect(updateButton).toBeTruthy();
     expect(updateButton?.disabled).toBe(true);
-    expect(container.textContent).toContain("GitHub app setup required");
+    expect(container.textContent).toContain("GitHub sync unavailable");
     expect(container.textContent).toContain(
-      "the production GitHub App install URL is not configured yet",
+      "Auto updates are not available for this workspace yet",
     );
+    expect(container.textContent).not.toContain("production GitHub App");
+    expect(container.textContent).not.toContain("install URL");
     expect(container.textContent).not.toContain("Update GitHub app access");
 
     act(() => root.unmount());
