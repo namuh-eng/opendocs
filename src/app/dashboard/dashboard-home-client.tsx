@@ -331,33 +331,56 @@ export function DashboardHomeClient({
           {/* Project overview section */}
           <div className="mb-[var(--od-section-gap)] flex gap-6 max-lg:flex-col">
             {/* Site preview */}
-            <div className="od-card relative h-[170px] w-[300px] shrink-0 overflow-hidden p-0 max-lg:w-full">
+            <a
+              href={siteUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-disabled={!projectIsLive}
+              className={clsx(
+                "od-card group relative h-[340px] w-[600px] shrink-0 overflow-hidden p-0 transition-all hover:border-[var(--od-accent-border)] max-xl:h-[300px] max-xl:w-[520px] max-lg:h-[320px] max-lg:w-full",
+                projectIsLive
+                  ? "cursor-pointer"
+                  : "pointer-events-none cursor-not-allowed opacity-70",
+              )}
+              data-testid="dashboard-site-preview-card"
+            >
               {projectIsLive && siteUrl !== "#" ? (
-                <iframe
-                  src={siteUrl}
-                  title={`Live preview for ${project.name} documentation`}
-                  data-testid="dashboard-site-preview-frame"
-                  className="h-full w-full border-0 bg-[var(--od-panel)]"
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                />
+                <>
+                  <iframe
+                    src={siteUrl}
+                    title={`Live preview for ${project.name} documentation`}
+                    data-testid="dashboard-site-preview-frame"
+                    className="pointer-events-none absolute left-0 top-0 h-[620px] w-[1080px] origin-top-left scale-[0.56] border-0 bg-[var(--od-panel)] max-xl:scale-[0.49] max-lg:scale-[0.54]"
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    tabIndex={-1}
+                  />
+                  <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[var(--od-panel)]/85 via-[var(--od-panel)]/30 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                  <div className="pointer-events-none absolute bottom-3 right-3 inline-flex items-center gap-1.5 rounded-full border border-[var(--od-border)] bg-[var(--od-panel)]/90 px-3 py-1.5 text-xs font-medium text-[var(--od-text-muted)] opacity-0 shadow-sm backdrop-blur transition-opacity group-hover:opacity-100">
+                    Open site
+                    <ExternalLink size={12} />
+                  </div>
+                </>
               ) : (
                 <div className="flex h-full items-center justify-center text-center">
                   <div>
                     <Globe
-                      size={28}
+                      size={32}
                       className="mx-auto mb-2 text-[var(--od-text-subtle)]"
                     />
-                    <p className="text-xs text-[var(--od-text-subtle)]">
-                      Site preview
+                    <p className="text-sm font-medium text-[var(--od-text-muted)]">
+                      Site preview unavailable
+                    </p>
+                    <p className="mt-1 text-xs text-[var(--od-text-subtle)]">
+                      Publish your documentation to preview the full site.
                     </p>
                   </div>
                 </div>
               )}
-            </div>
+            </a>
 
             {/* Project info */}
-            <div className="flex-1 space-y-3">
+            <div className="min-w-0 flex-1 space-y-3">
               <div className="flex items-center gap-3">
                 <h2 className="text-[length:var(--od-fs-lg)] font-semibold text-[var(--od-text)]">
                   {project.name}
