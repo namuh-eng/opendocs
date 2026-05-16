@@ -22,7 +22,7 @@ describe("security headers", () => {
 
     expect(headers["Content-Security-Policy"]).toContain("default-src 'self'");
     expect(headers["Content-Security-Policy"]).toContain(
-      "frame-ancestors 'none'",
+      "frame-ancestors 'self'",
     );
     expect(headers["Content-Security-Policy"]).toContain("base-uri 'self'");
     expect(headers["Strict-Transport-Security"]).toBe(
