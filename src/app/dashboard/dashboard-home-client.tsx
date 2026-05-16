@@ -330,17 +330,30 @@ export function DashboardHomeClient({
         <>
           {/* Project overview section */}
           <div className="mb-[var(--od-section-gap)] flex gap-6 max-lg:flex-col">
-            {/* Preview thumbnail placeholder */}
-            <div className="od-card flex h-[170px] w-[300px] shrink-0 items-center justify-center overflow-hidden max-lg:w-full">
-              <div className="text-center">
-                <Globe
-                  size={28}
-                  className="mx-auto mb-2 text-[var(--od-text-subtle)]"
+            {/* Site preview */}
+            <div className="od-card relative h-[170px] w-[300px] shrink-0 overflow-hidden p-0 max-lg:w-full">
+              {projectIsLive && siteUrl !== "#" ? (
+                <iframe
+                  src={siteUrl}
+                  title={`Live preview for ${project.name} documentation`}
+                  data-testid="dashboard-site-preview-frame"
+                  className="h-full w-full border-0 bg-[var(--od-panel)]"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
                 />
-                <p className="text-xs text-[var(--od-text-subtle)]">
-                  Site preview
-                </p>
-              </div>
+              ) : (
+                <div className="flex h-full items-center justify-center text-center">
+                  <div>
+                    <Globe
+                      size={28}
+                      className="mx-auto mb-2 text-[var(--od-text-subtle)]"
+                    />
+                    <p className="text-xs text-[var(--od-text-subtle)]">
+                      Site preview
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Project info */}
