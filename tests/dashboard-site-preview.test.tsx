@@ -78,12 +78,27 @@ describe("Dashboard site preview", () => {
       '[data-testid="dashboard-site-preview-frame"]',
     );
 
+    const previewCard = container.querySelector<HTMLElement>(
+      '[data-testid="dashboard-site-preview-card"]',
+    );
+
+    expect(previewCard).toBeTruthy();
+    expect(previewCard?.tagName).toBe("A");
+    expect(previewCard?.getAttribute("href")).toBe(
+      "/docs/namuh-eng-exponential",
+    );
+    expect(previewCard?.className).toContain("h-[340px]");
+    expect(previewCard?.className).toContain("w-[600px]");
     expect(iframe).toBeTruthy();
     expect(iframe?.getAttribute("src")).toBe("/docs/namuh-eng-exponential");
     expect(iframe?.getAttribute("title")).toBe(
       "Live preview for exponential documentation",
     );
-    expect(container.textContent).not.toContain("Site preview");
+    expect(iframe?.className).toContain("h-[620px]");
+    expect(iframe?.className).toContain("w-[1080px]");
+    expect(iframe?.className).toContain("scale-[0.56]");
+    expect(iframe?.getAttribute("tabindex")).toBe("-1");
+    expect(container.textContent).not.toContain("Site preview unavailable");
 
     act(() => root.unmount());
     container.remove();
