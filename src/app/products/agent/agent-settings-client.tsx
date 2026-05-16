@@ -5,6 +5,8 @@ import { clsx } from "clsx";
 import { Bot, ExternalLink, GitBranch, Loader2, Shield, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
+const GITHUB_APP_SETTINGS_HREF = "/settings/deployment/github";
+
 interface AgentSettingsState {
   agentEnabled: boolean;
   slackConnected: boolean;
@@ -258,7 +260,7 @@ export function AgentSettingsClient({
                   </div>
                 </div>
                 <a
-                  href="/docs/agent"
+                  href={GITHUB_APP_SETTINGS_HREF}
                   className="text-sm text-emerald-400 hover:text-emerald-300 transition-colors inline-flex items-center gap-1"
                   data-testid="configure-github-link"
                 >
@@ -301,13 +303,13 @@ export function AgentSettingsClient({
                   </div>
                 </div>
               ) : !settings.githubAppInstalled ? (
-                <button
-                  type="button"
+                <a
+                  href={GITHUB_APP_SETTINGS_HREF}
                   className="mt-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500 transition-colors"
                   data-testid="install-github-btn"
                 >
                   Install the GitHub app
-                </button>
+                </a>
               ) : null}
             </div>
           </section>
