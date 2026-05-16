@@ -43,16 +43,18 @@ Production is currently configured with:
 - Public API redaction for sensitive docs auth settings
 - Security headers regression coverage
 
-Latest verified production deploy used staging commit `e01e6c2` and passed:
+Latest observed production health check returned `status: ok` on deployed version `78375da` with database and storage checks passing. The active integration branch is `staging`, with recent updates through `b39ed4c` covering GitHub App configuration routing, customer-safe GitHub sync unavailable states, analytics fixes, assistant search configuration UX, and docs visual branding fixes.
+
+Recent verified release checks have included:
 
 - `npm run lint`
 - `npm run typecheck`
 - `npm test -- --run`
 - `npm run build`
-- `npm audit --omit=dev --json` with **0 critical / 0 high** vulnerabilities
+- `npm audit --omit=dev --json` for critical/high vulnerability regressions
 - `/api/health`
 - `/api/docs/proxy` deny/allow checks
-- Google OAuth smoke test redirecting through the `namuh-clones` client
+- Google OAuth smoke tests through the `namuh-clones` client
 
 ---
 
@@ -109,6 +111,27 @@ npm run dev
 ```
 
 The local dev server runs on http://localhost:3015.
+
+### For humans
+
+Use this README as the high-level product and operator guide:
+
+- Start with **What OpenDocs does** and **Features** to understand the product surface.
+- Use **Quick start** for local development and self-hosted evaluation.
+- Use **Environment variables** and **Docker and production deployment** when wiring real infrastructure.
+- Use **Contributing** for the standard fork, branch, validation, and pull request loop.
+- Keep product-facing behavior user-centered. If an integration is not configured yet, the app should show a clean unavailable/manual fallback state rather than exposing internal environment-variable instructions to end users.
+
+### For coding agents
+
+Use this repository like a production product codebase, not a throwaway clone:
+
+- Read `AGENTS.md` before editing; it contains the repo-specific operating rules.
+- Work from `staging` unless the issue explicitly requires another base. Do not push implementation commits directly to `main`.
+- Keep public commits limited to product code, docs, tests, and safe examples. Do not commit private QA artifacts, internal hardening-loop notes, cloned-reference evidence, secrets, or operational scratch files.
+- For UI and copy changes, prefer polished, customer-safe product states over implementation/provider-oriented messaging.
+- Validate code changes with `make check` and `make test` when feasible. For documentation-only changes, inspect the rendered Markdown/diff and run targeted checks only when the docs change touches executable examples or generated content.
+- Preserve existing tests. If behavior is wrong, fix the product code or docs instead of weakening test coverage.
 
 ### Useful commands
 
