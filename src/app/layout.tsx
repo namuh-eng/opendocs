@@ -1,5 +1,5 @@
-import type { Metadata } from "next";
 import { PosthogProvider } from "@/components/observability/posthog-provider";
+import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
