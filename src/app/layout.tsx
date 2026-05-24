@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { PosthogProvider } from "@/components/observability/posthog-provider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -14,7 +15,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" data-theme="light" className="light">
-      <body className="min-h-screen antialiased">{children}</body>
+      <body className="min-h-screen antialiased">
+        <PosthogProvider>{children}</PosthogProvider>
+      </body>
     </html>
   );
 }
