@@ -27,4 +27,23 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+// Wrap with Sentry only when a DSN is set so OSS / dev builds make zero
+// outbound calls. withSentryConfig also handles source-map upload when
+// SENTRY_AUTH_TOKEN + SENTRY_ORG + SENTRY_PROJECT are present.
+const sentryDsnPresent =
+  process.env.SENTRY_DSN || process.env.NEXT_PUBLIC_SENTRY_DSN;
+
+if (sentryDsnPresent) {
+  const { withSentryConfig } = require("@sentry/nextjs");
+  module.exports = withSentryConfig(nextConfig, {
+    org: process.env.SENTRY_ORG,
+    project: process.env.SENTRY_PROJECT,
+    silent: !process.env.CI,
+    tunnelRoute: "/monitoring",
+    hideSourceMaps: true,
+    disableLogger: true,
+    automaticVercelMonitors: false,
+  });
+} else {
+  module.exports = nextConfig;
+}

@@ -26,9 +26,22 @@ echo ""
 # 1. Build Docker image
 echo "--- Building Docker image ---"
 PUBLIC_URL="${NEXT_PUBLIC_APP_URL:-https://opendocs.namuh.co}"
+BUILD_ARGS=(--build-arg "NEXT_PUBLIC_APP_URL=${PUBLIC_URL}")
+# Plumb NEXT_PUBLIC_* observability vars into the builder. Optional — unset
+# values are baked in as empty strings, which makes the client a no-op.
+for build_arg in \
+  NEXT_PUBLIC_SENTRY_DSN \
+  NEXT_PUBLIC_POSTHOG_KEY \
+  NEXT_PUBLIC_POSTHOG_HOST \
+  SENTRY_ENVIRONMENT \
+  SENTRY_RELEASE; do
+  if [ -n "${!build_arg:-}" ]; then
+    BUILD_ARGS+=(--build-arg "${build_arg}=${!build_arg}")
+  fi
+done
 docker build \
   --platform linux/amd64 \
-  --build-arg NEXT_PUBLIC_APP_URL="${PUBLIC_URL}" \
+  "${BUILD_ARGS[@]}" \
   -t "${APP_NAME}:${IMAGE_TAG}" \
   -t "${APP_NAME}:latest" \
   .
