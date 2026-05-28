@@ -320,3 +320,89 @@ describe("sectionIdToConfigKey", () => {
     expect(sectionIdToConfigKey("api-docs")).toBe("apiDocs");
   });
 });
+
+// ── docs-platform compatibility ─────────────────────────────────────────
+
+describe("docs-platform config compatibility", () => {
+  it("imports common docs.json primitives into typed OpenDocs config", () => {
+    const result = importDocsConfigJson(
+      JSON.stringify({
+        name: "Platform Docs",
+        description: "Modern docs baseline",
+        colors: { primary: "#3366FF", light: "#FFFFFF", dark: "#050505" },
+        logo: { light: "/logo-light.svg", dark: "/logo-dark.svg" },
+        navbar: { links: [{ label: "API", href: "/api-reference" }] },
+        navigation: {
+          tabs: [
+            {
+              label: "Guides",
+              groups: [{ label: "Start", pages: ["quickstart"] }],
+            },
+          ],
+          anchors: [{ label: "Support", url: "https://support.example.com" }],
+        },
+        apis: [
+          {
+            name: "Public API",
+            url: "/openapi.json",
+            navigation: "API Reference",
+          },
+          { name: "Admin API", file: "admin-openapi.json", version: "2026-05" },
+        ],
+        redirects: { "/old": "/new" },
+        seo: {
+          title: "SEO title",
+          description: "SEO description",
+          noindex: true,
+        },
+        auth: { mode: "groups", groups: ["engineering", "support"] },
+        languages: ["en", "ko"],
+        versions: ["v1", "v2"],
+        errors: { "404": "/not-found" },
+      }),
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.config.overview.name).toBe("Platform Docs");
+    expect(result.config.visualBranding.primaryColor).toBe("#3366FF");
+    expect(result.config.headerTopbar.topbarLinks).toEqual([
+      { label: "API", url: "/api-reference" },
+    ]);
+    expect(result.config.navigation.tabs[0]?.groups?.[0]?.pages).toEqual([
+      "quickstart",
+    ]);
+    expect(result.config.apiSpecs).toHaveLength(2);
+    expect(result.config.advanced.redirects).toEqual([
+      { source: "/old", destination: "/new" },
+    ]);
+    expect(result.config.auth).toMatchObject({
+      mode: "groups",
+      groups: ["engineering", "support"],
+    });
+    expect(result.config.localization.languages).toEqual(["en", "ko"]);
+    expect(result.config.errorPages.notFoundPath).toBe("/not-found");
+  });
+
+  it("preserves unknown top-level fields for round-trip compatibility", () => {
+    const result = importDocsConfigJson(
+      JSON.stringify({
+        name: "Docs",
+        experimentalFeature: { enabled: true, rollout: 50 },
+      }),
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.config.unknownFields.experimentalFeature).toEqual({
+      enabled: true,
+      rollout: 50,
+    });
+
+    const exported = JSON.parse(exportDocsConfigJson(result.config));
+    expect(exported.unknownFields.experimentalFeature).toEqual({
+      enabled: true,
+      rollout: 50,
+    });
+  });
+});
