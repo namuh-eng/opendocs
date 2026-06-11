@@ -6,6 +6,8 @@
  * Returns the created job with status "pending".
  */
 
+import { and, eq } from "drizzle-orm";
+import { type NextRequest, NextResponse } from "next/server";
 import { authenticateApiKey } from "@/lib/api-key-auth";
 import {
   formatAgentJobResponse,
@@ -14,8 +16,6 @@ import {
 import { enqueueAgentJob } from "@/lib/async-execution";
 import { db } from "@/lib/db";
 import { agentJobs, auditLogs, projects } from "@/lib/db/schema";
-import { and, eq } from "drizzle-orm";
-import { type NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   // Authenticate via API key

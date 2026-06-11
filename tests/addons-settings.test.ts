@@ -1,10 +1,10 @@
+import { describe, expect, it } from "vitest";
 import {
   type AddonsSettings,
   getDefaultAddons,
   mergeAddons,
   validateCiCheckValue,
 } from "@/lib/addons";
-import { describe, expect, it } from "vitest";
 
 describe("Addons settings data model", () => {
   it("returns all defaults when no existing settings", () => {

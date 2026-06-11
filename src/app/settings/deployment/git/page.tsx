@@ -1,10 +1,10 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useActiveProject } from "@/hooks/use-active-project";
 import { useProjectUpdater } from "@/hooks/use-project-updater";
-import { buildZipDownloadUrl, getRepoDisplayName } from "@/lib/git-settings";
 import type { VcsProvider } from "@/lib/git-settings";
-import { useEffect, useState } from "react";
+import { buildZipDownloadUrl, getRepoDisplayName } from "@/lib/git-settings";
 
 interface GitHubSourceDisplay {
   repoFullName: string;

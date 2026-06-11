@@ -1,4 +1,3 @@
-import { BillingSettingsClient } from "@/app/settings/organization/billing/billing-settings-client";
 import { act } from "react";
 import { createRoot } from "react-dom/client";
 import {
@@ -10,6 +9,7 @@ import {
   it,
   vi,
 } from "vitest";
+import { BillingSettingsClient } from "@/app/settings/organization/billing/billing-settings-client";
 
 beforeAll(() => {
   (

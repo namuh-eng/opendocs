@@ -1,3 +1,6 @@
+import { and, eq, gte, lte, sql } from "drizzle-orm";
+import { headers } from "next/headers";
+import { type NextRequest, NextResponse } from "next/server";
 import {
   categorizeConversation,
   extractFirstUserMessage,
@@ -9,9 +12,6 @@ import {
   orgMemberships,
   projects,
 } from "@/lib/db/schema";
-import { and, eq, gte, lte, sql } from "drizzle-orm";
-import { headers } from "next/headers";
-import { type NextRequest, NextResponse } from "next/server";
 
 /**
  * GET /api/analytics/assistant?projectId=...&from=YYYY-MM-DD&to=YYYY-MM-DD

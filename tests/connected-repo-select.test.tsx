@@ -1,6 +1,6 @@
-import { ConnectedRepoSelect } from "@/components/github/connected-repo-select";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
+import { ConnectedRepoSelect } from "@/components/github/connected-repo-select";
 
 describe("ConnectedRepoSelect", () => {
   it("uses readable theme colors for the empty connected repos notice", () => {

@@ -1,14 +1,14 @@
+import { describe, expect, it } from "vitest";
 import {
-  DEFAULT_GIT_SETTINGS,
   buildCloneUrl,
   buildZipDownloadUrl,
+  DEFAULT_GIT_SETTINGS,
   getRepoDisplayName,
   isValidBranchName,
   isValidRepoPath,
   parseGitHubUrl,
 } from "@/lib/git-settings";
 import { validateUpdateProjectRequest } from "@/lib/projects";
-import { describe, expect, it } from "vitest";
 
 describe("git-settings", () => {
   describe("parseGitHubUrl", () => {

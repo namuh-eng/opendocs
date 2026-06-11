@@ -1,6 +1,6 @@
-import { workflowTriggerTypeEnum, workflows } from "@/lib/db/schema";
-import { getTemplateById } from "@/lib/workflow-templates";
 import { describe, expect, it } from "vitest";
+import { workflows, workflowTriggerTypeEnum } from "@/lib/db/schema";
+import { getTemplateById } from "@/lib/workflow-templates";
 
 describe("workflow creation", () => {
   describe("workflows schema", () => {

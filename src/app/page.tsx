@@ -1,6 +1,6 @@
-import { getServerSession } from "@/lib/session";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { getServerSession } from "@/lib/session";
 
 const links = [
   {

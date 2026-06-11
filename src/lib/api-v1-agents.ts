@@ -6,10 +6,10 @@
  * POST /api/v1/agent/send-message/{jobId} — send follow-up message
  */
 
+import type { InferSelectModel } from "drizzle-orm";
 import type { ExecutionMetadataOptions } from "@/lib/async-metadata";
 import { resolveExecutionMetadata } from "@/lib/async-metadata";
 import type { agentJobs } from "@/lib/db/schema";
-import type { InferSelectModel } from "drizzle-orm";
 
 type AgentJob = InferSelectModel<typeof agentJobs>;
 

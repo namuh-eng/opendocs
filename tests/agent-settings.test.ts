@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import {
   DEFAULT_AGENT_SETTINGS,
   formatRepoName,
@@ -5,7 +6,6 @@ import {
   validateAgentSettingsUpdate,
   validateConnectedRepos,
 } from "@/lib/agent-settings";
-import { describe, expect, it } from "vitest";
 
 describe("agent-settings", () => {
   describe("planSupportsAgent", () => {

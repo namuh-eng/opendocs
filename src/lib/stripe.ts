@@ -1,5 +1,5 @@
-import { getPublicAppUrl } from "@/lib/app-url";
 import Stripe from "stripe";
+import { getPublicAppUrl } from "@/lib/app-url";
 
 let cachedStripeClient: Stripe | null = null;
 let cachedStripeSecretKey: string | null = null;

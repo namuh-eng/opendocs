@@ -1,9 +1,9 @@
 "use client";
 
-import { SETTINGS_NAV, isActiveSettingsItem } from "@/lib/settings-nav";
 import { clsx } from "clsx";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { isActiveSettingsItem, SETTINGS_NAV } from "@/lib/settings-nav";
 
 export function SettingsSidebar() {
   const pathname = usePathname();

@@ -1,8 +1,8 @@
 "use client";
 
-import { getLanguageInfo } from "@/lib/i18n";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { getLanguageInfo } from "@/lib/i18n";
 
 interface LanguageSwitcherProps {
   currentLocale: string;

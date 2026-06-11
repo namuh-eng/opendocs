@@ -1,6 +1,5 @@
 "use client";
 
-import { authClient } from "@/lib/auth-client";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import {
   Bell,
@@ -19,6 +18,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { authClient } from "@/lib/auth-client";
 import {
   type DashboardTheme,
   type ResolvedDashboardTheme,

@@ -1,9 +1,9 @@
-import { db } from "@/lib/db";
-import { pages, projects } from "@/lib/db/schema";
-import { buildDocsEntryProjects } from "@/lib/docs-entry";
 import { and, asc, eq, isNotNull } from "drizzle-orm";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { db } from "@/lib/db";
+import { pages, projects } from "@/lib/db/schema";
+import { buildDocsEntryProjects } from "@/lib/docs-entry";
 
 export const dynamic = "force-dynamic";
 

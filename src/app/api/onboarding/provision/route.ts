@@ -1,3 +1,6 @@
+import { and, eq } from "drizzle-orm";
+import { headers } from "next/headers";
+import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { orgMemberships, pages, projects } from "@/lib/db/schema";
@@ -10,13 +13,10 @@ import {
   resolveGitHubImportAccessForProject,
 } from "@/lib/github-import";
 import {
-  GitHubInstallationAuthNotConfiguredError,
   buildGitHubInstallationAuthHeaders,
+  GitHubInstallationAuthNotConfiguredError,
 } from "@/lib/github-installation-auth";
 import { createRequestId, logger } from "@/lib/logger";
-import { and, eq } from "drizzle-orm";
-import { headers } from "next/headers";
-import { NextResponse } from "next/server";
 
 /**
  * POST /api/onboarding/provision

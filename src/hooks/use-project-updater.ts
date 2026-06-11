@@ -1,7 +1,7 @@
 "use client";
 
-import { putProjectUpdate } from "@/hooks/project-hooks-core";
 import { useCallback, useState } from "react";
+import { putProjectUpdate } from "@/hooks/project-hooks-core";
 
 interface UpdateProjectOptions<T> {
   projectId?: string;

@@ -5,9 +5,9 @@
 
 import { generateGoExample } from "@/lib/openapi";
 import {
+  generateExampleFromSchema,
   type OpenApiEndpoint,
   type OpenApiParameter,
-  generateExampleFromSchema,
 } from "@/lib/openapi-parser";
 
 // ── Method Badge Colors ──────────────────────────────────────────────────────

@@ -1,5 +1,8 @@
 "use client";
 
+import { clsx } from "clsx";
+import { ArrowUpRight, CreditCard, Loader2, ShieldCheck } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 import {
   type BillingUsageSummary,
   calculateBillingUsagePercent,
@@ -7,9 +10,6 @@ import {
   formatBillingLimit,
   getBillingPlanDetails,
 } from "@/lib/billing-client";
-import { clsx } from "clsx";
-import { ArrowUpRight, CreditCard, Loader2, ShieldCheck } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
 
 interface BillingSettingsClientProps {
   initialPlan?: string;

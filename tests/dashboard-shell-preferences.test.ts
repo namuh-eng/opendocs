@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   applyDashboardTheme,
   getStoredDashboardTheme,
@@ -8,7 +9,6 @@ import {
   setStoredSidebarCollapsed,
   setStoredTrialBannerDismissed,
 } from "@/components/layout/shell-preferences";
-import { beforeEach, describe, expect, it, vi } from "vitest";
 
 describe("dashboard shell preferences", () => {
   beforeEach(() => {

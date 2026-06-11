@@ -1,9 +1,9 @@
+import { and, eq } from "drizzle-orm";
 import type { ExecutionMetadataOptions } from "@/lib/async-metadata";
 import { db } from "@/lib/db";
 import { agentJobs, deployments, projects } from "@/lib/db/schema";
 import { syncProjectDocsFromGitHub } from "@/lib/github-sync";
 import { createRequestId, logger } from "@/lib/logger";
-import { and, eq } from "drizzle-orm";
 
 export const ASYNC_SIMULATION_TIMINGS_MS = {
   deploymentStart: 500,

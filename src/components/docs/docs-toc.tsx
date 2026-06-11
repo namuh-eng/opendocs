@@ -1,7 +1,7 @@
 "use client";
 
-import type { TocEntry } from "@/lib/editor";
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { TocEntry } from "@/lib/editor";
 
 interface DocsTocProps {
   entries: TocEntry[];

@@ -1,7 +1,7 @@
-import { AnalyticsEmptyState } from "@/components/analytics/analytics-empty-state";
 import { act } from "react";
 import { createRoot } from "react-dom/client";
 import { beforeAll, describe, expect, it } from "vitest";
+import { AnalyticsEmptyState } from "@/components/analytics/analytics-empty-state";
 
 beforeAll(() => {
   (

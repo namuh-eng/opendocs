@@ -1,12 +1,12 @@
+import { describe, expect, it } from "vitest";
 import {
   AI_TOOLS,
   type AiToolId,
+  buildAiToolUrl,
   type ContextualAiMenuConfig,
   DEFAULT_CONTEXTUAL_AI_MENU,
-  buildAiToolUrl,
   getEnabledAiTools,
 } from "@/lib/contextual-ai-menu";
-import { describe, expect, it } from "vitest";
 
 describe("contextual-ai-menu", () => {
   describe("AI_TOOLS registry", () => {

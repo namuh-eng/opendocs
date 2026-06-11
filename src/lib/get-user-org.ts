@@ -1,6 +1,6 @@
-import { db } from "@/lib/db";
-import { orgMemberships, organizations } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
+import { db } from "@/lib/db";
+import { organizations, orgMemberships } from "@/lib/db/schema";
 
 export async function getUserOrg(userId: string) {
   const memberships = await db

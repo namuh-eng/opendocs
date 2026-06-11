@@ -1,3 +1,5 @@
+import { headers } from "next/headers";
+import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { createRequestId, logger } from "@/lib/logger";
 import {
@@ -11,8 +13,6 @@ import {
   readBillingSettings,
   updateOrgBillingState,
 } from "@/lib/stripe-billing";
-import { headers } from "next/headers";
-import { NextResponse } from "next/server";
 
 const route = "/api/billing/stripe/checkout";
 

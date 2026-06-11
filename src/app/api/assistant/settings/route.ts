@@ -5,13 +5,13 @@
  * Session-authenticated (dashboard use).
  */
 
+import { eq } from "drizzle-orm";
+import { type NextRequest, NextResponse } from "next/server";
 import { validateAssistantSettingsUpdate } from "@/lib/assistant-settings";
 import { db } from "@/lib/db";
 import { assistantSettings, orgMemberships, projects } from "@/lib/db/schema";
 import { createRequestId, logger } from "@/lib/logger";
 import { getServerSession } from "@/lib/session";
-import { eq } from "drizzle-orm";
-import { type NextRequest, NextResponse } from "next/server";
 
 async function resolveProject(userId: string) {
   const membership = await db

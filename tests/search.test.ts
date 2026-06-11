@@ -16,12 +16,12 @@ import { describe, expect, it } from "vitest";
  * These will live in src/lib/search.ts
  */
 import {
-  type SearchResult,
   buildTsQuery,
   extractSnippet,
   getBreadcrumb,
   groupResultsBySection,
   highlightMatches,
+  type SearchResult,
 } from "@/lib/search";
 
 describe("buildTsQuery", () => {

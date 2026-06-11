@@ -1,5 +1,5 @@
-import { getTemplateById, workflowTemplates } from "@/lib/workflow-templates";
 import { describe, expect, it } from "vitest";
+import { getTemplateById, workflowTemplates } from "@/lib/workflow-templates";
 
 describe("workflowTemplates", () => {
   it("has exactly 9 templates", () => {

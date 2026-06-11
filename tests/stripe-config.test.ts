@@ -1,10 +1,10 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   getStripeAppUrl,
   getStripePriceId,
   getStripeSecretKey,
   getStripeWebhookSecret,
 } from "@/lib/stripe";
-import { beforeEach, describe, expect, it, vi } from "vitest";
 
 describe("Stripe config", () => {
   beforeEach(() => {

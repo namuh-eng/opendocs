@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import {
   extractResponseTabs,
   extractSchemaFields,
@@ -12,7 +13,6 @@ import {
   renderApiReferencePage,
 } from "@/lib/api-reference";
 import type { OpenApiEndpoint } from "@/lib/openapi-parser";
-import { describe, expect, it } from "vitest";
 
 // ── Method Badge ─────────────────────────────────────────────────────────────
 

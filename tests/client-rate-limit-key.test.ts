@@ -1,5 +1,5 @@
-import { getClientRateLimitKey } from "@/lib/client-rate-limit-key";
 import { describe, expect, it } from "vitest";
+import { getClientRateLimitKey } from "@/lib/client-rate-limit-key";
 
 describe("getClientRateLimitKey", () => {
   it("normalizes the first valid forwarded IP", () => {

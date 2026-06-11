@@ -93,6 +93,33 @@ aws ecr get-login-password --region us-east-1 \
 - Production Docker builds should use `NEXT_PUBLIC_APP_URL=https://opendocs.namuh.co`; `scripts/deploy.sh` defaults to that production URL instead of local `.env`.
 - Keep repo changes on agent branches with PRs into `staging`; deployment resource mutations are external operations and should be documented here without secrets.
 
+## CI deploy pipeline (GitHub Actions + OIDC) - 2026-06-11
+
+Production deploys run from GitHub-hosted runners via `.github/workflows/deploy.yml`
+(manual `workflow_dispatch` from the Actions tab, `main` branch only). The job
+assumes an IAM role through GitHub's OIDC provider — no AWS keys are stored in
+GitHub secrets.
+
+- IAM role: `arn:aws:iam::699486076867:role/opendocs-github-deploy`
+- Trust policy: federated `token.actions.githubusercontent.com`, restricted to
+  `repo:namuh-eng/opendocs:ref:refs/heads/main` with `aud=sts.amazonaws.com`
+- Inline policy `opendocs-deploy`: ECR auth + push to the `opendocs` repository,
+  `ecs:RegisterTaskDefinition`/`DescribeTaskDefinition`, `DescribeServices`/
+  `UpdateService` on the `opendocs/opendocs` service, and `iam:PassRole` for
+  `ecsTaskExecutionRole` and `opendocs-task-role` (condition:
+  `iam:PassedToService=ecs-tasks.amazonaws.com`)
+- The workflow runs `scripts/deploy.sh` unchanged; the image tag is the short
+  git SHA of the checked-out commit
+- Optional GitHub repo secrets for observability build args:
+  `NEXT_PUBLIC_SENTRY_DSN`, `NEXT_PUBLIC_POSTHOG_KEY`, `NEXT_PUBLIC_POSTHOG_HOST`
+  (unset values are baked in as empty strings → client no-op)
+- Self-hosted runners were deliberately avoided: this is a public repository,
+  and GitHub advises against self-hosted runners on public repos (fork PRs can
+  execute code on the runner host). If a job ever changes the trust policy or
+  adds an `environment:` to the deploy job, note that the OIDC `sub` claim
+  format changes (`repo:org/repo:environment:<name>`) and the trust policy must
+  be updated to match.
+
 ## Google OAuth production checklist
 
 For `https://opendocs.namuh.co` Google sign-in, the Google Cloud OAuth client must include:

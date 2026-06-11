@@ -1,5 +1,9 @@
 "use client";
 
+import * as Accordion from "@radix-ui/react-accordion";
+import { clsx } from "clsx";
+import { ChevronDown, Download, Plus, Trash2, Upload, X } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useProjectUpdater } from "@/hooks/use-project-updater";
 import { isValidHexColor } from "@/lib/appearance";
 import {
@@ -10,21 +14,17 @@ import {
   type ContentFeaturesConfig,
   DEFAULT_ASSISTANT_SEARCH,
   type DocsConfig,
+  exportDocsConfigJson,
   type FooterSocialLink,
   ICON_LIBRARY_OPTIONS,
+  importDocsConfigJson,
+  mergeDocsConfig,
   type RedirectEntry,
   SOCIAL_LINK_TYPES,
   THEME_OPTIONS,
   type TopbarLink,
-  exportDocsConfigJson,
-  importDocsConfigJson,
-  mergeDocsConfig,
   validateDocsConfig,
 } from "@/lib/docs-config";
-import * as Accordion from "@radix-ui/react-accordion";
-import { clsx } from "clsx";
-import { ChevronDown, Download, Plus, Trash2, Upload, X } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
 
 // ── Props ────────────────────────────────────────────────────────────────
 

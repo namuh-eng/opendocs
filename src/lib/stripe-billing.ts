@@ -1,7 +1,7 @@
-import { db } from "@/lib/db";
-import { orgMemberships, organizations } from "@/lib/db/schema";
 import { eq, sql } from "drizzle-orm";
 import type Stripe from "stripe";
+import { db } from "@/lib/db";
+import { organizations, orgMemberships } from "@/lib/db/schema";
 
 type OrgPlan = "free" | "pro" | "enterprise";
 

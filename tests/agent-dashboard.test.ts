@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import {
   extractPrNumber,
   statusColor,
@@ -6,7 +7,6 @@ import {
   truncatePrompt,
   validatePrompt,
 } from "@/lib/agent-dashboard";
-import { describe, expect, it } from "vitest";
 
 describe("statusLabel", () => {
   it("returns correct labels for each status", () => {

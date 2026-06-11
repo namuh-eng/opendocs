@@ -1,9 +1,9 @@
+import { describe, expect, it } from "vitest";
 import {
   extractComponentBlocks,
   renderComponentBlock,
   renderMdxContent,
 } from "@/lib/mdx-renderer";
-import { describe, expect, it } from "vitest";
 
 describe("MDX Component Library (feature-004a)", () => {
   // ── Cards & CardGroups ───────────────────────────────────────────────────

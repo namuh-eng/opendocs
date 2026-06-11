@@ -1,16 +1,16 @@
 "use client";
 
+import { LockKeyhole, ShieldCheck } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useActiveProject } from "@/hooks/use-active-project";
 import { useProjectUpdater } from "@/hooks/use-project-updater";
 import {
-  type ProjectAuthenticationMode,
   hashDocsPasswordForBrowser,
   mergeProjectAuthenticationSettings,
+  type ProjectAuthenticationMode,
   readProjectAuthenticationSettings,
   validateProjectAuthenticationSettings,
 } from "@/lib/project-authentication-browser";
-import { LockKeyhole, ShieldCheck } from "lucide-react";
-import { useEffect, useState } from "react";
 
 interface ProjectData {
   id: string;

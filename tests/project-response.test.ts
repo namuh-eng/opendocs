@@ -1,5 +1,5 @@
-import { attachResolvedGitHubSource } from "@/lib/project-response";
 import { describe, expect, it } from "vitest";
+import { attachResolvedGitHubSource } from "@/lib/project-response";
 
 describe("attachResolvedGitHubSource", () => {
   it("adds resolved githubSource from settings metadata", () => {

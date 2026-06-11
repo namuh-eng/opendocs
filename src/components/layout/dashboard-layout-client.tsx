@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import {
-  type DashboardTheme,
   applyDashboardTheme,
+  type DashboardTheme,
   getStoredDashboardTheme,
   getStoredSidebarCollapsed,
   setStoredSidebarCollapsed,

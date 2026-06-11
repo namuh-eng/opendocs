@@ -1,3 +1,5 @@
+import { eq } from "drizzle-orm";
+import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import {
   assistantSettings,
@@ -6,8 +8,6 @@ import {
   projects,
 } from "@/lib/db/schema";
 import { getServerSession } from "@/lib/session";
-import { eq } from "drizzle-orm";
-import { redirect } from "next/navigation";
 import { AssistantSettingsClient } from "./assistant-settings-client";
 
 export default async function AssistantPage({

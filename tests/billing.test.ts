@@ -1,3 +1,4 @@
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   calculateBillingUsagePercent,
   createBillingRedirect,
@@ -11,7 +12,6 @@ import {
   normalizeBillingStatus,
   resolveBillingPlanForPriceId,
 } from "@/lib/billing";
-import { afterEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/db", () => ({
   db: {},

@@ -1,12 +1,12 @@
 "use client";
 
+import { Search } from "lucide-react";
+import { Suspense } from "react";
 import {
   formatAgentCount,
   getAgentStatCards,
   mcpSearchesEmptyMessage,
 } from "@/lib/analytics-agents";
-import { Search } from "lucide-react";
-import { Suspense } from "react";
 import { AnalyticsShell } from "../analytics-shell";
 
 function AgentStatsBar() {

@@ -1,3 +1,6 @@
+import { and, eq } from "drizzle-orm";
+import { cookies } from "next/headers";
+import { notFound, redirect } from "next/navigation";
 import { DocsPasswordGate } from "@/components/docs/docs-password-gate";
 import { db } from "@/lib/db";
 import { pages, projects } from "@/lib/db/schema";
@@ -5,9 +8,6 @@ import {
   getDocsAccessCookieName,
   hasValidDocsAccess,
 } from "@/lib/project-docs-access";
-import { and, eq } from "drizzle-orm";
-import { cookies } from "next/headers";
-import { notFound, redirect } from "next/navigation";
 
 interface DocsIndexProps {
   params: Promise<{ subdomain: string }>;

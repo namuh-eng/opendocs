@@ -1,11 +1,11 @@
+import { describe, expect, it } from "vitest";
 import {
   type DailyViewCount,
-  type ViewsData,
   formatViewCount,
   sumDailyCounts,
+  type ViewsData,
 } from "@/lib/analytics-views";
 import { fillDailyCounts, truncatePath } from "@/lib/analytics-visitors";
-import { describe, expect, it } from "vitest";
 
 describe("analytics-views", () => {
   // ── formatViewCount ──────────────────────────────────────────────────────

@@ -1,16 +1,5 @@
 "use client";
 
-import type {
-  AssistantSettingsData,
-  AssistantUsageData,
-} from "@/lib/assistant-settings";
-import {
-  MAX_STARTER_QUESTIONS,
-  formatBillingDate,
-  formatCents,
-  isValidDomain,
-  usagePercent,
-} from "@/lib/assistant-settings";
 import { clsx } from "clsx";
 import {
   ArrowRight,
@@ -24,6 +13,17 @@ import {
   X,
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import type {
+  AssistantSettingsData,
+  AssistantUsageData,
+} from "@/lib/assistant-settings";
+import {
+  formatBillingDate,
+  formatCents,
+  isValidDomain,
+  MAX_STARTER_QUESTIONS,
+  usagePercent,
+} from "@/lib/assistant-settings";
 
 interface Props {
   initialSettings: AssistantSettingsData;

@@ -1,3 +1,5 @@
+import { getTableColumns, getTableName } from "drizzle-orm";
+import { describe, expect, it } from "vitest";
 import {
   agentJobs,
   analyticsEvents,
@@ -5,14 +7,12 @@ import {
   assistantConversations,
   auditLogs,
   deployments,
-  orgMemberships,
   organizationBilling,
   organizations,
+  orgMemberships,
   pages,
   projects,
 } from "@/lib/db/schema";
-import { getTableColumns, getTableName } from "drizzle-orm";
-import { describe, expect, it } from "vitest";
 
 describe("Database schema", () => {
   describe("organizations table", () => {

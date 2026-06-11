@@ -1,5 +1,5 @@
+import { describe, expect, it } from "vitest";
 import {
-  type LanguagesConfig,
   buildLocalePagePath,
   buildLocalizedPath,
   filterPagesByLocale,
@@ -7,11 +7,11 @@ import {
   getAvailableLocalesForPage,
   getLanguageInfo,
   isValidLocale,
+  type LanguagesConfig,
   mergeLanguagesConfig,
   parseLocaleFromSlug,
   validateLanguagesConfig,
 } from "@/lib/i18n";
-import { describe, expect, it } from "vitest";
 
 // ── isValidLocale ───────────────────────────────────────────────────────────
 

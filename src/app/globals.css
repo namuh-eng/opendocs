@@ -4,7 +4,8 @@
 
 :root {
   color-scheme: light;
-  --od-font: "Plus Jakarta Sans", "DM Sans", Inter, ui-sans-serif, system-ui,
+  --od-font:
+    "Plus Jakarta Sans", "DM Sans", Inter, ui-sans-serif, system-ui,
     -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --od-bg: #f8f9fc;
   --od-sidebar: #eeeff6;
@@ -98,7 +99,9 @@ body {
   color: var(--od-text);
   font-family: var(--od-font);
   font-size: var(--od-fs-base);
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 [data-theme="dark"] {
@@ -212,8 +215,10 @@ body {
 }
 
 .od-card-hover {
-  transition: border-color 0.16s ease, background-color 0.16s ease, transform
-    0.16s ease;
+  transition:
+    border-color 0.16s ease,
+    background-color 0.16s ease,
+    transform 0.16s ease;
 }
 
 .od-card-hover:hover {
@@ -242,8 +247,10 @@ body {
   color: var(--od-text-muted);
   font-size: 0.875rem;
   font-weight: 500;
-  transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s
-    ease;
+  transition:
+    background-color 0.16s ease,
+    border-color 0.16s ease,
+    color 0.16s ease;
 }
 
 .od-button:hover {
@@ -485,14 +492,17 @@ body {
 
 .docs-layout {
   min-height: 100vh;
-  background: radial-gradient(
+  background:
+    radial-gradient(
       circle at 55% -12%,
       color-mix(in srgb, var(--docs-primary, #7b8fde) 9%, transparent),
       transparent 28rem
-    ), var(--docs-bg);
+    ),
+    var(--docs-bg);
   color: var(--docs-text);
-  font-family: "Inter", ui-sans-serif, system-ui, -apple-system,
-    BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family:
+    "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
 }
 
@@ -572,7 +582,9 @@ body {
   color: #9ca3af;
   font-size: 13px;
   cursor: pointer;
-  transition: border-color 0.15s, color 0.15s;
+  transition:
+    border-color 0.15s,
+    color 0.15s;
 }
 
 .docs-topbar-ask-ai:hover {
@@ -636,7 +648,10 @@ body {
   color: var(--docs-text-muted);
   font-size: 13px;
   cursor: pointer;
-  transition: border-color 0.15s, background 0.15s, color 0.15s;
+  transition:
+    border-color 0.15s,
+    background 0.15s,
+    color 0.15s;
 }
 
 .docs-search-btn:hover {
@@ -724,7 +739,9 @@ body {
   line-height: 1.35;
   color: var(--docs-text-muted);
   text-decoration: none;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 
 .docs-nav-item:hover {
@@ -939,7 +956,9 @@ body {
   text-decoration: none;
   border-left: 1px solid transparent;
   transform: translateX(-1px);
-  transition: border-color 0.15s, color 0.15s;
+  transition:
+    border-color 0.15s,
+    color 0.15s;
 }
 
 .docs-toc-link:hover {
@@ -1034,8 +1053,9 @@ body {
   border-radius: 6px;
   background: var(--docs-surface);
   border: 1px solid var(--docs-border);
-  font-family: "JetBrains Mono", "Fira Code", ui-monospace, SFMono-Regular,
-    Menlo, monospace;
+  font-family:
+    "JetBrains Mono", "Fira Code", ui-monospace, SFMono-Regular, Menlo,
+    monospace;
   font-size: 0.875em;
   color: var(--docs-text);
 }
@@ -1148,7 +1168,9 @@ body {
   cursor: pointer;
   padding: 2px 8px;
   border-radius: 4px;
-  transition: color 0.15s, background 0.15s;
+  transition:
+    color 0.15s,
+    background 0.15s;
 }
 
 .code-copy:hover,
@@ -1267,9 +1289,13 @@ body {
   padding: 20px;
   border-radius: 16px;
   border: 1px solid var(--docs-border);
-  background: linear-gradient(145deg, rgba(0, 232, 135, 0.055), transparent 48%),
+  background:
+    linear-gradient(145deg, rgba(0, 232, 135, 0.055), transparent 48%),
     var(--docs-card);
-  transition: border-color 0.2s, background 0.2s, transform 0.2s;
+  transition:
+    border-color 0.2s,
+    background 0.2s,
+    transform 0.2s;
 }
 
 .card-link {
@@ -1280,7 +1306,8 @@ body {
 
 .card-link:hover {
   border-color: var(--docs-green-border);
-  background: linear-gradient(145deg, rgba(0, 232, 135, 0.09), transparent 52%),
+  background:
+    linear-gradient(145deg, rgba(0, 232, 135, 0.09), transparent 52%),
     var(--docs-card);
   transform: translateY(-1px);
 }
@@ -1878,7 +1905,9 @@ pre.mermaid svg {
   height: 32px;
   color: #9ca3af;
   border-radius: 6px;
-  transition: color 0.15s ease, background 0.15s ease;
+  transition:
+    color 0.15s ease,
+    background 0.15s ease;
 }
 
 .docs-footer-social-link:hover {
@@ -3172,7 +3201,9 @@ pre.mermaid svg {
   border: none;
   color: #9ca3af;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 
 .chat-widget-icon-btn:hover {
@@ -3230,7 +3261,10 @@ pre.mermaid svg {
   line-height: 1.3;
   text-align: left;
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    border-color 0.15s,
+    color 0.15s;
 }
 
 .chat-widget-suggestion:hover {
@@ -3463,7 +3497,9 @@ pre.mermaid svg {
   color: white;
   cursor: pointer;
   flex-shrink: 0;
-  transition: background 0.15s, opacity 0.15s;
+  transition:
+    background 0.15s,
+    opacity 0.15s;
 }
 
 .chat-widget-attachment-btn {
@@ -3824,7 +3860,9 @@ pre.mermaid svg {
   color: rgba(255, 255, 255, 0.5);
   cursor: pointer;
   border-bottom: 2px solid transparent;
-  transition: color 0.15s, border-color 0.15s;
+  transition:
+    color 0.15s,
+    border-color 0.15s;
 }
 
 .api-resp-tab.active {
@@ -4023,7 +4061,9 @@ pre.mermaid svg {
   color: rgba(255, 255, 255, 0.5);
   cursor: pointer;
   border-bottom: 2px solid transparent;
-  transition: color 0.15s, border-color 0.15s;
+  transition:
+    color 0.15s,
+    border-color 0.15s;
 }
 
 .api-ref-lang-tab.active {
@@ -4053,7 +4093,9 @@ pre.mermaid svg {
   color: rgba(255, 255, 255, 0.5);
   cursor: pointer;
   border-radius: 4px;
-  transition: color 0.15s, background 0.15s;
+  transition:
+    color 0.15s,
+    background 0.15s;
 }
 
 .api-ref-copy-btn:hover,
@@ -4111,7 +4153,9 @@ pre.mermaid svg {
   color: rgba(255, 255, 255, 0.5);
   cursor: pointer;
   border-bottom: 2px solid transparent;
-  transition: color 0.15s, border-color 0.15s;
+  transition:
+    color 0.15s,
+    border-color 0.15s;
 }
 
 .api-ref-status-tab.active {

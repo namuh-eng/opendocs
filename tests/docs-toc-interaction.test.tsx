@@ -1,8 +1,8 @@
-import { DocsToc } from "@/components/docs/docs-toc";
-import type { TocEntry } from "@/lib/editor";
 import { act } from "react";
 import { createRoot } from "react-dom/client";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { DocsToc } from "@/components/docs/docs-toc";
+import type { TocEntry } from "@/lib/editor";
 
 // React 19 requires this flag for act() in non-testing-library environments.
 (

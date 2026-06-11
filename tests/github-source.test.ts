@@ -1,8 +1,8 @@
+import { describe, expect, it } from "vitest";
 import {
   buildGitHubSourceSelection,
   mergeProjectSettingsWithGitHubSource,
 } from "@/lib/github-source";
-import { describe, expect, it } from "vitest";
 
 describe("github-source helpers", () => {
   it("builds connected repo source metadata", () => {

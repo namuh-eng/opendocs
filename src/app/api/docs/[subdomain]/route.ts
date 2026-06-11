@@ -1,3 +1,5 @@
+import { and, eq } from "drizzle-orm";
+import { type NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { pages, projects } from "@/lib/db/schema";
 import { redactProjectAuthenticationSettings } from "@/lib/project-authentication-settings";
@@ -5,8 +7,6 @@ import {
   getDocsAccessCookieName,
   hasValidDocsAccess,
 } from "@/lib/project-docs-access";
-import { and, eq } from "drizzle-orm";
-import { type NextRequest, NextResponse } from "next/server";
 
 /** GET /api/docs/[subdomain] — public endpoint to fetch all published pages for a docs site */
 export async function GET(

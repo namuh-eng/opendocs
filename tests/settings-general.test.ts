@@ -1,9 +1,9 @@
+import { describe, expect, it } from "vitest";
 import {
   validateProjectName,
   validateSubdomain,
   validateUpdateProjectRequest,
 } from "@/lib/projects";
-import { describe, expect, it } from "vitest";
 
 describe("settings-general — deployment name editing", () => {
   describe("validateProjectName", () => {

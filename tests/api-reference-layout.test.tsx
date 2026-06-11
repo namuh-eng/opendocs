@@ -1,7 +1,7 @@
-import { ApiReferenceLayout } from "@/components/docs/api-reference-layout";
 import { act } from "react";
 import { createRoot } from "react-dom/client";
 import { beforeEach, describe, expect, it } from "vitest";
+import { ApiReferenceLayout } from "@/components/docs/api-reference-layout";
 
 // React 19 requires this flag for act() in non-testing-library environments.
 (

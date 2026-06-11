@@ -1,6 +1,6 @@
-import { GoogleAuthCard } from "@/components/auth/google-auth-card";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
+import { GoogleAuthCard } from "@/components/auth/google-auth-card";
 
 describe("GoogleAuthCard", () => {
   it("renders Mintlify-style email/password and Google options on login", () => {

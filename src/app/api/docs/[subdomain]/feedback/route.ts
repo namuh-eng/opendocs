@@ -1,3 +1,5 @@
+import { eq } from "drizzle-orm";
+import { type NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { analyticsEvents, projects } from "@/lib/db/schema";
 import { validateFeedbackPayload } from "@/lib/feedback";
@@ -5,8 +7,6 @@ import {
   getDocsAccessCookieName,
   hasValidDocsAccess,
 } from "@/lib/project-docs-access";
-import { eq } from "drizzle-orm";
-import { type NextRequest, NextResponse } from "next/server";
 
 /**
  * POST /api/docs/[subdomain]/feedback

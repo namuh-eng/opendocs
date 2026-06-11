@@ -1,8 +1,8 @@
+import { and, eq } from "drizzle-orm";
+import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { pages, projects } from "@/lib/db/schema";
 import { generateLlmsFullTxt, generateLlmsTxt } from "@/lib/llms-txt";
-import { and, eq } from "drizzle-orm";
-import { NextResponse } from "next/server";
 
 export type PublicLlmsType = "index" | "full";
 

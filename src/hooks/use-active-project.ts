@@ -1,8 +1,8 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { getStoredActiveProjectId } from "@/components/layout/shell-preferences";
 import { selectActiveProject } from "@/hooks/project-hooks-core";
-import { useEffect, useState } from "react";
 
 export function useActiveProject<T extends { id: string }>() {
   const [project, setProject] = useState<T | null>(null);

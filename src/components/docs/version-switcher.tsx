@@ -1,13 +1,13 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import {
-  type VersionsConfig,
   buildVersionedPath,
   getDefaultVersion,
   getVersionByTag,
+  type VersionsConfig,
 } from "@/lib/versions";
-import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useId, useRef, useState } from "react";
 
 interface VersionSwitcherProps {
   currentVersion: string;

@@ -1,6 +1,6 @@
-import { db } from "@/lib/db";
-import { orgMemberships, organizations } from "@/lib/db/schema";
 import { and, eq, inArray, ne } from "drizzle-orm";
+import { db } from "@/lib/db";
+import { organizations, orgMemberships } from "@/lib/db/schema";
 
 interface MembershipRow {
   orgId: string;

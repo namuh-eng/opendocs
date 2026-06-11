@@ -1,10 +1,10 @@
 "use client";
 
-import type { CommentThread } from "@/lib/collaboration";
-import { formatCommentDate } from "@/lib/collaboration";
 import { clsx } from "clsx";
 import { Check, MessageSquare, RotateCcw, Send, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { CommentThread } from "@/lib/collaboration";
+import { formatCommentDate } from "@/lib/collaboration";
 
 interface CommentsSidebarProps {
   pageId: string | null;

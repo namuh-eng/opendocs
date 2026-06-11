@@ -1,18 +1,18 @@
 "use client";
 
+import { clsx } from "clsx";
+import { Monitor, Moon, Sun, Upload, X } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useActiveProject } from "@/hooks/use-active-project";
 import { useProjectUpdater } from "@/hooks/use-project-updater";
 import {
   type AppearanceSettings,
-  DEFAULT_APPEARANCE,
   buildAssetFilename,
+  DEFAULT_APPEARANCE,
   isValidHexColor,
   mergeAppearance,
   validateAppearance,
 } from "@/lib/appearance";
-import { clsx } from "clsx";
-import { Monitor, Moon, Sun, Upload, X } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
 
 interface ProjectData {
   id: string;

@@ -1,5 +1,5 @@
-import { renderComponentBlock, renderMdxContent } from "@/lib/mdx-renderer";
 import { describe, expect, it } from "vitest";
+import { renderComponentBlock, renderMdxContent } from "@/lib/mdx-renderer";
 
 describe("Extended MDX Component Library (feature-004b)", () => {
   // ── Mermaid ──────────────────────────────────────────────────────────────

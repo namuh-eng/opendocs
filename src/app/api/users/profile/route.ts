@@ -1,12 +1,12 @@
+import { eq } from "drizzle-orm";
+import { headers } from "next/headers";
+import { NextResponse } from "next/server";
 import { deleteOrganizationsSolelyAdministeredByUser } from "@/lib/account-deletion";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { user } from "@/lib/db/auth-schema";
 import { userPreferences } from "@/lib/db/schema";
 import { createRequestId, logger } from "@/lib/logger";
-import { eq } from "drizzle-orm";
-import { headers } from "next/headers";
-import { NextResponse } from "next/server";
 
 export async function GET() {
   const session = await auth.api.getSession({ headers: await headers() });

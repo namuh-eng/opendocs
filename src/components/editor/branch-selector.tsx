@@ -1,10 +1,10 @@
 "use client";
 
-import type { Branch } from "@/lib/collaboration";
 import * as Popover from "@radix-ui/react-popover";
 import { clsx } from "clsx";
 import { Check, ChevronDown, GitBranch, Plus, Search } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import type { Branch } from "@/lib/collaboration";
 
 interface BranchSelectorProps {
   projectId: string | null;

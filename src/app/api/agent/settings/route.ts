@@ -5,13 +5,13 @@
  * Session-authenticated (dashboard use).
  */
 
-import { validateAgentSettingsUpdate } from "@/lib/agent-settings";
-import { db } from "@/lib/db";
-import { agentSettings, orgMemberships, organizations } from "@/lib/db/schema";
-import { createRequestId, logger } from "@/lib/logger";
-import { getServerSession } from "@/lib/session";
 import { eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
+import { validateAgentSettingsUpdate } from "@/lib/agent-settings";
+import { db } from "@/lib/db";
+import { agentSettings, organizations, orgMemberships } from "@/lib/db/schema";
+import { createRequestId, logger } from "@/lib/logger";
+import { getServerSession } from "@/lib/session";
 
 async function resolveOrg(userId: string) {
   const membership = await db

@@ -1,3 +1,5 @@
+import { and, eq } from "drizzle-orm";
+import { type NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { pages, projects } from "@/lib/db/schema";
 import { pageToMarkdown } from "@/lib/page-chrome";
@@ -5,8 +7,6 @@ import {
   getDocsAccessCookieName,
   hasValidDocsAccess,
 } from "@/lib/project-docs-access";
-import { and, eq } from "drizzle-orm";
-import { type NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   request: NextRequest,

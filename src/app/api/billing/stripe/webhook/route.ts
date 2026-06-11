@@ -1,8 +1,8 @@
+import { NextResponse } from "next/server";
+import type Stripe from "stripe";
 import { createRequestId, logger } from "@/lib/logger";
 import { getStripeClient, getStripeWebhookSecret } from "@/lib/stripe";
 import { applyStripeWebhookEvent } from "@/lib/stripe-billing";
-import { NextResponse } from "next/server";
-import type Stripe from "stripe";
 
 const route = "/api/billing/stripe/webhook";
 

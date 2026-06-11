@@ -1,5 +1,5 @@
-import { KATEX_CSS_URL, renderLatex } from "@/lib/latex";
 import { describe, expect, it } from "vitest";
+import { KATEX_CSS_URL, renderLatex } from "@/lib/latex";
 
 describe("renderLatex", () => {
   describe("inline math ($...$)", () => {
