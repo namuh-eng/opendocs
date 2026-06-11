@@ -13,9 +13,12 @@ interface Member {
 }
 
 const ROLE_COLORS: Record<string, string> = {
-  admin: "bg-emerald-900/50 text-emerald-400 border-emerald-700",
-  editor: "bg-blue-900/50 text-blue-400 border-blue-700",
-  viewer: "bg-gray-800 text-gray-400 border-gray-700",
+  admin:
+    "bg-[var(--od-accent-soft)] text-[var(--od-accent-text)] border-[var(--od-accent)]",
+  editor:
+    "bg-[var(--od-sage-soft)] text-[var(--od-sage)] border-[var(--od-sage)]",
+  viewer:
+    "bg-[var(--od-panel-muted)] text-[var(--od-text-muted)] border-[var(--od-border)]",
 };
 
 export default function MembersPage() {
@@ -174,7 +177,7 @@ export default function MembersPage() {
           <button
             type="button"
             onClick={openInvite}
-            className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-500"
+            className="rounded-lg bg-[var(--od-accent-strong)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--od-accent-deep,#3d4ea4)]"
           >
             Invite member
           </button>
@@ -249,7 +252,7 @@ export default function MembersPage() {
                                     | "viewer",
                                 )
                               }
-                              className="rounded border border-gray-700 bg-gray-900 px-2 py-1 text-xs text-white"
+                              className="rounded border border-[var(--od-border)] bg-[var(--od-panel)] px-2 py-1 text-xs text-[var(--od-text)]"
                             >
                               <option value="admin">Admin</option>
                               <option value="editor">Editor</option>
@@ -259,7 +262,7 @@ export default function MembersPage() {
                               type="button"
                               onClick={() => handleRoleChange(member.id)}
                               disabled={savingRole}
-                              className="text-xs text-emerald-400 hover:text-emerald-300"
+                              className="text-xs text-[var(--od-accent-strong)] hover:text-[var(--od-accent)]"
                             >
                               {savingRole ? "..." : "Save"}
                             </button>
@@ -338,7 +341,7 @@ export default function MembersPage() {
                   value={inviteEmail}
                   onChange={(e) => setInviteEmail(e.target.value)}
                   placeholder="colleague@company.com"
-                  className="w-full rounded-lg border border-gray-700 bg-gray-900 px-4 py-2.5 text-sm text-white placeholder-gray-500 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                  className="w-full rounded-lg border border-[var(--od-border)] bg-[var(--od-panel)] px-4 py-2.5 text-sm text-[var(--od-text)] placeholder-[var(--od-text-subtle)] outline-none focus:border-[var(--od-accent)] focus:ring-1 focus:ring-[var(--od-accent)]"
                 />
               </div>
 
@@ -357,7 +360,7 @@ export default function MembersPage() {
                       e.target.value as "admin" | "editor" | "viewer",
                     )
                   }
-                  className="w-full rounded-lg border border-gray-700 bg-gray-900 px-4 py-2.5 text-sm text-white outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                  className="w-full rounded-lg border border-[var(--od-border)] bg-[var(--od-panel)] px-4 py-2.5 text-sm text-[var(--od-text)] outline-none focus:border-[var(--od-accent)] focus:ring-1 focus:ring-[var(--od-accent)]"
                 >
                   <option value="viewer">Viewer</option>
                   <option value="editor">Editor</option>
@@ -369,21 +372,23 @@ export default function MembersPage() {
                 <p className="text-sm text-red-400">{inviteError}</p>
               )}
               {inviteSuccess && (
-                <p className="text-sm text-emerald-400">{inviteSuccess}</p>
+                <p className="text-sm text-[var(--od-success)]">
+                  {inviteSuccess}
+                </p>
               )}
 
               <div className="flex gap-3">
                 <button
                   type="button"
                   onClick={() => setShowInvite(false)}
-                  className="flex-1 rounded-lg border border-gray-700 px-4 py-2.5 text-sm text-gray-300 transition-colors hover:border-gray-500"
+                  className="flex-1 rounded-lg border border-[var(--od-border)] px-4 py-2.5 text-sm text-[var(--od-text-muted)] transition-colors hover:border-[var(--od-accent)]"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={inviting}
-                  className="flex-1 rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-500 disabled:opacity-50"
+                  className="flex-1 rounded-lg bg-[var(--od-accent-strong)] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[var(--od-accent-deep,#3d4ea4)] disabled:opacity-50"
                 >
                   {inviting ? "Sending..." : "Send invite"}
                 </button>

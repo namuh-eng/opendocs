@@ -106,7 +106,7 @@ describe("GitHubAppSettingsClient", () => {
       '[data-testid="github-selected-repo-status"]',
     );
     expect(status).toBeTruthy();
-    expect(status?.className).toContain("text-amber-950");
+    expect(status?.className).toContain("text-[var(--od-text)]");
     expect(status?.className).not.toContain("text-amber-200");
     expect(container.textContent).toContain("Repository access required");
     expect(container.textContent).toContain(

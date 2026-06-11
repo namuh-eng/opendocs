@@ -219,8 +219,8 @@ export function ConfigsPanel({
           className={clsx(
             "mx-3 mt-2 px-3 py-2 rounded-md text-xs",
             message.type === "success"
-              ? "bg-emerald-600/20 text-emerald-400"
-              : "bg-red-600/20 text-red-400",
+              ? "bg-[var(--od-sage-soft)] text-[var(--od-success)]"
+              : "bg-[var(--od-danger-soft)] text-[var(--od-danger)]",
           )}
           data-testid="config-message"
         >
@@ -251,7 +251,7 @@ export function ConfigsPanel({
           type="button"
           onClick={handleSave}
           disabled={saving}
-          className="w-full px-4 py-2 text-sm font-medium text-white bg-emerald-600 rounded-lg hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="w-full px-4 py-2 text-sm font-medium text-white bg-[var(--od-accent-strong)] rounded-lg hover:bg-[var(--od-accent-deep,#3d4ea4)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           data-testid="config-save-btn"
         >
           {saving ? "Saving..." : "Save changes"}
@@ -321,7 +321,7 @@ function TextInput({
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       data-testid={testId}
-      className="w-full px-2.5 py-1.5 bg-[#1a1a1a] border border-white/[0.08] rounded-md text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+      className="w-full px-2.5 py-1.5 bg-[#1a1a1a] border border-white/[0.08] rounded-md text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-[var(--od-accent)]"
     />
   );
 }
@@ -342,7 +342,7 @@ function SelectInput({
       value={value}
       onChange={(e) => onChange(e.target.value)}
       data-testid={testId}
-      className="w-full px-2.5 py-1.5 bg-[#1a1a1a] border border-white/[0.08] rounded-md text-sm text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
+      className="w-full px-2.5 py-1.5 bg-[#1a1a1a] border border-white/[0.08] rounded-md text-sm text-white focus:outline-none focus:ring-1 focus:ring-[var(--od-accent)]"
     >
       {options.map((opt) => (
         <option key={opt.value} value={opt.value}>
@@ -375,7 +375,7 @@ function ToggleSwitch({
         data-testid={testId}
         className={clsx(
           "relative w-8 h-[18px] rounded-full transition-colors",
-          checked ? "bg-emerald-600" : "bg-gray-700",
+          checked ? "bg-[var(--od-accent-strong)]" : "bg-[var(--od-border)]",
         )}
       >
         <span
@@ -417,7 +417,7 @@ function ColorField({
           placeholder="#000000"
           maxLength={7}
           data-testid={testId}
-          className="flex-1 px-2.5 py-1.5 bg-[#1a1a1a] border border-white/[0.08] rounded-md text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+          className="flex-1 px-2.5 py-1.5 bg-[#1a1a1a] border border-white/[0.08] rounded-md text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-[var(--od-accent)]"
         />
         <input
           type="color"
@@ -671,7 +671,7 @@ function HeaderTopbarForm({ config, updateSection }: SectionProps) {
           <button
             type="button"
             onClick={addLink}
-            className="p-0.5 rounded text-gray-500 hover:text-emerald-400"
+            className="p-0.5 rounded text-gray-500 hover:text-[var(--od-accent-strong)]"
             data-testid="config-topbar-add-link"
           >
             <Plus size={12} />
@@ -687,14 +687,14 @@ function HeaderTopbarForm({ config, updateSection }: SectionProps) {
               value={link.label}
               onChange={(e) => updateLink(idx, { label: e.target.value })}
               placeholder="Label"
-              className="flex-1 px-2 py-1 bg-[#1a1a1a] border border-white/[0.08] rounded text-xs text-white placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="flex-1 px-2 py-1 bg-[#1a1a1a] border border-white/[0.08] rounded text-xs text-white placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-[var(--od-accent)]"
             />
             <input
               type="text"
               value={link.url}
               onChange={(e) => updateLink(idx, { url: e.target.value })}
               placeholder="URL"
-              className="flex-1 px-2 py-1 bg-[#1a1a1a] border border-white/[0.08] rounded text-xs text-white placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="flex-1 px-2 py-1 bg-[#1a1a1a] border border-white/[0.08] rounded text-xs text-white placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-[var(--od-accent)]"
             />
             <button
               type="button"
@@ -761,7 +761,7 @@ function FooterForm({ config, updateSection }: SectionProps) {
           <button
             type="button"
             onClick={addSocial}
-            className="p-0.5 rounded text-gray-500 hover:text-emerald-400"
+            className="p-0.5 rounded text-gray-500 hover:text-[var(--od-accent-strong)]"
             data-testid="config-footer-add-social"
           >
             <Plus size={12} />
@@ -779,7 +779,7 @@ function FooterForm({ config, updateSection }: SectionProps) {
                   type: e.target.value as FooterSocialLink["type"],
                 })
               }
-              className="w-24 px-1.5 py-1 bg-[#1a1a1a] border border-white/[0.08] rounded text-xs text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="w-24 px-1.5 py-1 bg-[#1a1a1a] border border-white/[0.08] rounded text-xs text-white focus:outline-none focus:ring-1 focus:ring-[var(--od-accent)]"
             >
               {SOCIAL_LINK_TYPES.map((t) => (
                 <option key={t.value} value={t.value}>
@@ -792,7 +792,7 @@ function FooterForm({ config, updateSection }: SectionProps) {
               value={link.url}
               onChange={(e) => updateSocial(idx, { url: e.target.value })}
               placeholder="https://..."
-              className="flex-1 px-2 py-1 bg-[#1a1a1a] border border-white/[0.08] rounded text-xs text-white placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="flex-1 px-2 py-1 bg-[#1a1a1a] border border-white/[0.08] rounded text-xs text-white placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-[var(--od-accent)]"
             />
             <button
               type="button"
@@ -945,7 +945,7 @@ function IntegrationsForm({ config, updateSection }: SectionProps) {
           <button
             type="button"
             onClick={addCustom}
-            className="p-0.5 rounded text-gray-500 hover:text-emerald-400"
+            className="p-0.5 rounded text-gray-500 hover:text-[var(--od-accent-strong)]"
             data-testid="config-int-add-custom"
           >
             <Plus size={12} />
@@ -961,14 +961,14 @@ function IntegrationsForm({ config, updateSection }: SectionProps) {
               value={entry.name}
               onChange={(e) => updateCustom(idx, { name: e.target.value })}
               placeholder="Name"
-              className="flex-1 px-2 py-1 bg-[#1a1a1a] border border-white/[0.08] rounded text-xs text-white placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="flex-1 px-2 py-1 bg-[#1a1a1a] border border-white/[0.08] rounded text-xs text-white placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-[var(--od-accent)]"
             />
             <input
               type="text"
               value={entry.value}
               onChange={(e) => updateCustom(idx, { value: e.target.value })}
               placeholder="Value"
-              className="flex-1 px-2 py-1 bg-[#1a1a1a] border border-white/[0.08] rounded text-xs text-white placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="flex-1 px-2 py-1 bg-[#1a1a1a] border border-white/[0.08] rounded text-xs text-white placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-[var(--od-accent)]"
             />
             <button
               type="button"
@@ -1009,7 +1009,7 @@ function ApiDocsForm({ config, updateSection }: SectionProps) {
         </p>
         {fetchStatus && (
           <p
-            className={`text-xs mt-1 ${fetchStatus.startsWith("Error") ? "text-red-400" : "text-emerald-400"}`}
+            className={`text-xs mt-1 ${fetchStatus.startsWith("Error") ? "text-[var(--od-danger)]" : "text-[var(--od-success)]"}`}
             data-testid="fetch-status"
           >
             {fetchStatus}
@@ -1089,7 +1089,7 @@ function AdvancedForm({ config, updateSection }: SectionProps) {
           placeholder="<script>...</script>"
           rows={3}
           data-testid="config-adv-custom-head"
-          className="w-full px-2.5 py-1.5 bg-[#1a1a1a] border border-white/[0.08] rounded-md text-xs text-white placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-emerald-500 font-mono resize-none"
+          className="w-full px-2.5 py-1.5 bg-[#1a1a1a] border border-white/[0.08] rounded-md text-xs text-white placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-[var(--od-accent)] font-mono resize-none"
         />
       </div>
 
@@ -1105,7 +1105,7 @@ function AdvancedForm({ config, updateSection }: SectionProps) {
           placeholder=".docs-page-title { color: #ff6600; }"
           rows={4}
           data-testid="config-adv-custom-css"
-          className="w-full px-2.5 py-1.5 bg-[#1a1a1a] border border-white/[0.08] rounded-md text-xs text-white placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-emerald-500 font-mono resize-none"
+          className="w-full px-2.5 py-1.5 bg-[#1a1a1a] border border-white/[0.08] rounded-md text-xs text-white placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-[var(--od-accent)] font-mono resize-none"
         />
       </div>
       <div>
@@ -1120,7 +1120,7 @@ function AdvancedForm({ config, updateSection }: SectionProps) {
           placeholder="console.log('Hello from custom JS');"
           rows={4}
           data-testid="config-adv-custom-js"
-          className="w-full px-2.5 py-1.5 bg-[#1a1a1a] border border-white/[0.08] rounded-md text-xs text-white placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-emerald-500 font-mono resize-none"
+          className="w-full px-2.5 py-1.5 bg-[#1a1a1a] border border-white/[0.08] rounded-md text-xs text-white placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-[var(--od-accent)] font-mono resize-none"
         />
       </div>
 
@@ -1132,7 +1132,7 @@ function AdvancedForm({ config, updateSection }: SectionProps) {
             type="button"
             onClick={addRedirect}
             data-testid="config-add-redirect"
-            className="flex items-center gap-1 text-[11px] text-emerald-400 hover:text-emerald-300"
+            className="flex items-center gap-1 text-[11px] text-[var(--od-accent-strong)] hover:text-[var(--od-accent)]"
           >
             <Plus size={12} /> Add redirect
           </button>

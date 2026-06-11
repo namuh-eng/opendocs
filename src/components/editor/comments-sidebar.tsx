@@ -204,7 +204,7 @@ export function CommentsSidebar({ pageId, onClose }: CommentsSidebarProps) {
                 {/* Thread header */}
                 <div className="flex items-center justify-between mb-1">
                   <div className="flex items-center gap-2">
-                    <div className="w-5 h-5 rounded-full bg-emerald-600/30 flex items-center justify-center text-[10px] text-emerald-400 font-medium">
+                    <div className="w-5 h-5 rounded-full bg-[var(--od-accent-soft)] flex items-center justify-center text-[10px] text-[var(--od-accent-strong)] font-medium">
                       {(thread.userName ?? thread.userId)
                         .charAt(0)
                         .toUpperCase()}
@@ -220,7 +220,7 @@ export function CommentsSidebar({ pageId, onClose }: CommentsSidebarProps) {
                       "p-1 rounded text-xs transition-colors",
                       thread.resolved
                         ? "text-gray-500 hover:text-white"
-                        : "text-emerald-500 hover:text-emerald-400",
+                        : "text-[var(--od-success)] hover:text-[var(--od-accent-strong)]",
                     )}
                     title={thread.resolved ? "Reopen" : "Resolve"}
                     data-testid={`resolve-btn-${thread.id}`}
@@ -267,7 +267,7 @@ export function CommentsSidebar({ pageId, onClose }: CommentsSidebarProps) {
                       value={replyContent}
                       onChange={(e) => setReplyContent(e.target.value)}
                       placeholder="Reply..."
-                      className="flex-1 px-2 py-1 text-xs bg-[#1a1a1a] border border-white/[0.08] rounded text-white placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                      className="flex-1 px-2 py-1 text-xs bg-[#1a1a1a] border border-white/[0.08] rounded text-white placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-[var(--od-accent)]"
                       data-testid={`reply-input-${thread.id}`}
                       onKeyDown={(e) => {
                         if (e.key === "Enter" && !e.shiftKey) {
@@ -280,7 +280,7 @@ export function CommentsSidebar({ pageId, onClose }: CommentsSidebarProps) {
                       type="button"
                       onClick={() => handleReply(thread.id)}
                       disabled={submitting || !replyContent.trim()}
-                      className="p-1 rounded text-emerald-500 hover:text-emerald-400 disabled:opacity-50"
+                      className="p-1 rounded text-[var(--od-accent-strong)] hover:text-[var(--od-accent)] disabled:opacity-50"
                     >
                       <Send size={12} />
                     </button>
@@ -320,7 +320,7 @@ export function CommentsSidebar({ pageId, onClose }: CommentsSidebarProps) {
             onChange={(e) => setNewComment(e.target.value)}
             placeholder="Add a comment..."
             rows={2}
-            className="flex-1 px-3 py-2 text-sm bg-[#1a1a1a] border border-white/[0.08] rounded-lg text-white placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-emerald-500 resize-none"
+            className="flex-1 px-3 py-2 text-sm bg-[#1a1a1a] border border-white/[0.08] rounded-lg text-white placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-[var(--od-accent)] resize-none"
             data-testid="new-comment-input"
             onKeyDown={(e) => {
               if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
@@ -336,7 +336,7 @@ export function CommentsSidebar({ pageId, onClose }: CommentsSidebarProps) {
             type="button"
             onClick={handleSubmitComment}
             disabled={submitting || !newComment.trim()}
-            className="px-3 py-1.5 text-xs font-medium text-white bg-emerald-600 rounded-md hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-3 py-1.5 text-xs font-medium text-white bg-[var(--od-accent-strong)] rounded-md hover:bg-[var(--od-accent-deep,#3d4ea4)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             data-testid="submit-comment-btn"
           >
             {submitting ? "Sending..." : "Comment"}

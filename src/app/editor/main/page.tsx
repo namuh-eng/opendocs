@@ -109,7 +109,7 @@ function TreeNodeItem({
         className={clsx(
           "flex items-center gap-1.5 w-full text-left px-2 py-1 text-sm rounded-md transition-colors",
           isSelected
-            ? "bg-emerald-600/20 text-emerald-400"
+            ? "bg-[var(--od-accent-soft)] text-[var(--od-accent-strong)]"
             : "text-gray-400 hover:bg-white/[0.06] hover:text-gray-200",
         )}
         style={{ paddingLeft: `${depth * 16 + 8}px` }}
@@ -240,7 +240,7 @@ function CreatePageModal({
               value={path}
               onChange={(e) => setPath(e.target.value)}
               placeholder="e.g. getting-started/quickstart"
-              className="w-full px-3 py-2 bg-[#0f0f0f] border border-white/[0.08] rounded-lg text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="w-full px-3 py-2 bg-[#0f0f0f] border border-white/[0.08] rounded-lg text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-[var(--od-accent)]"
             />
           </div>
           <div>
@@ -256,7 +256,7 @@ function CreatePageModal({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Quickstart"
-              className="w-full px-3 py-2 bg-[#0f0f0f] border border-white/[0.08] rounded-lg text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="w-full px-3 py-2 bg-[#0f0f0f] border border-white/[0.08] rounded-lg text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-[var(--od-accent)]"
             />
           </div>
           {error && <p className="text-sm text-red-400">{error}</p>}
@@ -772,7 +772,7 @@ export default function EditorPage() {
                   className={clsx(
                     "group flex items-center gap-2 px-2 py-1.5 rounded-md text-sm transition-colors",
                     selectedPageId === page.id
-                      ? "bg-emerald-600/20 text-emerald-400"
+                      ? "bg-[var(--od-accent-soft)] text-[var(--od-accent-strong)]"
                       : "text-gray-400 hover:bg-white/[0.06] hover:text-gray-200",
                   )}
                 >

@@ -127,7 +127,7 @@ export function PageAnalyticsPanel({ pagePath }: PageAnalyticsProps) {
   return (
     <div className="w-80 border-l border-white/[0.08] bg-[#0f0f0f] flex flex-col shrink-0 overflow-y-auto">
       <div className="px-4 py-3 border-b border-white/[0.08] flex items-center gap-2">
-        <BarChart3 size={16} className="text-emerald-400" />
+        <BarChart3 size={16} className="text-[var(--od-accent-strong)]" />
         <h3 className="text-sm font-medium text-white">Page Analytics</h3>
       </div>
 
@@ -149,13 +149,13 @@ export function PageAnalyticsPanel({ pagePath }: PageAnalyticsProps) {
               <ComposedChart data={data.dailyCounts}>
                 <Bar
                   dataKey="count"
-                  fill="rgba(16,185,129,0.2)"
+                  fill="rgba(84,102,194,0.2)"
                   radius={[2, 2, 0, 0]}
                 />
                 <Line
                   type="monotone"
                   dataKey="count"
-                  stroke="#10b981"
+                  stroke="#5466c2"
                   strokeWidth={1.5}
                   dot={false}
                 />
@@ -180,7 +180,10 @@ export function PageAnalyticsPanel({ pagePath }: PageAnalyticsProps) {
           </p>
           <div className="grid grid-cols-2 gap-3 mb-4">
             <div className="bg-white/[0.02] border border-white/[0.04] rounded-lg p-2 text-center">
-              <ThumbsUp size={14} className="text-emerald-500 mx-auto mb-1" />
+              <ThumbsUp
+                size={14}
+                className="text-[var(--od-success)] mx-auto mb-1"
+              />
               <span className="text-sm font-medium text-white">
                 {data.feedback.helpful}
               </span>

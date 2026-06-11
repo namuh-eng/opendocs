@@ -156,7 +156,7 @@ export function BillingSettingsClient({
           </p>
         </div>
         <span
-          className="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-sm font-medium text-emerald-300"
+          className="inline-flex w-fit items-center gap-2 rounded-full border border-[var(--od-sage)] bg-[var(--od-sage-soft)] px-3 py-1 text-sm font-medium text-[var(--od-success)]"
           data-testid="billing-status"
         >
           <ShieldCheck size={15} />
@@ -176,7 +176,7 @@ export function BillingSettingsClient({
                 {planDetails.summary}
               </p>
             </div>
-            <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/[0.06] px-4 py-3 text-right shadow-[0_0_30px_rgba(16,185,129,0.08)]">
+            <div className="rounded-lg border border-[var(--od-accent)] bg-[var(--od-accent-soft)] px-4 py-3 text-right">
               <p className="text-xs uppercase tracking-wide text-gray-500">
                 Monthly
               </p>
@@ -214,8 +214,8 @@ export function BillingSettingsClient({
               className={clsx(
                 "mt-4 rounded-lg border px-3 py-2 text-sm",
                 message.type === "error"
-                  ? "border-red-500/30 bg-red-500/10 text-red-300"
-                  : "border-amber-500/30 bg-amber-500/10 text-amber-200",
+                  ? "border-[var(--od-danger)] bg-[var(--od-danger-soft)] text-[var(--od-danger)]"
+                  : "border-[var(--od-gold,#c9a649)] bg-[var(--od-gold-soft,#f4ecd2)] text-[var(--od-text)]",
               )}
               data-testid="billing-message"
             >
@@ -233,7 +233,7 @@ export function BillingSettingsClient({
           <ul className="mt-4 space-y-3 text-sm text-gray-300">
             {planDetails.features.map((feature) => (
               <li key={feature} className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                <span className="h-1.5 w-1.5 rounded-full bg-[var(--od-accent)]" />
                 {feature}
               </li>
             ))}
@@ -302,8 +302,8 @@ function BillingButton({
       className={clsx(
         "inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50",
         variant === "primary"
-          ? "bg-emerald-600 text-white hover:bg-emerald-500"
-          : "border border-white/[0.08] bg-white/[0.04] text-white hover:bg-white/[0.08]",
+          ? "bg-[var(--od-accent-strong)] text-white hover:bg-[var(--od-accent-deep,#3d4ea4)]"
+          : "border border-[var(--od-border)] bg-[var(--od-panel-muted)] text-[var(--od-text)] hover:bg-[var(--od-panel)]",
       )}
     >
       {loading ? (
@@ -352,7 +352,7 @@ function UsageCard({
         <>
           <div className="mt-4 h-2 rounded-full bg-white/[0.06]">
             <div
-              className="h-full rounded-full bg-emerald-500"
+              className="h-full rounded-full bg-[var(--od-accent)]"
               style={{ width: `${percent}%` }}
             />
           </div>

@@ -147,7 +147,7 @@ export function NewWorkflowClient({
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="My workflow"
-            className="w-full rounded-md border border-gray-700 bg-gray-900 px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+            className="w-full rounded-md border border-[var(--od-border)] bg-[var(--od-panel)] px-3 py-2 text-sm text-[var(--od-text)] placeholder-[var(--od-text-subtle)] outline-none focus:border-[var(--od-accent)] focus:ring-1 focus:ring-[var(--od-accent)]"
           />
         </div>
 
@@ -161,16 +161,16 @@ export function NewWorkflowClient({
               data-testid="trigger-on_pr_merge"
               className={`flex w-full items-center gap-3 rounded-lg border p-4 text-left transition-colors ${
                 triggerType === "on_pr_merge"
-                  ? "border-emerald-500 bg-gray-900"
-                  : "border-gray-700 bg-gray-900/50 hover:border-gray-600"
+                  ? "border-[var(--od-accent)] bg-[var(--od-accent-soft)]"
+                  : "border-[var(--od-border)] bg-[var(--od-panel-muted)] hover:border-[var(--od-accent)]"
               }`}
             >
               <GitMerge
                 size={20}
                 className={
                   triggerType === "on_pr_merge"
-                    ? "text-emerald-400"
-                    : "text-gray-400"
+                    ? "text-[var(--od-accent-strong)]"
+                    : "text-[var(--od-text-muted)]"
                 }
               />
               <div className="flex-1">
@@ -184,8 +184,8 @@ export function NewWorkflowClient({
               <div
                 className={`h-5 w-5 rounded-full border-2 ${
                   triggerType === "on_pr_merge"
-                    ? "border-emerald-500 bg-emerald-500"
-                    : "border-gray-600"
+                    ? "border-[var(--od-accent)] bg-[var(--od-accent)]"
+                    : "border-[var(--od-border)]"
                 }`}
               >
                 {triggerType === "on_pr_merge" && (
@@ -208,16 +208,16 @@ export function NewWorkflowClient({
               data-testid="trigger-on_schedule"
               className={`flex w-full items-center gap-3 rounded-lg border p-4 text-left transition-colors ${
                 triggerType === "on_schedule"
-                  ? "border-emerald-500 bg-gray-900"
-                  : "border-gray-700 bg-gray-900/50 hover:border-gray-600"
+                  ? "border-[var(--od-accent)] bg-[var(--od-accent-soft)]"
+                  : "border-[var(--od-border)] bg-[var(--od-panel-muted)] hover:border-[var(--od-accent)]"
               }`}
             >
               <Clock
                 size={20}
                 className={
                   triggerType === "on_schedule"
-                    ? "text-emerald-400"
-                    : "text-gray-400"
+                    ? "text-[var(--od-accent-strong)]"
+                    : "text-[var(--od-text-muted)]"
                 }
               />
               <div className="flex-1">
@@ -229,8 +229,8 @@ export function NewWorkflowClient({
               <div
                 className={`h-5 w-5 rounded-full border-2 ${
                   triggerType === "on_schedule"
-                    ? "border-emerald-500 bg-emerald-500"
-                    : "border-gray-600"
+                    ? "border-[var(--od-accent)] bg-[var(--od-accent)]"
+                    : "border-[var(--od-border)]"
                 }`}
               >
                 {triggerType === "on_schedule" && (
@@ -258,8 +258,8 @@ export function NewWorkflowClient({
             <p className="mb-2 text-sm text-gray-500">
               Repositories to watch for pull request merges.
             </p>
-            <div className="rounded-md border border-gray-700 bg-gray-900">
-              <div className="flex items-center gap-2 border-b border-gray-700 px-3 py-2">
+            <div className="rounded-md border border-[var(--od-border)] bg-[var(--od-panel)]">
+              <div className="flex items-center gap-2 border-b border-[var(--od-border)] px-3 py-2">
                 <svg
                   className="h-4 w-4 text-gray-500"
                   fill="none"
@@ -301,8 +301,8 @@ export function NewWorkflowClient({
                   data-testid={`freq-${opt.value}`}
                   className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
                     frequency === opt.value
-                      ? "bg-white text-gray-900"
-                      : "bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-gray-300"
+                      ? "bg-[var(--od-accent-strong)] text-white"
+                      : "bg-[var(--od-panel-muted)] text-[var(--od-text-muted)] hover:bg-[var(--od-panel)] hover:text-[var(--od-text)]"
                   }`}
                 >
                   {opt.label}
@@ -317,14 +317,14 @@ export function NewWorkflowClient({
                 onChange={(e) => setCustomCron(e.target.value)}
                 placeholder="0 9 * * 1"
                 data-testid="custom-cron"
-                className="mb-2 w-full rounded-md border border-gray-700 bg-gray-900 px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                className="mb-2 w-full rounded-md border border-[var(--od-border)] bg-[var(--od-panel)] px-3 py-2 text-sm text-[var(--od-text)] placeholder-[var(--od-text-subtle)] outline-none focus:border-[var(--od-accent)] focus:ring-1 focus:ring-[var(--od-accent)]"
               />
             ) : (
               <select
                 value={time}
                 onChange={(e) => setTime(e.target.value)}
                 data-testid="time-select"
-                className="mb-2 w-full rounded-md border border-gray-700 bg-gray-900 px-3 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                className="mb-2 w-full rounded-md border border-[var(--od-border)] bg-[var(--od-panel)] px-3 py-2 text-sm text-[var(--od-text)] outline-none focus:border-[var(--od-accent)] focus:ring-1 focus:ring-[var(--od-accent)]"
               >
                 {TIME_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -357,7 +357,7 @@ export function NewWorkflowClient({
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             placeholder="Describe what this workflow should do..."
-            className="w-full rounded-md border border-gray-700 bg-gray-900 px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+            className="w-full rounded-md border border-[var(--od-border)] bg-[var(--od-panel)] px-3 py-2 text-sm text-[var(--od-text)] placeholder-[var(--od-text-subtle)] outline-none focus:border-[var(--od-accent)] focus:ring-1 focus:ring-[var(--od-accent)]"
           />
         </div>
 
@@ -387,9 +387,9 @@ export function NewWorkflowClient({
           <p className="mb-3 text-sm font-medium text-gray-300">
             Notifications
           </p>
-          <div className="flex items-center justify-between rounded-lg border border-gray-700 bg-gray-900/50 p-4">
+          <div className="flex items-center justify-between rounded-lg border border-[var(--od-border)] bg-[var(--od-panel-muted)] p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded bg-gray-800">
+              <div className="flex h-8 w-8 items-center justify-center rounded bg-[var(--od-panel)]">
                 <svg
                   viewBox="0 0 24 24"
                   fill="none"
@@ -420,7 +420,9 @@ export function NewWorkflowClient({
               onClick={() => setSlackNotify(!slackNotify)}
               data-testid="toggle-slack"
               className={`relative h-5 w-9 rounded-full transition-colors ${
-                slackNotify ? "bg-emerald-600" : "bg-gray-700"
+                slackNotify
+                  ? "bg-[var(--od-accent-strong)]"
+                  : "bg-[var(--od-border)]"
               }`}
             >
               <span
@@ -447,8 +449,8 @@ export function NewWorkflowClient({
           data-testid="create-workflow-btn"
           className={`rounded-md px-4 py-2 text-sm font-medium text-white transition-colors ${
             canSubmit
-              ? "bg-emerald-600 hover:bg-emerald-700"
-              : "cursor-not-allowed bg-emerald-600 opacity-50"
+              ? "bg-[var(--od-accent-strong)] hover:bg-[var(--od-accent-deep,#3d4ea4)]"
+              : "cursor-not-allowed bg-[var(--od-accent-strong)] opacity-50"
           }`}
         >
           {submitting ? "Creating..." : "Create workflow"}
@@ -484,7 +486,7 @@ function ToggleRow({
         onClick={() => onChange(!checked)}
         data-testid={testId}
         className={`relative h-5 w-9 rounded-full transition-colors ${
-          checked ? "bg-emerald-600" : "bg-gray-700"
+          checked ? "bg-[var(--od-accent-strong)]" : "bg-[var(--od-border)]"
         }`}
       >
         <span
