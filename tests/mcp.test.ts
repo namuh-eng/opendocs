@@ -1,5 +1,5 @@
-import { getMcpServerUrl, getMcpTools, slugToTitle } from "@/lib/mcp";
 import { describe, expect, it } from "vitest";
+import { getMcpServerUrl, getMcpTools, slugToTitle } from "@/lib/mcp";
 
 describe("getMcpServerUrl", () => {
   it("returns correct URL for a simple slug", () => {

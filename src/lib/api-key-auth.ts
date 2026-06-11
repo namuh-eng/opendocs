@@ -5,11 +5,11 @@
  * Updates lastUsedAt on successful authentication.
  */
 
+import { eq } from "drizzle-orm";
 import { hashApiKey } from "@/lib/api-keys";
 import { extractBearerToken } from "@/lib/api-v1-deployments";
 import { db } from "@/lib/db";
 import { apiKeys } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
 
 interface ApiKeyAuthResult {
   keyId: string;

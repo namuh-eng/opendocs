@@ -1,9 +1,9 @@
 "use client";
 
-import type { ContextualAiMenuConfig } from "@/lib/contextual-ai-menu";
-import { pageToMarkdown } from "@/lib/page-chrome";
 import { Check, Copy, Link2, MoreVertical } from "lucide-react";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
+import type { ContextualAiMenuConfig } from "@/lib/contextual-ai-menu";
+import { pageToMarkdown } from "@/lib/page-chrome";
 import { ContextualAiMenu } from "./contextual-ai-menu";
 
 interface PageHeaderActionsProps {

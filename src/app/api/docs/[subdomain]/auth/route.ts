@@ -1,3 +1,5 @@
+import { eq } from "drizzle-orm";
+import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { projects } from "@/lib/db/schema";
 import { readProjectAuthenticationSettings } from "@/lib/project-authentication-settings";
@@ -6,8 +8,6 @@ import {
   getDocsAccessCookieName,
   isValidDocsPassword,
 } from "@/lib/project-docs-access";
-import { eq } from "drizzle-orm";
-import { NextResponse } from "next/server";
 
 export function normalizeDocsReturnTo(returnTo: string, subdomain: string) {
   const fallback = `/docs/${subdomain}`;

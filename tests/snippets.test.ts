@@ -1,3 +1,10 @@
+/**
+ * Tests for feature-026: Reusable snippets with variables
+ * - Variable resolution: {{variableName}} syntax
+ * - Snippet component: <Snippet file="snippets/path" />
+ * - Snippet pages excluded from navigation
+ */
+import { describe, expect, it } from "vitest";
 import {
   buildDocsNav,
   extractComponentBlocks,
@@ -8,13 +15,6 @@ import {
   resolveSnippets,
   resolveVariables,
 } from "@/lib/snippets";
-/**
- * Tests for feature-026: Reusable snippets with variables
- * - Variable resolution: {{variableName}} syntax
- * - Snippet component: <Snippet file="snippets/path" />
- * - Snippet pages excluded from navigation
- */
-import { describe, expect, it } from "vitest";
 
 // ── Variable Resolution ──────────────────────────────────────────────────────
 

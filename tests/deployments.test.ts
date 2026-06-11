@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import {
   DEPLOYMENT_STATUSES,
   deploymentDuration,
@@ -11,7 +12,6 @@ import {
   timeAgo,
   validateTriggerDeploymentRequest,
 } from "@/lib/deployments";
-import { describe, expect, it } from "vitest";
 
 describe("isValidStatus", () => {
   it("returns true for all valid statuses", () => {

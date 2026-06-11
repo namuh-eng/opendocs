@@ -1,14 +1,14 @@
+import { desc, eq } from "drizzle-orm";
+import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import {
   agentJobs,
   agentSettings,
-  orgMemberships,
   organizations,
+  orgMemberships,
   projects,
 } from "@/lib/db/schema";
 import { getServerSession } from "@/lib/session";
-import { desc, eq } from "drizzle-orm";
-import { redirect } from "next/navigation";
 import { AgentPageClient } from "./agent-page-client";
 import { AgentSettingsClient } from "./agent-settings-client";
 

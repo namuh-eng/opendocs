@@ -11,6 +11,12 @@
 
 import { randomUUID } from "node:crypto";
 import {
+  BedrockRuntimeClient,
+  ConverseStreamCommand,
+} from "@aws-sdk/client-bedrock-runtime";
+import { and, eq, ilike, or } from "drizzle-orm";
+import { type NextRequest, NextResponse } from "next/server";
+import {
   buildSearchQuery,
   validateCreateMessageRequest,
 } from "@/lib/assistant";
@@ -21,12 +27,6 @@ import {
   getDocsAccessCookieName,
   hasValidDocsAccess,
 } from "@/lib/project-docs-access";
-import {
-  BedrockRuntimeClient,
-  ConverseStreamCommand,
-} from "@aws-sdk/client-bedrock-runtime";
-import { and, eq, ilike, or } from "drizzle-orm";
-import { type NextRequest, NextResponse } from "next/server";
 
 const bedrock = new BedrockRuntimeClient({ region: "us-east-1" });
 const MODEL_ID = getAssistantBedrockModelId();

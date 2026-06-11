@@ -1,9 +1,11 @@
 "use client";
 
 import { DocsLogoMark, getConfiguredDocsLogo } from "./docs-logo";
+
 export { getConfiguredDocsLogo } from "./docs-logo";
-import type { VersionsConfig } from "@/lib/versions";
+
 import Link from "next/link";
+import type { VersionsConfig } from "@/lib/versions";
 import { LanguageSwitcher } from "./language-switcher";
 import { MobileMenuButton } from "./mobile-nav";
 import { ThemeToggle } from "./theme-provider";

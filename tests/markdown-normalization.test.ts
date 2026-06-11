@@ -1,5 +1,5 @@
-import { normalizeMarkdownContent } from "@/lib/markdown-normalization";
 import { describe, expect, it } from "vitest";
+import { normalizeMarkdownContent } from "@/lib/markdown-normalization";
 
 describe("normalizeMarkdownContent", () => {
   it("repairs fused headings and paragraphs using the known page title", () => {

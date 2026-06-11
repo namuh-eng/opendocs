@@ -1,18 +1,18 @@
+import { desc, eq } from "drizzle-orm";
+import { headers } from "next/headers";
+import { NextResponse } from "next/server";
 import { enqueueDeployment } from "@/lib/async-execution";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import {
   auditLogs,
   deployments,
-  orgMemberships,
   organizations,
+  orgMemberships,
   projects,
 } from "@/lib/db/schema";
 import { validateTriggerDeploymentRequest } from "@/lib/deployments";
 import { createRequestId, logger } from "@/lib/logger";
-import { desc, eq } from "drizzle-orm";
-import { headers } from "next/headers";
-import { NextResponse } from "next/server";
 
 /** Resolve user's first org + first project. Returns null if not found. */
 async function resolveUserProject(userId: string) {

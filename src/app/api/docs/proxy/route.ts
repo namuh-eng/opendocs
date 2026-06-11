@@ -1,8 +1,8 @@
+import { NextResponse } from "next/server";
 import { getClientRateLimitKey } from "@/lib/client-rate-limit-key";
 import { createRequestId, logger } from "@/lib/logger";
 import { applyRateLimit, buildRateLimitHeaders } from "@/lib/rate-limit";
 import { assertSafeProxyUrl } from "@/lib/ssrf-protection";
-import { NextResponse } from "next/server";
 
 /**
  * POST /api/docs/proxy — forwards API playground requests to avoid CORS.

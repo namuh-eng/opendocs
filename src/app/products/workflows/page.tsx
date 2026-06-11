@@ -1,5 +1,5 @@
-import { getServerSession } from "@/lib/session";
 import { redirect } from "next/navigation";
+import { getServerSession } from "@/lib/session";
 import { WorkflowsPageClient } from "./workflows-page-client";
 
 export default async function WorkflowsPage() {

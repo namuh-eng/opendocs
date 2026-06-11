@@ -1,11 +1,11 @@
+import { and, eq } from "drizzle-orm";
+import { headers } from "next/headers";
+import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { orgMemberships, projects } from "@/lib/db/schema";
 import { syncProjectDocsFromGitHub } from "@/lib/github-sync";
 import { createRequestId, logger } from "@/lib/logger";
-import { and, eq } from "drizzle-orm";
-import { headers } from "next/headers";
-import { NextResponse } from "next/server";
 
 /**
  * POST /api/projects/[id]/sync

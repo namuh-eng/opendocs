@@ -1,11 +1,11 @@
+import { describe, expect, it } from "vitest";
 import {
   ALL_SETTINGS_ITEMS,
-  SETTINGS_DEFAULT_HREF,
-  SETTINGS_NAV,
   findActiveSettingsItem,
   isActiveSettingsItem,
+  SETTINGS_DEFAULT_HREF,
+  SETTINGS_NAV,
 } from "@/lib/settings-nav";
-import { describe, expect, it } from "vitest";
 
 describe("settings-nav", () => {
   describe("SETTINGS_NAV structure", () => {

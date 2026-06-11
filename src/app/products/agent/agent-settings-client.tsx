@@ -1,9 +1,9 @@
 "use client";
 
-import type { ConnectedRepo } from "@/lib/agent-settings";
 import { clsx } from "clsx";
 import { Bot, ExternalLink, GitBranch, Loader2, Shield, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import type { ConnectedRepo } from "@/lib/agent-settings";
 
 const GITHUB_APP_SETTINGS_HREF = "/settings/deployment/github";
 
@@ -23,7 +23,10 @@ interface AgentSettingsClientProps {
 function GitHubIcon({
   size = 20,
   className,
-}: { size?: number; className?: string }) {
+}: {
+  size?: number;
+  className?: string;
+}) {
   return (
     <svg
       viewBox="0 0 24 24"

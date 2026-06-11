@@ -1,12 +1,6 @@
 "use client";
 
-import { useActiveProject } from "@/hooks/use-active-project";
-import { useProjectUpdater } from "@/hooks/use-project-updater";
-import {
-  type AddonsSettings,
-  type CiCheckValue,
-  mergeAddons,
-} from "@/lib/addons";
+import type { LucideIcon } from "lucide-react";
 import {
   AlertTriangle,
   Code,
@@ -18,8 +12,14 @@ import {
   ThumbsUp,
   Type,
 } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useActiveProject } from "@/hooks/use-active-project";
+import { useProjectUpdater } from "@/hooks/use-project-updater";
+import {
+  type AddonsSettings,
+  type CiCheckValue,
+  mergeAddons,
+} from "@/lib/addons";
 
 interface ProjectData {
   id: string;

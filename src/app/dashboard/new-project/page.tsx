@@ -1,12 +1,12 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import {
   type ConnectedRepoOption,
   ConnectedRepoSelect,
 } from "@/components/github/connected-repo-select";
 import { setStoredActiveProjectId } from "@/components/layout/shell-preferences";
-import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
 
 export default function NewProjectPage() {
   const router = useRouter();

@@ -1,5 +1,17 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import {
+  Bar,
+  CartesianGrid,
+  ComposedChart,
+  Line,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import { useActiveProject } from "@/hooks/use-active-project";
 import {
   getDatePresets,
@@ -13,18 +25,6 @@ import {
   formatChartDate,
   generateDateRange,
 } from "@/lib/analytics-visitors";
-import { useSearchParams } from "next/navigation";
-import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
-import {
-  Bar,
-  CartesianGrid,
-  ComposedChart,
-  Line,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
 import { AnalyticsShell } from "../analytics-shell";
 
 // ── Search Volume Chart ──────────────────────────────────────────────────────

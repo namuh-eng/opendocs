@@ -30,7 +30,7 @@ export const DEFAULT_VERSIONS_CONFIG: VersionsConfig = {
 const MAX_VERSIONS = 50;
 const MAX_TAG_LENGTH = 30;
 const MAX_NAME_LENGTH = 100;
-const VALID_TAG_REGEX = /^[a-z0-9][a-z0-9.\-]*[a-z0-9]$|^[a-z0-9]$/;
+const VALID_TAG_REGEX = /^[a-z0-9][a-z0-9.-]*[a-z0-9]$|^[a-z0-9]$/;
 
 export function isValidVersionTag(tag: string): boolean {
   return (

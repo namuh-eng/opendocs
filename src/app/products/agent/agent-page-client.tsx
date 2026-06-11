@@ -1,16 +1,5 @@
 "use client";
 
-import { EmptyState as SharedEmptyState } from "@/components/empty-state";
-import {
-  extractPrNumber,
-  statusColor,
-  statusLabel,
-  timeAgo,
-  truncatePrompt,
-  validatePrompt,
-} from "@/lib/agent-dashboard";
-import type { AgentJobStatus } from "@/lib/agent-dashboard";
-import { agentEmptyState } from "@/lib/empty-states";
 import { clsx } from "clsx";
 import {
   ArrowLeft,
@@ -22,6 +11,17 @@ import {
   Send,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { EmptyState as SharedEmptyState } from "@/components/empty-state";
+import type { AgentJobStatus } from "@/lib/agent-dashboard";
+import {
+  extractPrNumber,
+  statusColor,
+  statusLabel,
+  timeAgo,
+  truncatePrompt,
+  validatePrompt,
+} from "@/lib/agent-dashboard";
+import { agentEmptyState } from "@/lib/empty-states";
 
 interface JobSummary {
   id: string;
@@ -202,6 +202,7 @@ function JobDetail({
       <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
         {job.messages.map((msg, i) => (
           <div
+            // biome-ignore lint/suspicious/noArrayIndexKey: agent stream messages do not expose a stable message id
             key={`${msg.timestamp}-${i}`}
             className={clsx(
               "flex",

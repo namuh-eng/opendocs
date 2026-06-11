@@ -1,8 +1,8 @@
+import { eq } from "drizzle-orm";
+import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { orgMemberships, projects } from "@/lib/db/schema";
 import { getServerSession } from "@/lib/session";
-import { eq } from "drizzle-orm";
-import { redirect } from "next/navigation";
 import { McpPageClient } from "./mcp-page-client";
 
 export default async function McpPage() {

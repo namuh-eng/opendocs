@@ -1,10 +1,10 @@
+import { and, eq } from "drizzle-orm";
+import { headers } from "next/headers";
+import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { deployments, orgMemberships, projects } from "@/lib/db/schema";
 import { createRequestId, logger } from "@/lib/logger";
-import { and, eq } from "drizzle-orm";
-import { headers } from "next/headers";
-import { type NextRequest, NextResponse } from "next/server";
 
 /** GET /api/deployments/[id] — get a single deployment */
 export async function GET(

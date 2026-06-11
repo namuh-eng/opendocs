@@ -1,7 +1,5 @@
 "use client";
 
-import { BranchSelector } from "@/components/editor/branch-selector";
-import type { EditorMode, MdxSnippetKey } from "@/lib/editor";
 import * as Popover from "@radix-ui/react-popover";
 import { clsx } from "clsx";
 import {
@@ -24,6 +22,8 @@ import {
   Undo2,
 } from "lucide-react";
 import { useState } from "react";
+import { BranchSelector } from "@/components/editor/branch-selector";
+import type { EditorMode, MdxSnippetKey } from "@/lib/editor";
 
 interface EditorToolbarProps {
   mode: EditorMode;

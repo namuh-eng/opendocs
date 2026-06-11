@@ -1,9 +1,9 @@
 "use client";
 
-import { useActiveProject } from "@/hooks/use-active-project";
 import { AlertTriangle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { useActiveProject } from "@/hooks/use-active-project";
 
 interface ProjectData {
   id: string;

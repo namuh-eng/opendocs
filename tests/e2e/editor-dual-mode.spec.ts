@@ -1,4 +1,4 @@
-import { type Page, expect, test } from "@playwright/test";
+import { expect, type Page, test } from "@playwright/test";
 
 async function ensureEditorPageExists(page: Page) {
   await page.goto("/editor/main");

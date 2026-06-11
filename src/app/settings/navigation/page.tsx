@@ -1,24 +1,5 @@
 "use client";
 
-import { useActiveProject } from "@/hooks/use-active-project";
-import { useProjectUpdater } from "@/hooks/use-project-updater";
-import {
-  type NavAnchor,
-  type NavEntry,
-  type NavGroup,
-  type NavPage,
-  type NavTab,
-  type NavigationConfig,
-  createAnchor,
-  createGroup,
-  createPage,
-  createTab,
-  findDuplicatePaths,
-  labelToPath,
-  mergeNavigation,
-  moveItem,
-  validateNavigation,
-} from "@/lib/navigation";
 import { clsx } from "clsx";
 import {
   ChevronDown,
@@ -34,6 +15,25 @@ import {
   X,
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { useActiveProject } from "@/hooks/use-active-project";
+import { useProjectUpdater } from "@/hooks/use-project-updater";
+import {
+  createAnchor,
+  createGroup,
+  createPage,
+  createTab,
+  findDuplicatePaths,
+  labelToPath,
+  mergeNavigation,
+  moveItem,
+  type NavAnchor,
+  type NavEntry,
+  type NavGroup,
+  type NavigationConfig,
+  type NavPage,
+  type NavTab,
+  validateNavigation,
+} from "@/lib/navigation";
 
 interface ProjectData {
   id: string;
@@ -43,11 +43,7 @@ interface ProjectData {
 
 // ── Add Entry Dropdown ───────────────────────────────────────────────────────
 
-function AddEntryDropdown({
-  onAdd,
-}: {
-  onAdd: (entry: NavEntry) => void;
-}) {
+function AddEntryDropdown({ onAdd }: { onAdd: (entry: NavEntry) => void }) {
   const [open, setOpen] = useState(false);
 
   const options: { label: string; type: string; description: string }[] = [
@@ -553,6 +549,7 @@ function EntryCard({
               <div className="space-y-0.5">
                 {entry.pages.map((page, pi) => (
                   <PageRow
+                    // biome-ignore lint/suspicious/noArrayIndexKey: navigation pages can share paths while editing drafts
                     key={`${page.path}-${pi}`}
                     page={page}
                     groupIndex={index}
@@ -728,6 +725,7 @@ export default function NavigationSettingsPage() {
         ) : (
           nav.entries.map((entry, i) => (
             <EntryCard
+              // biome-ignore lint/suspicious/noArrayIndexKey: draft navigation entries do not have stable ids
               key={`${entry.type}-${entry.label}-${i}`}
               entry={entry}
               index={i}

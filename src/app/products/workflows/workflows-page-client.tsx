@@ -1,6 +1,5 @@
 "use client";
 
-import { workflowTemplates } from "@/lib/workflow-templates";
 import {
   ClipboardList,
   FileText,
@@ -14,6 +13,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
+import { workflowTemplates } from "@/lib/workflow-templates";
 
 const iconMap: Record<string, ReactNode> = {
   "clipboard-list": <ClipboardList size={20} className="text-gray-400" />,

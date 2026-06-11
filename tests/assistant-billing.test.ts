@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import {
   type AssistantUsageData,
   DEFAULT_ASSISTANT_USAGE,
@@ -5,7 +6,6 @@ import {
   formatCents,
   usagePercent,
 } from "@/lib/assistant-settings";
-import { describe, expect, it } from "vitest";
 
 describe("Assistant Billing Tab — usage display logic", () => {
   describe("usage progress text", () => {

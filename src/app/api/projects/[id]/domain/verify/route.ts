@@ -1,10 +1,10 @@
+import { and, eq } from "drizzle-orm";
+import { headers } from "next/headers";
+import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { orgMemberships, projects } from "@/lib/db/schema";
 import { generateCnameTarget } from "@/lib/domains";
-import { and, eq } from "drizzle-orm";
-import { headers } from "next/headers";
-import { NextResponse } from "next/server";
 
 /** POST /api/projects/[id]/domain/verify — check DNS CNAME for custom domain */
 export async function POST(

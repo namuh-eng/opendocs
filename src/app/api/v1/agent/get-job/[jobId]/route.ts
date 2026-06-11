@@ -5,13 +5,13 @@
  * Returns the job with status, PR link, and messages.
  */
 
+import { and, eq } from "drizzle-orm";
+import { type NextRequest, NextResponse } from "next/server";
 import { authenticateApiKey } from "@/lib/api-key-auth";
 import { formatAgentJobResponse, validateUuid } from "@/lib/api-v1-agents";
 import { getAgentJobExecutionMetadata } from "@/lib/async-execution";
 import { db } from "@/lib/db";
 import { agentJobs, projects } from "@/lib/db/schema";
-import { and, eq } from "drizzle-orm";
-import { type NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   request: NextRequest,

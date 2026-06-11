@@ -1,19 +1,5 @@
 "use client";
 
-import { useActiveProject } from "@/hooks/use-active-project";
-import {
-  getDatePresets,
-  parseDateParam,
-  parseTrafficSource,
-} from "@/lib/analytics";
-import {
-  type DailyVisitorCount,
-  type TopPage,
-  fillDailyCounts,
-  formatChartDate,
-  generateDateRange,
-  truncatePath,
-} from "@/lib/analytics-visitors";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -26,6 +12,20 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useActiveProject } from "@/hooks/use-active-project";
+import {
+  getDatePresets,
+  parseDateParam,
+  parseTrafficSource,
+} from "@/lib/analytics";
+import {
+  type DailyVisitorCount,
+  fillDailyCounts,
+  formatChartDate,
+  generateDateRange,
+  type TopPage,
+  truncatePath,
+} from "@/lib/analytics-visitors";
 import { AnalyticsShell } from "../analytics-shell";
 
 // ── Page Views Chart ─────────────────────────────────────────────────────────

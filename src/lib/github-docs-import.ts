@@ -318,7 +318,7 @@ export async function importGitHubDocs(
         let fullPath = fileDir ? `${fileDir}/${cleanPath}` : cleanPath;
         fullPath = fullPath.replace(/^\.\//, "");
         while (fullPath.includes("/../")) {
-          fullPath = fullPath.replace(/[^\/]+\/\.\.\//, "");
+          fullPath = fullPath.replace(/[^/]+\/\.\.\//, "");
         }
         fullPath = fullPath.replace(/^\.\//, "").replace(/^\.\..?\//, "");
 
@@ -340,7 +340,7 @@ export async function importGitHubDocs(
         let fullPath = fileDir ? `${fileDir}/${cleanPath}` : cleanPath;
         fullPath = fullPath.replace(/^\.\//, "");
         while (fullPath.includes("/../")) {
-          fullPath = fullPath.replace(/[^\/]+\/\.\.\//, "");
+          fullPath = fullPath.replace(/[^/]+\/\.\.\//, "");
         }
         fullPath = fullPath.replace(/^\.\//, "").replace(/^\.\..?\//, "");
         const normalized = fullPath.replace(/\/+/g, "/");

@@ -1,13 +1,13 @@
+import { describe, expect, it } from "vitest";
 import {
+  buildDocsNav,
   type DocsNavGroup,
   type DocsNavItem,
-  buildDocsNav,
   extractComponentBlocks,
   parseMdxToHtml,
   renderComponentBlock,
   resolvePageFromSlug,
 } from "@/lib/mdx-renderer";
-import { describe, expect, it } from "vitest";
 
 describe("MDX Renderer utilities", () => {
   describe("parseMdxToHtml", () => {

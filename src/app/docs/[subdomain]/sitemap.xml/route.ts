@@ -1,9 +1,9 @@
+import { and, eq } from "drizzle-orm";
 import { getPublicAppUrl } from "@/lib/app-url";
 import { db } from "@/lib/db";
 import { pages, projects } from "@/lib/db/schema";
 import { isProjectPasswordProtected } from "@/lib/project-publication-auth";
 import { generateSitemapEntries, renderSitemapXml } from "@/lib/seo";
-import { and, eq } from "drizzle-orm";
 
 const APP_URL = getPublicAppUrl();
 

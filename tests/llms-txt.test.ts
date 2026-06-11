@@ -1,9 +1,9 @@
+import { describe, expect, it } from "vitest";
 import {
   buildProjectBaseUrl,
   generateLlmsFullTxt,
   generateLlmsTxt,
 } from "@/lib/llms-txt";
-import { describe, expect, it } from "vitest";
 
 describe("buildProjectBaseUrl", () => {
   it("uses customDomain when available", () => {

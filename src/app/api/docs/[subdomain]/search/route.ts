@@ -12,6 +12,8 @@
  *   limit  — max results (default 20, max 50)
  */
 
+import { and, eq, ilike, or, sql } from "drizzle-orm";
+import { type NextRequest, NextResponse } from "next/server";
 import { buildSearchQuery } from "@/lib/assistant";
 import { db } from "@/lib/db";
 import { pages, projects } from "@/lib/db/schema";
@@ -25,8 +27,6 @@ import {
   hasValidDocsAccess,
 } from "@/lib/project-docs-access";
 import { extractSnippet, getBreadcrumb } from "@/lib/search";
-import { and, eq, ilike, or, sql } from "drizzle-orm";
-import { type NextRequest, NextResponse } from "next/server";
 
 interface RouteContext {
   params: Promise<{ subdomain: string }>;

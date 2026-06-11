@@ -1,8 +1,8 @@
+import { describe, expect, it } from "vitest";
 import {
   getDocsAccessCredential,
   normalizeDocsReturnTo,
 } from "@/app/api/docs/[subdomain]/auth/route";
-import { describe, expect, it } from "vitest";
 
 describe("docs auth route", () => {
   it("uses the normalized stored credential when minting access cookies", () => {

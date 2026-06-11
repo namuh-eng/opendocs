@@ -1,7 +1,7 @@
-import { GitHubAppSettingsClient } from "@/app/settings/deployment/github/github-app-client";
-import { type ComponentProps, act } from "react";
+import { act, type ComponentProps } from "react";
 import { createRoot } from "react-dom/client";
 import { beforeAll, describe, expect, it } from "vitest";
+import { GitHubAppSettingsClient } from "@/app/settings/deployment/github/github-app-client";
 
 beforeAll(() => {
   (

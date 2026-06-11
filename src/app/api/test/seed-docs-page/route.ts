@@ -1,8 +1,8 @@
 import { randomUUID } from "node:crypto";
-import { db } from "@/lib/db";
-import { organizations, pages, projects } from "@/lib/db/schema";
 import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
+import { db } from "@/lib/db";
+import { organizations, pages, projects } from "@/lib/db/schema";
 
 const FIXTURE_ORG_SLUG = "playwright-docs-fixtures";
 const FIXTURE_PAGE_PATH = "introduction";

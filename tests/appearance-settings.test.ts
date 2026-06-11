@@ -1,12 +1,12 @@
+import { describe, expect, it } from "vitest";
 import {
   type AppearanceSettings,
-  DEFAULT_APPEARANCE,
   buildAssetFilename,
+  DEFAULT_APPEARANCE,
   isValidHexColor,
   mergeAppearance,
   validateAppearance,
 } from "@/lib/appearance";
-import { describe, expect, it } from "vitest";
 
 describe("Appearance Settings", () => {
   describe("isValidHexColor", () => {

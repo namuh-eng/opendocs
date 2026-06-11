@@ -1,5 +1,8 @@
 "use client";
 
+import { Check, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   type ConnectedRepoOption,
   ConnectedRepoSelect,
@@ -11,9 +14,6 @@ import {
   validateGitHubRepoUrl,
   validateProjectName,
 } from "@/lib/projects";
-import { Check, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
 
 const STEPS = ["org", "github", "project", "success"] as const;
 

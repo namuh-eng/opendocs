@@ -1,15 +1,15 @@
+import { describe, expect, it } from "vitest";
 import {
   DEFAULT_ASSISTANT_SETTINGS,
   DEFAULT_ASSISTANT_USAGE,
-  MAX_STARTER_QUESTIONS,
   formatBillingDate,
   formatCents,
   isValidDomain,
   isValidEmail,
+  MAX_STARTER_QUESTIONS,
   usagePercent,
   validateAssistantSettingsUpdate,
 } from "@/lib/assistant-settings";
-import { describe, expect, it } from "vitest";
 
 describe("assistant-settings", () => {
   describe("isValidDomain", () => {

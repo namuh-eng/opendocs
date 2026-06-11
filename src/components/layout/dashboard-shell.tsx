@@ -1,10 +1,10 @@
-import { ACTIVE_PROJECT_COOKIE, findActiveProject } from "@/lib/active-project";
-import { db } from "@/lib/db";
-import { orgMemberships, organizations, projects } from "@/lib/db/schema";
-import { getServerSession } from "@/lib/session";
 import { eq } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { ACTIVE_PROJECT_COOKIE, findActiveProject } from "@/lib/active-project";
+import { db } from "@/lib/db";
+import { organizations, orgMemberships, projects } from "@/lib/db/schema";
+import { getServerSession } from "@/lib/session";
 import { DashboardLayoutClient } from "./dashboard-layout-client";
 
 interface DashboardShellProps {

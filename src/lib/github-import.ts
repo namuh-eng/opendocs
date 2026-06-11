@@ -1,8 +1,8 @@
+import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { githubConnections, orgMemberships, projects } from "@/lib/db/schema";
 import { parseGitHubUrl } from "@/lib/git-settings";
 import { resolveGitHubSource } from "@/lib/github-source";
-import { and, eq } from "drizzle-orm";
 
 export interface ConnectedGitHubRepo {
   fullName: string;

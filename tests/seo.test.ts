@@ -1,3 +1,5 @@
+import { describe, expect, it } from "vitest";
+import type { SeoPageData } from "@/lib/seo";
 import {
   buildCanonicalUrl,
   buildPageMetadata,
@@ -8,8 +10,6 @@ import {
   isNoIndex,
   renderSitemapXml,
 } from "@/lib/seo";
-import type { SeoPageData } from "@/lib/seo";
-import { describe, expect, it } from "vitest";
 
 describe("SEO utilities", () => {
   // ── isNoIndex ────────────────────────────────────────────────────────

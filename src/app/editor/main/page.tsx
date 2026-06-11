@@ -1,5 +1,20 @@
 "use client";
 
+import { clsx } from "clsx";
+import {
+  ChevronDown,
+  ChevronRight,
+  File,
+  FileText,
+  Folder,
+  FolderOpen,
+  Plus,
+  Settings2,
+  Trash2,
+  X,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CommentsSidebar } from "@/components/editor/comments-sidebar";
 import { ConfigsPanel } from "@/components/editor/configs-panel";
 import { EditorToolbar } from "@/components/editor/editor-toolbar";
@@ -26,21 +41,6 @@ import {
 import { editorEmptyState } from "@/lib/empty-states";
 import type { TreeNode } from "@/lib/pages";
 import { buildPageTree } from "@/lib/pages";
-import { clsx } from "clsx";
-import {
-  ChevronDown,
-  ChevronRight,
-  File,
-  FileText,
-  Folder,
-  FolderOpen,
-  Plus,
-  Settings2,
-  Trash2,
-  X,
-} from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 interface PageData {
   id: string;

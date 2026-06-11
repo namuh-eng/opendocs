@@ -1,7 +1,7 @@
+import { describe, expect, it } from "vitest";
 import {
-  type VersionsConfig,
-  buildVersionPagePath,
   buildVersionedPath,
+  buildVersionPagePath,
   filterPagesByVersion,
   getAvailableVersionsForPage,
   getDefaultVersion,
@@ -9,9 +9,9 @@ import {
   isValidVersionTag,
   mergeVersionsConfig,
   parseVersionFromSlug,
+  type VersionsConfig,
   validateVersionsConfig,
 } from "@/lib/versions";
-import { describe, expect, it } from "vitest";
 
 // ── Fixtures ────────────────────────────────────────────────────────────────
 

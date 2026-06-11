@@ -1,11 +1,5 @@
 "use client";
 
-import { useActiveProject } from "@/hooks/use-active-project";
-import {
-  fillDailyCounts,
-  formatChartDate,
-  generateDateRange,
-} from "@/lib/analytics-visitors";
 import {
   AlertCircle,
   BarChart3,
@@ -25,6 +19,12 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useActiveProject } from "@/hooks/use-active-project";
+import {
+  fillDailyCounts,
+  formatChartDate,
+  generateDateRange,
+} from "@/lib/analytics-visitors";
 
 interface PageAnalyticsProps {
   pagePath: string;

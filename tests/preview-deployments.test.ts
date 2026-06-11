@@ -1,9 +1,9 @@
+import { describe, expect, it } from "vitest";
 import {
   generatePreviewUrl,
   isValidBranchName,
   validateCreatePreviewRequest,
 } from "@/lib/deployments";
-import { describe, expect, it } from "vitest";
 
 describe("isValidBranchName", () => {
   it("accepts simple branch names", () => {

@@ -1,11 +1,11 @@
+import { act } from "react";
+import { createRoot } from "react-dom/client";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ApiReferenceLayout } from "@/components/docs/api-reference-layout";
 import { ChatWidget } from "@/components/docs/chat-widget";
 import { AskAiButton } from "@/components/docs/docs-topbar";
 import { MdxContent } from "@/components/docs/mdx-content";
 import { renderMdxContent } from "@/lib/mdx-renderer";
-import { act } from "react";
-import { createRoot } from "react-dom/client";
-import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // React 19 requires this flag for act() in non-testing-library environments.
 (

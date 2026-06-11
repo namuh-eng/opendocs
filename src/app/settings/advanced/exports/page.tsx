@@ -1,13 +1,13 @@
 "use client";
 
+import { Download, FileJson } from "lucide-react";
 import { useActiveProject } from "@/hooks/use-active-project";
 import {
-  type ExportableProject,
   buildProjectExport,
   buildProjectExportFilename,
   downloadJson,
+  type ExportableProject,
 } from "@/lib/project-export";
-import { Download, FileJson } from "lucide-react";
 
 export default function ExportsSettingsPage() {
   const { project, loading } = useActiveProject<ExportableProject>();

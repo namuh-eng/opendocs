@@ -8,6 +8,8 @@
  * Response: { path, content }
  */
 
+import { and, eq, inArray } from "drizzle-orm";
+import { type NextRequest, NextResponse } from "next/server";
 import { authenticateApiKey } from "@/lib/api-key-auth";
 import {
   formatPageContentResponse,
@@ -15,8 +17,6 @@ import {
 } from "@/lib/assistant";
 import { db } from "@/lib/db";
 import { pages, projects } from "@/lib/db/schema";
-import { and, eq, inArray } from "drizzle-orm";
-import { type NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   // ── Auth ────────────────────────────────────────────────────────────────────

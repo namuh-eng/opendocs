@@ -1,5 +1,5 @@
-import { scrubPiiFromEvent } from "@/lib/observability/sentry-scrub";
 import * as Sentry from "@sentry/nextjs";
+import { scrubPiiFromEvent } from "@/lib/observability/sentry-scrub";
 
 const dsn = process.env.SENTRY_DSN;
 

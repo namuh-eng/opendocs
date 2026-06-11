@@ -1,15 +1,11 @@
+import { describe, expect, it } from "vitest";
 import {
-  DEFAULT_NAVIGATION,
-  type NavAnchor,
-  type NavGroup,
-  type NavPage,
-  type NavTab,
-  type NavigationConfig,
   countPages,
   createAnchor,
   createGroup,
   createPage,
   createTab,
+  DEFAULT_NAVIGATION,
   findDuplicatePaths,
   getAllPaths,
   isValidHref,
@@ -18,11 +14,15 @@ import {
   labelToPath,
   mergeNavigation,
   moveItem,
+  type NavAnchor,
+  type NavGroup,
+  type NavigationConfig,
+  type NavPage,
+  type NavTab,
   validateNavEntry,
-  validateNavPage,
   validateNavigation,
+  validateNavPage,
 } from "@/lib/navigation";
-import { describe, expect, it } from "vitest";
 
 // ── isValidLabel ─────────────────────────────────────────────────────────────
 

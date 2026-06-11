@@ -1,3 +1,5 @@
+import { eq } from "drizzle-orm";
+import { type NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { projects } from "@/lib/db/schema";
 import {
@@ -5,8 +7,6 @@ import {
   hasValidDocsAccess,
 } from "@/lib/project-docs-access";
 import { buildPublicMcpDescriptor } from "@/lib/public-mcp";
-import { eq } from "drizzle-orm";
-import { type NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   request: NextRequest,

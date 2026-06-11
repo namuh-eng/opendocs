@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import {
   fillDailyCounts,
   formatChartDate,
@@ -5,7 +6,6 @@ import {
   generateDateRange,
   truncatePath,
 } from "@/lib/analytics-visitors";
-import { describe, expect, it } from "vitest";
 
 describe("analytics-visitors utilities", () => {
   // ── formatDateKey ─────────────────────────────────────────────────────────

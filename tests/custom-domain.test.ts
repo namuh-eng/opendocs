@@ -1,9 +1,9 @@
+import { describe, expect, it } from "vitest";
 import {
   domainVerificationStatus,
   generateCnameTarget,
   validateCustomDomain,
 } from "@/lib/domains";
-import { describe, expect, it } from "vitest";
 
 describe("validateCustomDomain", () => {
   it("accepts a valid domain", () => {

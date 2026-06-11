@@ -1,10 +1,10 @@
 "use client";
 
-import type { Suggestion } from "@/lib/collaboration";
-import { formatCommentDate, parseSuggestionDiff } from "@/lib/collaboration";
 import { clsx } from "clsx";
 import { Check, FileText, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import type { Suggestion } from "@/lib/collaboration";
+import { formatCommentDate, parseSuggestionDiff } from "@/lib/collaboration";
 
 interface SuggestionsPanelProps {
   pageId: string | null;

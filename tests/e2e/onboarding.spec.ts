@@ -1,7 +1,7 @@
 import {
   type APIRequestContext,
-  type Page,
   expect,
+  type Page,
   test,
 } from "@playwright/test";
 import { parseSetCookieHeader } from "better-auth/cookies";

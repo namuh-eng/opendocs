@@ -1,7 +1,7 @@
-import { DashboardHomeClient } from "@/app/dashboard/dashboard-home-client";
-import { type ComponentProps, act } from "react";
+import { act, type ComponentProps } from "react";
 import { createRoot } from "react-dom/client";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { DashboardHomeClient } from "@/app/dashboard/dashboard-home-client";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ refresh: vi.fn() }),

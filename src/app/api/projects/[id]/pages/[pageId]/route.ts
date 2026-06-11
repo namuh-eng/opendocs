@@ -1,12 +1,12 @@
+import { and, eq } from "drizzle-orm";
+import { headers } from "next/headers";
+import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { orgMemberships, pages, projects } from "@/lib/db/schema";
 import { createRequestId, logger } from "@/lib/logger";
 import { normalizeMarkdownContent } from "@/lib/markdown-normalization";
 import { validateUpdatePageRequest } from "@/lib/pages";
-import { and, eq } from "drizzle-orm";
-import { headers } from "next/headers";
-import { NextResponse } from "next/server";
 
 /** Verify project belongs to user's org and page belongs to project. */
 async function resolvePageInProject(

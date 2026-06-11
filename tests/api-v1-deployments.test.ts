@@ -4,13 +4,13 @@
  * GET /api/v1/project/update-status/{statusId} — check deployment status
  */
 
+import { describe, expect, it } from "vitest";
 import {
   extractBearerToken,
   formatDeploymentStatusResponse,
   formatDeploymentTriggerResponse,
   validateProjectId,
 } from "@/lib/api-v1-deployments";
-import { describe, expect, it } from "vitest";
 
 describe("extractBearerToken", () => {
   it("extracts token from a valid Authorization header", () => {

@@ -1,5 +1,5 @@
-import { buildPublicMcpDescriptor, toMcpToolLabel } from "@/lib/public-mcp";
 import { describe, expect, it } from "vitest";
+import { buildPublicMcpDescriptor, toMcpToolLabel } from "@/lib/public-mcp";
 
 describe("toMcpToolLabel", () => {
   it("converts docs subdomains to MCP-safe tool labels", () => {

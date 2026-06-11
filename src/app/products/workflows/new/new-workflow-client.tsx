@@ -1,10 +1,10 @@
 "use client";
 
-import { getTemplateById } from "@/lib/workflow-templates";
 import { ArrowLeft, Clock, GitMerge } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { getTemplateById } from "@/lib/workflow-templates";
 
 type TriggerType = "on_pr_merge" | "on_schedule";
 type Frequency = "daily" | "weekly" | "monthly" | "custom";

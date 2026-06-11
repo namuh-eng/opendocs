@@ -4,11 +4,11 @@
  * Session-authenticated (dashboard use).
  */
 
+import { eq } from "drizzle-orm";
+import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { assistantUsage, orgMemberships, projects } from "@/lib/db/schema";
 import { getServerSession } from "@/lib/session";
-import { eq } from "drizzle-orm";
-import { NextResponse } from "next/server";
 
 export async function GET() {
   const session = await getServerSession();
