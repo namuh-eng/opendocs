@@ -72,9 +72,10 @@ export function VersionSwitcher({
         if (options.length === 0) return;
 
         e.preventDefault();
-        const activeIndex = options.findIndex(
-          (option) => option === document.activeElement,
-        );
+        const activeIndex =
+          document.activeElement instanceof HTMLButtonElement
+            ? options.indexOf(document.activeElement)
+            : -1;
         const nextIndex =
           e.key === "ArrowDown"
             ? activeIndex === -1

@@ -2,7 +2,7 @@
 
 import * as Accordion from "@radix-ui/react-accordion";
 import { clsx } from "clsx";
-import { ChevronDown, Download, Plus, Trash2, Upload, X } from "lucide-react";
+import { ChevronDown, Download, Plus, Trash2, Upload } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useProjectUpdater } from "@/hooks/use-project-updater";
 import { isValidHexColor } from "@/lib/appearance";
@@ -991,7 +991,7 @@ function ApiDocsForm({ config, updateSection }: SectionProps) {
   const d = config.apiDocs;
   const update = (patch: Partial<typeof d>) =>
     updateSection("apiDocs", { ...d, ...patch });
-  const [fetchStatus, setFetchStatus] = useState<string>("");
+  const [fetchStatus, _setFetchStatus] = useState<string>("");
 
   return (
     <>

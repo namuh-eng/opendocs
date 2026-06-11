@@ -1,6 +1,6 @@
+import { redirect } from "next/navigation";
 import { LandingView } from "@/components/landing/landing-view";
 import { getServerSession } from "@/lib/session";
-import { redirect } from "next/navigation";
 
 export default async function Home() {
   const session = await getServerSession();

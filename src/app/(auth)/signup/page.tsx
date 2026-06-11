@@ -1,7 +1,7 @@
+import { redirect } from "next/navigation";
 import { AuthScreen } from "@/components/auth/auth-screen";
 import { resolveSafeReturnTo } from "@/lib/auth-redirect";
 import { getServerSession } from "@/lib/session";
-import { redirect } from "next/navigation";
 
 export default async function SignupPage({
   searchParams,

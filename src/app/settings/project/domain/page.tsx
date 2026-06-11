@@ -1,9 +1,9 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useActiveProject } from "@/hooks/use-active-project";
 import { useProjectUpdater } from "@/hooks/use-project-updater";
 import { HOSTING_SUFFIX } from "@/lib/domains";
-import { useEffect, useState } from "react";
 
 type VerificationStatus = "not_configured" | "pending" | "verified" | "failed";
 

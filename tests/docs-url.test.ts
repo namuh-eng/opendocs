@@ -1,5 +1,5 @@
-import { docsDisplayUrl, docsSiteUrl } from "@/lib/docs-url";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { docsDisplayUrl, docsSiteUrl } from "@/lib/docs-url";
 
 // Both helpers treat empty strings as unset, so stubbing with "" exercises
 // the fallback branches without mutating process.env directly.

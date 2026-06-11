@@ -36,7 +36,6 @@ import {
   extractToc,
   insertSnippetAtCursor,
   mdxSnippets,
-  serializeFrontmatter,
 } from "@/lib/editor";
 import { editorEmptyState } from "@/lib/empty-states";
 import type { TreeNode } from "@/lib/pages";

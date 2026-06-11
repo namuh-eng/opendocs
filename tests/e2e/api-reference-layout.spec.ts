@@ -7,7 +7,7 @@ test.describe("API Reference Layout", () => {
     // Navigate to an API reference page
     await page.goto("/docs/test-project/api-reference/get-plants");
     // Check sidebar has method badge elements
-    const badges = page.locator(".api-ref-sidebar-badge");
+    const _badges = page.locator(".api-ref-sidebar-badge");
     // If there are API reference pages with method frontmatter, badges should appear
     // This test verifies the sidebar renders without error
     await expect(page.locator(".docs-sidebar")).toBeVisible();
@@ -16,14 +16,14 @@ test.describe("API Reference Layout", () => {
   test("endpoint page renders method badge and URL path", async ({ page }) => {
     await page.goto("/docs/test-project/api-reference/get-plants");
     // The page should have the API reference header with method badge and path
-    const refHeader = page.locator('[data-testid="api-ref-header"]');
+    const _refHeader = page.locator('[data-testid="api-ref-header"]');
     // If page has API reference content, it should render
     await expect(page.locator(".docs-layout")).toBeVisible();
   });
 
   test("code section shows language selector tabs", async ({ page }) => {
     await page.goto("/docs/test-project/api-reference/get-plants");
-    const codeSection = page.locator('[data-testid="code-section"]');
+    const _codeSection = page.locator('[data-testid="code-section"]');
     // Language tabs should be rendered if API endpoint matched
     await expect(page.locator(".docs-layout")).toBeVisible();
   });

@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     .where(eq(orgMemberships.userId, session.user.id))
     .limit(1);
 
-  if (!membership || membership.role !== "admin") {
+  if (membership?.role !== "admin") {
     logger.warn("admin_canary_forbidden", {
       requestId,
       route: "/api/admin/canary",

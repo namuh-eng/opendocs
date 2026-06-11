@@ -1,6 +1,6 @@
-import { AuthScreen } from "@/components/auth/auth-screen";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
+import { AuthScreen } from "@/components/auth/auth-screen";
 
 // Google OAuth is the only auth method offered right now — GitHub/SSO, the
 // email form, and magic link are hidden (SHOW_ALTERNATE_AUTH in auth-screen).

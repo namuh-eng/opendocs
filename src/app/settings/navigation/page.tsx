@@ -28,7 +28,6 @@ import {
   moveItem,
   type NavAnchor,
   type NavEntry,
-  type NavGroup,
   type NavigationConfig,
   type NavPage,
   type NavTab,

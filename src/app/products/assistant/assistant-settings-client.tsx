@@ -4,7 +4,6 @@ import { clsx } from "clsx";
 import {
   ArrowRight,
   Calendar,
-  DollarSign,
   Loader2,
   Mail,
   MessageCircle,

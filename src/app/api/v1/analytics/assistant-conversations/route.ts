@@ -15,7 +15,7 @@ import { assistantConversations, projects } from "@/lib/db/schema";
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get("authorization");
   const keyAuth = await authenticateApiKey(authHeader);
-  if (!keyAuth || keyAuth.type !== "admin") {
+  if (keyAuth?.type !== "admin") {
     return NextResponse.json(
       { error: "Unauthorized — valid admin API key required" },
       { status: 401 },

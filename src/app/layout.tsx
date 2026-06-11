@@ -1,6 +1,6 @@
-import { PosthogProvider } from "@/components/observability/posthog-provider";
 import type { Metadata } from "next";
 import { Instrument_Serif, Inter } from "next/font/google";
+import { PosthogProvider } from "@/components/observability/posthog-provider";
 import "./globals.css";
 
 const instrumentSerif = Instrument_Serif({

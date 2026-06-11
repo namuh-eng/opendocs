@@ -34,7 +34,7 @@ export default function ProfileSettingsPage() {
   const [deletingUser, setDeletingUser] = useState(false);
   const [userError, setUserError] = useState("");
 
-  const router = useRouter();
+  const _router = useRouter();
 
   useEffect(() => {
     fetch("/api/users/profile")

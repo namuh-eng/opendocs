@@ -1,30 +1,16 @@
 "use client";
 
-import {
-  AlertCircle,
-  BarChart3,
-  ChevronRight,
-  MessageSquare,
-  ThumbsDown,
-  ThumbsUp,
-} from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { BarChart3, ChevronRight, ThumbsDown, ThumbsUp } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Bar,
-  CartesianGrid,
   ComposedChart,
   Line,
   ResponsiveContainer,
   Tooltip,
-  XAxis,
-  YAxis,
 } from "recharts";
 import { useActiveProject } from "@/hooks/use-active-project";
-import {
-  fillDailyCounts,
-  formatChartDate,
-  generateDateRange,
-} from "@/lib/analytics-visitors";
+import { fillDailyCounts, generateDateRange } from "@/lib/analytics-visitors";
 
 interface PageAnalyticsProps {
   pagePath: string;
