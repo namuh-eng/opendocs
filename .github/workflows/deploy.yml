@@ -1,0 +1,43 @@
+name: Deploy Production
+
+# Manual-only trigger. The workflow assumes the opendocs-github-deploy IAM
+# role via OIDC, so it must run on main — the role's trust policy rejects
+# tokens from any other ref.
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: us-east-1
+
+jobs:
+  deploy:
+    name: Build & Deploy to ECS
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::699486076867:role/opendocs-github-deploy
+          aws-region: us-east-1
+
+      - name: Deploy
+        env:
+          # Optional observability build args — empty values make the
+          # client integrations a no-op (see scripts/deploy.sh).
+          NEXT_PUBLIC_SENTRY_DSN: ${{ secrets.NEXT_PUBLIC_SENTRY_DSN }}
+          NEXT_PUBLIC_POSTHOG_KEY: ${{ secrets.NEXT_PUBLIC_POSTHOG_KEY }}
+          NEXT_PUBLIC_POSTHOG_HOST: ${{ secrets.NEXT_PUBLIC_POSTHOG_HOST }}
+          SENTRY_ENVIRONMENT: production
+        run: bash scripts/deploy.sh
