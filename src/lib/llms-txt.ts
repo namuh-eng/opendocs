@@ -4,6 +4,8 @@
  * llms-full.txt: full markdown content of all pages concatenated.
  */
 
+import { docsSiteUrl } from "@/lib/docs-url";
+
 interface PageEntry {
   path: string;
   title: string;
@@ -24,7 +26,7 @@ export function buildProjectBaseUrl(project: {
   if (project.subdomain) {
     return `https://${project.subdomain}`;
   }
-  return `https://${project.slug}.mintlify.dev`;
+  return docsSiteUrl(project.slug);
 }
 
 /**

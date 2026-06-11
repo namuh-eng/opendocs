@@ -1,6 +1,6 @@
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 
-export default function MintlifyWorkspaceLayout({
+export default function WorkspaceLayout({
   children,
 }: {
   children: React.ReactNode;

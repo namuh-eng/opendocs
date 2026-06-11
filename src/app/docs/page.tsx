@@ -88,8 +88,8 @@ export default async function DocsLandingPage() {
               Browse published docs and API references
             </h1>
             <p className="mt-6 max-w-2xl text-base leading-7 text-[var(--od-text-muted)] sm:text-lg">
-              OpenDocs gives every project a Mintlify-style public docs surface
-              with structured navigation, search, API playgrounds, and AI-ready
+              OpenDocs gives every project a polished public docs surface with
+              structured navigation, search, API playgrounds, and AI-ready
               content.
             </p>
             <div className="mt-10 flex flex-wrap gap-3">
