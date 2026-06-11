@@ -1,9 +1,11 @@
 name: Deploy Production
 
-# Manual-only trigger. The workflow assumes the opendocs-github-deploy IAM
-# role via OIDC, so it must run on main — the role's trust policy rejects
-# tokens from any other ref.
+# Deploys automatically on every push to main (after CI passes) and can
+# also be triggered manually. The OIDC role trust policy restricts
+# assumption to main-branch tokens only.
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
