@@ -11,7 +11,11 @@ export default defineConfig({
     },
     {
       name: "default",
-      testIgnore: [/(^|\/)auth\.setup\.ts$/, /(^|\/)auth\.spec\.ts$/],
+      testIgnore: [
+        /(^|\/)auth\.setup\.ts$/,
+        /(^|\/)auth\.spec\.ts$/,
+        /(^|\/)landing\.spec\.ts$/,
+      ],
       dependencies: ["auth-setup"],
       use: {
         storageState: "tests/e2e/.auth/user.json",
@@ -19,8 +23,8 @@ export default defineConfig({
     },
     {
       name: "unauthenticated",
-      testMatch: /(^|\/)auth\.spec\.ts$/,
-      // No storageState — tests run without session
+      // Public pages (auth screens, landing page) run without a session.
+      testMatch: [/(^|\/)auth\.spec\.ts$/, /(^|\/)landing\.spec\.ts$/],
     },
   ],
   use: {
