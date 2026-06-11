@@ -43,9 +43,7 @@ Production is currently configured with:
 - Public API redaction for sensitive docs auth settings
 - Security headers regression coverage
 
-Latest observed production health check returned `status: ok` on deployed version `78375da` with database and storage checks passing. The active integration branch is `staging`, with recent updates through `b39ed4c` covering GitHub App configuration routing, customer-safe GitHub sync unavailable states, analytics fixes, assistant search configuration UX, and docs visual branding fixes.
-
-Recent verified release checks have included:
+The active integration branch is `staging`. Standard release verification includes:
 
 - `npm run lint`
 - `npm run typecheck`
@@ -112,6 +110,10 @@ npm run dev
 
 The local dev server runs on http://localhost:3015.
 
+### Self-hosting
+
+For a full production self-hosting walkthrough — Docker build/run, the complete environment-variable reference, database migrations, reverse-proxy setup, and upgrades — see [`docs/self-hosting.md`](docs/self-hosting.md).
+
 ### For humans
 
 Use this README as the high-level product and operator guide:
@@ -152,12 +154,13 @@ Use this repository like a production product codebase, not a throwaway clone:
 
 ## Environment variables
 
-Copy `.env.example` to `.env` for local development. Production should provide these through the deployment environment or secrets manager.
+Copy `.env.example` to `.env` for local development. Production should provide these through the deployment environment or secrets manager. The complete per-feature reference (including what degrades when each optional var is unset) lives in [`docs/self-hosting.md`](docs/self-hosting.md).
 
 ### Required core settings
 
 ```bash
 DATABASE_URL=postgresql://user:password@host:5432/dbname
+DB_SSL=true                        # "true" for managed Postgres requiring TLS
 NEXT_PUBLIC_APP_URL=http://localhost:3015
 BETTER_AUTH_URL=http://localhost:3015
 BETTER_AUTH_SECRET=your-random-secret
@@ -181,27 +184,6 @@ GITHUB_APP_PRIVATE_KEY=your-github-app-private-key
 GITHUB_APP_SLUG=your-github-app-slug
 # Optional override if the default slug URL is not correct:
 GITHUB_APP_INSTALL_URL=https://github.com/apps/your-github-app-slug/installations/new
-STRIPE_SECRET_KEY=sk_test_your-stripe-secret-key
-STRIPE_WEBHOOK_SECRET=whsec_your-stripe-webhook-secret
-STRIPE_PRICE_ID=price_your-recurring-price-id
-```
-
-Stripe billing API routes are documented in `docs/deployment/stripe-billing.md`, including local Stripe CLI webhook forwarding with:
-
-```bash
-stripe login
-stripe listen --forward-to localhost:3015/api/billing/stripe/webhook
-```
-
-### Billing (optional, commercial hosted plans)
-
-The billing settings page calls the application billing API for Stripe Checkout and Customer Portal redirects. Configure these in the billing API lane when paid plans are enabled; local UI tests do not require live Stripe credentials.
-
-```bash
-STRIPE_SECRET_KEY=
-STRIPE_WEBHOOK_SECRET=
-STRIPE_PRICE_ID_PRO=
-STRIPE_CUSTOMER_PORTAL_RETURN_URL=
 ```
 
 Google OAuth must include this production redirect URI:
@@ -218,15 +200,19 @@ https://opendocs.namuh.co/api/github-connections/callback
 
 For staging, use the staging origin with the same path.
 
-### AWS and storage
+### AWS storage and AI
 
 ```bash
 AWS_REGION=us-east-1
-AWS_BEDROCK_REGION=us-east-1
 S3_BUCKET=your-doc-assets-bucket
+# Bedrock model for the AI assistant
+# (default: us.anthropic.claude-sonnet-4-20250514-v1:0)
+ASSISTANT_BEDROCK_MODEL_ID=
 ```
 
-### Billing
+AWS credentials resolve through the standard SDK chain. Bedrock model access must be enabled in the configured region for AI features.
+
+### Billing (optional)
 
 Stripe billing is optional for local open-source development. Without Stripe
 configuration, the app keeps running with free/dev billing state; production
@@ -234,10 +220,35 @@ paid-feature gates should be wired to fail closed until a valid subscription is
 synced.
 
 ```bash
-STRIPE_SECRET_KEY=
-STRIPE_WEBHOOK_SECRET=
+STRIPE_SECRET_KEY=sk_test_your-stripe-secret-key
+STRIPE_WEBHOOK_SECRET=whsec_your-stripe-webhook-secret
+STRIPE_PRICE_ID=price_your-recurring-price-id
+# Optional multi-plan mappings for paid access decisions
 STRIPE_PRO_PRICE_ID=
 STRIPE_ENTERPRISE_PRICE_ID=
+```
+
+Stripe billing API routes are documented in [`docs/deployment/stripe-billing.md`](docs/deployment/stripe-billing.md), including local Stripe CLI webhook forwarding with:
+
+```bash
+stripe login
+stripe listen --forward-to localhost:3015/api/billing/stripe/webhook
+```
+
+### Observability (optional)
+
+Sentry and PostHog are wired but fully no-op when unconfigured — a default build makes zero outbound telemetry calls. `NEXT_PUBLIC_*` values are inlined at build time (for Docker, pass them as `--build-arg`).
+
+```bash
+SENTRY_DSN=
+SENTRY_ENVIRONMENT=
+SENTRY_RELEASE=
+SENTRY_TRACES_SAMPLE_RATE=
+POSTHOG_API_KEY=
+POSTHOG_HOST=
+NEXT_PUBLIC_SENTRY_DSN=
+NEXT_PUBLIC_POSTHOG_KEY=
+NEXT_PUBLIC_POSTHOG_HOST=
 ```
 
 ### Docs proxy allowlist
@@ -270,9 +281,22 @@ docker build \
   -t opendocs:local .
 ```
 
-For the current AWS production runbook, see:
+The container listens on port 3000 internally. Run database migrations (`npm run db:migrate`) against the same `DATABASE_URL` before first boot, then:
 
-- [`docs/deployment/opendocs-production.md`](docs/deployment/opendocs-production.md)
+```bash
+docker run -d -p 3015:3000 \
+  -e DATABASE_URL=... \
+  -e BETTER_AUTH_SECRET=... \
+  -e BETTER_AUTH_URL=https://your-domain.com \
+  -e NEXT_PUBLIC_APP_URL=https://your-domain.com \
+  -e DOCS_PROXY_ALLOWED_HOSTS=your-domain.com \
+  opendocs:local
+```
+
+For deployment guides, see:
+
+- [`docs/self-hosting.md`](docs/self-hosting.md) — general self-hosting guide (Docker, env reference, migrations, upgrades)
+- [`docs/deployment/opendocs-production.md`](docs/deployment/opendocs-production.md) — internal AWS production runbook for opendocs.namuh.co
 
 ---
 
