@@ -33,10 +33,11 @@ export function TrialBanner({
           dismiss: "text-amber-700 hover:text-amber-950",
         }
       : {
-          container: "bg-amber-900/30 border-amber-700/30 text-amber-200",
-          title: "text-amber-100",
-          link: "text-amber-200 hover:text-amber-100",
-          dismiss: "text-amber-400 hover:text-amber-200",
+          container:
+            "bg-[var(--od-gold-soft,#f4ecd2)] border-[var(--od-gold,#c9a649)] text-[var(--od-text)]",
+          title: "text-[var(--od-text)]",
+          link: "text-[var(--od-gold,#c9a649)] hover:text-[var(--od-text)]",
+          dismiss: "text-[var(--od-gold,#c9a649)] hover:text-[var(--od-text)]",
         };
 
   return (

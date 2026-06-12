@@ -1,8 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
   buildDocsNav,
-  type DocsNavGroup,
-  type DocsNavItem,
   extractComponentBlocks,
   parseMdxToHtml,
   renderComponentBlock,

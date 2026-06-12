@@ -298,7 +298,7 @@ Regular paragraph.`);
     });
 
     it("extracts self-closing Badge in MDX", () => {
-      const html = renderMdxContent(
+      const _html = renderMdxContent(
         'This feature is <Badge color="green">Stable</Badge> and ready.',
       );
       // Badge should be recognized even inline — but our block extraction

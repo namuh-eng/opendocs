@@ -7,6 +7,7 @@ import {
   type ConnectedRepoOption,
   ConnectedRepoSelect,
 } from "@/components/github/connected-repo-select";
+import { docsDisplayUrl } from "@/lib/docs-url";
 import { validateOrgName } from "@/lib/orgs";
 import {
   generateSubdomain,
@@ -382,8 +383,8 @@ export default function OnboardingPage() {
 
   if (checking) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#0a0a0a]">
-        <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+      <div className="flex min-h-screen items-center justify-center bg-[var(--od-bg)]">
+        <Loader2 className="h-6 w-6 animate-spin text-[var(--od-text-subtle)]" />
       </div>
     );
   }
@@ -391,7 +392,7 @@ export default function OnboardingPage() {
   const currentStepId = STEPS[step];
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#0a0a0a]">
+    <div className="flex min-h-screen items-center justify-center bg-[var(--od-bg)]">
       <div className="w-full max-w-md space-y-8 p-8">
         <div className="flex items-center justify-center gap-2">
           {STEP_LABELS.map((label, i) => (
@@ -400,17 +401,19 @@ export default function OnboardingPage() {
                 <div
                   className={`flex h-8 w-8 items-center justify-center rounded-full border-2 text-xs font-medium transition-colors ${
                     i < step
-                      ? "border-emerald-500 bg-emerald-500 text-white"
+                      ? "border-[var(--od-accent-strong)] bg-[var(--od-accent-strong)] text-white"
                       : i === step
-                        ? "border-emerald-500 text-emerald-500"
-                        : "border-gray-700 text-gray-500"
+                        ? "border-[var(--od-accent-strong)] text-[var(--od-accent-text)]"
+                        : "border-[var(--od-border)] text-[var(--od-text-subtle)]"
                   }`}
                 >
                   {i < step ? <Check className="h-4 w-4" /> : i + 1}
                 </div>
                 <span
                   className={`mt-1 text-[10px] ${
-                    i <= step ? "text-gray-300" : "text-gray-600"
+                    i <= step
+                      ? "text-[var(--od-text-muted)]"
+                      : "text-[var(--od-text-subtle)]"
                   }`}
                 >
                   {label}
@@ -419,7 +422,9 @@ export default function OnboardingPage() {
               {i < STEP_LABELS.length - 1 && (
                 <div
                   className={`mb-4 h-0.5 w-8 ${
-                    i < step ? "bg-emerald-500" : "bg-gray-700"
+                    i < step
+                      ? "bg-[var(--od-accent-strong)]"
+                      : "bg-[var(--od-border)]"
                   }`}
                 />
               )}
@@ -427,7 +432,7 @@ export default function OnboardingPage() {
           ))}
         </div>
 
-        <div className="rounded-xl border border-gray-800 bg-[#111111] p-8">
+        <div className="rounded-xl border border-[var(--od-border)] bg-[var(--od-panel)] p-8">
           {currentStepId === "org" && (
             <div className="space-y-6">
               <div className="space-y-2 text-center">
@@ -437,7 +442,7 @@ export default function OnboardingPage() {
                     height="32"
                     viewBox="0 0 32 32"
                     fill="none"
-                    className="text-emerald-500"
+                    className="text-[var(--od-accent-strong)]"
                   >
                     <title>Logo</title>
                     <rect width="32" height="32" rx="8" fill="currentColor" />
@@ -450,10 +455,10 @@ export default function OnboardingPage() {
                     />
                   </svg>
                 </div>
-                <h1 className="text-2xl font-semibold text-white">
+                <h1 className="text-2xl font-semibold text-[var(--od-text)]">
                   Create your organization
                 </h1>
-                <p className="text-sm text-gray-400">
+                <p className="text-sm text-[var(--od-text-muted)]">
                   Set up your team to start building documentation
                 </p>
               </div>
@@ -462,7 +467,7 @@ export default function OnboardingPage() {
                 <div className="space-y-2">
                   <label
                     htmlFor="org-name"
-                    className="block text-sm font-medium text-gray-300"
+                    className="block text-sm font-medium text-[var(--od-text-muted)]"
                   >
                     Organization name
                   </label>
@@ -475,10 +480,12 @@ export default function OnboardingPage() {
                       if (e.key === "Enter") handleCreateOrg();
                     }}
                     placeholder="e.g. Acme Inc"
-                    className="w-full rounded-lg border border-gray-700 bg-[#1a1a1a] px-4 py-3 text-sm text-white placeholder-gray-500 outline-none transition-colors focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                    className="w-full rounded-lg border border-[var(--od-border)] bg-[var(--od-panel)] px-4 py-3 text-sm text-[var(--od-text)] placeholder-[var(--od-text-subtle)] outline-none transition-colors focus:border-[var(--od-accent)] focus:ring-1 focus:ring-[var(--od-accent)]"
                   />
                   {orgError && (
-                    <p className="text-sm text-red-400">{orgError}</p>
+                    <p className="text-sm text-[var(--od-danger)]">
+                      {orgError}
+                    </p>
                   )}
                 </div>
 
@@ -486,7 +493,7 @@ export default function OnboardingPage() {
                   type="button"
                   onClick={handleCreateOrg}
                   disabled={orgLoading}
-                  className="flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-emerald-500 disabled:opacity-50"
+                  className="flex w-full items-center justify-center gap-2 rounded-full bg-[var(--od-accent-strong)] px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-[var(--od-accent-deep,#3d4ea4)] disabled:opacity-50"
                 >
                   {orgLoading ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -505,14 +512,14 @@ export default function OnboardingPage() {
             <div className="space-y-6">
               <div className="space-y-2 text-center">
                 <div className="mb-4 flex justify-center">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-800 text-sm font-semibold text-white">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--od-panel-muted)] text-sm font-semibold text-[var(--od-text)]">
                     GH
                   </div>
                 </div>
-                <h1 className="text-2xl font-semibold text-white">
+                <h1 className="text-2xl font-semibold text-[var(--od-text)]">
                   Connect your repository
                 </h1>
-                <p className="text-sm text-gray-400">
+                <p className="text-sm text-[var(--od-text-muted)]">
                   Link a GitHub repository for source context. Private repos
                   require a verified GitHub connection. Public repos can be
                   linked without auth, but onboarding still starts from starter
@@ -545,10 +552,14 @@ export default function OnboardingPage() {
                     }}
                   />
                   {repoError && (
-                    <p className="text-sm text-red-400">{repoError}</p>
+                    <p className="text-sm text-[var(--od-danger)]">
+                      {repoError}
+                    </p>
                   )}
                   {repoHint && (
-                    <p className="text-sm text-amber-300">{repoHint}</p>
+                    <p className="text-sm text-[var(--od-warning)]">
+                      {repoHint}
+                    </p>
                   )}
                 </div>
 
@@ -556,21 +567,23 @@ export default function OnboardingPage() {
                   type="button"
                   onClick={handleConnectGitHub}
                   disabled={!resolvedRepoUrl.trim()}
-                  className="flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-emerald-500 disabled:opacity-50"
+                  className="flex w-full items-center justify-center gap-2 rounded-full bg-[var(--od-accent-strong)] px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-[var(--od-accent-deep,#3d4ea4)] disabled:opacity-50"
                 >
                   Connect repository
                 </button>
 
                 <div className="flex items-center gap-3">
-                  <div className="h-px flex-1 bg-gray-700" />
-                  <span className="text-xs text-gray-500">or</span>
-                  <div className="h-px flex-1 bg-gray-700" />
+                  <div className="h-px flex-1 bg-[var(--od-border)]" />
+                  <span className="text-xs text-[var(--od-text-subtle)]">
+                    or
+                  </span>
+                  <div className="h-px flex-1 bg-[var(--od-border)]" />
                 </div>
 
                 <button
                   type="button"
                   onClick={handleSkipGitHub}
-                  className="flex w-full items-center justify-center gap-2 rounded-lg border border-gray-700 px-4 py-3 text-sm font-medium text-gray-300 transition-colors hover:border-gray-600 hover:text-white"
+                  className="flex w-full items-center justify-center gap-2 rounded-full border border-[var(--od-border)] px-4 py-3 text-sm font-medium text-[var(--od-text-muted)] transition-colors hover:border-[var(--od-accent-border,rgba(107,127,215,0.4))] hover:text-[var(--od-text)]"
                 >
                   Skip for now
                   <ChevronRight className="h-4 w-4" />
@@ -580,7 +593,7 @@ export default function OnboardingPage() {
               <button
                 type="button"
                 onClick={() => setStep(0)}
-                className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-300"
+                className="flex items-center gap-1 text-xs text-[var(--od-text-subtle)] hover:text-[var(--od-text-muted)]"
               >
                 <ChevronLeft className="h-3 w-3" />
                 Back
@@ -591,10 +604,10 @@ export default function OnboardingPage() {
           {currentStepId === "project" && (
             <div className="space-y-6">
               <div className="space-y-2 text-center">
-                <h1 className="text-2xl font-semibold text-white">
+                <h1 className="text-2xl font-semibold text-[var(--od-text)]">
                   Create your first project
                 </h1>
-                <p className="text-sm text-gray-400">
+                <p className="text-sm text-[var(--od-text-muted)]">
                   Give your documentation project a name
                 </p>
               </div>
@@ -603,7 +616,7 @@ export default function OnboardingPage() {
                 <div className="space-y-2">
                   <label
                     htmlFor="project-name"
-                    className="block text-sm font-medium text-gray-300"
+                    className="block text-sm font-medium text-[var(--od-text-muted)]"
                   >
                     Project name
                   </label>
@@ -616,24 +629,27 @@ export default function OnboardingPage() {
                       if (e.key === "Enter") handleCreateProject();
                     }}
                     placeholder="e.g. API Docs"
-                    className="w-full rounded-lg border border-gray-700 bg-[#1a1a1a] px-4 py-3 text-sm text-white placeholder-gray-500 outline-none transition-colors focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                    className="w-full rounded-lg border border-[var(--od-border)] bg-[var(--od-panel)] px-4 py-3 text-sm text-[var(--od-text)] placeholder-[var(--od-text-subtle)] outline-none transition-colors focus:border-[var(--od-accent)] focus:ring-1 focus:ring-[var(--od-accent)]"
                   />
                   {projectError && (
-                    <p className="text-sm text-red-400">{projectError}</p>
+                    <p className="text-sm text-[var(--od-danger)]">
+                      {projectError}
+                    </p>
                   )}
                 </div>
 
                 {projectName.trim() && createdOrg && (
-                  <div className="rounded-lg border border-gray-700 bg-[#1a1a1a] px-4 py-3">
-                    <p className="text-xs text-gray-500">
+                  <div className="rounded-lg border border-[var(--od-border)] bg-[var(--od-panel-muted)] px-4 py-3">
+                    <p className="text-xs text-[var(--od-text-subtle)]">
                       Your docs will be available at:
                     </p>
-                    <p className="mt-1 text-sm text-emerald-400">
-                      {generateSubdomain(
-                        createdOrg.slug,
-                        slugifyProject(projectName.trim()),
+                    <p className="mt-1 text-sm text-[var(--od-accent-text)]">
+                      {docsDisplayUrl(
+                        generateSubdomain(
+                          createdOrg.slug,
+                          slugifyProject(projectName.trim()),
+                        ),
                       )}
-                      .namuh.dev
                     </p>
                   </div>
                 )}
@@ -642,7 +658,7 @@ export default function OnboardingPage() {
                   type="button"
                   onClick={handleCreateProject}
                   disabled={projectLoading}
-                  className="flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-emerald-500 disabled:opacity-50"
+                  className="flex w-full items-center justify-center gap-2 rounded-full bg-[var(--od-accent-strong)] px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-[var(--od-accent-deep,#3d4ea4)] disabled:opacity-50"
                 >
                   {projectLoading ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -659,22 +675,24 @@ export default function OnboardingPage() {
 
           {currentStepId === "success" && createdProject && (
             <div className="space-y-6 text-center">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[var(--od-sage-soft)] text-[var(--od-success)]">
                 <Check className="h-6 w-6" />
               </div>
               <div className="space-y-2">
-                <h1 className="text-2xl font-semibold text-white">All set</h1>
-                <p className="text-sm text-gray-400">
+                <h1 className="text-2xl font-semibold text-[var(--od-text)]">
+                  All set
+                </h1>
+                <p className="text-sm text-[var(--od-text-muted)]">
                   Your docs project is ready at
                 </p>
-                <p className="text-sm text-emerald-400">
-                  {createdProject.subdomain}.namuh.dev
+                <p className="text-sm text-[var(--od-accent-text)]">
+                  {docsDisplayUrl(createdProject.subdomain)}
                 </p>
               </div>
               <button
                 type="button"
                 onClick={handleGoToDashboard}
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-emerald-500"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--od-accent-strong)] px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-[var(--od-accent-deep,#3d4ea4)]"
               >
                 Go to dashboard
                 <ChevronRight className="h-4 w-4" />

@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { GoogleAuthCard } from "@/components/auth/google-auth-card";
+import { AuthScreen } from "@/components/auth/auth-screen";
 import { resolveSafeReturnTo } from "@/lib/auth-redirect";
 import { getServerSession } from "@/lib/session";
 
@@ -18,5 +18,5 @@ export default async function SignupPage({
     redirect(resolveSafeReturnTo(params.returnTo, "/dashboard"));
   }
 
-  return <GoogleAuthCard callbackURL={callbackURL} mode="signup" />;
+  return <AuthScreen callbackURL={callbackURL} mode="signup" />;
 }

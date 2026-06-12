@@ -28,7 +28,6 @@ import {
   moveItem,
   type NavAnchor,
   type NavEntry,
-  type NavGroup,
   type NavigationConfig,
   type NavPage,
   type NavTab,
@@ -58,7 +57,7 @@ function AddEntryDropdown({ onAdd }: { onAdd: (entry: NavEntry) => void }) {
         type="button"
         data-testid="add-entry-btn"
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-1.5 rounded-lg border border-dashed border-white/[0.12] px-3 py-2 text-sm text-gray-400 transition-colors hover:border-emerald-500/40 hover:text-emerald-400"
+        className="flex items-center gap-1.5 rounded-lg border border-dashed border-[var(--od-border)] px-3 py-2 text-sm text-[var(--od-text-muted)] transition-colors hover:border-[var(--od-accent)] hover:text-[var(--od-accent-strong)]"
       >
         <Plus size={14} />
         Add new
@@ -151,7 +150,7 @@ function AddPageModal({
               value={label}
               onChange={(e) => handleLabelChange(e.target.value)}
               placeholder="e.g. Getting Started"
-              className="w-full rounded-lg border border-white/[0.08] bg-[#141414] px-3 py-2 text-sm text-white placeholder-gray-500 outline-none focus:border-emerald-500"
+              className="w-full rounded-lg border border-white/[0.08] bg-[var(--od-panel)] px-3 py-2 text-sm text-[var(--od-text)] placeholder-[var(--od-text-subtle)] outline-none focus:border-[var(--od-accent)]"
             />
           </div>
           <div>
@@ -171,7 +170,7 @@ function AddPageModal({
                 setAutoPath(false);
               }}
               placeholder="e.g. getting-started"
-              className="w-full rounded-lg border border-white/[0.08] bg-[#141414] px-3 py-2 text-sm text-white placeholder-gray-500 outline-none focus:border-emerald-500"
+              className="w-full rounded-lg border border-white/[0.08] bg-[var(--od-panel)] px-3 py-2 text-sm text-[var(--od-text)] placeholder-[var(--od-text-subtle)] outline-none focus:border-[var(--od-accent)]"
             />
           </div>
         </div>
@@ -187,7 +186,7 @@ function AddPageModal({
             type="submit"
             data-testid="add-page-submit"
             disabled={!label.trim()}
-            className="rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
+            className="rounded-lg bg-[var(--od-accent-strong)] px-3 py-1.5 text-sm font-medium text-white hover:bg-[var(--od-accent-deep,#3d4ea4)] disabled:opacity-50"
           >
             Add page
           </button>
@@ -269,7 +268,7 @@ function EditEntryModal({
               type="text"
               value={label}
               onChange={(e) => setLabel(e.target.value)}
-              className="w-full rounded-lg border border-white/[0.08] bg-[#141414] px-3 py-2 text-sm text-white outline-none focus:border-emerald-500"
+              className="w-full rounded-lg border border-[var(--od-border)] bg-[var(--od-panel)] px-3 py-2 text-sm text-[var(--od-text)] outline-none focus:border-[var(--od-accent)]"
             />
           </div>
           {(entry.type === "tab" || entry.type === "anchor") && (
@@ -287,7 +286,7 @@ function EditEntryModal({
                 value={href}
                 onChange={(e) => setHref(e.target.value)}
                 placeholder={entry.type === "anchor" ? "https://..." : "/docs"}
-                className="w-full rounded-lg border border-white/[0.08] bg-[#141414] px-3 py-2 text-sm text-white placeholder-gray-500 outline-none focus:border-emerald-500"
+                className="w-full rounded-lg border border-white/[0.08] bg-[var(--od-panel)] px-3 py-2 text-sm text-[var(--od-text)] placeholder-[var(--od-text-subtle)] outline-none focus:border-[var(--od-accent)]"
               />
             </div>
           )}
@@ -306,7 +305,7 @@ function EditEntryModal({
                 value={icon}
                 onChange={(e) => setIcon(e.target.value)}
                 placeholder="e.g. book, file-text"
-                className="w-full rounded-lg border border-white/[0.08] bg-[#141414] px-3 py-2 text-sm text-white placeholder-gray-500 outline-none focus:border-emerald-500"
+                className="w-full rounded-lg border border-white/[0.08] bg-[var(--od-panel)] px-3 py-2 text-sm text-[var(--od-text)] placeholder-[var(--od-text-subtle)] outline-none focus:border-[var(--od-accent)]"
               />
             </div>
           )}
@@ -323,7 +322,7 @@ function EditEntryModal({
             type="submit"
             data-testid="edit-entry-submit"
             disabled={!label.trim()}
-            className="rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
+            className="rounded-lg bg-[var(--od-accent-strong)] px-3 py-1.5 text-sm font-medium text-white hover:bg-[var(--od-accent-deep,#3d4ea4)] disabled:opacity-50"
           >
             Save
           </button>
@@ -424,11 +423,11 @@ function EntryCard({
 
   const typeIcon =
     entry.type === "group" ? (
-      <FolderOpen size={15} className="text-emerald-500" />
+      <FolderOpen size={15} className="text-[var(--od-accent-strong)]" />
     ) : entry.type === "tab" ? (
-      <FileText size={15} className="text-blue-400" />
+      <FileText size={15} className="text-[var(--od-accent)]" />
     ) : (
-      <Link size={15} className="text-purple-400" />
+      <Link size={15} className="text-[var(--od-text-muted)]" />
     );
 
   const typeLabel =
@@ -565,7 +564,7 @@ function EntryCard({
             <button
               type="button"
               onClick={() => setShowAddPage(true)}
-              className="mt-2 flex items-center gap-1 rounded px-2 py-1 text-xs text-gray-500 transition-colors hover:text-emerald-400"
+              className="mt-2 flex items-center gap-1 rounded px-2 py-1 text-xs text-[var(--od-text-subtle)] transition-colors hover:text-[var(--od-accent-strong)]"
               data-testid={`add-page-${index}`}
             >
               <Plus size={12} />
@@ -765,7 +764,9 @@ export default function NavigationSettingsPage() {
           data-testid="nav-message"
           className={clsx(
             "mt-4 text-sm",
-            message.type === "success" ? "text-emerald-400" : "text-red-400",
+            message.type === "success"
+              ? "text-[var(--od-success)]"
+              : "text-[var(--od-danger)]",
           )}
         >
           {message.text}
@@ -778,7 +779,7 @@ export default function NavigationSettingsPage() {
         data-testid="save-nav-btn"
         disabled={saving}
         onClick={handleSave}
-        className="mt-4 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-500 disabled:opacity-50"
+        className="mt-4 rounded-lg bg-[var(--od-accent-strong)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--od-accent-deep,#3d4ea4)] disabled:opacity-50"
       >
         {saving ? "Saving..." : "Save changes"}
       </button>

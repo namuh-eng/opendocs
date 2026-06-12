@@ -3,9 +3,6 @@ export default function AuthLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-[var(--od-bg)]">
-      {children}
-    </div>
-  );
+  // Auth screens own their full-page split layout.
+  return children;
 }

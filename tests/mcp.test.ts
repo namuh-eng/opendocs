@@ -4,12 +4,12 @@ import { getMcpServerUrl, getMcpTools, slugToTitle } from "@/lib/mcp";
 describe("getMcpServerUrl", () => {
   it("returns correct URL for a simple slug", () => {
     expect(getMcpServerUrl("mint-starter-kit")).toBe(
-      "https://mint-starter-kit.mintlify.app/mcp",
+      "http://localhost:3015/docs/mint-starter-kit/mcp",
     );
   });
 
   it("returns correct URL for a single-word slug", () => {
-    expect(getMcpServerUrl("acme")).toBe("https://acme.mintlify.app/mcp");
+    expect(getMcpServerUrl("acme")).toBe("http://localhost:3015/docs/acme/mcp");
   });
 });
 

@@ -42,7 +42,7 @@ test.describe("Analytics Assistant Tab", () => {
     await page.goto("/analytics/assistant");
     // Should show empty state or loading — wait for content
     await page.waitForTimeout(2000);
-    const emptyState = page.getByTestId("assistant-empty-state");
+    const _emptyState = page.getByTestId("assistant-empty-state");
     // May or may not be visible depending on data, but page should load without errors
     const pageContent = await page.textContent("body");
     expect(pageContent).toBeTruthy();

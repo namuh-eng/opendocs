@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useActiveProject } from "@/hooks/use-active-project";
 import { useProjectUpdater } from "@/hooks/use-project-updater";
+import { HOSTING_SUFFIX } from "@/lib/domains";
 
 type VerificationStatus = "not_configured" | "pending" | "verified" | "failed";
 
@@ -37,7 +38,7 @@ export default function DomainSettingsPage() {
     if (project.customDomain) {
       setDomain(project.customDomain);
       const sub = project.subdomain ?? project.slug;
-      setCnameTarget(`${sub}.mintlify-hosting.app`);
+      setCnameTarget(`${sub}.${HOSTING_SUFFIX}`);
       const verifiedAt = project.settings?.domainVerifiedAt;
       setStatus(verifiedAt ? "verified" : "pending");
       return;
@@ -63,7 +64,7 @@ export default function DomainSettingsPage() {
 
     if (domain.trim()) {
       const sub = result.data.project.subdomain ?? result.data.project.slug;
-      setCnameTarget(`${sub}.mintlify-hosting.app`);
+      setCnameTarget(`${sub}.${HOSTING_SUFFIX}`);
       setStatus("pending");
       setMessage({
         type: "success",
@@ -148,8 +149,8 @@ export default function DomainSettingsPage() {
   > = {
     not_configured: { label: "Not configured", color: "text-gray-400" },
     pending: { label: "Pending verification", color: "text-yellow-400" },
-    verified: { label: "Verified", color: "text-emerald-400" },
-    failed: { label: "Verification failed", color: "text-red-400" },
+    verified: { label: "Verified", color: "text-[var(--od-success)]" },
+    failed: { label: "Verification failed", color: "text-[var(--od-danger)]" },
   };
 
   const badge = statusBadge[status];
@@ -179,13 +180,13 @@ export default function DomainSettingsPage() {
             value={domain}
             onChange={(e) => setDomain(e.target.value)}
             placeholder="docs.example.com"
-            className="w-full rounded-lg border border-white/[0.08] bg-[#1a1a1a] px-4 py-2.5 text-sm text-white placeholder-gray-500 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+            className="w-full rounded-lg border border-white/[0.08] bg-[#1a1a1a] px-4 py-2.5 text-sm text-white placeholder-gray-500 outline-none focus:border-[var(--od-accent)] focus:ring-1 focus:ring-[var(--od-accent)]"
           />
         </div>
 
         {message && (
           <p
-            className={`text-sm ${message.type === "success" ? "text-emerald-400" : "text-red-400"}`}
+            className={`text-sm ${message.type === "success" ? "text-[var(--od-success)]" : "text-[var(--od-danger)]"}`}
           >
             {message.text}
           </p>
@@ -195,7 +196,7 @@ export default function DomainSettingsPage() {
           <button
             type="submit"
             disabled={saving}
-            className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-500 disabled:opacity-50"
+            className="rounded-lg bg-[var(--od-accent-strong)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--od-accent-deep,#3d4ea4)] disabled:opacity-50"
           >
             {saving ? "Saving..." : "Save domain"}
           </button>
@@ -204,7 +205,7 @@ export default function DomainSettingsPage() {
               type="button"
               onClick={handleRemove}
               disabled={saving}
-              className="rounded-lg border border-red-500/30 px-4 py-2 text-sm font-medium text-red-400 transition-colors hover:bg-red-500/10 disabled:opacity-50"
+              className="rounded-lg border border-red-500/30 px-4 py-2 text-sm font-medium text-[var(--od-danger)] transition-colors hover:bg-red-500/10 disabled:opacity-50"
             >
               Remove
             </button>
@@ -264,7 +265,7 @@ export default function DomainSettingsPage() {
               type="button"
               onClick={handleVerify}
               disabled={verifying || status === "verified"}
-              className="rounded-lg border border-emerald-500/30 px-4 py-2 text-sm font-medium text-emerald-400 transition-colors hover:bg-emerald-500/10 disabled:opacity-50"
+              className="rounded-lg border border-[var(--od-accent-border)] px-4 py-2 text-sm font-medium text-[var(--od-accent-text)] transition-colors hover:bg-[var(--od-accent-soft)] disabled:opacity-50"
             >
               {verifying
                 ? "Verifying..."
@@ -274,7 +275,7 @@ export default function DomainSettingsPage() {
             </button>
 
             {status === "verified" && (
-              <p className="text-sm text-emerald-400">
+              <p className="text-sm text-[var(--od-success)]">
                 Your documentation is accessible at{" "}
                 <span className="font-medium">
                   https://{project.customDomain}

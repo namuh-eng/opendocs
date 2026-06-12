@@ -6,7 +6,6 @@ import {
   categoriesToCsv,
   categorizeConversation,
   chatHistoryToCsv,
-  downloadCsv,
   escapeCsvField,
   extractFirstUserMessage,
   fillDailyConversationCounts,

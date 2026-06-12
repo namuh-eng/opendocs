@@ -117,8 +117,8 @@ export function AgentSettingsClient({
           <section data-testid="enable-agent-section">
             <div className="rounded-xl border border-white/[0.08] bg-[#1a1a1a] p-6">
               <div className="flex items-center gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-emerald-600/10 flex items-center justify-center">
-                  <Bot size={24} className="text-emerald-500" />
+                <div className="w-12 h-12 rounded-xl bg-[var(--od-accent-soft)] flex items-center justify-center">
+                  <Bot size={24} className="text-[var(--od-accent-strong)]" />
                 </div>
                 <div>
                   <h2 className="text-lg font-semibold text-white">
@@ -139,7 +139,9 @@ export function AgentSettingsClient({
                     disabled={loading}
                     className={clsx(
                       "relative inline-flex h-6 w-11 items-center rounded-full transition-colors",
-                      isEnabled ? "bg-emerald-600" : "bg-gray-600",
+                      isEnabled
+                        ? "bg-[var(--od-accent-strong)]"
+                        : "bg-[var(--od-border)]",
                       loading && "opacity-50 cursor-not-allowed",
                     )}
                     data-testid="agent-toggle"
@@ -217,8 +219,8 @@ export function AgentSettingsClient({
                   className={clsx(
                     "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border",
                     settings.slackConnected
-                      ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                      : "bg-gray-500/10 text-gray-400 border-gray-500/20",
+                      ? "bg-[var(--od-sage-soft)] text-[var(--od-success)] border-[var(--od-sage)]"
+                      : "bg-[var(--od-panel-muted)] text-[var(--od-text-muted)] border-[var(--od-border)]",
                   )}
                   data-testid="slack-status-badge"
                 >
@@ -228,7 +230,7 @@ export function AgentSettingsClient({
               {!settings.slackConnected && (
                 <button
                   type="button"
-                  className="mt-4 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500 transition-colors"
+                  className="mt-4 rounded-lg bg-[var(--od-accent-strong)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--od-accent-deep,#3d4ea4)] transition-colors"
                   data-testid="connect-slack-btn"
                 >
                   Connect Slack workspace
@@ -264,7 +266,7 @@ export function AgentSettingsClient({
                 </div>
                 <a
                   href={GITHUB_APP_SETTINGS_HREF}
-                  className="text-sm text-emerald-400 hover:text-emerald-300 transition-colors inline-flex items-center gap-1"
+                  className="text-sm text-[var(--od-accent-strong)] hover:text-[var(--od-accent)] transition-colors inline-flex items-center gap-1"
                   data-testid="configure-github-link"
                 >
                   Configure GitHub app
@@ -296,7 +298,7 @@ export function AgentSettingsClient({
                             <GitBranch size={12} />
                             {repo.branch}
                           </span>
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--od-accent-soft)] text-[var(--od-accent-strong)] border border-[var(--od-accent)]">
                             <Shield size={10} />
                             {repo.permissions}
                           </span>
@@ -308,7 +310,7 @@ export function AgentSettingsClient({
               ) : !settings.githubAppInstalled ? (
                 <a
                   href={GITHUB_APP_SETTINGS_HREF}
-                  className="mt-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500 transition-colors"
+                  className="mt-2 rounded-lg bg-[var(--od-accent-strong)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--od-accent-deep,#3d4ea4)] transition-colors"
                   data-testid="install-github-btn"
                 >
                   Install the GitHub app
@@ -336,13 +338,13 @@ export function AgentSettingsClient({
               <X size={14} />
             </button>
 
-            <div className="w-full h-24 rounded-lg bg-gradient-to-br from-indigo-600/20 to-purple-600/20 flex items-center justify-center mb-3">
-              <div className="w-10 h-10 rounded-lg bg-indigo-500/20 flex items-center justify-center">
-                <Bot size={20} className="text-indigo-400" />
+            <div className="w-full h-24 rounded-lg bg-[var(--od-accent-soft)] flex items-center justify-center mb-3">
+              <div className="w-10 h-10 rounded-lg bg-[var(--od-panel)] flex items-center justify-center">
+                <Bot size={20} className="text-[var(--od-accent-strong)]" />
               </div>
             </div>
 
-            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider bg-emerald-500/10 text-emerald-400 mb-2">
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider bg-[var(--od-gold-soft,#f4ecd2)] text-[var(--od-gold,#c9a649)] mb-2">
               New
             </span>
             <h3 className="text-sm font-semibold text-white mb-1">
@@ -353,7 +355,7 @@ export function AgentSettingsClient({
             </p>
             <a
               href="/docs/agent"
-              className="text-xs text-emerald-400 hover:text-emerald-300 transition-colors inline-flex items-center gap-1"
+              className="text-xs text-[var(--od-accent-strong)] hover:text-[var(--od-accent)] transition-colors inline-flex items-center gap-1"
               data-testid="configure-linear-link"
             >
               Configure Linear

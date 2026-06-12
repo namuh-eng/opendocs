@@ -531,7 +531,7 @@ export function extractComponentBlocks(content: string): ContentBlock[] {
       flushMarkdown();
       const tag = openMatch[1];
       const props = parseProps(openMatch[2] || "");
-      const isWrapper = WRAPPER_COMPONENTS.has(tag);
+      const _isWrapper = WRAPPER_COMPONENTS.has(tag);
 
       // Find the matching closing tag
       const closingTag = `</${tag}>`;

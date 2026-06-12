@@ -49,7 +49,7 @@ export function ConnectedRepoSelect({
               value={value}
               onChange={(e) => onChange(e.target.value)}
               disabled={disabled}
-              className="w-full rounded-lg border border-white/[0.08] bg-[#1a1a1a] py-2.5 pl-10 pr-4 text-sm text-white outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 disabled:opacity-50"
+              className="w-full rounded-lg border border-[var(--od-border)] bg-[var(--od-panel)] py-2.5 pl-10 pr-4 text-sm text-[var(--od-text)] outline-none focus:border-[var(--od-accent)] focus:ring-1 focus:ring-[var(--od-accent)] disabled:opacity-50"
             >
               <option value="">No repository selected</option>
               {repos.map((repo) => (
@@ -73,8 +73,8 @@ export function ConnectedRepoSelect({
                   className={clsx(
                     "flex items-center justify-between rounded-lg border px-3 py-2 text-xs",
                     isSelected
-                      ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-200"
-                      : "border-white/[0.06] bg-white/[0.02] text-gray-400",
+                      ? "border-[var(--od-accent)] bg-[var(--od-accent-soft)] text-[var(--od-accent-text)]"
+                      : "border-[var(--od-border)] bg-[var(--od-panel-muted)] text-[var(--od-text-muted)]",
                   )}
                 >
                   <div className="flex items-center gap-2">
@@ -92,7 +92,7 @@ export function ConnectedRepoSelect({
                       {repo.permissions}
                     </span>
                     {isSelected && (
-                      <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-medium text-emerald-300">
+                      <span className="rounded bg-[var(--od-accent-soft)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--od-accent-text)]">
                         selected
                       </span>
                     )}
@@ -134,7 +134,7 @@ export function ConnectedRepoSelect({
             onChange={(e) => onPublicUrlChange?.(e.target.value)}
             disabled={disabled}
             placeholder="https://github.com/org/repo"
-            className="w-full rounded-lg border border-white/[0.08] bg-[#1a1a1a] px-4 py-2.5 text-sm text-white placeholder-gray-500 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 disabled:opacity-50"
+            className="w-full rounded-lg border border-[var(--od-border)] bg-[var(--od-panel)] px-4 py-2.5 text-sm text-[var(--od-text)] placeholder-[var(--od-text-subtle)] outline-none focus:border-[var(--od-accent)] focus:ring-1 focus:ring-[var(--od-accent)] disabled:opacity-50"
           />
           <p className="text-xs text-gray-500">
             Use this only for public repositories. Private repos should be

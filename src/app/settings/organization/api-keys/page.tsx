@@ -322,14 +322,14 @@ export default function ApiKeysPage() {
                   Copy this key now. It will only be shown once and cannot be
                   retrieved later.
                 </p>
-                <div className="flex items-center gap-2 rounded-lg border border-gray-700 bg-gray-900 p-3">
-                  <code className="flex-1 break-all font-mono text-sm text-green-400">
+                <div className="flex items-center gap-2 rounded-lg border border-[var(--od-border)] bg-[var(--od-panel-muted)] p-3">
+                  <code className="flex-1 break-all font-mono text-sm text-[var(--od-accent)]">
                     {newRawKey}
                   </code>
                   <button
                     type="button"
                     onClick={() => handleCopy(newRawKey)}
-                    className="shrink-0 rounded-md bg-gray-800 px-3 py-1.5 text-xs text-gray-300 hover:bg-gray-700"
+                    className="shrink-0 rounded-md bg-[var(--od-panel-muted)] px-3 py-1.5 text-xs text-[var(--od-text-muted)] hover:bg-[var(--od-border)]"
                   >
                     {copied ? "Copied!" : "Copy"}
                   </button>
@@ -337,7 +337,7 @@ export default function ApiKeysPage() {
                 <button
                   type="button"
                   onClick={closeCreate}
-                  className="w-full rounded-lg bg-green-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-green-500"
+                  className="w-full rounded-lg bg-[var(--od-accent-strong)] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[var(--od-accent-deep,#3d4ea4)]"
                 >
                   Done
                 </button>
@@ -362,24 +362,26 @@ export default function ApiKeysPage() {
                     value={keyName}
                     onChange={(e) => setKeyName(e.target.value)}
                     placeholder="e.g. Production API key"
-                    className="w-full rounded-lg border border-gray-700 bg-gray-900 px-4 py-2.5 text-sm text-white placeholder-gray-500 outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                    className="w-full rounded-lg border border-[var(--od-border)] bg-[var(--od-panel)] px-4 py-2.5 text-sm text-[var(--od-text)] placeholder-[var(--od-text-subtle)] outline-none focus:border-[var(--od-accent)] focus:ring-1 focus:ring-[var(--od-accent)]"
                   />
                   {createError && (
-                    <p className="text-sm text-red-400">{createError}</p>
+                    <p className="text-sm text-[var(--od-danger)]">
+                      {createError}
+                    </p>
                   )}
                 </div>
                 <div className="flex gap-3">
                   <button
                     type="button"
                     onClick={closeCreate}
-                    className="flex-1 rounded-lg border border-gray-700 px-4 py-2.5 text-sm text-gray-300 transition-colors hover:border-gray-500"
+                    className="flex-1 rounded-lg border border-[var(--od-border)] px-4 py-2.5 text-sm text-[var(--od-text-muted)] transition-colors hover:border-[var(--od-accent)]"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={creating}
-                    className="flex-1 rounded-lg bg-green-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-green-500 disabled:opacity-50"
+                    className="flex-1 rounded-lg bg-[var(--od-accent-strong)] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[var(--od-accent-deep,#3d4ea4)] disabled:opacity-50"
                   >
                     {creating ? "Creating..." : "Create"}
                   </button>

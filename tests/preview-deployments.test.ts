@@ -44,37 +44,37 @@ describe("isValidBranchName", () => {
 describe("generatePreviewUrl", () => {
   it("generates preview URL from branch and subdomain", () => {
     expect(generatePreviewUrl("feature-123", "my-docs")).toBe(
-      "https://feature-123.preview.my-docs.mintlify.app",
+      "https://feature-123.preview.my-docs.namuh.dev",
     );
   });
 
   it("sanitizes branch names with slashes", () => {
     expect(generatePreviewUrl("feature/new-widget", "docs")).toBe(
-      "https://feature-new-widget.preview.docs.mintlify.app",
+      "https://feature-new-widget.preview.docs.namuh.dev",
     );
   });
 
   it("lowercases branch names", () => {
     expect(generatePreviewUrl("Feature-ABC", "docs")).toBe(
-      "https://feature-abc.preview.docs.mintlify.app",
+      "https://feature-abc.preview.docs.namuh.dev",
     );
   });
 
   it("strips leading and trailing hyphens from sanitized name", () => {
     expect(generatePreviewUrl("/feature/", "docs")).toBe(
-      "https://feature.preview.docs.mintlify.app",
+      "https://feature.preview.docs.namuh.dev",
     );
   });
 
   it("uses 'docs' as default when subdomain is null", () => {
     expect(generatePreviewUrl("staging", null)).toBe(
-      "https://staging.preview.docs.mintlify.app",
+      "https://staging.preview.docs.namuh.dev",
     );
   });
 
   it("handles branch names with dots", () => {
     expect(generatePreviewUrl("v1.2.3", "docs")).toBe(
-      "https://v1-2-3.preview.docs.mintlify.app",
+      "https://v1-2-3.preview.docs.namuh.dev",
     );
   });
 });

@@ -58,7 +58,7 @@ export function WorkflowsPageClient() {
             onClick={() =>
               router.push(`/products/workflows/new?template=${template.id}`)
             }
-            className="flex items-start gap-3 rounded-lg border border-gray-800 bg-gray-900/50 p-4 text-left transition-colors hover:border-gray-700 hover:bg-gray-800/60"
+            className="flex items-start gap-3 rounded-lg border border-[var(--od-border)] bg-[var(--od-panel-muted)] p-4 text-left transition-colors hover:border-[var(--od-accent)] hover:bg-[var(--od-panel)]"
             data-testid={`template-card-${template.id}`}
           >
             <div className="mt-0.5 shrink-0">{iconMap[template.icon]}</div>

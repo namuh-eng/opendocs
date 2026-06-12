@@ -11,7 +11,6 @@ import {
   generateVirtualPages,
   isAsyncApiSpec,
   renderAsyncApiChannelPage,
-  type VirtualApiPage,
   type VirtualAsyncApiPage,
 } from "@/lib/openapi";
 import type { OpenApiEndpoint } from "@/lib/openapi-parser";

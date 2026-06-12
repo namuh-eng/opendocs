@@ -151,7 +151,7 @@ describe("POST /api/projects/[id]/domain/verify", () => {
 
   it("marks the domain verified when DNS matches the expected target", async () => {
     getSessionMock.mockResolvedValue({ user: { id: "user-1" } });
-    resolveCnameMock.mockResolvedValue(["docs.mintlify-hosting.app"]);
+    resolveCnameMock.mockResolvedValue(["docs.hosting.namuh.dev"]);
 
     selectMock
       .mockReturnValueOnce({
@@ -197,7 +197,7 @@ describe("POST /api/projects/[id]/domain/verify", () => {
     await expect(response.json()).resolves.toEqual({
       status: "verified",
       domain: "docs.example.com",
-      cnameTarget: "docs.mintlify-hosting.app",
+      cnameTarget: "docs.hosting.namuh.dev",
     });
   });
 
@@ -238,9 +238,9 @@ describe("POST /api/projects/[id]/domain/verify", () => {
     await expect(response.json()).resolves.toEqual({
       status: "pending",
       domain: "docs.example.com",
-      cnameTarget: "docs.mintlify-hosting.app",
+      cnameTarget: "docs.hosting.namuh.dev",
       message:
-        "CNAME record for docs.example.com does not point to docs.mintlify-hosting.app",
+        "CNAME record for docs.example.com does not point to docs.hosting.namuh.dev",
     });
   });
 
@@ -281,9 +281,9 @@ describe("POST /api/projects/[id]/domain/verify", () => {
     await expect(response.json()).resolves.toEqual({
       status: "pending",
       domain: "docs.example.com",
-      cnameTarget: "docs.mintlify-hosting.app",
+      cnameTarget: "docs.hosting.namuh.dev",
       message:
-        "CNAME record for docs.example.com does not point to docs.mintlify-hosting.app",
+        "CNAME record for docs.example.com does not point to docs.hosting.namuh.dev",
     });
   });
 });

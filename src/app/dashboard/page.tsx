@@ -1,5 +1,5 @@
 import { and, desc, eq } from "drizzle-orm";
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { ACTIVE_PROJECT_COOKIE, findActiveProject } from "@/lib/active-project";
 import {

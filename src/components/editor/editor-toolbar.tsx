@@ -423,7 +423,7 @@ export function EditorToolbar({
                     className="text-[var(--od-text-subtle)]"
                   />
                   <span className="text-[var(--od-text-muted)] truncate">
-                    {siteUrl || previewUrl || "your-project.mintlify.app"}
+                    {siteUrl || previewUrl || "your-project.namuh.dev"}
                   </span>
                 </div>
                 <p className="text-xs leading-5 text-[var(--od-text-subtle)]">

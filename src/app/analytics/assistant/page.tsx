@@ -20,7 +20,6 @@ import {
   formatConversationDate,
   truncateMessage,
 } from "@/lib/analytics-assistant";
-import { generateDateRange } from "@/lib/analytics-visitors";
 import { AnalyticsShell } from "../analytics-shell";
 
 // ── Categories Table ─────────────────────────────────────────────────────────

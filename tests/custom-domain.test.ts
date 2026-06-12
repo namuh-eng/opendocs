@@ -74,13 +74,11 @@ describe("validateCustomDomain", () => {
 
 describe("generateCnameTarget", () => {
   it("generates a CNAME target from subdomain", () => {
-    expect(generateCnameTarget("my-docs")).toBe("my-docs.mintlify-hosting.app");
+    expect(generateCnameTarget("my-docs")).toBe("my-docs.hosting.namuh.dev");
   });
 
   it("generates a CNAME target from a different subdomain", () => {
-    expect(generateCnameTarget("acme-api")).toBe(
-      "acme-api.mintlify-hosting.app",
-    );
+    expect(generateCnameTarget("acme-api")).toBe("acme-api.hosting.namuh.dev");
   });
 });
 

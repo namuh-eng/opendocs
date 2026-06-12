@@ -26,14 +26,14 @@ describe("buildProjectBaseUrl", () => {
     ).toBe("https://my-project.mintlify.dev");
   });
 
-  it("falls back to slug.mintlify.dev", () => {
+  it("falls back to docsSiteUrl(slug)", () => {
     expect(
       buildProjectBaseUrl({
         customDomain: null,
         subdomain: null,
         slug: "my-project",
       }),
-    ).toBe("https://my-project.mintlify.dev");
+    ).toBe("http://localhost:3015/docs/my-project");
   });
 });
 

@@ -61,7 +61,7 @@ function ColorField({
           onChange={(e) => onChange(e.target.value)}
           placeholder="#000000"
           maxLength={7}
-          className="w-full rounded-lg border border-white/[0.08] bg-[#1a1a1a] px-4 py-2.5 text-sm text-white placeholder-gray-500 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+          className="w-full rounded-lg border border-[var(--od-border)] bg-[var(--od-panel)] px-4 py-2.5 text-sm text-[var(--od-text)] placeholder-[var(--od-text-subtle)] outline-none focus:border-[var(--od-accent)] focus:ring-1 focus:ring-[var(--od-accent)]"
         />
         <input
           type="color"
@@ -212,7 +212,7 @@ function FileUploadZone({
           onDragOver={(e) => e.preventDefault()}
           onDrop={handleDrop}
           onClick={() => inputRef.current?.click()}
-          className="flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-white/[0.12] bg-[#1a1a1a] px-4 py-6 transition-colors hover:border-emerald-500/40 hover:bg-[#1a1a1a]/80"
+          className="flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-[var(--od-border)] bg-[var(--od-panel-muted)] px-4 py-6 transition-colors hover:border-[var(--od-accent)] hover:bg-[var(--od-panel)]"
         >
           {uploading ? (
             <p className="text-sm text-gray-400">Uploading...</p>
@@ -356,8 +356,8 @@ export default function AppearanceSettingsPage() {
                 className={clsx(
                   "flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium transition-colors",
                   appearance.darkMode === opt.value
-                    ? "border-emerald-500 bg-emerald-600/10 text-emerald-400"
-                    : "border-white/[0.08] bg-[#1a1a1a] text-gray-400 hover:border-white/[0.16] hover:text-white",
+                    ? "border-[var(--od-accent)] bg-[var(--od-accent-soft)] text-[var(--od-accent-strong)]"
+                    : "border-[var(--od-border)] bg-[var(--od-panel)] text-[var(--od-text-muted)] hover:border-[var(--od-accent)] hover:text-[var(--od-text)]",
                 )}
               >
                 {opt.icon}
@@ -433,7 +433,7 @@ export default function AppearanceSettingsPage() {
         {/* Save */}
         {message && (
           <p
-            className={`text-sm ${message.type === "success" ? "text-emerald-400" : "text-red-400"}`}
+            className={`text-sm ${message.type === "success" ? "text-[var(--od-success)]" : "text-[var(--od-danger)]"}`}
           >
             {message.text}
           </p>
@@ -442,7 +442,7 @@ export default function AppearanceSettingsPage() {
         <button
           type="submit"
           disabled={saving}
-          className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-500 disabled:opacity-50"
+          className="rounded-lg bg-[var(--od-accent-strong)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--od-accent-deep,#3d4ea4)] disabled:opacity-50"
         >
           {saving ? "Saving..." : "Save changes"}
         </button>

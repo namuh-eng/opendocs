@@ -2,6 +2,7 @@ import { and, eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { notFound, permanentRedirect } from "next/navigation";
+import Script from "next/script";
 import type { CSSProperties } from "react";
 import { ApiPlayground } from "@/components/docs/api-playground";
 import { ApiReferenceLayout } from "@/components/docs/api-reference-layout";
@@ -616,7 +617,7 @@ export default async function DocsPage({
       />
 
       {/* Capture Cmd/Ctrl+K before React hydration so fast navigations still open search. */}
-      <script src="/docs-search-shortcut.js" />
+      <Script src="/docs-search-shortcut.js" strategy="beforeInteractive" />
       <SearchModal
         pages={searchablePages}
         subdomain={subdomain}

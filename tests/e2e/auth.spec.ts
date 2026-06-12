@@ -11,7 +11,7 @@ test.describe("auth-001: authentication flow", () => {
   test("signup page renders with Google OAuth button", async ({ page }) => {
     await page.goto("/signup");
     await expect(page.locator("h1")).toContainText(
-      /sign up|create|get started/i,
+      /sign up|create|get started|make your docs/i,
     );
     const googleBtn = page.getByRole("button", { name: /google/i });
     await expect(googleBtn).toBeVisible();

@@ -48,7 +48,7 @@ export default function ExportsSettingsPage() {
 
       <div className="rounded-xl border border-white/[0.08] bg-[#1a1a1a] p-5">
         <div className="flex items-start gap-4">
-          <div className="rounded-lg bg-emerald-500/10 p-2 text-emerald-400">
+          <div className="rounded-lg bg-[var(--od-accent-soft)] p-2 text-[var(--od-accent-strong)]">
             <FileJson size={20} />
           </div>
           <div className="min-w-0 flex-1">
@@ -76,7 +76,7 @@ export default function ExportsSettingsPage() {
         <button
           type="button"
           onClick={handleDownload}
-          className="mt-5 inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-500"
+          className="mt-5 inline-flex items-center gap-2 rounded-lg bg-[var(--od-accent-strong)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--od-accent-deep,#3d4ea4)]"
         >
           <Download size={16} />
           Download JSON

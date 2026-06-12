@@ -1,8 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  downloadCsv,
   type FeedbackEntry,
-  type FeedbackStatus,
   feedbackStatuses,
   feedbackSubTabs,
   feedbackToCsv,

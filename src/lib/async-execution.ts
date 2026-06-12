@@ -3,7 +3,7 @@ import type { ExecutionMetadataOptions } from "@/lib/async-metadata";
 import { db } from "@/lib/db";
 import { agentJobs, deployments, projects } from "@/lib/db/schema";
 import { syncProjectDocsFromGitHub } from "@/lib/github-sync";
-import { createRequestId, logger } from "@/lib/logger";
+import { logger } from "@/lib/logger";
 
 export const ASYNC_SIMULATION_TIMINGS_MS = {
   deploymentStart: 500,

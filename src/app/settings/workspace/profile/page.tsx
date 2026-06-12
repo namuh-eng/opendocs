@@ -34,7 +34,7 @@ export default function ProfileSettingsPage() {
   const [deletingUser, setDeletingUser] = useState(false);
   const [userError, setUserError] = useState("");
 
-  const router = useRouter();
+  const _router = useRouter();
 
   useEffect(() => {
     fetch("/api/users/profile")
@@ -131,7 +131,7 @@ export default function ProfileSettingsPage() {
       }
 
       // Final redirect to marketing site or login
-      window.location.href = "https://mintlify.app";
+      window.location.href = "/";
     } catch {
       setUserError("Something went wrong");
       setDeletingUser(false);
@@ -180,7 +180,7 @@ export default function ProfileSettingsPage() {
                 type="text"
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
-                className="w-full rounded-lg border border-white/[0.08] bg-[#1a1a1a] px-4 py-2.5 text-sm text-white placeholder-gray-500 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                className="w-full rounded-lg border border-white/[0.08] bg-[#1a1a1a] px-4 py-2.5 text-sm text-white placeholder-gray-500 outline-none focus:border-[var(--od-accent)] focus:ring-1 focus:ring-[var(--od-accent)]"
                 placeholder="First name"
               />
             </div>
@@ -195,7 +195,7 @@ export default function ProfileSettingsPage() {
                 type="text"
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
-                className="w-full rounded-lg border border-white/[0.08] bg-[#1a1a1a] px-4 py-2.5 text-sm text-white placeholder-gray-500 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                className="w-full rounded-lg border border-white/[0.08] bg-[#1a1a1a] px-4 py-2.5 text-sm text-white placeholder-gray-500 outline-none focus:border-[var(--od-accent)] focus:ring-1 focus:ring-[var(--od-accent)]"
                 placeholder="Last name"
               />
             </div>
@@ -204,7 +204,7 @@ export default function ProfileSettingsPage() {
 
         {message && (
           <p
-            className={`text-sm ${message.type === "success" ? "text-emerald-400" : "text-red-400"}`}
+            className={`text-sm ${message.type === "success" ? "text-[var(--od-success)]" : "text-[var(--od-danger)]"}`}
           >
             {message.text}
           </p>
@@ -213,7 +213,7 @@ export default function ProfileSettingsPage() {
         <button
           type="submit"
           disabled={saving}
-          className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-500 disabled:opacity-50"
+          className="rounded-lg bg-[var(--od-accent-strong)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--od-accent-deep,#3d4ea4)] disabled:opacity-50"
         >
           {saving ? "Saving..." : "Save changes"}
         </button>
@@ -236,8 +236,10 @@ export default function ProfileSettingsPage() {
             aria-label="Comment reply emails"
             aria-checked={emailNotifications}
             onClick={handleToggleNotifications}
-            className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-[#0f0f0f] ${
-              emailNotifications ? "bg-emerald-600" : "bg-gray-600"
+            className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[var(--od-accent)] focus:ring-offset-2 focus:ring-offset-[var(--od-bg)] ${
+              emailNotifications
+                ? "bg-[var(--od-accent-strong)]"
+                : "bg-gray-600"
             }`}
           >
             <span
@@ -277,7 +279,7 @@ export default function ProfileSettingsPage() {
             className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
               profile.githubAuthorized
                 ? "border border-white/[0.08] bg-transparent text-gray-400 hover:text-white"
-                : "bg-emerald-600 text-white hover:bg-emerald-500"
+                : "bg-[var(--od-accent-strong)] text-white hover:bg-[var(--od-accent-deep,#3d4ea4)]"
             }`}
           >
             {profile.githubAuthorized ? "Disconnect" : "Authorize"}
@@ -291,8 +293,8 @@ export default function ProfileSettingsPage() {
 
         <div className="rounded-xl border border-red-900/50 bg-red-950/20 p-6">
           <div className="mb-4 flex items-center gap-2">
-            <Trash2 className="h-5 w-5 text-red-400" />
-            <h3 className="text-sm font-semibold text-red-400">
+            <Trash2 className="h-5 w-5 text-[var(--od-danger)]" />
+            <h3 className="text-sm font-semibold text-[var(--od-danger)]">
               Delete account
             </h3>
           </div>
@@ -319,7 +321,7 @@ export default function ProfileSettingsPage() {
       {showUserConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
           <div className="w-full max-w-md rounded-xl border border-gray-800 bg-[#1a1a1a] p-6 shadow-2xl">
-            <div className="mb-4 flex items-center gap-2 text-red-400">
+            <div className="mb-4 flex items-center gap-2 text-[var(--od-danger)]">
               <AlertCircle className="h-5 w-5" />
               <h2 className="text-lg font-semibold">Delete your account?</h2>
             </div>
@@ -352,7 +354,9 @@ export default function ProfileSettingsPage() {
             </div>
 
             {userError && (
-              <p className="mb-4 text-sm text-red-400">{userError}</p>
+              <p className="mb-4 text-sm text-[var(--od-danger)]">
+                {userError}
+              </p>
             )}
 
             <div className="flex gap-3">

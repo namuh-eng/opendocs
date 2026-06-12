@@ -5,11 +5,7 @@
  * - Snippet pages excluded from navigation
  */
 import { describe, expect, it } from "vitest";
-import {
-  buildDocsNav,
-  extractComponentBlocks,
-  renderMdxContent,
-} from "@/lib/mdx-renderer";
+import { buildDocsNav, renderMdxContent } from "@/lib/mdx-renderer";
 import {
   isSnippetPage,
   resolveSnippets,
