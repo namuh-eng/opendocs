@@ -26,6 +26,7 @@ import {
   getDocsAccessCookieName,
   hasValidDocsAccess,
 } from "@/lib/project-docs-access";
+import { isPublicDocsVisiblePage } from "@/lib/public-docs-curation";
 import { extractSnippet, getBreadcrumb } from "@/lib/search";
 
 interface RouteContext {
@@ -186,6 +187,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
       title: pages.title,
       description: pages.description,
       content: pages.content,
+      frontmatter: pages.frontmatter,
     })
     .from(pages)
     .where(
@@ -209,21 +211,23 @@ export async function GET(request: NextRequest, context: RouteContext) {
         ELSE 3
       END`,
     )
-    .limit(limit);
+    .limit(Math.min(limit * 3, 100));
 
-  const formatted: RankedSearchResult[] = results.map((r) => ({
-    path: r.path,
-    title: r.title,
-    description: r.description,
-    snippet: extractSnippet(r.content, query),
-    breadcrumb: getBreadcrumb(r.path),
-    rank: rankMatch(query, {
-      title: r.title,
+  const formatted: RankedSearchResult[] = results
+    .filter(isPublicDocsVisiblePage)
+    .map((r) => ({
       path: r.path,
+      title: r.title,
       description: r.description,
-      content: r.content,
-    }),
-  }));
+      snippet: extractSnippet(r.content, query),
+      breadcrumb: getBreadcrumb(r.path),
+      rank: rankMatch(query, {
+        title: r.title,
+        path: r.path,
+        description: r.description,
+        content: r.content,
+      }),
+    }));
 
   const generatedResults = getGeneratedApiSearchResults(
     docsSettings.openApiSpec as Record<string, unknown> | undefined,

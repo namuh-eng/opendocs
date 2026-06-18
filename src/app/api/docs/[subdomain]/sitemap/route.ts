@@ -2,6 +2,7 @@ import { and, eq } from "drizzle-orm";
 import { getPublicAppUrl } from "@/lib/app-url";
 import { db } from "@/lib/db";
 import { pages, projects } from "@/lib/db/schema";
+import { filterPublicDocsVisiblePages } from "@/lib/public-docs-curation";
 
 const APP_URL = getPublicAppUrl();
 
@@ -31,13 +32,15 @@ export async function GET(
   const publishedPages = await db
     .select({
       path: pages.path,
+      title: pages.title,
+      frontmatter: pages.frontmatter,
       updatedAt: pages.updatedAt,
     })
     .from(pages)
     .where(and(eq(pages.projectId, project.id), eq(pages.isPublished, true)));
 
   // 3. Build XML
-  const sitemapEntries = publishedPages
+  const sitemapEntries = filterPublicDocsVisiblePages(publishedPages)
     .map((page) => {
       const url = `${APP_URL}/docs/${subdomain}/${page.path === "introduction" ? "" : page.path}`;
       const lastMod = page.updatedAt
