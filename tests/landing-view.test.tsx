@@ -68,4 +68,38 @@ describe("landing view (warm craft)", () => {
       expect(container.textContent).toContain(feature);
     }
   });
+
+  it("links public marketing navigation to real routes or page sections", () => {
+    const container = renderLanding();
+    const links = Array.from(container.querySelectorAll("a")).map((link) => ({
+      href: link.getAttribute("href"),
+      text: link.textContent?.replace(/\s+/g, " ").trim(),
+    }));
+
+    expect(links).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ href: "/docs", text: "Docs" }),
+        expect.objectContaining({ href: "/pricing", text: "Pricing" }),
+        expect.objectContaining({ href: "/changelog", text: "Changelog" }),
+        expect.objectContaining({ href: "/privacy", text: "Privacy" }),
+        expect.objectContaining({ href: "/terms", text: "Terms" }),
+        expect.objectContaining({ href: "/security", text: "Security" }),
+      ]),
+    );
+
+    for (const label of [
+      "Features",
+      "Roadmap",
+      "API Reference",
+      "SDK",
+      "Webhooks",
+      "About",
+      "Status",
+    ]) {
+      const link = links.find((candidate) => candidate.text === label);
+      expect(link?.href, `${label} should not be a dead home link`).not.toBe(
+        "/",
+      );
+    }
+  });
 });

@@ -1352,13 +1352,13 @@ export function LandingView({
         </Link>
         <ul className="nav-links">
           <li>
-            <Link href="/">Docs</Link>
+            <Link href="/docs">Docs</Link>
           </li>
           <li>
-            <Link href="/">Pricing</Link>
+            <Link href="/pricing">Pricing</Link>
           </li>
           <li>
-            <Link href="/">Changelog</Link>
+            <Link href="/changelog">Changelog</Link>
           </li>
         </ul>
         <div className="nav-actions">
@@ -1562,7 +1562,7 @@ export function LandingView({
       </div>
 
       {/* FEATURES */}
-      <section className="features">
+      <section id="features" className="features">
         <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
           <div className="section-label">
             <span className="section-label-line" />
@@ -1662,7 +1662,7 @@ export function LandingView({
       </section>
 
       {/* CODE / API SECTION (dark ink) */}
-      <section className="code-section">
+      <section id="api" className="code-section">
         <div className="section-label">
           <span className="section-label-line" />
           Developer-first
@@ -1778,7 +1778,7 @@ export function LandingView({
       </section>
 
       {/* STATS / SOCIAL PROOF */}
-      <section className="stats">
+      <section id="customers" className="stats">
         <div className="section-label" style={{ marginBottom: "32px" }}>
           <span className="section-label-line" />
           Trusted by teams shipping great docs
@@ -1863,7 +1863,7 @@ export function LandingView({
       </section>
 
       {/* FINAL CTA */}
-      <div className="cta-band">
+      <div id="start" className="cta-band">
         <div className="cta-band-glow" />
         <div className="cta-band-glow-warm" />
         <h2>
@@ -1900,16 +1900,16 @@ export function LandingView({
             <div className="footer-col-title">Product</div>
             <ul className="footer-col-links">
               <li>
-                <Link href="/">Features</Link>
+                <Link href="/#features">Features</Link>
               </li>
               <li>
-                <Link href="/">Pricing</Link>
+                <Link href="/pricing">Pricing</Link>
               </li>
               <li>
-                <Link href="/">Changelog</Link>
+                <Link href="/changelog">Changelog</Link>
               </li>
               <li>
-                <Link href="/">Roadmap</Link>
+                <Link href="/changelog#roadmap">Roadmap</Link>
               </li>
             </ul>
           </div>
@@ -1917,13 +1917,13 @@ export function LandingView({
             <div className="footer-col-title">Developers</div>
             <ul className="footer-col-links">
               <li>
-                <Link href="/">API Reference</Link>
+                <Link href="/#api">API Reference</Link>
               </li>
               <li>
-                <Link href="/">SDK</Link>
+                <Link href="/#api">SDK</Link>
               </li>
               <li>
-                <Link href="/">Webhooks</Link>
+                <Link href="/#api">Webhooks</Link>
               </li>
               <li>
                 <Link href="/onboarding">Quickstart</Link>
@@ -1934,16 +1934,16 @@ export function LandingView({
             <div className="footer-col-title">Company</div>
             <ul className="footer-col-links">
               <li>
-                <Link href="/">About</Link>
+                <Link href="/#customers">About</Link>
               </li>
               <li>
-                <Link href="/">Blog</Link>
+                <Link href="/changelog">Blog</Link>
               </li>
               <li>
-                <Link href="/">Careers</Link>
+                <Link href="/changelog#roadmap">Careers</Link>
               </li>
               <li>
-                <Link href="/">Status</Link>
+                <Link href="/changelog#status">Status</Link>
               </li>
             </ul>
           </div>
@@ -1952,9 +1952,9 @@ export function LandingView({
       <div className="footer-bottom">
         <span className="footer-copy">© 2026 OpenDocs, Inc.</span>
         <div className="footer-bottom-links">
-          <Link href="/">Privacy</Link>
-          <Link href="/">Terms</Link>
-          <Link href="/">Security</Link>
+          <Link href="/privacy">Privacy</Link>
+          <Link href="/terms">Terms</Link>
+          <Link href="/security">Security</Link>
         </div>
       </div>
     </main>
