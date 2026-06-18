@@ -154,7 +154,18 @@ echo "Service stable ✓"
 echo ""
 echo "--- Verifying production health ---"
 HEALTH_URL="${HEALTH_URL:-https://opendocs.namuh.co/api/health}"
-HEALTH=$(curl -fsS "${HEALTH_URL}")
+HEALTH=""
+for attempt in $(seq 1 12); do
+  if HEALTH=$(curl -fsS --retry 2 --retry-all-errors --retry-delay 5 "${HEALTH_URL}"); then
+    break
+  fi
+  echo "Health check attempt ${attempt}/12 failed; waiting for Cloudflare/ALB propagation..." >&2
+  sleep 10
+done
+if [ -z "${HEALTH}" ]; then
+  echo "Health check failed after retries: ${HEALTH_URL}" >&2
+  exit 1
+fi
 echo "${HEALTH}" | jq .
 STATUS=$(echo "${HEALTH}" | jq -r '.status')
 VERSION=$(echo "${HEALTH}" | jq -r '.version')
