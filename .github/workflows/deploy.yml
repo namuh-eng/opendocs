@@ -42,4 +42,7 @@ jobs:
           NEXT_PUBLIC_POSTHOG_KEY: ${{ secrets.NEXT_PUBLIC_POSTHOG_KEY }}
           NEXT_PUBLIC_POSTHOG_HOST: ${{ secrets.NEXT_PUBLIC_POSTHOG_HOST }}
           SENTRY_ENVIRONMENT: production
+          # Use the ALB directly for deploy verification. GitHub-hosted
+          # runners are blocked by Cloudflare on the public health URL.
+          HEALTH_URL: http://opendocs-alb-1587657213.us-east-1.elb.amazonaws.com/api/health
         run: bash scripts/deploy.sh
