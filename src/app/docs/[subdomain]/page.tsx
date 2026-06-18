@@ -8,6 +8,7 @@ import {
   getDocsAccessCookieName,
   hasValidDocsAccess,
 } from "@/lib/project-docs-access";
+import { isPublicDocsVisiblePage } from "@/lib/public-docs-curation";
 
 interface DocsIndexProps {
   params: Promise<{ subdomain: string }>;
@@ -29,7 +30,7 @@ export default async function DocsIndex({
     .limit(1);
 
   if (projectResult.length === 0) {
-    notFound();
+    return notFound();
   }
 
   const cookieStore = await cookies();
@@ -50,7 +51,11 @@ export default async function DocsIndex({
 
   // 1. Try to find 'introduction' first
   const introductionPage = await db
-    .select({ path: pages.path })
+    .select({
+      path: pages.path,
+      title: pages.title,
+      frontmatter: pages.frontmatter,
+    })
     .from(pages)
     .where(
       and(
@@ -61,13 +66,20 @@ export default async function DocsIndex({
     )
     .limit(1);
 
-  if (introductionPage.length > 0) {
-    redirect(`/docs/${subdomain}/${introductionPage[0].path}`);
+  if (
+    introductionPage.length > 0 &&
+    isPublicDocsVisiblePage(introductionPage[0])
+  ) {
+    return redirect(`/docs/${subdomain}/${introductionPage[0].path}`);
   }
 
   // 2. Fallback to alphabetically first page
   const firstPage = await db
-    .select({ path: pages.path })
+    .select({
+      path: pages.path,
+      title: pages.title,
+      frontmatter: pages.frontmatter,
+    })
     .from(pages)
     .where(
       and(
@@ -76,11 +88,12 @@ export default async function DocsIndex({
       ),
     )
     .orderBy(pages.path)
-    .limit(1);
+    .limit(20);
 
-  if (firstPage.length > 0) {
-    redirect(`/docs/${subdomain}/${firstPage[0].path}`);
+  const firstVisiblePage = firstPage.find(isPublicDocsVisiblePage);
+  if (firstVisiblePage) {
+    return redirect(`/docs/${subdomain}/${firstVisiblePage.path}`);
   }
 
-  notFound();
+  return notFound();
 }

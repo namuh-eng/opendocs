@@ -403,6 +403,47 @@ ${"```"}
     }
   });
 
+  it("excludes public-docs internal prompts, target dumps, and generated artifacts", async () => {
+    const fetchMock = vi.fn(async (url: string) => {
+      if (url.includes("/git/trees/")) {
+        return {
+          ok: true,
+          json: async () => ({
+            tree: [
+              { path: "README.md", type: "blob" },
+              { path: ".claude/README.md", type: "blob" },
+              { path: "ralph/qa-loop-prompt.md", type: "blob" },
+              {
+                path: "target-docs/linear-documentation-index.md",
+                type: "blob",
+              },
+              { path: "docs/build-loop-prompt.md", type: "blob" },
+            ],
+          }),
+        };
+      }
+
+      return {
+        ok: true,
+        text: async () =>
+          url.includes("README.md") && !url.includes(".claude")
+            ? "# README"
+            : "# Internal Artifact",
+      };
+    });
+
+    const { importGitHubDocs } = await import("@/lib/github-docs-import");
+    const result = await importGitHubDocs({
+      repoUrl: "https://github.com/acme/docs",
+      fetchImpl: fetchMock as unknown as typeof fetch,
+    });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.pages.map((page) => page.path)).toEqual(["introduction"]);
+    }
+  });
+
   it("handles relative images inside nested docs folders", async () => {
     const fetchMock = vi.fn(async (url: string) => {
       if (url.includes("/git/trees/")) {

@@ -48,4 +48,36 @@ describe("buildDocsEntryProjects", () => {
       ]),
     ).toEqual([]);
   });
+
+  it("skips internal generated docs when selecting public entry cards", () => {
+    expect(
+      buildDocsEntryProjects([
+        {
+          projectId: "project-1",
+          projectName: "Test Project",
+          subdomain: "test-project",
+          pagePath: "ralph/build-loop-prompt",
+          pageTitle: "Build Loop Prompt",
+          pageDescription: null,
+        },
+        {
+          projectId: "project-1",
+          projectName: "Test Project",
+          subdomain: "test-project",
+          pagePath: "quickstart",
+          pageTitle: "Quickstart",
+          pageDescription: "Start here",
+        },
+      ]),
+    ).toEqual([
+      {
+        id: "project-1",
+        name: "Test Project",
+        subdomain: "test-project",
+        href: "/docs/test-project/quickstart",
+        pageTitle: "Quickstart",
+        pageDescription: "Start here",
+      },
+    ]);
+  });
 });

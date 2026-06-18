@@ -7,6 +7,7 @@ import {
   getDocsAccessCookieName,
   hasValidDocsAccess,
 } from "@/lib/project-docs-access";
+import { filterPublicDocsVisiblePages } from "@/lib/public-docs-curation";
 
 /** GET /api/docs/[subdomain] — public endpoint to fetch all published pages for a docs site */
 export async function GET(
@@ -73,6 +74,6 @@ export async function GET(
       subdomain: projectData.subdomain,
       settings: redactProjectAuthenticationSettings(projectData.settings),
     },
-    pages: publishedPages,
+    pages: filterPublicDocsVisiblePages(publishedPages),
   });
 }
