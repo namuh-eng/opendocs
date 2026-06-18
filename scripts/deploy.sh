@@ -153,13 +153,32 @@ echo "Service stable ✓"
 # 9. Verify health check
 echo ""
 echo "--- Verifying production health ---"
-HEALTH_URL="${HEALTH_URL:-https://opendocs.namuh.co/api/health}"
+if [ -z "${HEALTH_URL:-}" ]; then
+  TARGET_GROUP_ARN=$(aws ecs describe-services \
+    --cluster "${ECS_CLUSTER}" \
+    --services "${ECS_SERVICE}" \
+    --region "${AWS_REGION}" \
+    --query 'services[0].loadBalancers[0].targetGroupArn' \
+    --output text)
+  LOAD_BALANCER_ARN=$(aws elbv2 describe-target-groups \
+    --target-group-arns "${TARGET_GROUP_ARN}" \
+    --region "${AWS_REGION}" \
+    --query 'TargetGroups[0].LoadBalancerArns[0]' \
+    --output text)
+  LOAD_BALANCER_DNS=$(aws elbv2 describe-load-balancers \
+    --load-balancer-arns "${LOAD_BALANCER_ARN}" \
+    --region "${AWS_REGION}" \
+    --query 'LoadBalancers[0].DNSName' \
+    --output text)
+  HEALTH_URL="http://${LOAD_BALANCER_DNS}/api/health"
+fi
+echo "Health URL: ${HEALTH_URL}"
 HEALTH=""
 for attempt in $(seq 1 12); do
   if HEALTH=$(curl -fsS --retry 2 --retry-all-errors --retry-delay 5 "${HEALTH_URL}"); then
     break
   fi
-  echo "Health check attempt ${attempt}/12 failed; waiting for Cloudflare/ALB propagation..." >&2
+  echo "Health check attempt ${attempt}/12 failed; waiting for ALB target propagation..." >&2
   sleep 10
 done
 if [ -z "${HEALTH}" ]; then
