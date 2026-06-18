@@ -22,6 +22,7 @@ async function getPublishedDocsProjects() {
         pagePath: pages.path,
         pageTitle: pages.title,
         pageDescription: pages.description,
+        pageFrontmatter: pages.frontmatter,
       })
       .from(projects)
       .innerJoin(pages, eq(pages.projectId, projects.id))

@@ -2,6 +2,7 @@ import { extractFrontmatter } from "@/lib/editor";
 import { parseGitHubUrl } from "@/lib/git-settings";
 import { normalizeMarkdownContent } from "@/lib/markdown-normalization";
 import { titleFromPath } from "@/lib/pages";
+import { isPublicDocsVisiblePage } from "@/lib/public-docs-curation";
 
 export interface ImportedGitHubDocPage {
   path: string;
@@ -173,21 +174,8 @@ function normalizeGitHubMarkdownContent(
   );
 }
 
-const EXCLUDED_PATHS = [
-  /^agents\.md$/i,
-  /^claude\.md$/i,
-  /^memory\.md$/i,
-  /^soul\.md$/i,
-  /^tools\.md$/i,
-  /^\.github\//i,
-  /^agent_docs\//i,
-  /^memory\//i,
-  /^private\//i,
-  /^node_modules\//i,
-];
-
 function isExcludedPath(filePath: string): boolean {
-  return EXCLUDED_PATHS.some((pattern) => pattern.test(filePath));
+  return !isPublicDocsVisiblePage({ path: filePath });
 }
 
 export async function importGitHubDocs(
@@ -267,6 +255,9 @@ export async function importGitHubDocs(
         titleFromPath(pagePath),
       );
       const title = toTitle(content, pagePath);
+      if (!isPublicDocsVisiblePage({ path: pagePath, title })) {
+        return null;
+      }
       return {
         path: pagePath,
         title,

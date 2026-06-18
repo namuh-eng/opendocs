@@ -5,6 +5,7 @@ import {
   getDocsAccessCookieName,
   hasValidDocsAccess,
 } from "@/lib/project-docs-access";
+import { isPublicDocsVisiblePage } from "@/lib/public-docs-curation";
 import { and, eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 
@@ -43,7 +44,12 @@ export async function GET(
   }
 
   const [page] = await db
-    .select({ title: pages.title, content: pages.content })
+    .select({
+      path: pages.path,
+      title: pages.title,
+      content: pages.content,
+      frontmatter: pages.frontmatter,
+    })
     .from(pages)
     .where(
       and(
@@ -54,7 +60,7 @@ export async function GET(
     )
     .limit(1);
 
-  if (!page) {
+  if (!page || !isPublicDocsVisiblePage(page)) {
     return new NextResponse("Page not found", { status: 404 });
   }
 

@@ -21,6 +21,7 @@ import {
   getDocsAccessCookieName,
   hasValidDocsAccess,
 } from "@/lib/project-docs-access";
+import { filterPublicDocsVisiblePages } from "@/lib/public-docs-curation";
 import {
   BedrockRuntimeClient,
   ConverseStreamCommand,
@@ -89,6 +90,7 @@ export async function POST(
     path: string;
     title: string;
     content: string | null;
+    frontmatter?: Record<string, unknown> | null;
   }> = [];
 
   if (userQuery) {
@@ -98,6 +100,7 @@ export async function POST(
         path: pages.path,
         title: pages.title,
         content: pages.content,
+        frontmatter: pages.frontmatter,
       })
       .from(pages)
       .where(
@@ -111,7 +114,11 @@ export async function POST(
           ),
         ),
       )
-      .limit(validation.retrievalPageSize);
+      .limit(Math.min(validation.retrievalPageSize * 3, 30));
+    contextPages = filterPublicDocsVisiblePages(contextPages).slice(
+      0,
+      validation.retrievalPageSize,
+    );
   }
 
   // ── Build system prompt ────────────────────────────────────────────────────

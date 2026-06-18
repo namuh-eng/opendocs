@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { pages, projects } from "@/lib/db/schema";
 import { generateLlmsFullTxt, generateLlmsTxt } from "@/lib/llms-txt";
+import { filterPublicDocsVisiblePages } from "@/lib/public-docs-curation";
 import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 
@@ -30,10 +31,13 @@ export async function getPublicDocsLlmsResponse(
       path: pages.path,
       title: pages.title,
       content: pages.content,
+      frontmatter: pages.frontmatter,
     })
     .from(pages)
     .where(and(eq(pages.projectId, project.id), eq(pages.isPublished, true)))
     .orderBy(pages.path);
+
+  const visiblePages = filterPublicDocsVisiblePages(publishedPages);
 
   const baseUrl = buildPublicDocsBaseUrl(
     new URL(request.url).origin,
@@ -41,8 +45,8 @@ export async function getPublicDocsLlmsResponse(
   );
   const content =
     type === "full"
-      ? generateLlmsFullTxt(project.name, baseUrl, publishedPages)
-      : generateLlmsTxt(project.name, baseUrl, publishedPages);
+      ? generateLlmsFullTxt(project.name, baseUrl, visiblePages)
+      : generateLlmsTxt(project.name, baseUrl, visiblePages);
 
   return new NextResponse(content, {
     status: 200,
