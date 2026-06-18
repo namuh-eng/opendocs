@@ -1,3 +1,5 @@
+import { isPublicDocsVisiblePage } from "@/lib/public-docs-curation";
+
 export interface DocsEntryRow {
   projectId: string;
   projectName: string;
@@ -5,6 +7,7 @@ export interface DocsEntryRow {
   pagePath: string;
   pageTitle: string;
   pageDescription: string | null;
+  pageFrontmatter?: Record<string, unknown> | null;
 }
 
 export interface DocsEntryProject {
@@ -37,6 +40,15 @@ export function buildDocsEntryProjects(
 
   for (const row of rows) {
     if (!row.subdomain || !row.pagePath) continue;
+    if (
+      !isPublicDocsVisiblePage({
+        path: row.pagePath,
+        title: row.pageTitle,
+        frontmatter: row.pageFrontmatter,
+      })
+    ) {
+      continue;
+    }
 
     const candidate = {
       id: row.projectId,

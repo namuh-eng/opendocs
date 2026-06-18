@@ -3,6 +3,11 @@
  * builds docs navigation, and resolves pages from slugs.
  */
 
+import {
+  isBrokenGeneratedBadge,
+  isPublicDocsVisiblePage,
+} from "@/lib/public-docs-curation";
+
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 export interface ContentBlock {
@@ -234,7 +239,9 @@ function renderInline(text: string): string {
   result = result.replace(
     /!\[([^\]]*)\]\(([^)]+)\)/g,
     (_match, alt: string, rawUrl: string) =>
-      `<img src="${safeUrlAttribute(rawUrl)}" alt="${alt}" />`,
+      isBrokenGeneratedBadge(alt, rawUrl)
+        ? ""
+        : `<img src="${safeUrlAttribute(rawUrl)}" alt="${alt}" />`,
   );
 
   // Links
@@ -848,6 +855,7 @@ export function renderComponentBlock(block: ContentBlock): string {
 
     // Badge — inline colored status pill
     case "Badge": {
+      if (isBrokenGeneratedBadge(content, props.href ?? props.url)) return "";
       const color = props.color || "default";
       return `<span class="badge badge-${escapeHtml(color)}">${parseMdxToHtml(content).replace(/<\/?p>/g, "")}</span>`;
     }
@@ -887,8 +895,9 @@ export function buildDocsNav(
   const groups = new Map<string, DocsNavItem[]>();
 
   for (const page of pageList) {
-    // Skip snippet pages — they are reusable content, not navigable pages
+    // Skip snippet/internal pages — they are reusable or operational content, not navigable pages
     if (page.path.startsWith("snippets/")) continue;
+    if (!isPublicDocsVisiblePage(page)) continue;
     const segments = page.path.split("/");
 
     // Extract API method from frontmatter if present (e.g. "GET /plants" → "GET")

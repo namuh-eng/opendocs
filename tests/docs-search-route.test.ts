@@ -101,4 +101,37 @@ describe("GET /api/docs/[subdomain]/search", () => {
       title: "Get Plants",
     });
   });
+
+  it("filters internal published artifacts from public search results", async () => {
+    selectMock.mockReturnValueOnce(mockProjectLookup({})).mockReturnValueOnce(
+      mockPageSearch([
+        {
+          path: "ralph/qa-loop-prompt",
+          title: "QA Loop Prompt",
+          description: null,
+          content: "plants internal runbook",
+          frontmatter: null,
+        },
+        {
+          path: "quickstart",
+          title: "Quickstart",
+          description: null,
+          content: "plants public guide",
+          frontmatter: null,
+        },
+      ]),
+    );
+
+    const { GET } = await import("@/app/api/docs/[subdomain]/search/route");
+    const response = await GET(
+      makeRequest("http://localhost/api/docs/test-project/search?q=plants"),
+      { params: Promise.resolve({ subdomain: "test-project" }) },
+    );
+
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    expect(body).toEqual([
+      expect.objectContaining({ path: "quickstart", title: "Quickstart" }),
+    ]);
+  });
 });

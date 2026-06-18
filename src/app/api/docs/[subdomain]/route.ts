@@ -5,6 +5,7 @@ import {
   getDocsAccessCookieName,
   hasValidDocsAccess,
 } from "@/lib/project-docs-access";
+import { filterPublicDocsVisiblePages } from "@/lib/public-docs-curation";
 import { and, eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 
@@ -73,6 +74,6 @@ export async function GET(
       subdomain: projectData.subdomain,
       settings: redactProjectAuthenticationSettings(projectData.settings),
     },
-    pages: publishedPages,
+    pages: filterPublicDocsVisiblePages(publishedPages),
   });
 }

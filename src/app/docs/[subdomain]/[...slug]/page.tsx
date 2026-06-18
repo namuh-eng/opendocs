@@ -57,6 +57,10 @@ import {
   getDocsAccessCookieName,
   hasValidDocsAccess,
 } from "@/lib/project-docs-access";
+import {
+  filterPublicDocsVisiblePages,
+  isPublicDocsVisiblePage,
+} from "@/lib/public-docs-curation";
 import { buildPageMetadata } from "@/lib/seo";
 import {
   buildVariablesMap,
@@ -185,7 +189,7 @@ export async function generateMetadata({
     )
     .limit(1);
 
-  if (pageResult.length === 0) {
+  if (pageResult.length === 0 || !isPublicDocsVisiblePage(pageResult[0])) {
     if (findRedirect(docsConfig.advanced.redirects, pagePath)) return {};
 
     const spec = docsSettings.openApiSpec as
@@ -370,15 +374,17 @@ export default async function DocsPage({
     locale,
     langConfig.defaultLanguage,
   );
-  const allPages = localizedPages.map((p) => ({
-    id: p.id,
-    path: p.path,
-    title: p.title,
-    description: p.description,
-    content: p.content,
-    frontmatter: p.frontmatter,
-    isPublished: p.isPublished,
-  }));
+  const allPages = filterPublicDocsVisiblePages(
+    localizedPages.map((p) => ({
+      id: p.id,
+      path: p.path,
+      title: p.title,
+      description: p.description,
+      content: p.content,
+      frontmatter: p.frontmatter,
+      isPublished: p.isPublished,
+    })),
+  );
 
   // Check for redirects before looking up the page
   const redirectDest = findRedirect(docsConfig.advanced.redirects, pagePath);
@@ -475,7 +481,7 @@ export default async function DocsPage({
     });
 
     // Resolve snippets and variables before rendering
-    const snippetPages = allPages
+    const snippetPages = allPagesRaw
       .filter((p) => p.path.startsWith("snippets/"))
       .map((p) => ({ path: p.path, content: p.content || "" }));
 
