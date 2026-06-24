@@ -1,4 +1,6 @@
 import { randomUUID } from "node:crypto";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import { serializeSignedCookie } from "better-call";
 import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
@@ -184,7 +186,34 @@ Contenu français pour la version 1.
   },
 ];
 
+async function loadDesignPageContent() {
+  try {
+    const markdown = await readFile(
+      path.join(process.cwd(), "docs", "design.md"),
+      "utf8",
+    );
+
+    return markdown.replace(/^---\n[\s\S]*?\n---\n+/, "").trimStart();
+  } catch {
+    return `# Design
+
+OpenDocs design guidance is unavailable in this test fixture.
+`;
+  }
+}
+
 async function ensureDocsFixtureProject() {
+  const fixturePages = [
+    ...FIXTURE_PAGES,
+    {
+      path: "design",
+      title: "Design",
+      description:
+        "OpenDocs' product design system for calm, readable, AI-native documentation.",
+      content: await loadDesignPageContent(),
+    },
+  ];
+
   let [org] = await db
     .select({ id: organizations.id })
     .from(organizations)
@@ -235,7 +264,7 @@ async function ensureDocsFixtureProject() {
 
   if (!project) return;
 
-  for (const fixturePage of FIXTURE_PAGES) {
+  for (const fixturePage of fixturePages) {
     const [existingPage] = await db
       .select({ id: pages.id })
       .from(pages)
