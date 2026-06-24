@@ -502,7 +502,7 @@ export default function DesignMdPage() {
 
         <article className="design-md-content">
           <div className="design-md-article">
-            <div className="design-md-meta" aria-label="Article metadata">
+            <div className="design-md-meta">
               <time dateTime="2026-06-24">{activeNote.date}</time>
               <span className="design-md-dot" aria-hidden="true" />
               <span>{activeNote.minutes}</span>
@@ -555,7 +555,7 @@ export default function DesignMdPage() {
                 generating product UI, docs pages, or marketing surfaces for
                 OpenDocs.
               </p>
-              <div className="design-md-token-grid" aria-label="Design tokens">
+              <div className="design-md-token-grid">
                 {tokens.map(([label, value, role]) => (
                   <div className="design-md-token" key={label}>
                     <span
@@ -581,10 +581,7 @@ export default function DesignMdPage() {
                 accent system.
               </p>
 
-              <div
-                className="design-md-empty-state"
-                aria-label="Empty state example"
-              >
+              <div className="design-md-empty-state">
                 <div>
                   <div className="design-md-mini-mark" aria-hidden="true" />
                   <p className="design-md-kicker">Notes on building</p>

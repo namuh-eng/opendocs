@@ -1,10 +1,10 @@
+import { eq } from "drizzle-orm";
+import { headers } from "next/headers";
+import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { orgMemberships } from "@/lib/db/schema";
 import { createRequestId, logger } from "@/lib/logger";
-import { eq } from "drizzle-orm";
-import { headers } from "next/headers";
-import { type NextRequest, NextResponse } from "next/server";
 
 /**
  * POST /api/admin/canary
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     .where(eq(orgMemberships.userId, session.user.id))
     .limit(1);
 
-  if (!membership || membership.role !== "admin") {
+  if (membership?.role !== "admin") {
     logger.warn("admin_canary_forbidden", {
       requestId,
       route: "/api/admin/canary",

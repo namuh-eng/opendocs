@@ -1,13 +1,13 @@
+import { describe, expect, it } from "vitest";
 import {
   type DailySearchCount,
-  type SearchQuery,
-  type SearchesData,
   formatSearchCount,
+  type SearchesData,
+  type SearchQuery,
   sumSearchCounts,
   truncateQuery,
 } from "@/lib/analytics-searches";
 import { fillDailyCounts } from "@/lib/analytics-visitors";
-import { describe, expect, it } from "vitest";
 
 describe("analytics-searches", () => {
   // ── formatSearchCount ───────────────────────────────────────────────────

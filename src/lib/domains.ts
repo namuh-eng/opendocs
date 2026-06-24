@@ -3,7 +3,7 @@
  */
 
 const DOMAIN_REGEX = /^([a-z0-9]([a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,}$/i;
-const HOSTING_SUFFIX = "mintlify-hosting.app";
+export const HOSTING_SUFFIX = "hosting.namuh.dev";
 
 /** Validate a custom domain string. Returns error string or null if valid. */
 export function validateCustomDomain(domain: string): string | null {

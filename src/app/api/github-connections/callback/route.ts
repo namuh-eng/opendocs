@@ -1,12 +1,12 @@
+import { and, eq } from "drizzle-orm";
+import { headers } from "next/headers";
+import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { githubConnections, orgMemberships } from "@/lib/db/schema";
 import { hydrateGitHubInstallationRepos } from "@/lib/github-app-setup";
 import type { GitHubRepo } from "@/lib/github-webhook";
 import { createRequestId, logger } from "@/lib/logger";
-import { and, eq } from "drizzle-orm";
-import { headers } from "next/headers";
-import { NextResponse } from "next/server";
 
 const SETTINGS_PATH = "/settings/deployment/github";
 const ORG_STATE_PREFIX = "org:";

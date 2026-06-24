@@ -1,5 +1,17 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import {
+  Bar,
+  CartesianGrid,
+  ComposedChart,
+  Line,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import { AnalyticsEmptyState } from "@/components/analytics/analytics-empty-state";
 import { useActiveProject } from "@/hooks/use-active-project";
 import {
@@ -14,26 +26,14 @@ import {
 } from "@/lib/analytics-agents";
 import {
   type DailyVisitorCount,
-  type Referral,
-  type TopPage,
   fillDailyCounts,
   formatChartDate,
   generateDateRange,
+  type Referral,
+  type TopPage,
   truncatePath,
 } from "@/lib/analytics-visitors";
 import { analyticsEmptyState } from "@/lib/empty-states";
-import { useSearchParams } from "next/navigation";
-import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
-import {
-  Bar,
-  CartesianGrid,
-  ComposedChart,
-  Line,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
 import { AnalyticsShell } from "./analytics-shell";
 
 // ── Visitors Chart ────────────────────────────────────────────────────────────

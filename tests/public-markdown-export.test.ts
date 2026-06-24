@@ -1,5 +1,5 @@
-import { parsePublicMarkdownExportPath } from "@/lib/public-markdown-export";
 import { describe, expect, it } from "vitest";
+import { parsePublicMarkdownExportPath } from "@/lib/public-markdown-export";
 
 describe("parsePublicMarkdownExportPath", () => {
   it("parses a top-level docs markdown export path", () => {

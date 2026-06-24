@@ -1,11 +1,10 @@
+import { describe, expect, it } from "vitest";
 import {
-  type AgentStatCard,
   agentVisitorsEmptyMessage,
   formatAgentCount,
   getAgentStatCards,
   mcpSearchesEmptyMessage,
 } from "@/lib/analytics-agents";
-import { describe, expect, it } from "vitest";
 
 describe("analytics-agents", () => {
   // ── formatAgentCount ─────────────────────────────────────────────────────

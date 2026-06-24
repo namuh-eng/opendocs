@@ -128,4 +128,4 @@ export function findActiveSettingsItem(
 }
 
 // Re-export icons used by existing pages that need to migrate
-export { Paintbrush, LayoutList };
+export { LayoutList, Paintbrush };

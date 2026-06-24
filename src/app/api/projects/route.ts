@@ -1,11 +1,14 @@
+import { and, eq } from "drizzle-orm";
+import { headers } from "next/headers";
+import { NextResponse } from "next/server";
 import { enqueueDeployment } from "@/lib/async-execution";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import {
   auditLogs,
   deployments,
-  orgMemberships,
   organizations,
+  orgMemberships,
   projects,
 } from "@/lib/db/schema";
 import {
@@ -24,9 +27,6 @@ import {
   slugifyProject,
   validateCreateProjectRequest,
 } from "@/lib/projects";
-import { and, eq } from "drizzle-orm";
-import { headers } from "next/headers";
-import { NextResponse } from "next/server";
 
 /** GET /api/projects — list projects for the user's org */
 export async function GET() {

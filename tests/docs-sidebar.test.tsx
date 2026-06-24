@@ -1,8 +1,8 @@
-import { DocsSidebar } from "@/components/docs/docs-sidebar";
-import type { DocsNavEntry } from "@/lib/mdx-renderer";
 import { act } from "react";
 import { createRoot } from "react-dom/client";
 import { beforeEach, describe, expect, it } from "vitest";
+import { DocsSidebar } from "@/components/docs/docs-sidebar";
+import type { DocsNavEntry } from "@/lib/mdx-renderer";
 
 // React 19 requires this flag for act() in non-testing-library environments.
 (

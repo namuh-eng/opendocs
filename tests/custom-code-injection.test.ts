@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import {
   DEFAULT_ADVANCED,
   DEFAULT_DOCS_CONFIG,
@@ -5,7 +6,6 @@ import {
   mergeDocsConfig,
   validateDocsConfig,
 } from "@/lib/docs-config";
-import { describe, expect, it } from "vitest";
 
 describe("Custom CSS and JS in AdvancedConfig", () => {
   it("defaults customCSS and customJS to empty strings", () => {

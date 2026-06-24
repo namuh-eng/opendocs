@@ -1,5 +1,5 @@
-import { ThemeProvider } from "@/components/docs/theme-provider";
 import type { ReactNode } from "react";
+import { ThemeProvider } from "@/components/docs/theme-provider";
 
 export const metadata = {
   title: "Documentation",

@@ -1,6 +1,6 @@
 "use client";
 
-import { Node, mergeAttributes } from "@tiptap/core";
+import { mergeAttributes, Node } from "@tiptap/core";
 import CodeBlock from "@tiptap/extension-code-block";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
@@ -624,7 +624,9 @@ export const VisualEditor = forwardRef<VisualEditorHandle, VisualEditorProps>(
       },
       onUpdate: ({
         editor: currentEditor,
-      }: { editor: { getHTML: () => string } }) => {
+      }: {
+        editor: { getHTML: () => string };
+      }) => {
         if (isUpdating.current) return;
         onChange(htmlToMarkdown(currentEditor.getHTML()));
       },
@@ -727,5 +729,4 @@ export const VisualEditor = forwardRef<VisualEditorHandle, VisualEditorProps>(
   },
 );
 
-export { useEditor as useTiptapEditor };
-export { htmlToMarkdown, markdownToHtml };
+export { htmlToMarkdown, markdownToHtml, useEditor as useTiptapEditor };

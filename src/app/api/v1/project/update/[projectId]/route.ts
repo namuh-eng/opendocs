@@ -5,6 +5,8 @@
  * Returns { statusId, status } on success.
  */
 
+import { and, eq } from "drizzle-orm";
+import { type NextRequest, NextResponse } from "next/server";
 import { authenticateApiKey } from "@/lib/api-key-auth";
 import {
   formatDeploymentTriggerResponse,
@@ -13,8 +15,6 @@ import {
 import { enqueueDeployment } from "@/lib/async-execution";
 import { db } from "@/lib/db";
 import { auditLogs, deployments, projects } from "@/lib/db/schema";
-import { and, eq } from "drizzle-orm";
-import { type NextRequest, NextResponse } from "next/server";
 
 export async function POST(
   _request: NextRequest,

@@ -1,5 +1,5 @@
-import { buildPublicDocsBaseUrl } from "@/lib/public-docs-llms";
 import { describe, expect, it } from "vitest";
+import { buildPublicDocsBaseUrl } from "@/lib/public-docs-llms";
 
 describe("buildPublicDocsBaseUrl", () => {
   it("builds the docs-site base URL from the request origin", () => {

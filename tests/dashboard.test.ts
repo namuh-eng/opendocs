@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import {
   buildQuickActionCards,
   buildSiteUrl,
@@ -6,7 +7,6 @@ import {
   projectDisplayStatus,
   projectStatusSummary,
 } from "@/lib/dashboard";
-import { describe, expect, it } from "vitest";
 
 describe("buildQuickActionCards", () => {
   it("returns 4 quick action cards", () => {

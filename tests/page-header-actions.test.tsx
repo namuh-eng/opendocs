@@ -1,7 +1,7 @@
-import { PageHeaderActions } from "@/components/docs/page-chrome";
 import { act } from "react";
 import { createRoot } from "react-dom/client";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { PageHeaderActions } from "@/components/docs/page-chrome";
 
 // React 19 requires this flag for act() in non-testing-library environments.
 (

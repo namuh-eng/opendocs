@@ -1,7 +1,6 @@
+import { describe, expect, it } from "vitest";
 import {
   type FeedbackEntry,
-  type FeedbackStatus,
-  downloadCsv,
   feedbackStatuses,
   feedbackSubTabs,
   feedbackToCsv,
@@ -14,7 +13,6 @@ import {
   statusLabels,
   truncateFeedback,
 } from "@/lib/analytics-feedback";
-import { describe, expect, it } from "vitest";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 

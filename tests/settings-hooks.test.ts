@@ -1,8 +1,8 @@
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   putProjectUpdate,
   selectActiveProject,
 } from "@/hooks/project-hooks-core";
-import { afterEach, describe, expect, it, vi } from "vitest";
 
 describe("project hooks core", () => {
   afterEach(() => {

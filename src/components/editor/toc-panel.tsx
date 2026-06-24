@@ -1,7 +1,7 @@
 "use client";
 
-import type { TocEntry } from "@/lib/editor";
 import { clsx } from "clsx";
+import type { TocEntry } from "@/lib/editor";
 
 interface TocPanelProps {
   entries: TocEntry[];

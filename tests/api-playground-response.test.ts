@@ -1,8 +1,8 @@
+import { describe, expect, it } from "vitest";
 import {
   apiPlaygroundStatusClass,
   normalizeApiPlaygroundProxyResult,
 } from "@/lib/api-playground-response";
-import { describe, expect, it } from "vitest";
 
 describe("normalizeApiPlaygroundProxyResult", () => {
   it("keeps upstream response status, body, and headers", () => {

@@ -1,10 +1,10 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import {
   apiPlaygroundStatusClass,
   normalizeApiPlaygroundProxyResult,
 } from "@/lib/api-playground-response";
-import { useEffect, useRef } from "react";
 
 interface ApiPlaygroundProps {
   html: string;

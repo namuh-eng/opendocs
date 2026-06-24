@@ -1,6 +1,5 @@
 "use client";
 
-import { setStoredActiveProjectId } from "@/components/layout/shell-preferences";
 import { clsx } from "clsx";
 import {
   BarChart3,
@@ -20,6 +19,7 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { setStoredActiveProjectId } from "@/components/layout/shell-preferences";
 
 interface NavItem {
   label: string;

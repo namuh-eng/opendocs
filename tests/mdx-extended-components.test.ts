@@ -1,5 +1,5 @@
-import { renderComponentBlock, renderMdxContent } from "@/lib/mdx-renderer";
 import { describe, expect, it } from "vitest";
+import { renderComponentBlock, renderMdxContent } from "@/lib/mdx-renderer";
 
 describe("Extended MDX Component Library (feature-004b)", () => {
   // ── Mermaid ──────────────────────────────────────────────────────────────
@@ -298,7 +298,7 @@ Regular paragraph.`);
     });
 
     it("extracts self-closing Badge in MDX", () => {
-      const html = renderMdxContent(
+      const _html = renderMdxContent(
         'This feature is <Badge color="green">Stable</Badge> and ready.',
       );
       // Badge should be recognized even inline — but our block extraction

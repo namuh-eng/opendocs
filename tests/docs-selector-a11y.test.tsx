@@ -1,9 +1,9 @@
-import { LanguageSwitcher } from "@/components/docs/language-switcher";
-import { VersionSwitcher } from "@/components/docs/version-switcher";
-import type { VersionsConfig } from "@/lib/versions";
 import { act } from "react";
 import { createRoot } from "react-dom/client";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { LanguageSwitcher } from "@/components/docs/language-switcher";
+import { VersionSwitcher } from "@/components/docs/version-switcher";
+import type { VersionsConfig } from "@/lib/versions";
 
 const push = vi.fn();
 

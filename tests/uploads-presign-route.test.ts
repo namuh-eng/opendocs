@@ -1,5 +1,5 @@
-import { MAX_UPLOAD_SIZE } from "@/lib/s3";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { MAX_UPLOAD_SIZE } from "@/lib/s3";
 
 const {
   mockGetSession,

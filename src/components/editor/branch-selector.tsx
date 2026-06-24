@@ -1,10 +1,10 @@
 "use client";
 
-import type { Branch } from "@/lib/collaboration";
 import * as Popover from "@radix-ui/react-popover";
 import { clsx } from "clsx";
 import { Check, ChevronDown, GitBranch, Plus, Search } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import type { Branch } from "@/lib/collaboration";
 
 interface BranchSelectorProps {
   projectId: string | null;
@@ -94,7 +94,7 @@ export function BranchSelector({
                 value={newBranchName}
                 onChange={(e) => setNewBranchName(e.target.value)}
                 placeholder="feature/my-branch"
-                className="w-full px-2 py-1.5 text-xs bg-[#0f0f0f] border border-white/[0.08] rounded text-white placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                className="w-full px-2 py-1.5 text-xs bg-[#0f0f0f] border border-white/[0.08] rounded text-white placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-[var(--od-accent)]"
                 data-testid="new-branch-input"
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
@@ -118,7 +118,7 @@ export function BranchSelector({
                   type="button"
                   onClick={handleCreateBranch}
                   disabled={!newBranchName.trim()}
-                  className="flex-1 px-2 py-1.5 text-xs font-medium text-white bg-emerald-600 rounded hover:bg-emerald-500 disabled:opacity-50 transition-colors"
+                  className="flex-1 px-2 py-1.5 text-xs font-medium text-white bg-[var(--od-accent-strong)] rounded hover:bg-[var(--od-accent-deep,#3d4ea4)] disabled:opacity-50 transition-colors"
                   data-testid="create-branch-btn"
                 >
                   Create
@@ -162,7 +162,7 @@ export function BranchSelector({
                       className={clsx(
                         "flex items-center justify-between w-full px-3 py-1.5 text-xs transition-colors",
                         branch.name === currentBranch
-                          ? "text-emerald-400 bg-emerald-600/10"
+                          ? "text-[var(--od-accent-strong)] bg-[var(--od-accent-soft)]"
                           : "text-gray-300 hover:bg-white/[0.06]",
                       )}
                       data-testid={`branch-item-${branch.name}`}
@@ -177,7 +177,10 @@ export function BranchSelector({
                         )}
                       </div>
                       {branch.name === currentBranch && (
-                        <Check size={12} className="text-emerald-400" />
+                        <Check
+                          size={12}
+                          className="text-[var(--od-accent-strong)]"
+                        />
                       )}
                     </button>
                   ))

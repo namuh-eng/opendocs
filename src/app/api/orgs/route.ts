@@ -1,11 +1,11 @@
-import { auth } from "@/lib/auth";
-import { db } from "@/lib/db";
-import { orgMemberships, organizations } from "@/lib/db/schema";
-import { createRequestId, logger } from "@/lib/logger";
-import { slugify, validateCreateOrgRequest } from "@/lib/orgs";
 import { eq, sql } from "drizzle-orm";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
+import { db } from "@/lib/db";
+import { organizations, orgMemberships } from "@/lib/db/schema";
+import { createRequestId, logger } from "@/lib/logger";
+import { slugify, validateCreateOrgRequest } from "@/lib/orgs";
 
 /** GET /api/orgs — list orgs the current user belongs to */
 export async function GET() {

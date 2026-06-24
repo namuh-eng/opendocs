@@ -1,3 +1,5 @@
+import { describe, expect, it } from "vitest";
+import type { DeployConfig } from "@/lib/deploy";
 import {
   buildHealthResponse,
   buildImageUri,
@@ -5,8 +7,6 @@ import {
   generateServiceName,
   validateDeployConfig,
 } from "@/lib/deploy";
-import type { DeployConfig } from "@/lib/deploy";
-import { describe, expect, it } from "vitest";
 
 describe("Health check response", () => {
   it("returns ok status when all checks pass", () => {

@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import {
   agentTabs,
   formatDateRange,
@@ -7,7 +8,6 @@ import {
   parseDateParam,
   parseTrafficSource,
 } from "@/lib/analytics";
-import { describe, expect, it } from "vitest";
 
 describe("analytics utilities", () => {
   // ── Traffic source ────────────────────────────────────────────────────────

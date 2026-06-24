@@ -1,14 +1,14 @@
 "use client";
 
+import { Sparkles } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   type AiTool,
-  type ContextualAiMenuConfig,
   buildAiToolUrl,
+  type ContextualAiMenuConfig,
   getEnabledAiTools,
 } from "@/lib/contextual-ai-menu";
 import { pageToMarkdown } from "@/lib/page-chrome";
-import { Sparkles } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
 
 interface ContextualAiMenuProps {
   config: ContextualAiMenuConfig;

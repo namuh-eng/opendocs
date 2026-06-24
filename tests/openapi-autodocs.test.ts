@@ -1,6 +1,5 @@
+import { describe, expect, it } from "vitest";
 import {
-  type VirtualApiPage,
-  type VirtualAsyncApiPage,
   buildVirtualApiNav,
   endpointToSlug,
   endpointToTitle,
@@ -12,9 +11,9 @@ import {
   generateVirtualPages,
   isAsyncApiSpec,
   renderAsyncApiChannelPage,
+  type VirtualAsyncApiPage,
 } from "@/lib/openapi";
 import type { OpenApiEndpoint } from "@/lib/openapi-parser";
-import { describe, expect, it } from "vitest";
 
 // ── Sample Specs ────────────────────────────────────────────────────────────────
 

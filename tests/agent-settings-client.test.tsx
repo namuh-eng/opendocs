@@ -1,7 +1,7 @@
-import { AgentSettingsClient } from "@/app/products/agent/agent-settings-client";
-import { type ComponentProps, act } from "react";
+import { act, type ComponentProps } from "react";
 import { createRoot } from "react-dom/client";
 import { beforeAll, describe, expect, it, vi } from "vitest";
+import { AgentSettingsClient } from "@/app/products/agent/agent-settings-client";
 
 beforeAll(() => {
   (

@@ -47,7 +47,10 @@ interface GitHubAppSettingsClientProps {
 function GitHubIcon({
   size = 20,
   className,
-}: { size?: number; className?: string }) {
+}: {
+  size?: number;
+  className?: string;
+}) {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -221,9 +224,9 @@ export function GitHubAppSettingsClient({
             : "GitHub sync is not available yet. You can still publish and update docs manually."
         }
         className={clsx(
-          "inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2",
+          "inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--od-accent)] focus:ring-offset-2",
           isActionable
-            ? "bg-gray-950 text-white hover:bg-gray-800"
+            ? "bg-[var(--od-accent-strong)] text-white hover:bg-[var(--od-accent-deep,#3d4ea4)]"
             : installUrl
               ? "cursor-not-allowed bg-gray-200 text-gray-500"
               : "cursor-not-allowed bg-amber-100 text-amber-950 opacity-80",
@@ -285,8 +288,8 @@ export function GitHubAppSettingsClient({
           className={clsx(
             "mb-5 rounded-2xl border p-5 text-sm shadow-sm",
             callbackNotice.tone === "success"
-              ? "border-emerald-200 bg-emerald-50 text-emerald-900"
-              : "border-red-200 bg-red-50 text-red-800",
+              ? "border-[var(--od-sage)] bg-[var(--od-sage-soft)] text-[var(--od-text)]"
+              : "border-[var(--od-danger)] bg-[var(--od-danger-soft)] text-[var(--od-text)]",
           )}
         >
           {callbackNotice.message}
@@ -299,15 +302,15 @@ export function GitHubAppSettingsClient({
           className={clsx(
             "mb-5 rounded-2xl border p-5 text-sm shadow-sm",
             selectedRepoConnected
-              ? "border-emerald-200 bg-emerald-50 text-emerald-950"
-              : "border-amber-200 bg-amber-50 text-amber-950",
+              ? "border-[var(--od-sage)] bg-[var(--od-sage-soft)] text-[var(--od-text)]"
+              : "border-[var(--od-gold,#c9a649)] bg-[var(--od-gold-soft,#f4ecd2)] text-[var(--od-text)]",
           )}
         >
           <div className="flex items-start gap-3">
             {selectedRepoConnected ? (
               <CheckCircle2
                 size={18}
-                className="mt-0.5 shrink-0 text-emerald-700"
+                className="mt-0.5 shrink-0 text-[var(--od-success)]"
               />
             ) : (
               <AlertTriangle
@@ -384,7 +387,7 @@ export function GitHubAppSettingsClient({
       )}
 
       {success && (
-        <div className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+        <div className="mb-4 rounded-xl border border-[var(--od-sage)] bg-[var(--od-sage-soft)] px-4 py-3 text-sm text-[var(--od-text)]">
           {success}
         </div>
       )}
@@ -429,7 +432,7 @@ export function GitHubAppSettingsClient({
               key={step}
               className="rounded-xl border border-black/[0.05] bg-gray-50 p-4"
             >
-              <div className="mb-3 flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100 text-xs font-semibold text-emerald-800">
+              <div className="mb-3 flex h-7 w-7 items-center justify-center rounded-full bg-[var(--od-accent-soft)] text-xs font-semibold text-[var(--od-accent-strong)]">
                 {step}
               </div>
               <h3 className="text-sm font-semibold text-gray-950">{title}</h3>
@@ -489,8 +492,10 @@ export function GitHubAppSettingsClient({
                         : "Enable auto updates"
                     }
                     className={clsx(
-                      "relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2",
-                      conn.autoUpdateEnabled ? "bg-emerald-500" : "bg-gray-300",
+                      "relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--od-accent)] focus:ring-offset-2",
+                      conn.autoUpdateEnabled
+                        ? "bg-[var(--od-accent-strong)]"
+                        : "bg-[var(--od-border)]",
                       !isAdmin && "cursor-not-allowed opacity-50",
                     )}
                   >
@@ -538,7 +543,7 @@ export function GitHubAppSettingsClient({
                         </span>
                         {normalizedSelectedRepo ===
                           repo.fullName.toLowerCase() && (
-                          <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-800">
+                          <span className="rounded-full bg-[var(--od-accent-soft)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--od-accent-strong)]">
                             selected project repo
                           </span>
                         )}

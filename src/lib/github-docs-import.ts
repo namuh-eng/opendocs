@@ -304,12 +304,12 @@ export async function importGitHubDocs(
     // 1. Rewrite images: ![alt](relative/path.png "title")
     content = content.replace(
       /!\[([^\]]*)\]\((?!https?:\/\/|ftp:\/\/|mailto:|\/)([^)]+)\)/g,
-      (match, alt, relPathAttr) => {
+      (_match, alt, relPathAttr) => {
         const [cleanPath, titlePart] = splitRelPath(relPathAttr);
         let fullPath = fileDir ? `${fileDir}/${cleanPath}` : cleanPath;
         fullPath = fullPath.replace(/^\.\//, "");
         while (fullPath.includes("/../")) {
-          fullPath = fullPath.replace(/[^\/]+\/\.\.\//, "");
+          fullPath = fullPath.replace(/[^/]+\/\.\.\//, "");
         }
         fullPath = fullPath.replace(/^\.\//, "").replace(/^\.\..?\//, "");
 
@@ -331,7 +331,7 @@ export async function importGitHubDocs(
         let fullPath = fileDir ? `${fileDir}/${cleanPath}` : cleanPath;
         fullPath = fullPath.replace(/^\.\//, "");
         while (fullPath.includes("/../")) {
-          fullPath = fullPath.replace(/[^\/]+\/\.\.\//, "");
+          fullPath = fullPath.replace(/[^/]+\/\.\.\//, "");
         }
         fullPath = fullPath.replace(/^\.\//, "").replace(/^\.\..?\//, "");
         const normalized = fullPath.replace(/\/+/g, "/");

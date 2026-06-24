@@ -1,10 +1,10 @@
+import { describe, expect, it } from "vitest";
 import { buildDocsNav, renderMdxContent } from "@/lib/mdx-renderer";
 import {
   filterPublicDocsVisiblePages,
   isBrokenGeneratedBadge,
   isPublicDocsVisiblePage,
 } from "@/lib/public-docs-curation";
-import { describe, expect, it } from "vitest";
 
 describe("public docs curation", () => {
   it("hides internal operational paths and generated artifact titles by default", () => {

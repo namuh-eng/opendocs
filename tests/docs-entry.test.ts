@@ -1,5 +1,5 @@
-import { buildDocsEntryProjects } from "@/lib/docs-entry";
 import { describe, expect, it } from "vitest";
+import { buildDocsEntryProjects } from "@/lib/docs-entry";
 
 describe("buildDocsEntryProjects", () => {
   it("selects introduction as the preferred public entry point", () => {

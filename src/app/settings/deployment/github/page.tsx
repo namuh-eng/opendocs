@@ -1,11 +1,11 @@
+import { eq } from "drizzle-orm";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { githubConnections, orgMemberships, projects } from "@/lib/db/schema";
 import { resolveGitHubAppInstallUrl } from "@/lib/github-app-install";
 import { attachResolvedGitHubSource } from "@/lib/project-response";
-import { eq } from "drizzle-orm";
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
 import { GitHubAppSettingsClient } from "./github-app-client";
 
 export default async function GitHubAppSettingsPage() {

@@ -1,7 +1,7 @@
 "use client";
 
-import { generateLineNumbers } from "@/lib/editor";
 import { useCallback, useRef } from "react";
+import { generateLineNumbers } from "@/lib/editor";
 
 interface MarkdownEditorProps {
   value: string;

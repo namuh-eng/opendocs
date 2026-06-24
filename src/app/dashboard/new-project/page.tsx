@@ -1,12 +1,12 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import {
   type ConnectedRepoOption,
   ConnectedRepoSelect,
 } from "@/components/github/connected-repo-select";
 import { setStoredActiveProjectId } from "@/components/layout/shell-preferences";
-import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
 
 export default function NewProjectPage() {
   const router = useRouter();
@@ -142,7 +142,7 @@ export default function NewProjectPage() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="e.g. My Docs"
-            className="w-full rounded-lg border border-white/[0.08] bg-[#1a1a1a] px-4 py-2.5 text-sm text-white placeholder-gray-500 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+            className="w-full rounded-lg border border-[var(--od-border)] bg-[var(--od-panel)] px-4 py-2.5 text-sm text-[var(--od-text)] placeholder-[var(--od-text-subtle)] outline-none focus:border-[var(--od-accent)] focus:ring-1 focus:ring-[var(--od-accent)]"
           />
         </div>
 
@@ -174,14 +174,14 @@ export default function NewProjectPage() {
           <button
             type="button"
             onClick={() => router.back()}
-            className="rounded-lg border border-white/[0.08] px-4 py-2 text-sm text-gray-400 transition-colors hover:bg-white/[0.06]"
+            className="rounded-lg border border-[var(--od-border)] px-4 py-2 text-sm text-[var(--od-text-muted)] transition-colors hover:bg-[var(--od-panel-muted)]"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-500 disabled:opacity-50"
+            className="rounded-lg bg-[var(--od-accent-strong)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--od-accent-deep,#3d4ea4)] disabled:opacity-50"
           >
             {loading ? "Creating..." : "Create project"}
           </button>

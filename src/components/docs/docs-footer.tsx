@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   type FooterSettings,
   getBrandName,
@@ -7,7 +8,6 @@ import {
   getPoweredByTooltip,
   getValidSocialLinks,
 } from "@/lib/docs-footer";
-import { useState } from "react";
 
 interface DocsFooterProps {
   footerSettings: FooterSettings;
@@ -95,17 +95,15 @@ export function DocsFooter({ footerSettings, projectName }: DocsFooterProps) {
         </div>
       )}
 
-      <div
-        className="docs-footer-powered"
-        onMouseEnter={() => setShowTooltip(true)}
-        onMouseLeave={() => setShowTooltip(false)}
-      >
+      <div className="docs-footer-powered">
         <a
           href={brandUrl}
           target="_blank"
           rel="noopener noreferrer"
           className="docs-footer-powered-link"
           data-testid="docs-footer-powered-by"
+          onMouseEnter={() => setShowTooltip(true)}
+          onMouseLeave={() => setShowTooltip(false)}
         >
           Powered by {brandName}
         </a>

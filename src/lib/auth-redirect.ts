@@ -4,7 +4,7 @@ export function resolveSafeReturnTo(
 ) {
   const candidate = Array.isArray(value) ? value[0] : value;
 
-  if (!candidate || !candidate.startsWith("/") || candidate.startsWith("//")) {
+  if (!candidate?.startsWith("/") || candidate.startsWith("//")) {
     return fallback;
   }
 

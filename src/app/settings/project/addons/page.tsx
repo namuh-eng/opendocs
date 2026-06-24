@@ -1,12 +1,6 @@
 "use client";
 
-import { useActiveProject } from "@/hooks/use-active-project";
-import { useProjectUpdater } from "@/hooks/use-project-updater";
-import {
-  type AddonsSettings,
-  type CiCheckValue,
-  mergeAddons,
-} from "@/lib/addons";
+import type { LucideIcon } from "lucide-react";
 import {
   AlertTriangle,
   Code,
@@ -18,8 +12,14 @@ import {
   ThumbsUp,
   Type,
 } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useActiveProject } from "@/hooks/use-active-project";
+import { useProjectUpdater } from "@/hooks/use-project-updater";
+import {
+  type AddonsSettings,
+  type CiCheckValue,
+  mergeAddons,
+} from "@/lib/addons";
 
 interface ProjectData {
   id: string;
@@ -220,13 +220,13 @@ export default function AddonsSettingsPage() {
           type="button"
           onClick={handleSave}
           disabled={saving}
-          className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-500 disabled:opacity-50"
+          className="rounded-lg bg-[var(--od-accent-strong)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--od-accent-deep,#3d4ea4)] disabled:opacity-50"
         >
           {saving ? "Saving..." : "Save changes"}
         </button>
         {message && (
           <p
-            className={`text-sm ${message.type === "success" ? "text-emerald-400" : "text-red-400"}`}
+            className={`text-sm ${message.type === "success" ? "text-[var(--od-success)]" : "text-[var(--od-danger)]"}`}
           >
             {message.text}
           </p>
@@ -270,7 +270,7 @@ function FeedbackToggle({
         aria-checked={checked}
         onClick={onChange}
         className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full transition-colors ${
-          checked ? "bg-emerald-600" : "bg-white/[0.12]"
+          checked ? "bg-[var(--od-accent-strong)]" : "bg-[var(--od-border)]"
         }`}
       >
         <span
@@ -312,7 +312,7 @@ function CiCheckRow({
         data-testid={testId}
         value={value}
         onChange={(e) => onChange(e.target.value as CiCheckValue)}
-        className="rounded-md border border-white/[0.08] bg-[#1a1a1a] px-3 py-1.5 text-sm text-white outline-none focus:border-emerald-500"
+        className="rounded-md border border-[var(--od-border)] bg-[var(--od-panel)] px-3 py-1.5 text-sm text-[var(--od-text)] outline-none focus:border-[var(--od-accent)]"
       >
         <option value="disabled">Disabled</option>
         <option value="enabled">Enabled</option>

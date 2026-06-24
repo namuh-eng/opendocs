@@ -1,15 +1,15 @@
+import { and, eq } from "drizzle-orm";
+import { headers } from "next/headers";
+import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import {
   githubConnections,
-  orgMemberships,
   organizations,
+  orgMemberships,
 } from "@/lib/db/schema";
 import { validateCreateConnectionRequest } from "@/lib/github-webhook";
 import { createRequestId, logger } from "@/lib/logger";
-import { and, eq } from "drizzle-orm";
-import { headers } from "next/headers";
-import { NextResponse } from "next/server";
 
 /** Resolve user's org and role. */
 async function resolveUserOrg(userId: string) {

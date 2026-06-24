@@ -1,21 +1,9 @@
 "use client";
 
-import type {
-  AssistantSettingsData,
-  AssistantUsageData,
-} from "@/lib/assistant-settings";
-import {
-  MAX_STARTER_QUESTIONS,
-  formatBillingDate,
-  formatCents,
-  isValidDomain,
-  usagePercent,
-} from "@/lib/assistant-settings";
 import { clsx } from "clsx";
 import {
   ArrowRight,
   Calendar,
-  DollarSign,
   Loader2,
   Mail,
   MessageCircle,
@@ -24,6 +12,17 @@ import {
   X,
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import type {
+  AssistantSettingsData,
+  AssistantUsageData,
+} from "@/lib/assistant-settings";
+import {
+  formatBillingDate,
+  formatCents,
+  isValidDomain,
+  MAX_STARTER_QUESTIONS,
+  usagePercent,
+} from "@/lib/assistant-settings";
 
 interface Props {
   initialSettings: AssistantSettingsData;
@@ -51,7 +50,7 @@ function Toggle({
       disabled={disabled}
       className={clsx(
         "relative inline-flex h-6 w-11 items-center rounded-full transition-colors",
-        checked ? "bg-emerald-600" : "bg-gray-600",
+        checked ? "bg-[var(--od-accent-strong)]" : "bg-[var(--od-border)]",
         disabled && "opacity-50 cursor-not-allowed",
       )}
       data-testid={testId}
@@ -230,7 +229,7 @@ export function AssistantSettingsClient({
           </p>
           <a
             href="/analytics/assistant"
-            className="text-sm text-emerald-400 hover:text-emerald-300 inline-flex items-center gap-1 mt-2"
+            className="text-sm text-[var(--od-accent-strong)] hover:text-[var(--od-accent)] inline-flex items-center gap-1 mt-2"
             data-testid="view-more-link"
           >
             View more <ArrowRight size={14} />
@@ -291,15 +290,17 @@ export function AssistantSettingsClient({
                         className={clsx(
                           "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium",
                           settings.enabled
-                            ? "bg-emerald-500/10 text-emerald-400"
-                            : "bg-gray-500/10 text-gray-400",
+                            ? "bg-[var(--od-sage-soft)] text-[var(--od-success)]"
+                            : "bg-[var(--od-panel-muted)] text-[var(--od-text-muted)]",
                         )}
                         data-testid="assistant-status-badge"
                       >
                         <span
                           className={clsx(
                             "w-1.5 h-1.5 rounded-full",
-                            settings.enabled ? "bg-emerald-400" : "bg-gray-400",
+                            settings.enabled
+                              ? "bg-[var(--od-success)]"
+                              : "bg-[var(--od-text-muted)]",
                           )}
                         />
                         {settings.enabled ? "Active" : "Inactive"}
@@ -341,7 +342,7 @@ export function AssistantSettingsClient({
                       <span className="text-sm font-medium text-white">
                         Assistant Deflection
                       </span>
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--od-sage-soft)] text-[var(--od-success)]">
                         Recommended
                       </span>
                     </div>
@@ -372,7 +373,7 @@ export function AssistantSettingsClient({
                     value={deflectionEmail}
                     onChange={(e) => setDeflectionEmail(e.target.value)}
                     placeholder="support@example.com"
-                    className="w-full rounded-lg border border-white/[0.08] bg-white/[0.03] py-2.5 pl-10 pr-3 text-sm text-white placeholder:text-gray-500 focus:border-emerald-500/50 focus:outline-none"
+                    className="w-full rounded-lg border border-[var(--od-border)] bg-[var(--od-panel)] py-2.5 pl-10 pr-3 text-sm text-[var(--od-text)] placeholder:text-[var(--od-text-subtle)] outline-none focus:border-[var(--od-accent)] focus:ring-1 focus:ring-[var(--od-accent)]"
                     data-testid="deflection-email-input"
                   />
                 </div>
@@ -388,7 +389,7 @@ export function AssistantSettingsClient({
                     onChange={(e) =>
                       updateSettings({ showHelpButton: e.target.checked })
                     }
-                    className="mt-0.5 h-4 w-4 rounded border-gray-600 bg-transparent text-emerald-500 focus:ring-emerald-500"
+                    className="mt-0.5 h-4 w-4 rounded border-[var(--od-border)] bg-transparent accent-[var(--od-accent-strong)] focus:ring-[var(--od-accent)]"
                     data-testid="show-help-button-checkbox"
                   />
                   <div>
@@ -411,7 +412,7 @@ export function AssistantSettingsClient({
                     })
                   }
                   disabled={saving}
-                  className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500 transition-colors disabled:opacity-50"
+                  className="rounded-lg bg-[var(--od-accent-strong)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--od-accent-deep,#3d4ea4)] transition-colors disabled:opacity-50"
                   data-testid="save-deflection-btn"
                 >
                   {saving ? (
@@ -459,13 +460,13 @@ export function AssistantSettingsClient({
                         if (e.key === "Enter") handleAddDomain();
                       }}
                       placeholder="example.com"
-                      className="flex-1 rounded-lg border border-white/[0.08] bg-white/[0.03] py-2 px-3 text-sm text-white placeholder:text-gray-500 focus:border-emerald-500/50 focus:outline-none"
+                      className="flex-1 rounded-lg border border-[var(--od-border)] bg-[var(--od-panel)] py-2 px-3 text-sm text-[var(--od-text)] placeholder:text-[var(--od-text-subtle)] outline-none focus:border-[var(--od-accent)] focus:ring-1 focus:ring-[var(--od-accent)]"
                       data-testid="domain-input"
                     />
                     <button
                       type="button"
                       onClick={handleAddDomain}
-                      className="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-500 transition-colors"
+                      className="rounded-lg bg-[var(--od-accent-strong)] px-3 py-2 text-sm font-medium text-white hover:bg-[var(--od-accent-deep,#3d4ea4)] transition-colors"
                       data-testid="add-domain-btn"
                     >
                       <Plus size={16} />
@@ -588,7 +589,7 @@ export function AssistantSettingsClient({
                 {/* Progress bar */}
                 <div className="relative h-3 rounded-full bg-white/[0.06] mb-3">
                   <div
-                    className="absolute inset-y-0 left-0 rounded-full bg-emerald-500 transition-all"
+                    className="absolute inset-y-0 left-0 rounded-full bg-[var(--od-accent)] transition-all"
                     style={{ width: `${pct}%` }}
                     data-testid="usage-progress-bar"
                   />
@@ -597,11 +598,11 @@ export function AssistantSettingsClient({
                 {/* Legend */}
                 <div className="flex items-center gap-4 text-xs text-gray-400">
                   <span className="flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                    <span className="w-2 h-2 rounded-full bg-[var(--od-accent)]" />
                     Used: {usage.messagesUsed}
                   </span>
                   <span className="flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-amber-500" />
+                    <span className="w-2 h-2 rounded-full bg-[var(--od-gold,#c9a649)]" />
                     Overage Kick In
                   </span>
                 </div>
@@ -690,13 +691,13 @@ function StarterQuestionInput({ onAdd }: { onAdd: (q: string) => void }) {
           if (e.key === "Enter") handleAdd();
         }}
         placeholder="Type a starter question..."
-        className="flex-1 rounded-lg border border-white/[0.08] bg-white/[0.03] py-2 px-3 text-sm text-white placeholder:text-gray-500 focus:border-emerald-500/50 focus:outline-none"
+        className="flex-1 rounded-lg border border-[var(--od-border)] bg-[var(--od-panel)] py-2 px-3 text-sm text-[var(--od-text)] placeholder:text-[var(--od-text-subtle)] outline-none focus:border-[var(--od-accent)] focus:ring-1 focus:ring-[var(--od-accent)]"
         data-testid="question-input"
       />
       <button
         type="button"
         onClick={handleAdd}
-        className="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-500 transition-colors"
+        className="rounded-lg bg-[var(--od-accent-strong)] px-3 py-2 text-sm font-medium text-white hover:bg-[var(--od-accent-deep,#3d4ea4)] transition-colors"
         data-testid="add-question-btn"
       >
         <Plus size={16} />

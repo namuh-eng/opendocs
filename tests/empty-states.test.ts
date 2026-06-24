@@ -1,9 +1,9 @@
+import { describe, expect, it } from "vitest";
 import {
   agentEmptyState,
   analyticsEmptyState,
   editorEmptyState,
 } from "@/lib/empty-states";
-import { describe, expect, it } from "vitest";
 
 describe("Empty state configurations", () => {
   describe("analyticsEmptyState", () => {

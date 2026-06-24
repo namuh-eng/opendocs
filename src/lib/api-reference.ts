@@ -5,9 +5,9 @@
 
 import { generateGoExample } from "@/lib/openapi";
 import {
+  generateExampleFromSchema,
   type OpenApiEndpoint,
   type OpenApiParameter,
-  generateExampleFromSchema,
 } from "@/lib/openapi-parser";
 
 // ── Method Badge Colors ──────────────────────────────────────────────────────
@@ -279,7 +279,7 @@ function safeAttributeId(str: string): string {
  * response status tabs, auth section, parameters, response schema.
  */
 export function renderApiReferencePage(endpoint: OpenApiEndpoint): string {
-  const methodLower = endpoint.method.toLowerCase();
+  const _methodLower = endpoint.method.toLowerCase();
   const badge = getMethodBadge(endpoint.method);
 
   // Method + URL header with Try it button

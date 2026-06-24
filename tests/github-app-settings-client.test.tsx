@@ -1,7 +1,7 @@
-import { GitHubAppSettingsClient } from "@/app/settings/deployment/github/github-app-client";
-import { type ComponentProps, act } from "react";
+import { act, type ComponentProps } from "react";
 import { createRoot } from "react-dom/client";
 import { beforeAll, describe, expect, it } from "vitest";
+import { GitHubAppSettingsClient } from "@/app/settings/deployment/github/github-app-client";
 
 beforeAll(() => {
   (
@@ -106,7 +106,7 @@ describe("GitHubAppSettingsClient", () => {
       '[data-testid="github-selected-repo-status"]',
     );
     expect(status).toBeTruthy();
-    expect(status?.className).toContain("text-amber-950");
+    expect(status?.className).toContain("text-[var(--od-text)]");
     expect(status?.className).not.toContain("text-amber-200");
     expect(container.textContent).toContain("Repository access required");
     expect(container.textContent).toContain(

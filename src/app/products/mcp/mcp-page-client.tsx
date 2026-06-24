@@ -1,8 +1,8 @@
 "use client";
 
-import { getMcpServerUrl, getMcpTools } from "@/lib/mcp";
 import { Check, Copy, ExternalLink, Sparkles } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { getMcpServerUrl, getMcpTools } from "@/lib/mcp";
 
 export function McpPageClient({ projectSlug }: { projectSlug: string }) {
   const mcpUrl = getMcpServerUrl(projectSlug);
@@ -58,13 +58,13 @@ export function McpPageClient({ projectSlug }: { projectSlug: string }) {
           <p className="text-sm text-[var(--od-text-muted)]">
             Access your MCP server and preview available tools
           </p>
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 text-[10px] font-medium border border-emerald-500/20">
-            <span className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[var(--od-sage-soft)] text-[var(--od-success)] text-[10px] font-medium border border-[var(--od-sage-soft)]">
+            <span className="w-1 h-1 rounded-full bg-[var(--od-success)] animate-pulse" />
             Online
           </span>
         </div>
         <a
-          href="https://mintlify.com/docs/mcp"
+          href="https://modelcontextprotocol.io"
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-1 text-sm text-[var(--od-accent)] hover:text-[var(--od-accent-strong)]"
@@ -80,7 +80,7 @@ export function McpPageClient({ projectSlug }: { projectSlug: string }) {
           </span>
           <input
             readOnly
-            value={`${projectSlug}.mintlify.app/mcp`}
+            value={getMcpServerUrl(projectSlug).replace(/^https?:\/\//, "")}
             className="min-w-0 flex-1 bg-transparent px-3 py-2 text-sm text-[var(--od-text)] outline-none"
           />
           <button
@@ -90,7 +90,7 @@ export function McpPageClient({ projectSlug }: { projectSlug: string }) {
           >
             {copied ? (
               <>
-                <Check size={14} className="text-emerald-400" />
+                <Check size={14} className="text-[var(--od-success)]" />
                 Copied
               </>
             ) : (

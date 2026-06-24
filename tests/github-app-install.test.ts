@@ -1,5 +1,5 @@
-import { resolveGitHubAppInstallUrl } from "@/lib/github-app-install";
 import { describe, expect, it } from "vitest";
+import { resolveGitHubAppInstallUrl } from "@/lib/github-app-install";
 
 describe("resolveGitHubAppInstallUrl", () => {
   it("uses an explicit GitHub app install URL", () => {

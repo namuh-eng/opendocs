@@ -384,14 +384,13 @@ export function SearchModal({
     }) as const;
 
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: backdrop clicks close the modal while dialog handles keyboard interactions
     <div
       data-testid="search-modal"
       className="search-modal-overlay"
+      role="presentation"
       onClick={(e) => {
         if (e.target === e.currentTarget) close();
-      }}
-      onKeyDown={(e) => {
-        if (e.key === "Escape") close();
       }}
     >
       <dialog

@@ -1,5 +1,5 @@
-import { getPublicAppUrl, getRequestAppUrl } from "@/lib/app-url";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { getPublicAppUrl, getRequestAppUrl } from "@/lib/app-url";
 
 describe("getPublicAppUrl", () => {
   afterEach(() => {

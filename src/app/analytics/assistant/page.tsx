@@ -1,5 +1,8 @@
 "use client";
 
+import { Download, MessageSquare } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useActiveProject } from "@/hooks/use-active-project";
 import {
   getDatePresets,
@@ -9,18 +12,14 @@ import {
 import {
   type AssistantCategory,
   type AssistantSubTab,
-  type ChatHistoryEntry,
   assistantSubTabs,
+  type ChatHistoryEntry,
   categoriesToCsv,
   chatHistoryToCsv,
   downloadCsv,
   formatConversationDate,
   truncateMessage,
 } from "@/lib/analytics-assistant";
-import { generateDateRange } from "@/lib/analytics-visitors";
-import { Download, MessageSquare } from "lucide-react";
-import { useSearchParams } from "next/navigation";
-import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { AnalyticsShell } from "../analytics-shell";
 
 // ── Categories Table ─────────────────────────────────────────────────────────

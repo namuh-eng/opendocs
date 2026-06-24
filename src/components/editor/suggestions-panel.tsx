@@ -1,10 +1,10 @@
 "use client";
 
-import type { Suggestion } from "@/lib/collaboration";
-import { formatCommentDate, parseSuggestionDiff } from "@/lib/collaboration";
 import { clsx } from "clsx";
 import { Check, FileText, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import type { Suggestion } from "@/lib/collaboration";
+import { formatCommentDate, parseSuggestionDiff } from "@/lib/collaboration";
 
 interface SuggestionsPanelProps {
   pageId: string | null;
@@ -139,9 +139,9 @@ export function SuggestionsPanel({
                       className={clsx(
                         "text-[10px] px-1.5 py-0.5 rounded-full font-medium",
                         suggestion.status === "pending" &&
-                          "bg-amber-600/20 text-amber-400",
+                          "bg-[var(--od-gold-soft,#f4ecd2)] text-[var(--od-gold,#c9a649)]",
                         suggestion.status === "accepted" &&
-                          "bg-emerald-600/20 text-emerald-400",
+                          "bg-[var(--od-sage-soft)] text-[var(--od-success)]",
                         suggestion.status === "rejected" &&
                           "bg-red-600/20 text-red-400",
                       )}
@@ -158,8 +158,8 @@ export function SuggestionsPanel({
                         {diff.originalText}
                       </div>
                     )}
-                    <div className="bg-emerald-950/30 px-3 py-1.5 text-emerald-300">
-                      <span className="text-emerald-500 mr-1">+</span>
+                    <div className="bg-[var(--od-sage-soft)] px-3 py-1.5 text-[var(--od-success)]">
+                      <span className="text-[var(--od-success)] mr-1">+</span>
                       {diff.suggestedText}
                     </div>
                   </div>
@@ -170,7 +170,7 @@ export function SuggestionsPanel({
                       <button
                         type="button"
                         onClick={() => handleAction(suggestion.id, "accepted")}
-                        className="flex items-center gap-1 px-2 py-1 text-xs text-emerald-400 hover:bg-emerald-600/10 rounded transition-colors"
+                        className="flex items-center gap-1 px-2 py-1 text-xs text-[var(--od-success)] hover:bg-[var(--od-sage-soft)] rounded transition-colors"
                         data-testid={`accept-suggestion-${suggestion.id}`}
                       >
                         <Check size={12} />

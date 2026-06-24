@@ -5,13 +5,13 @@
  * Returns deployment progress info.
  */
 
+import { and, eq } from "drizzle-orm";
+import { type NextRequest, NextResponse } from "next/server";
 import { authenticateApiKey } from "@/lib/api-key-auth";
 import { formatDeploymentStatusResponse } from "@/lib/api-v1-deployments";
 import { getDeploymentExecutionMetadata } from "@/lib/async-execution";
 import { db } from "@/lib/db";
 import { deployments, projects } from "@/lib/db/schema";
-import { and, eq } from "drizzle-orm";
-import { type NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   request: NextRequest,

@@ -1,6 +1,9 @@
 import { randomUUID } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { serializeSignedCookie } from "better-call";
+import { and, eq } from "drizzle-orm";
+import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import {
@@ -8,16 +11,13 @@ import {
   user as authUsers,
 } from "@/lib/db/auth-schema";
 import {
-  orgMemberships,
   organizations,
+  orgMemberships,
   pages,
   projects,
 } from "@/lib/db/schema";
 import { slugify } from "@/lib/orgs";
 import { generateSubdomain, slugifyProject } from "@/lib/projects";
-import { serializeSignedCookie } from "better-call";
-import { and, eq } from "drizzle-orm";
-import { NextResponse } from "next/server";
 
 const FIXTURE_ORG_SLUG = "playwright-docs-fixtures";
 const FIXTURE_PROJECT_SLUG = "test-project";

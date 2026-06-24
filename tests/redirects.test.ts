@@ -1,12 +1,12 @@
+import { describe, expect, it } from "vitest";
 import {
   DEFAULT_DOCS_CONFIG,
   type DocsConfig,
-  type RedirectEntry,
   findRedirect,
   mergeDocsConfig,
+  type RedirectEntry,
   validateDocsConfig,
 } from "@/lib/docs-config";
-import { describe, expect, it } from "vitest";
 
 // ── findRedirect ────────────────────────────────────────────────────────
 

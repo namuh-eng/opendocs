@@ -1,13 +1,3 @@
-import {
-  buildDocsNav,
-  extractComponentBlocks,
-  renderMdxContent,
-} from "@/lib/mdx-renderer";
-import {
-  isSnippetPage,
-  resolveSnippets,
-  resolveVariables,
-} from "@/lib/snippets";
 /**
  * Tests for feature-026: Reusable snippets with variables
  * - Variable resolution: {{variableName}} syntax
@@ -15,6 +5,12 @@ import {
  * - Snippet pages excluded from navigation
  */
 import { describe, expect, it } from "vitest";
+import { buildDocsNav, renderMdxContent } from "@/lib/mdx-renderer";
+import {
+  isSnippetPage,
+  resolveSnippets,
+  resolveVariables,
+} from "@/lib/snippets";
 
 // ── Variable Resolution ──────────────────────────────────────────────────────
 

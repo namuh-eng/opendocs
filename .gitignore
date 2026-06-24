@@ -18,6 +18,7 @@ ralph-hardening/
 tmp/
 .tmp/
 private/
+private-docs/
 .claude/skills/ralph-to-ralph-onboard/
 scripts/start.sh
 .current-feature.json

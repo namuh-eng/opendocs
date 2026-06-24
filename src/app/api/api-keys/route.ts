@@ -1,3 +1,6 @@
+import { eq } from "drizzle-orm";
+import { headers } from "next/headers";
+import { NextResponse } from "next/server";
 import {
   extractKeyPrefix,
   generateApiKey,
@@ -8,9 +11,6 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { apiKeys, orgMemberships } from "@/lib/db/schema";
 import { createRequestId, logger } from "@/lib/logger";
-import { and, eq } from "drizzle-orm";
-import { headers } from "next/headers";
-import { NextResponse } from "next/server";
 
 /** Resolve the user's first org from their session. */
 async function getUserOrg() {

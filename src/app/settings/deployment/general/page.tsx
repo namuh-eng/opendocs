@@ -1,8 +1,8 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useActiveProject } from "@/hooks/use-active-project";
 import { useProjectUpdater } from "@/hooks/use-project-updater";
-import { useEffect, useState } from "react";
 
 interface ProjectData {
   id: string;
@@ -88,7 +88,7 @@ export default function SettingsGeneralPage() {
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full rounded-lg border border-white/[0.08] bg-[#1a1a1a] px-4 py-2.5 text-sm text-white placeholder-gray-500 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+            className="w-full rounded-lg border border-[var(--od-border)] bg-[var(--od-panel)] px-4 py-2.5 text-sm text-[var(--od-text)] placeholder-[var(--od-text-subtle)] outline-none focus:border-[var(--od-accent)] focus:ring-1 focus:ring-[var(--od-accent)]"
           />
         </div>
 
@@ -104,13 +104,13 @@ export default function SettingsGeneralPage() {
             type="text"
             value={subdomain}
             onChange={(e) => setSubdomain(e.target.value)}
-            className="w-full rounded-lg border border-white/[0.08] bg-[#1a1a1a] px-4 py-2.5 text-sm text-white placeholder-gray-500 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+            className="w-full rounded-lg border border-[var(--od-border)] bg-[var(--od-panel)] px-4 py-2.5 text-sm text-[var(--od-text)] placeholder-[var(--od-text-subtle)] outline-none focus:border-[var(--od-accent)] focus:ring-1 focus:ring-[var(--od-accent)]"
           />
         </div>
 
         {message && (
           <p
-            className={`text-sm ${message.type === "success" ? "text-emerald-400" : "text-red-400"}`}
+            className={`text-sm ${message.type === "success" ? "text-[var(--od-success)]" : "text-[var(--od-danger)]"}`}
           >
             {message.text}
           </p>
@@ -119,7 +119,7 @@ export default function SettingsGeneralPage() {
         <button
           type="submit"
           disabled={saving}
-          className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-500 disabled:opacity-50"
+          className="rounded-lg bg-[var(--od-accent-strong)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--od-accent-deep,#3d4ea4)] disabled:opacity-50"
         >
           {saving ? "Saving..." : "Save changes"}
         </button>

@@ -1,10 +1,10 @@
+import { and, asc, eq } from "drizzle-orm";
+import { headers } from "next/headers";
+import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { validateCommentContent } from "@/lib/collaboration";
 import { db } from "@/lib/db";
 import { comments, orgMemberships, pages, projects } from "@/lib/db/schema";
-import { and, asc, eq } from "drizzle-orm";
-import { headers } from "next/headers";
-import { NextResponse } from "next/server";
 
 async function resolvePageAccess(
   userId: string,

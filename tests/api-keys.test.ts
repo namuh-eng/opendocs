@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import {
   ADMIN_KEY_PREFIX,
   ASSISTANT_KEY_PREFIX,
@@ -7,7 +8,6 @@ import {
   validateCreateApiKeyRequest,
   verifyApiKey,
 } from "@/lib/api-keys";
-import { describe, expect, it } from "vitest";
 
 describe("API Key Constants", () => {
   it("has correct admin key prefix", () => {

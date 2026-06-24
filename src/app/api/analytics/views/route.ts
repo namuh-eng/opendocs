@@ -1,9 +1,9 @@
-import { auth } from "@/lib/auth";
-import { db } from "@/lib/db";
-import { analyticsEvents, orgMemberships, projects } from "@/lib/db/schema";
 import { and, eq, gte, lte, sql } from "drizzle-orm";
 import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
+import { db } from "@/lib/db";
+import { analyticsEvents, orgMemberships, projects } from "@/lib/db/schema";
 
 /**
  * GET /api/analytics/views?projectId=...&from=YYYY-MM-DD&to=YYYY-MM-DD

@@ -1,6 +1,6 @@
+import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { organizationBilling, projects } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
 
 export const BILLING_PLANS = ["free", "pro", "enterprise"] as const;
 export const BILLING_STATUSES = [

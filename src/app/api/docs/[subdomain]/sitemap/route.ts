@@ -1,9 +1,8 @@
+import { and, eq } from "drizzle-orm";
 import { getPublicAppUrl } from "@/lib/app-url";
 import { db } from "@/lib/db";
 import { pages, projects } from "@/lib/db/schema";
 import { filterPublicDocsVisiblePages } from "@/lib/public-docs-curation";
-import { and, eq } from "drizzle-orm";
-import { NextResponse } from "next/server";
 
 const APP_URL = getPublicAppUrl();
 

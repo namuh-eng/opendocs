@@ -1,7 +1,7 @@
-import { FeedbackWidget } from "@/components/docs/feedback-widget";
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { describe, expect, it, vi } from "vitest";
+import { FeedbackWidget } from "@/components/docs/feedback-widget";
 import { validateFeedbackPayload } from "../src/lib/feedback";
 
 // React 19 requires this flag for act() in non-testing-library environments.

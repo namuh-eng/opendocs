@@ -1,3 +1,9 @@
+import { and, eq } from "drizzle-orm";
+import type { Metadata } from "next";
+import { cookies } from "next/headers";
+import { notFound, permanentRedirect } from "next/navigation";
+import Script from "next/script";
+import type { CSSProperties } from "react";
 import { ApiPlayground } from "@/components/docs/api-playground";
 import { ApiReferenceLayout } from "@/components/docs/api-reference-layout";
 import { ChatWidget } from "@/components/docs/chat-widget";
@@ -38,14 +44,14 @@ import { KATEX_CSS_URL, renderLatex } from "@/lib/latex";
 import { normalizeMarkdownContent } from "@/lib/markdown-normalization";
 import { buildDocsNav, renderMdxContent } from "@/lib/mdx-renderer";
 import {
-  type VirtualApiPage,
-  type VirtualAsyncApiPage,
   findVirtualAsyncApiPage,
   findVirtualPage,
   generateAsyncApiPages,
   generateVirtualPages,
   isAsyncApiSpec,
   renderAsyncApiChannelPage,
+  type VirtualApiPage,
+  type VirtualAsyncApiPage,
 } from "@/lib/openapi";
 import {
   type OpenApiEndpoint,
@@ -74,11 +80,6 @@ import {
   mergeVersionsConfig,
   parseVersionFromSlug,
 } from "@/lib/versions";
-import { and, eq } from "drizzle-orm";
-import type { Metadata } from "next";
-import { cookies } from "next/headers";
-import { notFound, permanentRedirect } from "next/navigation";
-import type { CSSProperties } from "react";
 
 interface DocsPageProps {
   params: Promise<{ subdomain: string; slug: string[] }>;
@@ -622,7 +623,7 @@ export default async function DocsPage({
       />
 
       {/* Capture Cmd/Ctrl+K before React hydration so fast navigations still open search. */}
-      <script src="/docs-search-shortcut.js" />
+      <Script src="/docs-search-shortcut.js" strategy="beforeInteractive" />
       <SearchModal
         pages={searchablePages}
         subdomain={subdomain}

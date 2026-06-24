@@ -1,16 +1,16 @@
 "use client";
 
+import { LockKeyhole, ShieldCheck } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useActiveProject } from "@/hooks/use-active-project";
 import { useProjectUpdater } from "@/hooks/use-project-updater";
 import {
-  type ProjectAuthenticationMode,
   hashDocsPasswordForBrowser,
   mergeProjectAuthenticationSettings,
+  type ProjectAuthenticationMode,
   readProjectAuthenticationSettings,
   validateProjectAuthenticationSettings,
 } from "@/lib/project-authentication-browser";
-import { LockKeyhole, ShieldCheck } from "lucide-react";
-import { useEffect, useState } from "react";
 
 interface ProjectData {
   id: string;
@@ -112,9 +112,9 @@ export default function AuthenticationSettingsPage() {
             value="public"
             checked={mode === "public"}
             onChange={() => setMode("public")}
-            className="mt-1 accent-emerald-500"
+            className="mt-1 accent-[var(--od-accent-strong)]"
           />
-          <ShieldCheck size={20} className="mt-0.5 text-emerald-400" />
+          <ShieldCheck size={20} className="mt-0.5 text-[var(--od-accent)]" />
           <span>
             <span className="block text-sm font-medium text-white">
               Public docs
@@ -132,9 +132,9 @@ export default function AuthenticationSettingsPage() {
             value="password"
             checked={mode === "password"}
             onChange={() => setMode("password")}
-            className="mt-1 accent-emerald-500"
+            className="mt-1 accent-[var(--od-accent-strong)]"
           />
-          <LockKeyhole size={20} className="mt-0.5 text-emerald-400" />
+          <LockKeyhole size={20} className="mt-0.5 text-[var(--od-accent)]" />
           <span className="min-w-0 flex-1">
             <span className="block text-sm font-medium text-white">
               Password protected
@@ -158,7 +158,7 @@ export default function AuthenticationSettingsPage() {
               type="password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
-              className="w-full rounded-lg border border-white/[0.08] bg-[#1a1a1a] px-4 py-2.5 text-sm text-white placeholder-gray-500 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+              className="w-full rounded-lg border border-[var(--od-border)] bg-[var(--od-panel)] px-4 py-2.5 text-sm text-[var(--od-text)] placeholder-[var(--od-text-subtle)] outline-none focus:border-[var(--od-accent)] focus:ring-1 focus:ring-[var(--od-accent)]"
               placeholder="Enter a shared password"
             />
           </div>
@@ -166,7 +166,7 @@ export default function AuthenticationSettingsPage() {
 
         {message && (
           <p
-            className={`text-sm ${message.type === "success" ? "text-emerald-400" : "text-red-400"}`}
+            className={`text-sm ${message.type === "success" ? "text-[var(--od-success)]" : "text-[var(--od-danger)]"}`}
           >
             {message.text}
           </p>
@@ -175,7 +175,7 @@ export default function AuthenticationSettingsPage() {
         <button
           type="submit"
           disabled={saving}
-          className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-500 disabled:opacity-50"
+          className="rounded-lg bg-[var(--od-accent-strong)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--od-accent-deep,#3d4ea4)] disabled:opacity-50"
         >
           {saving ? "Saving..." : "Save authentication settings"}
         </button>

@@ -1,18 +1,17 @@
+import { describe, expect, it } from "vitest";
 import {
   type AssistantCategory,
-  type ChatHistoryEntry,
   assistantSubTabs,
+  type ChatHistoryEntry,
   categoriesToCsv,
   categorizeConversation,
   chatHistoryToCsv,
-  downloadCsv,
   escapeCsvField,
   extractFirstUserMessage,
   fillDailyConversationCounts,
   formatConversationDate,
   truncateMessage,
 } from "@/lib/analytics-assistant";
-import { describe, expect, it } from "vitest";
 
 // ── extractFirstUserMessage ──────────────────────────────────────────────────
 

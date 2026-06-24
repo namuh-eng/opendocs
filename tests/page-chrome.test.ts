@@ -1,10 +1,10 @@
+import { describe, expect, it } from "vitest";
 import {
   getGroupName,
   pageToMarkdown,
   slugifyHeading,
   titleize,
 } from "@/lib/page-chrome";
-import { describe, expect, it } from "vitest";
 
 describe("page-chrome utilities", () => {
   describe("titleize", () => {

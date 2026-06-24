@@ -1,7 +1,5 @@
 "use client";
 
-import { BranchSelector } from "@/components/editor/branch-selector";
-import type { EditorMode, MdxSnippetKey } from "@/lib/editor";
 import * as Popover from "@radix-ui/react-popover";
 import { clsx } from "clsx";
 import {
@@ -24,6 +22,8 @@ import {
   Undo2,
 } from "lucide-react";
 import { useState } from "react";
+import { BranchSelector } from "@/components/editor/branch-selector";
+import type { EditorMode, MdxSnippetKey } from "@/lib/editor";
 
 interface EditorToolbarProps {
   mode: EditorMode;
@@ -423,7 +423,7 @@ export function EditorToolbar({
                     className="text-[var(--od-text-subtle)]"
                   />
                   <span className="text-[var(--od-text-muted)] truncate">
-                    {siteUrl || previewUrl || "your-project.mintlify.app"}
+                    {siteUrl || previewUrl || "your-project.namuh.dev"}
                   </span>
                 </div>
                 <p className="text-xs leading-5 text-[var(--od-text-subtle)]">

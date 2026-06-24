@@ -1,7 +1,7 @@
+import type { MetadataRoute } from "next";
 import { getPublicAppUrl } from "@/lib/app-url";
 import { db } from "@/lib/db";
 import { projects } from "@/lib/db/schema";
-import type { MetadataRoute } from "next";
 
 export const dynamic = "force-dynamic";
 

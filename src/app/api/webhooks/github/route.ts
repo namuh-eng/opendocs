@@ -1,3 +1,5 @@
+import { eq } from "drizzle-orm";
+import { NextResponse } from "next/server";
 import { enqueueDeployment } from "@/lib/async-execution";
 import { getClientRateLimitKey } from "@/lib/client-rate-limit-key";
 import { db } from "@/lib/db";
@@ -17,8 +19,6 @@ import {
 } from "@/lib/github-webhook";
 import { createRequestId, logger } from "@/lib/logger";
 import { applyRateLimit, buildRateLimitHeaders } from "@/lib/rate-limit";
-import { eq } from "drizzle-orm";
-import { NextResponse } from "next/server";
 
 /** POST /api/webhooks/github — receive GitHub push webhooks */
 export async function POST(request: Request) {

@@ -33,7 +33,7 @@ test.describe("Custom Domain Settings", () => {
   test("has a verify DNS button", async ({ page }) => {
     await page.goto("/settings/project/domain");
     // If a domain is configured, verify button should exist
-    const verifyButton = page.getByRole("button", { name: /verify/i });
+    const _verifyButton = page.getByRole("button", { name: /verify/i });
     // The button may or may not be visible depending on state,
     // but the page should at least load without errors
     await expect(page.locator("body")).toBeVisible();
@@ -42,7 +42,7 @@ test.describe("Custom Domain Settings", () => {
   test("can remove custom domain", async ({ page }) => {
     await page.goto("/settings/project/domain");
     // Look for remove button if domain is set
-    const removeButton = page.getByRole("button", { name: /remove/i });
+    const _removeButton = page.getByRole("button", { name: /remove/i });
     // Page should load regardless
     await expect(
       page.getByRole("heading", { name: /custom domain/i }),

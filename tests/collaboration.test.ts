@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import {
   buildCommentThreads,
   canCreateBranch,
@@ -10,7 +11,6 @@ import {
   validateCommentContent,
   validateSuggestionDiff,
 } from "@/lib/collaboration";
-import { describe, expect, it } from "vitest";
 
 // ── validateCommentContent ──────────────────────────────────────────────────
 

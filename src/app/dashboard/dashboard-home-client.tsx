@@ -1,19 +1,5 @@
 "use client";
 
-import {
-  buildQuickActionCards,
-  buildSiteUrl,
-  formatDomainDisplay,
-} from "@/lib/dashboard";
-import {
-  type DeploymentStatus,
-  generateDeploymentLogSteps,
-  shortSha,
-  statusColor,
-  statusDotColor,
-  statusLabel,
-  timeAgo,
-} from "@/lib/deployments";
 import { clsx } from "clsx";
 import {
   BarChart3,
@@ -33,6 +19,20 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import {
+  buildQuickActionCards,
+  buildSiteUrl,
+  formatDomainDisplay,
+} from "@/lib/dashboard";
+import {
+  type DeploymentStatus,
+  generateDeploymentLogSteps,
+  shortSha,
+  statusColor,
+  statusDotColor,
+  statusLabel,
+  timeAgo,
+} from "@/lib/deployments";
 
 interface DeploymentRow {
   id: string;
@@ -93,16 +93,19 @@ function ProjectStatusBadge({ status }: { status: string }) {
       data-testid="project-status-badge"
       className={clsx(
         "inline-flex w-20 items-center justify-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium",
-        isLive && "bg-emerald-500/10 text-[var(--od-success)]",
-        isDeploying && "bg-amber-400/10 text-amber-500",
-        !isLive && !isDeploying && "bg-red-400/10 text-[var(--od-danger)]",
+        isLive && "bg-[var(--od-sage-soft)] text-[var(--od-success)]",
+        isDeploying &&
+          "bg-[var(--od-gold-soft,#f4ecd2)] text-[var(--od-gold,#c9a649)]",
+        !isLive &&
+          !isDeploying &&
+          "bg-[var(--od-danger-soft)] text-[var(--od-danger)]",
       )}
     >
       <span
         className={clsx(
           "h-1.5 w-1.5 rounded-full",
           isLive && "bg-[var(--od-success)]",
-          isDeploying && "bg-amber-400 animate-pulse",
+          isDeploying && "bg-[var(--od-gold,#c9a649)] animate-pulse",
           !isLive && !isDeploying && "bg-[var(--od-danger)]",
         )}
       />
@@ -190,7 +193,7 @@ function DeploymentExpandedRow({ deployment }: { deployment: DeploymentRow }) {
                   ) : (
                     <Loader2
                       size={14}
-                      className="shrink-0 animate-spin text-amber-400"
+                      className="shrink-0 animate-spin text-[var(--od-gold,#c9a649)]"
                     />
                   )}
                   <span className="text-[var(--od-text-muted)]">{step}</span>
@@ -314,8 +317,8 @@ export function DashboardHomeClient({
     <div className="od-page">
       {/* Greeting */}
       <div className="mb-[var(--od-section-gap)] flex items-center justify-between">
-        <h1 className="text-[length:var(--od-fs-xl)] font-bold text-[var(--od-text)]">
-          {greeting}, {firstName}
+        <h1 className="od-display text-[26px] text-[var(--od-text)]">
+          {greeting}, <em>{firstName}</em>
         </h1>
         <button
           type="button"

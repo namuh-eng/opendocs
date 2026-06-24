@@ -1,6 +1,7 @@
+import { describe, expect, it } from "vitest";
 import {
-  CONFIG_SECTIONS,
   CONFIG_SECTION_IDS,
+  CONFIG_SECTIONS,
   DEFAULT_DOCS_CONFIG,
   type DocsConfig,
   exportDocsConfigJson,
@@ -10,7 +11,6 @@ import {
   sectionIdToConfigKey,
   validateDocsConfig,
 } from "@/lib/docs-config";
-import { describe, expect, it } from "vitest";
 
 // ── CONFIG_SECTIONS metadata ─────────────────────────────────────────────
 

@@ -1,8 +1,8 @@
+import { sql } from "drizzle-orm";
+import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { buildHealthResponse } from "@/lib/deploy";
 import { createRequestId, logger } from "@/lib/logger";
-import { sql } from "drizzle-orm";
-import { NextResponse } from "next/server";
 
 /**
  * GET /api/health

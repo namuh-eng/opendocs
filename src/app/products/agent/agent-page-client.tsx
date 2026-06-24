@@ -1,16 +1,5 @@
 "use client";
 
-import { EmptyState as SharedEmptyState } from "@/components/empty-state";
-import {
-  extractPrNumber,
-  statusColor,
-  statusLabel,
-  timeAgo,
-  truncatePrompt,
-  validatePrompt,
-} from "@/lib/agent-dashboard";
-import type { AgentJobStatus } from "@/lib/agent-dashboard";
-import { agentEmptyState } from "@/lib/empty-states";
 import { clsx } from "clsx";
 import {
   ArrowLeft,
@@ -22,6 +11,17 @@ import {
   Send,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { EmptyState as SharedEmptyState } from "@/components/empty-state";
+import type { AgentJobStatus } from "@/lib/agent-dashboard";
+import {
+  extractPrNumber,
+  statusColor,
+  statusLabel,
+  timeAgo,
+  truncatePrompt,
+  validatePrompt,
+} from "@/lib/agent-dashboard";
+import { agentEmptyState } from "@/lib/empty-states";
 
 interface JobSummary {
   id: string;
@@ -49,14 +49,15 @@ function StatusBadge({ status }: { status: string }) {
   const colorClasses: Record<string, string> = {
     yellow: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
     blue: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-    green: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+    green:
+      "bg-[var(--od-sage-soft)] text-[var(--od-success)] border-[var(--od-sage)]",
     red: "bg-red-500/10 text-red-400 border-red-500/20",
   };
 
   const dotClasses: Record<string, string> = {
     yellow: "bg-yellow-400",
     blue: "bg-blue-400",
-    green: "bg-emerald-400",
+    green: "bg-[var(--od-success)]",
     red: "bg-red-400",
   };
 
@@ -83,7 +84,7 @@ function StatusBadge({ status }: { status: string }) {
 function EmptyState() {
   return (
     <SharedEmptyState
-      icon={<Bot size={32} className="text-emerald-500" />}
+      icon={<Bot size={32} className="text-[var(--od-accent)]" />}
       title={agentEmptyState.title}
       description={agentEmptyState.description}
       action={{
@@ -121,7 +122,7 @@ function JobListItem({
               {timeAgo(job.createdAt)}
             </span>
             {prNum !== null && (
-              <span className="inline-flex items-center gap-1 text-xs text-emerald-400">
+              <span className="inline-flex items-center gap-1 text-xs text-[var(--od-accent)]">
                 <GitPullRequest size={12} />#{prNum}
               </span>
             )}
@@ -188,7 +189,7 @@ function JobDetail({
             href={job.prUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-emerald-600/10 text-emerald-400 text-xs font-medium hover:bg-emerald-600/20 transition-colors"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[var(--od-accent-soft)] text-[var(--od-accent-strong)] text-xs font-medium hover:bg-[var(--od-accent-soft)] transition-colors"
             data-testid="pr-link"
           >
             <GitPullRequest size={14} />
@@ -202,6 +203,7 @@ function JobDetail({
       <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
         {job.messages.map((msg, i) => (
           <div
+            // biome-ignore lint/suspicious/noArrayIndexKey: agent stream messages do not expose a stable message id
             key={`${msg.timestamp}-${i}`}
             className={clsx(
               "flex",
@@ -212,7 +214,7 @@ function JobDetail({
               className={clsx(
                 "max-w-[80%] rounded-lg px-4 py-2.5 text-sm",
                 msg.role === "user"
-                  ? "bg-emerald-600/20 text-white"
+                  ? "bg-[var(--od-accent-soft)] text-[var(--od-text)]"
                   : "bg-white/[0.05] text-gray-300",
               )}
               data-testid={`message-${msg.role}`}
@@ -239,13 +241,13 @@ function JobDetail({
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Send a follow-up message…"
-              className="flex-1 bg-white/[0.05] border border-white/[0.08] rounded-lg px-4 py-2.5 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20"
+              className="flex-1 bg-[var(--od-panel)] border border-[var(--od-border)] rounded-lg px-4 py-2.5 text-sm text-[var(--od-text)] placeholder:text-[var(--od-text-subtle)] focus:outline-none focus:border-[var(--od-accent)] focus:ring-1 focus:ring-[var(--od-accent)]"
               data-testid="message-input"
             />
             <button
               type="submit"
               disabled={sending || !message.trim()}
-              className="px-4 py-2.5 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-4 py-2.5 rounded-lg bg-[var(--od-accent-strong)] text-white text-sm font-medium hover:bg-[var(--od-accent-deep,#3d4ea4)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               data-testid="send-message-btn"
             >
               {sending ? (
@@ -417,13 +419,13 @@ export function AgentPageClient({
                 setError(null);
               }}
               placeholder="Enter a prompt for the agent…"
-              className="flex-1 bg-white/[0.05] border border-white/[0.08] rounded-lg px-4 py-2.5 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20"
+              className="flex-1 bg-[var(--od-panel)] border border-[var(--od-border)] rounded-lg px-4 py-2.5 text-sm text-[var(--od-text)] placeholder:text-[var(--od-text-subtle)] focus:outline-none focus:border-[var(--od-accent)] focus:ring-1 focus:ring-[var(--od-accent)]"
               data-testid="prompt-input"
             />
             <button
               type="submit"
               disabled={submitting || !prompt.trim()}
-              className="px-4 py-2.5 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+              className="px-4 py-2.5 rounded-lg bg-[var(--od-accent-strong)] text-white text-sm font-medium hover:bg-[var(--od-accent-deep,#3d4ea4)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
               data-testid="create-job-btn"
             >
               {submitting ? (

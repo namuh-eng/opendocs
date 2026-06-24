@@ -11,7 +11,7 @@ export interface QuickActionCard {
 }
 
 /** Build quick action cards for the dashboard overview. */
-export function buildQuickActionCards(projectId: string): QuickActionCard[] {
+export function buildQuickActionCards(_projectId: string): QuickActionCard[] {
   return [
     {
       id: "open-editor",

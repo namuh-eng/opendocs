@@ -2,9 +2,11 @@
  * MCP server page utilities — derives MCP URL and available tools from project slug.
  */
 
+import { docsSiteUrl } from "@/lib/docs-url";
+
 /** Build the hosted MCP server URL for a project */
 export function getMcpServerUrl(projectSlug: string): string {
-  return `https://${projectSlug}.mintlify.app/mcp`;
+  return `${docsSiteUrl(projectSlug)}/mcp`;
 }
 
 export interface McpTool {

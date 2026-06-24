@@ -1,14 +1,14 @@
 "use client";
 
+import { ChevronDown, FileText } from "lucide-react";
+import Link from "next/link";
+import { useId, useState } from "react";
 import {
   getMethodBadge,
   getWebhookBadge,
   isWebhook,
 } from "@/lib/api-reference";
 import type { DocsNavEntry } from "@/lib/mdx-renderer";
-import { ChevronDown, FileText } from "lucide-react";
-import Link from "next/link";
-import { useId, useState } from "react";
 import { DocsLogoMark, getConfiguredDocsLogo } from "./docs-logo";
 
 interface DocsSidebarProps {

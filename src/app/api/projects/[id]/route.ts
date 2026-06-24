@@ -1,3 +1,6 @@
+import { and, eq, sql } from "drizzle-orm";
+import { headers } from "next/headers";
+import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { orgMemberships, projects } from "@/lib/db/schema";
@@ -8,9 +11,6 @@ import {
 import { createRequestId, logger } from "@/lib/logger";
 import { attachResolvedGitHubSource } from "@/lib/project-response";
 import { validateUpdateProjectRequest } from "@/lib/projects";
-import { and, eq, ne, sql } from "drizzle-orm";
-import { headers } from "next/headers";
-import { NextResponse } from "next/server";
 
 async function getUserOrgId(userId: string): Promise<string | null> {
   const membership = await db

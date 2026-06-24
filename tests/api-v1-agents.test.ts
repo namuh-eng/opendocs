@@ -5,13 +5,13 @@
  * POST /api/v1/agent/send-message/{jobId} — send follow-up message
  */
 
+import { describe, expect, it } from "vitest";
 import {
   formatAgentJobResponse,
   validateCreateJobInput,
   validateSendMessageInput,
   validateUuid,
 } from "@/lib/api-v1-agents";
-import { describe, expect, it } from "vitest";
 
 describe("validateUuid", () => {
   it("accepts a valid UUID", () => {

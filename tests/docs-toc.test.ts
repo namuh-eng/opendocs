@@ -1,5 +1,5 @@
-import { extractFrontmatter, extractToc } from "@/lib/editor";
 import { describe, expect, it } from "vitest";
+import { extractFrontmatter, extractToc } from "@/lib/editor";
 
 describe("Table of Contents — extractToc", () => {
   it("extracts H2 and H3 headings from markdown", () => {

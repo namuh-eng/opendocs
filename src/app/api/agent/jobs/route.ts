@@ -5,6 +5,8 @@
  * Session-authenticated (dashboard use), not API-key-based.
  */
 
+import { desc, eq } from "drizzle-orm";
+import { type NextRequest, NextResponse } from "next/server";
 import { enqueueAgentJob } from "@/lib/async-execution";
 import { db } from "@/lib/db";
 import {
@@ -15,8 +17,6 @@ import {
 } from "@/lib/db/schema";
 import { createRequestId, logger } from "@/lib/logger";
 import { getServerSession } from "@/lib/session";
-import { desc, eq } from "drizzle-orm";
-import { type NextRequest, NextResponse } from "next/server";
 
 async function resolveProject(userId: string) {
   const membership = await db

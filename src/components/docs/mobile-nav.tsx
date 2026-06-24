@@ -1,8 +1,8 @@
 "use client";
 
-import type { DocsNavEntry } from "@/lib/mdx-renderer";
 import { X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import type { DocsNavEntry } from "@/lib/mdx-renderer";
 import { DocsSidebar } from "./docs-sidebar";
 
 const FOCUSABLE_SELECTOR = [

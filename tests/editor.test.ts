@@ -1,3 +1,4 @@
+import { describe, expect, it, vi } from "vitest";
 import {
   htmlToMarkdown,
   markdownToHtml,
@@ -12,7 +13,6 @@ import {
   mdxSnippets,
   serializeFrontmatter,
 } from "@/lib/editor";
-import { describe, expect, it, vi } from "vitest";
 
 describe("extractFrontmatter", () => {
   it("extracts valid frontmatter from MDX content", () => {

@@ -1,14 +1,14 @@
+import { describe, expect, it } from "vitest";
 import {
   type FooterSettings,
   type FooterSocialLink,
-  SOCIAL_LINK_TYPES,
   getBrandName,
   getBrandUrl,
   getFooterSettings,
   getPoweredByTooltip,
   getValidSocialLinks,
+  SOCIAL_LINK_TYPES,
 } from "@/lib/docs-footer";
-import { describe, expect, it } from "vitest";
 
 describe("docs-footer utilities", () => {
   describe("SOCIAL_LINK_TYPES", () => {

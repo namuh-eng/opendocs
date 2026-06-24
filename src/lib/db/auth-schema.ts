@@ -1,5 +1,5 @@
-import { pgTable } from "drizzle-orm/pg-core";
 import * as t from "drizzle-orm/pg-core";
+import { pgTable } from "drizzle-orm/pg-core";
 
 // ── Better Auth tables ────────────────────────────────────────────────────────
 // These are the core tables Better Auth requires for session-based auth.

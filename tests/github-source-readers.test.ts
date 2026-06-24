@@ -1,5 +1,5 @@
-import { resolveGitHubSource } from "@/lib/github-source";
 import { describe, expect, it } from "vitest";
+import { resolveGitHubSource } from "@/lib/github-source";
 
 describe("github-source readers", () => {
   it("prefers settings.githubSource over reparsing repoUrl", () => {
