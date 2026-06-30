@@ -1,0 +1,47 @@
+{
+  // Default OpenDocs deployment: Cloudflare Workers Containers.
+  // Copy this file to `wrangler.jsonc`, fill in the placeholders, then:
+  //   npx wrangler deploy
+  // (`wrangler.jsonc` is gitignored so your account/domain never get committed.)
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "opendocs",
+  "main": "worker/index.ts",
+  "compatibility_date": "2025-06-01",
+  // Your Cloudflare account id — set here or via the CLOUDFLARE_ACCOUNT_ID env var.
+  // "account_id": "<your-cloudflare-account-id>",
+  "observability": { "enabled": true },
+  // Serve on your own domain (its zone must be in this Cloudflare account):
+  // "routes": [{ "pattern": "docs.example.com", "custom_domain": true }],
+  "containers": [
+    {
+      "class_name": "OpenDocsContainer",
+      "image": "./Dockerfile",
+      "image_build_context": ".",
+      // Build-time only — Next.js inlines NEXT_PUBLIC_* into the client bundle.
+      // Set these to YOUR public app URL before deploying.
+      "image_vars": {
+        "NEXT_PUBLIC_APP_URL": "https://docs.example.com",
+        "BETTER_AUTH_URL": "https://docs.example.com"
+      },
+      "instance_type": "standard-1",
+      "max_instances": 3
+    }
+  ],
+  "durable_objects": {
+    "bindings": [{ "name": "OPENDOCS_CONTAINER", "class_name": "OpenDocsContainer" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["OpenDocsContainer"] }],
+  // Non-secret runtime vars. Secrets are set once with `wrangler secret put <NAME>`:
+  //   DATABASE_URL, BETTER_AUTH_SECRET, AUTH_GOOGLE_ID, AUTH_GOOGLE_SECRET,
+  //   OPENAI_API_KEY, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY,
+  //   STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, STRIPE_PRICE_ID
+  "vars": {
+    "NODE_ENV": "production",
+    "DB_SSL": "true",
+    "S3_REGION": "auto",
+    "S3_BUCKET": "your-doc-assets-bucket",
+    "S3_ENDPOINT": "https://<account-id>.r2.cloudflarestorage.com",
+    "BETTER_AUTH_URL": "https://docs.example.com",
+    "ASSISTANT_MODEL_ID": "gpt-4o-mini"
+  }
+}

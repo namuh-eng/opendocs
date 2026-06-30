@@ -2,7 +2,7 @@
  * POST /api/v1/assistant/create-message
  *
  * Streams an AI-generated response based on the user's question
- * and relevant documentation pages. Uses AWS Bedrock (Claude).
+ * and relevant documentation pages. Uses OpenAI.
  *
  * Auth: assistant API key (mint_dsc_ prefix) via Bearer token.
  *
@@ -11,10 +11,6 @@
  */
 
 import { randomUUID } from "node:crypto";
-import {
-  BedrockRuntimeClient,
-  ConverseStreamCommand,
-} from "@aws-sdk/client-bedrock-runtime";
 import { and, eq, ilike, inArray, or } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { authenticateApiKey } from "@/lib/api-key-auth";
@@ -22,12 +18,9 @@ import {
   buildSearchQuery,
   validateCreateMessageRequest,
 } from "@/lib/assistant";
-import { getAssistantBedrockModelId } from "@/lib/assistant-model";
+import { streamAssistantReply } from "@/lib/assistant-llm";
 import { db } from "@/lib/db";
 import { assistantConversations, pages, projects } from "@/lib/db/schema";
-
-const bedrock = new BedrockRuntimeClient({ region: "us-east-1" });
-const MODEL_ID = getAssistantBedrockModelId();
 
 export async function POST(request: NextRequest) {
   // ── Auth ────────────────────────────────────────────────────────────────────
@@ -120,16 +113,16 @@ export async function POST(request: NextRequest) {
     systemPrompt += `\n\nThe user is currently viewing the page: ${validation.currentPath}`;
   }
 
-  // ── Build Bedrock messages ──────────────────────────────────────────────────
-  const bedrockMessages = validation.messages.map((m) => ({
+  // ── Build assistant messages ────────────────────────────────────────────────
+  const llmMessages = validation.messages.map((m) => ({
     role: m.role === "user" ? ("user" as const) : ("assistant" as const),
-    content: [{ text: m.content }],
+    content: m.content,
   }));
 
   // ── Determine thread ID ─────────────────────────────────────────────────────
   const threadId = validation.threadId ?? randomUUID();
 
-  // ── Stream response from Bedrock ────────────────────────────────────────────
+  // ── Stream response from OpenAI ─────────────────────────────────────────────
   const encoder = new TextEncoder();
 
   const stream = new ReadableStream({
@@ -137,32 +130,18 @@ export async function POST(request: NextRequest) {
       let fullResponse = "";
 
       try {
-        const command = new ConverseStreamCommand({
-          modelId: MODEL_ID,
-          system: [{ text: systemPrompt }],
-          messages: bedrockMessages,
-          inferenceConfig: {
-            maxTokens: 2048,
-            temperature: 0.3,
-          },
-        });
+        for await (const text of streamAssistantReply({
+          systemPrompt,
+          messages: llmMessages,
+        })) {
+          fullResponse += text;
 
-        const response = await bedrock.send(command);
-
-        if (response.stream) {
-          for await (const event of response.stream) {
-            if (event.contentBlockDelta?.delta?.text) {
-              const text = event.contentBlockDelta.delta.text;
-              fullResponse += text;
-
-              // Send SSE data chunk
-              const chunk = JSON.stringify({
-                type: "text-delta",
-                textDelta: text,
-              });
-              controller.enqueue(encoder.encode(`data: ${chunk}\n\n`));
-            }
-          }
+          // Send SSE data chunk
+          const chunk = JSON.stringify({
+            type: "text-delta",
+            textDelta: text,
+          });
+          controller.enqueue(encoder.encode(`data: ${chunk}\n\n`));
         }
 
         // Send sources as annotations

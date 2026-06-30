@@ -1,7 +1,7 @@
 /**
  * POST /api/docs/[subdomain]/chat
  *
- * Public-facing docs chat endpoint. Streams AI responses using AWS Bedrock
+ * Public-facing docs chat endpoint. Streams AI responses using OpenAI
  * with documentation context from the project's published pages.
  * No API key required — scoped by subdomain.
  *
@@ -10,17 +10,13 @@
  */
 
 import { randomUUID } from "node:crypto";
-import {
-  BedrockRuntimeClient,
-  ConverseStreamCommand,
-} from "@aws-sdk/client-bedrock-runtime";
 import { and, eq, ilike, or } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import {
   buildSearchQuery,
   validateCreateMessageRequest,
 } from "@/lib/assistant";
-import { getAssistantBedrockModelId } from "@/lib/assistant-model";
+import { streamAssistantReply } from "@/lib/assistant-llm";
 import { db } from "@/lib/db";
 import { assistantConversations, pages, projects } from "@/lib/db/schema";
 import {
@@ -28,9 +24,6 @@ import {
   hasValidDocsAccess,
 } from "@/lib/project-docs-access";
 import { filterPublicDocsVisiblePages } from "@/lib/public-docs-curation";
-
-const bedrock = new BedrockRuntimeClient({ region: "us-east-1" });
-const MODEL_ID = getAssistantBedrockModelId();
 
 export async function POST(
   request: NextRequest,
@@ -141,10 +134,10 @@ export async function POST(
     systemPrompt += `\n\nThe user is currently viewing the page: ${validation.currentPath}`;
   }
 
-  // ── Build Bedrock messages ─────────────────────────────────────────────────
-  const bedrockMessages = validation.messages.map((m) => ({
+  // ── Build assistant messages ───────────────────────────────────────────────
+  const llmMessages = validation.messages.map((m) => ({
     role: m.role === "user" ? ("user" as const) : ("assistant" as const),
-    content: [{ text: m.content }],
+    content: m.content,
   }));
 
   const threadId = validation.threadId ?? randomUUID();
@@ -157,30 +150,16 @@ export async function POST(
       let fullResponse = "";
 
       try {
-        const command = new ConverseStreamCommand({
-          modelId: MODEL_ID,
-          system: [{ text: systemPrompt }],
-          messages: bedrockMessages,
-          inferenceConfig: {
-            maxTokens: 2048,
-            temperature: 0.3,
-          },
-        });
-
-        const response = await bedrock.send(command);
-
-        if (response.stream) {
-          for await (const event of response.stream) {
-            if (event.contentBlockDelta?.delta?.text) {
-              const text = event.contentBlockDelta.delta.text;
-              fullResponse += text;
-              const chunk = JSON.stringify({
-                type: "text-delta",
-                textDelta: text,
-              });
-              controller.enqueue(encoder.encode(`data: ${chunk}\n\n`));
-            }
-          }
+        for await (const text of streamAssistantReply({
+          systemPrompt,
+          messages: llmMessages,
+        })) {
+          fullResponse += text;
+          const chunk = JSON.stringify({
+            type: "text-delta",
+            textDelta: text,
+          });
+          controller.enqueue(encoder.encode(`data: ${chunk}\n\n`));
         }
 
         // Send sources

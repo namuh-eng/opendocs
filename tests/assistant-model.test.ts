@@ -1,27 +1,30 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
-  DEFAULT_ASSISTANT_BEDROCK_MODEL_ID,
-  getAssistantBedrockModelId,
+  DEFAULT_ASSISTANT_MODEL_ID,
+  getAssistantModelId,
 } from "@/lib/assistant-model";
 
-describe("assistant Bedrock model id", () => {
+describe("assistant model id", () => {
   afterEach(() => {
     vi.unstubAllEnvs();
   });
 
-  it("defaults to the valid Bedrock inference profile id", () => {
-    expect(DEFAULT_ASSISTANT_BEDROCK_MODEL_ID).toBe(
-      "us.anthropic.claude-sonnet-4-20250514-v1:0",
-    );
-    expect(getAssistantBedrockModelId()).toBe(
-      "us.anthropic.claude-sonnet-4-20250514-v1:0",
-    );
+  it("defaults to gpt-4o-mini", () => {
+    vi.stubEnv("ASSISTANT_MODEL_ID", "");
+    expect(DEFAULT_ASSISTANT_MODEL_ID).toBe("gpt-4o-mini");
+    expect(getAssistantModelId()).toBe("gpt-4o-mini");
   });
 
   it("allows an explicit model override", () => {
-    vi.stubEnv("ASSISTANT_BEDROCK_MODEL_ID", "custom-model-id");
+    vi.stubEnv("ASSISTANT_MODEL_ID", "gpt-4o");
 
-    expect(getAssistantBedrockModelId()).toBe("custom-model-id");
+    expect(getAssistantModelId()).toBe("gpt-4o");
+  });
+
+  it("ignores a whitespace-only override", () => {
+    vi.stubEnv("ASSISTANT_MODEL_ID", "   ");
+
+    expect(getAssistantModelId()).toBe(DEFAULT_ASSISTANT_MODEL_ID);
   });
 });

@@ -2,6 +2,8 @@ node_modules/
 .next/
 dist/
 .env
+.dev.vars
+.dev.vars.local
 .env.local
 .env.*.local
 *.log
@@ -61,3 +63,12 @@ tests/e2e/.auth/
 .superset/config.json
 ralph/qa-report.json
 ralph/qa-closure-report.json
+
+# Cloudflare / wrangler runtime state
+.wrangler/
+
+# Real wrangler config (your account id + custom domain) — copy from wrangler.example.jsonc
+wrangler.jsonc
+
+# GJC agent session state (may contain internal context)
+.gjc/

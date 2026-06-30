@@ -2,7 +2,7 @@
  * E2E tests for the assistant API endpoints.
  *
  * These test the HTTP contract: auth, validation, response shapes.
- * AI streaming is NOT tested here (requires real Bedrock) — QA handles that.
+ * AI streaming is NOT tested here (requires a real OpenAI key) — QA handles that.
  */
 
 import { expect, test } from "@playwright/test";
