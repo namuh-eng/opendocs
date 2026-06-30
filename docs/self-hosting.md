@@ -2,24 +2,43 @@
 
 OpenDocs is licensed under the [Elastic License 2.0](../LICENSE): you can use, modify, and self-host it freely, but you may not offer it as a hosted service to third parties.
 
-This guide covers running your own OpenDocs instance — locally, with Docker, or behind a reverse proxy in production. For the reference AWS deployment used for opendocs.namuh.co, see [`deployment/opendocs-production.md`](deployment/opendocs-production.md) (internal runbook).
+This guide covers running your own OpenDocs instance. OpenDocs is a standard Next.js app: it needs somewhere to run a container, a PostgreSQL database, and (optionally) S3-compatible object storage and an OpenAI key. Pick a stack below, then follow the matching deploy steps.
 
 ## Prerequisites
 
 - **PostgreSQL 14+** — any provider (RDS, Neon, Cloud SQL, or a local container). This is the only hard infrastructure dependency.
 - **Node.js 20+** (bare-metal) or **Docker** (container deployment).
-- **Optional AWS credentials** — only needed for file uploads (S3). The AI assistant/search needs an OpenAI API key. Everything else works without AWS.
+- **Object storage (optional)** — S3-compatible (Cloudflare R2, AWS S3, MinIO); only needed for file/image uploads. The AI assistant/search needs an OpenAI API key. Everything else works without either.
 
 Optional integrations (the app boots and degrades cleanly without each of them):
 
 | Feature | Needs | Without it |
 | --- | --- | --- |
 | Google sign-in | Google OAuth client | Google login button is unavailable |
-| File/image uploads | S3 bucket + AWS credentials | Uploads unavailable; `/api/health` reports storage unavailable |
+| File/image uploads | S3-compatible bucket (R2/S3) + credentials | Uploads unavailable; `/api/health` reports storage unavailable |
 | AI assistant & search | OpenAI API key | AI features unavailable |
 | GitHub sync | GitHub App | GitHub import/sync shows an unavailable state |
 | Billing | Stripe account | App runs in free/dev billing state |
 | Error/product analytics | Sentry / PostHog | No-op; the app makes zero outbound telemetry calls |
+
+## Recommended stacks
+
+OpenDocs has four parts — mix and match providers:
+
+| Component | Required? | Options |
+| --- | --- | --- |
+| **Compute** (runs the container/server) | yes | Cloudflare Workers Containers · Fly.io · Railway · Render · a VPS with Docker · AWS/GCP |
+| **PostgreSQL 14+** | yes | Supabase · Neon · RDS · Cloud SQL · self-run Postgres |
+| **Object storage** (uploads, S3-compatible) | optional | Cloudflare R2 · AWS S3 · MinIO |
+| **AI assistant** | optional | OpenAI (or any OpenAI-compatible endpoint) |
+
+Compute and database are always separate services — e.g. Cloudflare Containers run the app but **not** the database, so pair them with a managed Postgres.
+
+Suggested end-to-end combos:
+
+- **Managed & serverless (recommended):** Cloudflare Workers Containers + **Supabase** or **Neon** (Postgres) + **Cloudflare R2** + OpenAI. Low ops, scales down, and it's what the hosted `opendocs.namuh.co` runs.
+- **Single box (simplest):** one VPS running Docker Compose (app + Postgres) + R2/S3 + OpenAI, with Caddy or nginx terminating TLS. One bill, full control.
+- **Bring-your-own-cloud:** any container platform (Fly.io, Railway, Render, AWS, GCP) + a managed Postgres + S3-compatible storage.
 
 ## Quick start (local)
 
@@ -141,11 +160,9 @@ npm run db:migrate   # apply tracked migrations (production)
 npm run db:push      # push schema directly (dev/throwaway databases only)
 ```
 
-## Deploy to Cloudflare Workers Containers (default)
+## Deploy: Cloudflare Workers Containers (recommended managed combo)
 
-The recommended deploy: your Next.js server runs as a Cloudflare Container behind a
-Worker, with Cloudflare R2 for storage. **Requires the Workers Paid plan** (Containers
-are not on the free tier).
+Your Next.js server runs as a Cloudflare Container behind a Worker. Cloudflare here provides **compute and storage (R2) only** — pair it with a managed Postgres (Supabase, Neon, RDS, …), set `DATABASE_URL` to it, and you're done. **Requires the Workers Paid plan** (Containers are not on the free tier).
 
 1. Copy the config and fill in your values:
    ```bash
