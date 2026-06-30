@@ -253,8 +253,7 @@ export function AuthScreen({ callbackURL, mode }: AuthScreenProps) {
               opendocs.namuh.co
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="text-[#6f6b80]">●</span> AWS Bedrock · Better
-              Auth
+              <span className="text-[#6f6b80]">●</span> OpenAI · Better Auth
             </span>
             <span className="flex items-center gap-1.5">
               <span className="text-[#6f6b80]">●</span> Elastic License 2.0

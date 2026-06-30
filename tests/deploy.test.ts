@@ -87,7 +87,7 @@ describe("Health check response", () => {
 
 describe("Deploy config validation", () => {
   const validConfig: DeployConfig = {
-    ecrUri: "699486076867.dkr.ecr.us-east-1.amazonaws.com/opendocs",
+    ecrUri: "123456789012.dkr.ecr.us-east-1.amazonaws.com/opendocs",
     region: "us-east-1",
     serviceName: "opendocs-prod",
     imageTag: "latest",
@@ -143,17 +143,17 @@ describe("Deploy config validation", () => {
 describe("Image URI builder", () => {
   it("appends tag to ECR URI", () => {
     const uri = buildImageUri(
-      "699486076867.dkr.ecr.us-east-1.amazonaws.com/opendocs",
+      "123456789012.dkr.ecr.us-east-1.amazonaws.com/opendocs",
       "v1.0.0",
     );
     expect(uri).toBe(
-      "699486076867.dkr.ecr.us-east-1.amazonaws.com/opendocs:v1.0.0",
+      "123456789012.dkr.ecr.us-east-1.amazonaws.com/opendocs:v1.0.0",
     );
   });
 
   it("handles latest tag", () => {
     const uri = buildImageUri(
-      "699486076867.dkr.ecr.us-east-1.amazonaws.com/opendocs",
+      "123456789012.dkr.ecr.us-east-1.amazonaws.com/opendocs",
       "latest",
     );
     expect(uri).toContain(":latest");

@@ -8,7 +8,7 @@ This guide covers running your own OpenDocs instance — locally, with Docker, o
 
 - **PostgreSQL 14+** — any provider (RDS, Neon, Cloud SQL, or a local container). This is the only hard infrastructure dependency.
 - **Node.js 20+** (bare-metal) or **Docker** (container deployment).
-- **Optional AWS credentials** — only needed for file uploads (S3) and the AI assistant/search (Bedrock). Everything else works without AWS.
+- **Optional AWS credentials** — only needed for file uploads (S3). The AI assistant/search needs an OpenAI API key. Everything else works without AWS.
 
 Optional integrations (the app boots and degrades cleanly without each of them):
 
@@ -16,7 +16,7 @@ Optional integrations (the app boots and degrades cleanly without each of them):
 | --- | --- | --- |
 | Google sign-in | Google OAuth client | Google login button is unavailable |
 | File/image uploads | S3 bucket + AWS credentials | Uploads unavailable; `/api/health` reports storage unavailable |
-| AI assistant & search | AWS Bedrock model access | AI features unavailable |
+| AI assistant & search | OpenAI API key | AI features unavailable |
 | GitHub sync | GitHub App | GitHub import/sync shows an unavailable state |
 | Billing | Stripe account | App runs in free/dev billing state |
 | Error/product analytics | Sentry / PostHog | No-op; the app makes zero outbound telemetry calls |
@@ -66,16 +66,27 @@ AUTH_GOOGLE_SECRET=your-google-oauth-client-secret
 
 In the Google Cloud Console, the OAuth client needs the redirect URI `https://docs.example.com/api/auth/callback/google` (and the `http://localhost:3015/...` equivalent for development).
 
-### AWS storage and AI (optional)
+### Storage and AI (optional)
 
 ```bash
+# Storage — native AWS S3 (credentials via the standard SDK chain)
 AWS_REGION=us-east-1
 S3_BUCKET=your-doc-assets-bucket
-# Override the assistant model (default: us.anthropic.claude-sonnet-4-20250514-v1:0)
-ASSISTANT_BEDROCK_MODEL_ID=
+# Or an S3-compatible endpoint such as Cloudflare R2:
+# S3_ENDPOINT=https://<account-id>.r2.cloudflarestorage.com
+# S3_REGION=auto
+# S3_ACCESS_KEY_ID=your-r2-access-key-id
+# S3_SECRET_ACCESS_KEY=your-r2-secret-access-key
+
+# AI assistant — OpenAI Chat Completions
+OPENAI_API_KEY=your-openai-api-key
+# Override the assistant model (default: gpt-4o-mini)
+ASSISTANT_MODEL_ID=
+# Optional OpenAI-compatible endpoint (Azure OpenAI, gateway, proxy)
+# OPENAI_BASE_URL=https://api.openai.com/v1
 ```
 
-AWS credentials are resolved through the standard SDK chain (instance role, `aws configure`, env vars). Bedrock model access must be enabled for your region in the AWS console.
+S3 credentials resolve through the standard SDK chain (instance role, `aws configure`, env vars), or set dedicated `S3_*` keys to use an S3-compatible endpoint. The docs assistant requires `OPENAI_API_KEY`.
 
 ### GitHub App (optional)
 
@@ -130,7 +141,37 @@ npm run db:migrate   # apply tracked migrations (production)
 npm run db:push      # push schema directly (dev/throwaway databases only)
 ```
 
-## Docker
+## Deploy to Cloudflare Workers Containers (default)
+
+The recommended deploy: your Next.js server runs as a Cloudflare Container behind a
+Worker, with Cloudflare R2 for storage. **Requires the Workers Paid plan** (Containers
+are not on the free tier).
+
+1. Copy the config and fill in your values:
+   ```bash
+   cp wrangler.example.jsonc wrangler.jsonc
+   # set account_id, your custom-domain route, and image_vars (your public app URL)
+   ```
+2. Authenticate wrangler: `export CLOUDFLARE_API_TOKEN=...` (Workers + Containers + R2 + DNS) or `wrangler login`.
+3. Set runtime secrets (encrypted; not in the committed config):
+   ```bash
+   for k in DATABASE_URL BETTER_AUTH_SECRET AUTH_GOOGLE_ID AUTH_GOOGLE_SECRET \
+            OPENAI_API_KEY S3_ACCESS_KEY_ID S3_SECRET_ACCESS_KEY \
+            STRIPE_SECRET_KEY STRIPE_WEBHOOK_SECRET STRIPE_PRICE_ID; do
+     wrangler secret put "$k"
+   done
+   ```
+4. Deploy: `npx wrangler deploy`
+5. Run migrations against your `DATABASE_URL` (see Database migrations above).
+
+Storage uses **Cloudflare R2** via the S3 API — create a bucket + an R2 *Object Read &
+Write* token, set `S3_ENDPOINT`/`S3_BUCKET`/`S3_REGION=auto` (vars) and
+`S3_ACCESS_KEY_ID`/`S3_SECRET_ACCESS_KEY` (secrets). The database can be any publicly
+reachable Postgres (Neon, Supabase, RDS, …) with SSL — set `DB_SSL=true`.
+
+The Docker and bare-metal options below also work if you prefer to host elsewhere.
+
+## Self-host with Docker (alternative)
 
 ### Build
 

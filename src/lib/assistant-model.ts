@@ -1,9 +1,9 @@
-export const DEFAULT_ASSISTANT_BEDROCK_MODEL_ID =
-  "us.anthropic.claude-sonnet-4-20250514-v1:0";
+export const DEFAULT_ASSISTANT_MODEL_ID = "gpt-4o-mini";
 
-export function getAssistantBedrockModelId() {
-  return (
-    process.env.ASSISTANT_BEDROCK_MODEL_ID?.trim() ||
-    DEFAULT_ASSISTANT_BEDROCK_MODEL_ID
-  );
+/**
+ * Resolve the OpenAI chat model used by the docs assistant.
+ * Override with the ASSISTANT_MODEL_ID environment variable.
+ */
+export function getAssistantModelId() {
+  return process.env.ASSISTANT_MODEL_ID?.trim() || DEFAULT_ASSISTANT_MODEL_ID;
 }

@@ -18,7 +18,7 @@ OpenDocs gives teams the core Mintlify-style documentation workflow on infrastru
 - Create organizations and documentation projects.
 - Author docs in a dual-mode editor: visual WYSIWYG or Markdown/MDX.
 - Publish branded docs sites with navigation, search, SEO, versioning, i18n, and API references.
-- Configure AI assistant/search experiences powered by AWS Bedrock.
+- Configure AI assistant/search experiences powered by OpenAI.
 - Track analytics for page views, visitors, searches, feedback, and assistant usage.
 - Manage project settings, authentication, domains, deployments, members, API keys, and exports.
 
@@ -26,15 +26,15 @@ OpenDocs gives teams the core Mintlify-style documentation workflow on infrastru
 
 ## Current production status
 
-OpenDocs is deployed at **https://opendocs.namuh.co** on AWS ECS Fargate behind an ALB with HTTPS.
+OpenDocs deploys on **Cloudflare Workers Containers** by default. The hosted instance runs at **https://opendocs.namuh.co**.
 
 Production is currently configured with:
 
-- ECS Fargate + ECR container deployment
-- PostgreSQL on AWS RDS via Drizzle ORM
-- S3-backed uploaded assets
+- Cloudflare Workers Containers (Docker image) deployment — the default
+- PostgreSQL (any provider) via Drizzle ORM
+- S3-compatible object storage (Cloudflare R2 or AWS S3)
 - Google OAuth through Better Auth
-- AWS Bedrock for AI features
+- OpenAI for AI features
 - `/api/health` production health checks
 - Strict production environment validation for public app/auth URLs
 - Docs proxy SSRF protections and an explicit `DOCS_PROXY_ALLOWED_HOSTS` allowlist
@@ -200,17 +200,27 @@ https://opendocs.namuh.co/api/github-connections/callback
 
 For staging, use the staging origin with the same path.
 
-### AWS storage and AI
+### Storage and AI
 
 ```bash
+# Storage — native AWS S3 (credentials via the standard SDK chain)
 AWS_REGION=us-east-1
 S3_BUCKET=your-doc-assets-bucket
-# Bedrock model for the AI assistant
-# (default: us.anthropic.claude-sonnet-4-20250514-v1:0)
-ASSISTANT_BEDROCK_MODEL_ID=
+# Or an S3-compatible endpoint such as Cloudflare R2:
+# S3_ENDPOINT=https://<account-id>.r2.cloudflarestorage.com
+# S3_REGION=auto
+# S3_ACCESS_KEY_ID=your-r2-access-key-id
+# S3_SECRET_ACCESS_KEY=your-r2-secret-access-key
+
+# AI assistant — OpenAI Chat Completions
+OPENAI_API_KEY=your-openai-api-key
+# Model override (default: gpt-4o-mini)
+ASSISTANT_MODEL_ID=
+# Optional OpenAI-compatible endpoint (Azure OpenAI, gateway, proxy)
+# OPENAI_BASE_URL=https://api.openai.com/v1
 ```
 
-AWS credentials resolve through the standard SDK chain. Bedrock model access must be enabled in the configured region for AI features.
+S3 credentials resolve through the standard AWS SDK chain, or use dedicated `S3_*` keys for an S3-compatible endpoint. The docs assistant requires `OPENAI_API_KEY`.
 
 ### Billing (optional)
 
@@ -309,7 +319,7 @@ For deployment guides, see:
 | Editor | Tiptap / ProseMirror, MDX |
 | Database | PostgreSQL, Drizzle ORM |
 | Authentication | Better Auth, Google OAuth |
-| AI | AWS Bedrock |
+| AI | OpenAI |
 | Storage | AWS S3 |
 | API docs | OpenAPI / AsyncAPI rendering and playground support |
 | Math | KaTeX |

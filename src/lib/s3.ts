@@ -10,6 +10,14 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 const BUCKET = process.env.S3_BUCKET ?? "";
 const REGION = process.env.AWS_REGION ?? "us-east-1";
 
+// Optional S3-compatible endpoint (e.g. Cloudflare R2:
+// `https://<account-id>.r2.cloudflarestorage.com`). When set, the client
+// switches to path-style addressing and uses dedicated S3 credentials,
+// independent of the default AWS credential chain.
+const ENDPOINT = process.env.S3_ENDPOINT;
+const S3_ACCESS_KEY_ID = process.env.S3_ACCESS_KEY_ID;
+const S3_SECRET_ACCESS_KEY = process.env.S3_SECRET_ACCESS_KEY;
+
 /** Presigned URL expiry in seconds (15 minutes) */
 const PRESIGN_EXPIRES = 900;
 
@@ -37,7 +45,19 @@ export const ALLOWED_CONTENT_TYPES = [
   "font/woff2",
 ] as const;
 
-const s3 = new S3Client({ region: REGION });
+const s3 = new S3Client({
+  // R2 ignores the region but requires a valid value; "auto" is conventional.
+  region: ENDPOINT ? (process.env.S3_REGION ?? "auto") : REGION,
+  ...(ENDPOINT ? { endpoint: ENDPOINT, forcePathStyle: true } : {}),
+  ...(S3_ACCESS_KEY_ID && S3_SECRET_ACCESS_KEY
+    ? {
+        credentials: {
+          accessKeyId: S3_ACCESS_KEY_ID,
+          secretAccessKey: S3_SECRET_ACCESS_KEY,
+        },
+      }
+    : {}),
+});
 
 /**
  * Build the S3 object key following the convention:

@@ -1,48 +1,37 @@
-name: Deploy Production
+name: Deploy (Cloudflare Workers)
 
-# Deploys automatically on every push to main (after CI passes) and can
-# also be triggered manually. The OIDC role trust policy restricts
-# assumption to main-branch tokens only.
+# Default deploy: OpenDocs runs on Cloudflare Workers Containers via `wrangler deploy`.
+#
+# One-time setup:
+#   1. Copy `wrangler.example.jsonc` -> `wrangler.jsonc` and fill in your
+#      account_id, custom-domain route, and image_vars (your public app URL).
+#   2. Add repo secret CLOUDFLARE_API_TOKEN (Workers + Containers + R2 + DNS perms;
+#      requires the Workers Paid plan for Containers).
+#   3. Set app secrets once: `wrangler secret put <NAME>` for DATABASE_URL,
+#      OPENAI_API_KEY, BETTER_AUTH_SECRET, AUTH_GOOGLE_ID/SECRET, S3_* and STRIPE_*.
+#
+# Manual trigger by default. `wrangler.jsonc` is gitignored, so CI must have it
+# available (commit your own, or fetch it in a prior step).
+
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
-  id-token: write
   contents: read
-
-concurrency:
-  group: deploy-production
-  cancel-in-progress: false
-
-env:
-  AWS_REGION: us-east-1
 
 jobs:
   deploy:
-    name: Build & Deploy to ECS
+    name: wrangler deploy
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Configure AWS credentials (OIDC)
-        uses: aws-actions/configure-aws-credentials@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          role-to-assume: arn:aws:iam::699486076867:role/opendocs-github-deploy
-          aws-region: us-east-1
-
+          node-version: 20
+      - run: npm ci
       - name: Deploy
         env:
-          # Optional observability build args — empty values make the
-          # client integrations a no-op (see scripts/deploy.sh).
-          NEXT_PUBLIC_SENTRY_DSN: ${{ secrets.NEXT_PUBLIC_SENTRY_DSN }}
-          NEXT_PUBLIC_POSTHOG_KEY: ${{ secrets.NEXT_PUBLIC_POSTHOG_KEY }}
-          NEXT_PUBLIC_POSTHOG_HOST: ${{ secrets.NEXT_PUBLIC_POSTHOG_HOST }}
-          SENTRY_ENVIRONMENT: production
-          # Use the ALB directly for deploy verification. GitHub-hosted
-          # runners are blocked by Cloudflare on the public health URL.
-          HEALTH_URL: http://opendocs-alb-1587657213.us-east-1.elb.amazonaws.com/api/health
-        run: bash scripts/deploy.sh
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx wrangler deploy
