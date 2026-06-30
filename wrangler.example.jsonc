@@ -28,7 +28,9 @@
     }
   ],
   "durable_objects": {
-    "bindings": [{ "name": "OPENDOCS_CONTAINER", "class_name": "OpenDocsContainer" }]
+    "bindings": [
+      { "name": "OPENDOCS_CONTAINER", "class_name": "OpenDocsContainer" }
+    ]
   },
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["OpenDocsContainer"] }],
   // Non-secret runtime vars. Secrets are set once with `wrangler secret put <NAME>`:
