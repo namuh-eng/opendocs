@@ -26,11 +26,11 @@ OpenDocs gives teams the core Mintlify-style documentation workflow on infrastru
 
 ## Current production status
 
-OpenDocs deploys on **Cloudflare Workers Containers** by default. The hosted instance runs at **https://opendocs.namuh.co**.
+OpenDocs runs anywhere that runs a container + PostgreSQL. The recommended managed combo is **Cloudflare Workers Containers + a managed Postgres (Supabase/Neon) + Cloudflare R2** — see [`docs/self-hosting.md`](docs/self-hosting.md) for other stacks. The hosted instance runs at **https://opendocs.namuh.co**.
 
 Production is currently configured with:
 
-- Cloudflare Workers Containers (Docker image) deployment — the default
+- Cloudflare Workers Containers (Docker image) for compute — paired with managed Postgres + R2
 - PostgreSQL (any provider) via Drizzle ORM
 - S3-compatible object storage (Cloudflare R2 or AWS S3)
 - Google OAuth through Better Auth
