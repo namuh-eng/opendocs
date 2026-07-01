@@ -34,8 +34,15 @@ export async function GET() {
     });
   }
 
-  // Check S3 availability (just verify env var is set — actual S3 check is too slow for health)
-  storageAvailable = Boolean(process.env.S3_BUCKET && process.env.AWS_REGION);
+  // Check object storage availability (just verify env vars are set — actual
+  // S3/R2 checks are too slow for a liveness endpoint). Native AWS S3 uses
+  // AWS_REGION; S3-compatible storage such as Cloudflare R2 uses S3_REGION and
+  // S3_ENDPOINT.
+  storageAvailable = Boolean(
+    process.env.S3_BUCKET &&
+      (process.env.AWS_REGION ||
+        (process.env.S3_ENDPOINT && process.env.S3_REGION)),
+  );
 
   const version = process.env.APP_VERSION ?? "0.1.0";
 
