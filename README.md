@@ -3,56 +3,26 @@
 [![GitHub stars](https://img.shields.io/github/stars/namuh-eng/opendocs?style=flat-square)](https://github.com/namuh-eng/opendocs)
 [![License: ELv2](https://img.shields.io/badge/License-Elastic%202.0-blue.svg?style=flat-square)](LICENSE)
 
-**Open source Mintlify alternative — AI-native documentation platform for developer teams.**
+**Open-source Mintlify alternative — an AI-native documentation platform for developer teams.**
 
-OpenDocs is a production-grade documentation platform built with Next.js 16, TypeScript, PostgreSQL, AWS, and Better Auth. It includes a docs dashboard, MDX authoring, published docs sites, AI-powered search/chat, analytics, OpenAPI tooling, team collaboration, and a hardened production deployment path.
+OpenDocs gives teams a complete documentation workspace they can run themselves: a dashboard for managing docs, a dual-mode MDX editor, published documentation sites, AI-assisted search/chat, analytics, API reference tooling, team collaboration, and production-ready deployment support.
 
 **Live site:** https://opendocs.namuh.co
+
+![OpenDocs landing page](public/opendocs-landing.png)
 
 ---
 
 ## What OpenDocs does
 
-OpenDocs gives teams the core Mintlify-style documentation workflow on infrastructure they control:
+OpenDocs provides the core workflow for building and operating developer documentation:
 
-- Create organizations and documentation projects.
-- Author docs in a dual-mode editor: visual WYSIWYG or Markdown/MDX.
-- Publish branded docs sites with navigation, search, SEO, versioning, i18n, and API references.
-- Configure AI assistant/search experiences powered by OpenAI.
-- Track analytics for page views, visitors, searches, feedback, and assistant usage.
-- Manage project settings, authentication, domains, deployments, members, API keys, and exports.
-
----
-
-## Current production status
-
-OpenDocs runs anywhere that runs a container + PostgreSQL. The recommended managed combo is **Cloudflare Workers Containers + a managed Postgres (Supabase/Neon) + Cloudflare R2** — see [`docs/self-hosting.md`](docs/self-hosting.md) for other stacks. The hosted instance runs at **https://opendocs.namuh.co**.
-
-Production is currently configured with:
-
-- Cloudflare Workers Containers (Docker image) for compute — paired with managed Postgres + R2
-- PostgreSQL (any provider) via Drizzle ORM
-- S3-compatible object storage (Cloudflare R2 or AWS S3)
-- Google OAuth through Better Auth
-- OpenAI for AI features
-- `/api/health` production health checks
-- Strict production environment validation for public app/auth URLs
-- Docs proxy SSRF protections and an explicit `DOCS_PROXY_ALLOWED_HOSTS` allowlist
-- Scrypt-based docs password hashes with legacy compatibility
-- Signed docs access cookies that fail closed without production secrets
-- Public API redaction for sensitive docs auth settings
-- Security headers regression coverage
-
-The active integration branch is `staging`. Standard release verification includes:
-
-- `npm run lint`
-- `npm run typecheck`
-- `npm test -- --run`
-- `npm run build`
-- `npm audit --omit=dev --json` for critical/high vulnerability regressions
-- `/api/health`
-- `/api/docs/proxy` deny/allow checks
-- Google OAuth smoke tests through the `namuh-clones` client
+- Create organizations, projects, members, roles, and API keys.
+- Author docs in either a visual editor or Markdown/MDX mode.
+- Publish branded docs sites with navigation, search, SEO, versioning, localization, and API references.
+- Add AI assistant/search experiences when an AI provider is configured.
+- Track page views, visitors, searches, feedback, assistant usage, and handoffs.
+- Configure domains, authentication, deployments, exports, integrations, and project settings.
 
 ---
 
@@ -60,16 +30,15 @@ The active integration branch is `staging`. Standard release verification includ
 
 ### Dashboard
 
-- **Dual-mode editor** — Visual WYSIWYG powered by Tiptap/ProseMirror plus Markdown/MDX mode.
-- **Configuration UI** — Visual docs configuration for branding, typography, navigation, sections, redirects, snippets, i18n, versions, and custom CSS/JS.
-- **Deployment management** — Deployment triggers, status tracking, preview records, and deployment history.
-- **GitHub integrations** — GitHub connection routes, repository/project import helpers, and webhook handling that fails closed in production without a verified secret/signature.
+- **Dual-mode editor** — Visual editing powered by Tiptap/ProseMirror plus Markdown/MDX mode.
+- **Docs configuration** — Branding, typography, navigation, sections, redirects, snippets, i18n, versions, custom CSS, and custom JS.
+- **Deployment management** — Deployment triggers, status records, preview records, and history.
+- **GitHub integrations** — Repository/project import helpers, connection routes, and webhook handling.
 - **Branch previews** — Preview deployments for non-default branches.
 - **Analytics** — Views, visitors, searches, feedback, assistant conversations, and manual handoffs.
-- **Team management** — Organizations, memberships, invite flows, role updates, and RBAC.
+- **Team management** — Organizations, memberships, invites, role updates, and RBAC.
 - **Project settings** — General, domain, authentication, navigation, appearance, deployment, exports, addons, and danger-zone settings.
 - **API keys** — Admin and assistant-scoped API keys with prefixed key formats.
-- **Agent/workflow surfaces** — Agent jobs, assistant messaging, workflow templates, and MCP-oriented product pages.
 
 ### Published docs sites
 
@@ -83,14 +52,14 @@ The active integration branch is `staging`. Standard release verification includ
 - **i18n and versioning** — Language switcher, localized paths, version switcher, and version-aware page resolution.
 - **Theming** — Light/dark mode, custom branding, typography, CSS, and JS hooks.
 
-### Developer and platform capabilities
+### Platform capabilities
 
-- **REST APIs** for projects, pages, deployments, analytics, assistant flows, GitHub connections, uploads, API keys, and docs rendering.
-- **llms.txt** generation for machine-readable documentation.
-- **Project export** with sensitive authentication values redacted.
-- **Rate-limit hardening** with safer client keys.
-- **SSRF protection** for proxied docs/API playground requests, including internal/private address blocking and unsafe redirect blocking.
-- **Production deployment validation** for required env vars before rollout.
+- REST APIs for projects, pages, deployments, analytics, assistant flows, uploads, API keys, and docs rendering.
+- `llms.txt` generation for machine-readable documentation.
+- Project export with sensitive authentication values redacted.
+- Rate-limit hardening with safer client keys.
+- SSRF protections for proxied docs/API playground requests, including private-address and unsafe-redirect blocking.
+- Production validation for required settings before rollout.
 
 ---
 
@@ -103,7 +72,7 @@ git clone https://github.com/namuh-eng/opendocs.git
 cd opendocs
 npm install
 cp .env.example .env
-# Edit .env with database, AWS, auth, and app URL settings.
+# Edit .env with at least DATABASE_URL, BETTER_AUTH_SECRET, and app URLs.
 npm run db:push
 npm run dev
 ```
@@ -112,30 +81,11 @@ The local dev server runs on http://localhost:3015.
 
 ### Self-hosting
 
-For a full production self-hosting walkthrough — Docker build/run, the complete environment-variable reference, database migrations, reverse-proxy setup, and upgrades — see [`docs/self-hosting.md`](docs/self-hosting.md).
+OpenDocs runs anywhere that can run a Node/Next.js container and connect to PostgreSQL. For production guidance, environment variables, Docker deployment, database migrations, reverse proxy setup, health checks, and upgrades, see [`docs/self-hosting.md`](docs/self-hosting.md).
 
-### For humans
+---
 
-Use this README as the high-level product and operator guide:
-
-- Start with **What OpenDocs does** and **Features** to understand the product surface.
-- Use **Quick start** for local development and self-hosted evaluation.
-- Use **Environment variables** and **Docker and production deployment** when wiring real infrastructure.
-- Use **Contributing** for the standard fork, branch, validation, and pull request loop.
-- Keep product-facing behavior user-centered. If an integration is not configured yet, the app should show a clean unavailable/manual fallback state rather than exposing internal environment-variable instructions to end users.
-
-### For coding agents
-
-Use this repository like a production product codebase, not a throwaway clone:
-
-- Read `AGENTS.md` before editing; it contains the repo-specific operating rules.
-- Work from `staging` unless the issue explicitly requires another base. Do not push implementation commits directly to `main`.
-- Keep public commits limited to product code, docs, tests, and safe examples. Do not commit private QA artifacts, internal hardening-loop notes, cloned-reference evidence, secrets, or operational scratch files.
-- For UI and copy changes, prefer polished, customer-safe product states over implementation/provider-oriented messaging.
-- Validate code changes with `make check` and `make test` when feasible. For documentation-only changes, inspect the rendered Markdown/diff and run targeted checks only when the docs change touches executable examples or generated content.
-- Preserve existing tests. If behavior is wrong, fix the product code or docs instead of weakening test coverage.
-
-### Useful commands
+## Useful commands
 
 | Command | Description |
 | --- | --- |
@@ -152,161 +102,76 @@ Use this repository like a production product codebase, not a throwaway clone:
 
 ---
 
-## Environment variables
+## Configuration overview
 
-Copy `.env.example` to `.env` for local development. Production should provide these through the deployment environment or secrets manager. The complete per-feature reference (including what degrades when each optional var is unset) lives in [`docs/self-hosting.md`](docs/self-hosting.md).
+Copy `.env.example` to `.env` for local development. Production should provide values through the deployment platform or a secrets manager. The complete reference lives in [`docs/self-hosting.md`](docs/self-hosting.md).
 
 ### Required core settings
 
 ```bash
 DATABASE_URL=postgresql://user:password@host:5432/dbname
-DB_SSL=true                        # "true" for managed Postgres requiring TLS
+DB_SSL=true
 NEXT_PUBLIC_APP_URL=http://localhost:3015
 BETTER_AUTH_URL=http://localhost:3015
 BETTER_AUTH_SECRET=your-random-secret
 ```
 
-In production, `NEXT_PUBLIC_APP_URL` and `BETTER_AUTH_URL` must use the live origin, for example:
+In production, `NEXT_PUBLIC_APP_URL` and `BETTER_AUTH_URL` must be the public origin users visit, with the scheme included.
+
+### Required production allowlist
 
 ```bash
-NEXT_PUBLIC_APP_URL=https://opendocs.namuh.co
-BETTER_AUTH_URL=https://opendocs.namuh.co
+DOCS_PROXY_ALLOWED_HOSTS=docs.example.com,api.yourservice.com
 ```
 
-### Auth and integrations
+The docs/API-playground proxy fails closed in production unless every allowed target host is listed explicitly.
 
-```bash
-AUTH_GOOGLE_ID=your-google-oauth-client-id
-AUTH_GOOGLE_SECRET=your-google-oauth-client-secret
-GITHUB_WEBHOOK_SECRET=your-github-webhook-secret
-GITHUB_APP_ID=your-github-app-id
-GITHUB_APP_PRIVATE_KEY=your-github-app-private-key
-GITHUB_APP_SLUG=your-github-app-slug
-# Optional override if the default slug URL is not correct:
-GITHUB_APP_INSTALL_URL=https://github.com/apps/your-github-app-slug/installations/new
-```
+### Optional integrations
 
-Google OAuth must include this production redirect URI:
+OpenDocs boots without optional integrations and shows unavailable/manual states for features that are not configured.
 
-```text
-https://opendocs.namuh.co/api/auth/callback/google
-```
-
-The GitHub App must set its **Setup URL** to the deployed callback route so GitHub returns `installation_id` and `setup_action` after install/update:
-
-```text
-https://opendocs.namuh.co/api/github-connections/callback
-```
-
-For staging, use the staging origin with the same path.
-
-### Storage and AI
-
-```bash
-# Storage — native AWS S3 (credentials via the standard SDK chain)
-AWS_REGION=us-east-1
-S3_BUCKET=your-doc-assets-bucket
-# Or an S3-compatible endpoint such as Cloudflare R2:
-# S3_ENDPOINT=https://<account-id>.r2.cloudflarestorage.com
-# S3_REGION=auto
-# S3_ACCESS_KEY_ID=your-r2-access-key-id
-# S3_SECRET_ACCESS_KEY=your-r2-secret-access-key
-
-# AI assistant — OpenAI Chat Completions
-OPENAI_API_KEY=your-openai-api-key
-# Model override (default: gpt-4o-mini)
-ASSISTANT_MODEL_ID=
-# Optional OpenAI-compatible endpoint (Azure OpenAI, gateway, proxy)
-# OPENAI_BASE_URL=https://api.openai.com/v1
-```
-
-S3 credentials resolve through the standard AWS SDK chain, or use dedicated `S3_*` keys for an S3-compatible endpoint. The docs assistant requires `OPENAI_API_KEY`.
-
-### Billing (optional)
-
-Stripe billing is optional for local open-source development. Without Stripe
-configuration, the app keeps running with free/dev billing state; production
-paid-feature gates should be wired to fail closed until a valid subscription is
-synced.
-
-```bash
-STRIPE_SECRET_KEY=sk_test_your-stripe-secret-key
-STRIPE_WEBHOOK_SECRET=whsec_your-stripe-webhook-secret
-STRIPE_PRICE_ID=price_your-recurring-price-id
-# Optional multi-plan mappings for paid access decisions
-STRIPE_PRO_PRICE_ID=
-STRIPE_ENTERPRISE_PRICE_ID=
-```
-
-Stripe billing API routes are documented in [`docs/deployment/stripe-billing.md`](docs/deployment/stripe-billing.md), including local Stripe CLI webhook forwarding with:
-
-```bash
-stripe login
-stripe listen --forward-to localhost:3015/api/billing/stripe/webhook
-```
-
-### Observability (optional)
-
-Sentry and PostHog are wired but fully no-op when unconfigured — a default build makes zero outbound telemetry calls. `NEXT_PUBLIC_*` values are inlined at build time (for Docker, pass them as `--build-arg`).
-
-```bash
-SENTRY_DSN=
-SENTRY_ENVIRONMENT=
-SENTRY_RELEASE=
-SENTRY_TRACES_SAMPLE_RATE=
-POSTHOG_API_KEY=
-POSTHOG_HOST=
-NEXT_PUBLIC_SENTRY_DSN=
-NEXT_PUBLIC_POSTHOG_KEY=
-NEXT_PUBLIC_POSTHOG_HOST=
-```
-
-### Docs proxy allowlist
-
-Production docs/API playground proxying fails closed unless `DOCS_PROXY_ALLOWED_HOSTS` is configured.
-
-```bash
-DOCS_PROXY_ALLOWED_HOSTS=opendocs.namuh.co
-```
-
-Add only the public API hosts the docs playground should call, comma-separated:
-
-```bash
-DOCS_PROXY_ALLOWED_HOSTS=opendocs.namuh.co,api.yourservice.com
-```
+| Feature | Configure when needed |
+| --- | --- |
+| Google sign-in | `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET` |
+| GitHub import/sync | `GITHUB_APP_ID`, `GITHUB_APP_PRIVATE_KEY`, `GITHUB_APP_SLUG`, `GITHUB_WEBHOOK_SECRET` |
+| File/image uploads | S3-compatible bucket settings |
+| AI assistant/search | `OPENAI_API_KEY` or an OpenAI-compatible endpoint |
+| Billing | Stripe secret, webhook secret, and price IDs |
+| Observability | Sentry/PostHog server and client keys |
 
 ---
 
-## Docker and production deployment
+## Docker deployment overview
 
-OpenDocs builds as a standalone Next.js container. The current production path is AWS ECR + ECS Fargate + ALB.
-
-The Docker build accepts production URL build args:
+OpenDocs builds as a standalone Next.js container. Build-time public URL values are inlined into the client bundle, so pass them during the Docker build:
 
 ```bash
 docker build \
-  --platform linux/amd64 \
-  --build-arg NEXT_PUBLIC_APP_URL=https://opendocs.namuh.co \
-  --build-arg BETTER_AUTH_URL=https://opendocs.namuh.co \
+  --build-arg NEXT_PUBLIC_APP_URL=https://docs.example.com \
+  --build-arg BETTER_AUTH_URL=https://docs.example.com \
   -t opendocs:local .
 ```
 
-The container listens on port 3000 internally. Run database migrations (`npm run db:migrate`) against the same `DATABASE_URL` before first boot, then:
+Run database migrations against the same `DATABASE_URL` before first boot:
+
+```bash
+npm run db:migrate
+```
+
+Then run the container behind your reverse proxy or load balancer:
 
 ```bash
 docker run -d -p 3015:3000 \
-  -e DATABASE_URL=... \
-  -e BETTER_AUTH_SECRET=... \
-  -e BETTER_AUTH_URL=https://your-domain.com \
-  -e NEXT_PUBLIC_APP_URL=https://your-domain.com \
-  -e DOCS_PROXY_ALLOWED_HOSTS=your-domain.com \
+  -e DATABASE_URL=postgresql://user:password@host:5432/opendocs \
+  -e DB_SSL=true \
+  -e BETTER_AUTH_SECRET=your-random-secret \
+  -e BETTER_AUTH_URL=https://docs.example.com \
+  -e NEXT_PUBLIC_APP_URL=https://docs.example.com \
+  -e DOCS_PROXY_ALLOWED_HOSTS=docs.example.com \
   opendocs:local
 ```
 
-For deployment guides, see:
-
-- [`docs/self-hosting.md`](docs/self-hosting.md) — general self-hosting guide (Docker, env reference, migrations, upgrades)
-- [`docs/deployment/opendocs-production.md`](docs/deployment/opendocs-production.md) — internal AWS production runbook for opendocs.namuh.co
+For the full production checklist, see [`docs/self-hosting.md`](docs/self-hosting.md).
 
 ---
 
@@ -319,14 +184,14 @@ For deployment guides, see:
 | Editor | Tiptap / ProseMirror, MDX |
 | Database | PostgreSQL, Drizzle ORM |
 | Authentication | Better Auth, Google OAuth |
-| AI | OpenAI |
-| Storage | AWS S3 |
+| AI | OpenAI-compatible chat completions |
+| Storage | S3-compatible object storage |
 | API docs | OpenAPI / AsyncAPI rendering and playground support |
 | Math | KaTeX |
 | Diagrams | Mermaid |
 | Testing | Vitest, Playwright |
 | Linting | Biome |
-| Deployment | Docker, AWS ECR, ECS Fargate, ALB, ACM |
+| Deployment | Standalone Next.js server or Docker container |
 
 ---
 
@@ -343,7 +208,7 @@ opendocs/
 │   │   ├── docs/         # Published docs renderer
 │   │   ├── editor/       # Docs editor
 │   │   ├── onboarding/   # Organization/project onboarding
-│   │   ├── products/     # Agent, Assistant, Workflows, MCP pages
+│   │   ├── products/     # Product pages
 │   │   └── settings/     # Workspace, org, project, deployment, and security settings
 │   ├── components/       # React components
 │   ├── lib/              # Utilities, services, auth, DB, deployment, security helpers
@@ -359,8 +224,6 @@ opendocs/
 
 ## Security notes
 
-Recent hardening added or verified:
-
 - Production GitHub webhooks fail closed when the webhook secret/signature is missing or invalid.
 - Docs proxy blocks private/internal/metadata targets, blocks unsafe redirects, and requires an explicit production host allowlist.
 - Docs password auth stores new hashes with `scrypt:v1` and keeps legacy SHA-256/plaintext compatibility for existing settings.
@@ -368,7 +231,6 @@ Recent hardening added or verified:
 - Public docs APIs redact sensitive authentication settings.
 - API playground attribute rendering is escaped.
 - Security headers are covered by regression tests.
-- Tracked sensitive-path scans currently hit only `.env.example`, tests, or example placeholders, not real secrets.
 
 ---
 
